@@ -1,0 +1,119 @@
+{
+	"pads": [
+		{
+			"id": "PAD_LEARN_07_HILL_0000",
+			"pos": [
+				0.0,
+				10,
+				0.0
+			],
+			"dir": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"up": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_LEARN_07_HILL_0001",
+			"pos": [
+				0.0,
+				10,
+				1500.0
+			],
+			"dir": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"up": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 2
+		}
+	],
+	"waypoints": [
+		{
+			"id": "WAYPOINT_LEARN_07_HILL_0000",
+			"pad": "PAD_LEARN_07_HILL_0000",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_LEARN_07_HILL_0001",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_LEARN_07_HILL_0001"
+		},
+		{
+			"id": "WAYPOINT_LEARN_07_HILL_0001",
+			"pad": "PAD_LEARN_07_HILL_0001",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_LEARN_07_HILL_0000",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_LEARN_07_HILL_0002"
+		}
+	],
+	"waygroups": [
+		{
+			"id": "WAYGROUP_LEARN_07_HILL_0001",
+			"neighbours": [
+				{
+					"waygroup": "WAYGROUP_LEARN_07_HILL_0002",
+					"flag4000": false,
+					"flag8000": false
+				}
+			]
+		},
+		{
+			"id": "WAYGROUP_LEARN_07_HILL_0002",
+			"neighbours": [
+				{
+					"waygroup": "WAYGROUP_LEARN_07_HILL_0001",
+					"flag4000": false,
+					"flag8000": false
+				}
+			]
+		}
+	],
+	"cover": []
+}

@@ -1851,7 +1851,7 @@ struct prop *botFindPickup(struct chrdata *chr, s32 criteria)
 	// The amount increases if there are opponents in the hill too.
 	if (aibot->teamisonlyai
 			&& g_MpSetup.scenario == MPSCENARIO_KINGOFTHEHILL
-			&& chr->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+			&& kohPropInHill(chr->prop)) {
 		numteam = botGetNumTeammatesDefendingHill(chr);
 		numopponents = botGetNumOpponentsInHill(chr);
 
@@ -2332,7 +2332,7 @@ s32 botGetNumTeammatesDefendingHill(struct chrdata *bot)
 
 	for (i = 0; i < g_MpNumChrs; i++) {
 		if (bot->team == g_MpAllChrPtrs[i]->team
-				&& g_MpAllChrPtrs[i]->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+				&& kohPropInHill(g_MpAllChrPtrs[i]->prop)) {
 			if (g_MpAllChrPtrs[i]->aibot->command == AIBOTCMD_DEFHILL
 					|| g_MpAllChrPtrs[i]->aibot->command == AIBOTCMD_HOLDHILL) {
 				count++;
@@ -2358,7 +2358,7 @@ s32 botGetNumOpponentsInHill(struct chrdata *chr)
 	s32 i;
 
 	for (i = 0; i < g_MpNumChrs; i++) {
-		if (g_MpAllChrPtrs[i]->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+		if (kohPropInHill(g_MpAllChrPtrs[i]->prop)) {
 			s32 mpindex = func0f18d074(i);
 
 			loopmpchr = MPCHR(mpindex);
@@ -2564,7 +2564,7 @@ void botTickUnpaused(struct chrdata *chr)
 					s32 numinhill = botGetNumTeammatesDefendingHill(chr);
 
 					// Don't count ourselves
-					if (chr->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+					if (kohPropInHill(chr->prop)) {
 						numinhill--;
 					}
 
@@ -2796,7 +2796,7 @@ void botTickUnpaused(struct chrdata *chr)
 				} else if (aibot->command == AIBOTCMD_DEFHILL) {
 					// King of the hill - defend the hill (allow wandering out)
 					if (g_MpSetup.scenario == MPSCENARIO_KINGOFTHEHILL) {
-						if (chr->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]
+						if (kohPropInHill(chr->prop)
 								&& chr->target != -1
 								&& aibot->targetinsight
 								&& botPassesCowardCheck(chr, chrGetTargetProp(chr)->chr)) {
@@ -2818,7 +2818,7 @@ void botTickUnpaused(struct chrdata *chr)
 								aibot->gotopos.y = posinhill.y;
 								aibot->gotopos.z = posinhill.z;
 								roomsCopy(g_ScenarioData.koh.hillrooms, aibot->gotorooms);
-								aibot->inhill = (chr->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) != 0;
+								aibot->inhill = kohPropInHill(chr->prop) != 0;
 								aibot->hillpadnum = padnuminhill;
 								aibot->hillcovernum = covernuminhill;
 								aibot->lastknownhill = g_ScenarioData.koh.hillrooms[0];
@@ -2840,7 +2840,7 @@ void botTickUnpaused(struct chrdata *chr)
 							aibot->gotopos.y = posinhill.y;
 							aibot->gotopos.z = posinhill.z;
 							roomsCopy(g_ScenarioData.koh.hillrooms, aibot->gotorooms);
-							aibot->inhill = (chr->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) != 0;
+							aibot->inhill = kohPropInHill(chr->prop) != 0;
 							aibot->hillpadnum = padnuminhill;
 							aibot->hillcovernum = covernuminhill;
 							aibot->lastknownhill = g_ScenarioData.koh.hillrooms[0];
@@ -3284,7 +3284,7 @@ void botTickUnpaused(struct chrdata *chr)
 				if (aibot->lastknownhill != g_ScenarioData.koh.hillrooms[0]) {
 					// Someone scored the hill
 					aibot->inhill = false;
-				} else if (chr->prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+				} else if (kohPropInHill(chr->prop)) {
 					// empty
 				} else if (aibot->hillpadnum >= 0) {
 					padSetFlag(aibot->hillpadnum, PADFLAG_AIBOTINUSE);

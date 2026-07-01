@@ -184,6 +184,34 @@ void kohInit(void)
 	}
 }
 
+bool kohPropInHill(struct prop *prop)
+{
+	f32 dx;
+	f32 dz;
+
+	if (prop == NULL || g_ScenarioData.koh.hillindex == -1) {
+		return false;
+	}
+
+	// pdmap box arenas keep players in seg room 1; hill pads/tiles use room 2.
+	if (STAGE_IS_PDMAP_BOX_ARENA(g_Vars.stagenum)) {
+		dx = prop->pos.x - g_ScenarioData.koh.hillpos.x;
+		dz = prop->pos.z - g_ScenarioData.koh.hillpos.z;
+
+		if (dx < 0.0f) {
+			dx = -dx;
+		}
+
+		if (dz < 0.0f) {
+			dz = -dz;
+		}
+
+		return dx <= PDMAP_KOTH_HILL_HALF && dz <= PDMAP_KOTH_HILL_HALF;
+	}
+
+	return prop->rooms[0] == g_ScenarioData.koh.hillrooms[0];
+}
+
 void kohInitProps(void)
 {
 	s16 pad_id = 0;
@@ -192,10 +220,12 @@ void kohInitProps(void)
 	if (g_ScenarioData.koh.hillcount > 1) {
 		g_ScenarioData.koh.hillindex = rngRandom() % g_ScenarioData.koh.hillcount;
 		pad_id = g_ScenarioData.koh.hillpads[g_ScenarioData.koh.hillindex];
-	} else {
-		// @bug: If a stage setup file only has one hill, pad_id is not assigned
-		// so it will always use the room that contains pad zero.
+	} else if (g_ScenarioData.koh.hillcount == 1) {
 		g_ScenarioData.koh.hillindex = 0;
+		pad_id = g_ScenarioData.koh.hillpads[0];
+	} else {
+		g_ScenarioData.koh.hillindex = -1;
+		return;
 	}
 
 	padUnpack(pad_id, PADFIELD_POS | PADFIELD_ROOM, &pad);
@@ -284,6 +314,9 @@ void kohTick(void)
 				} while (g_ScenarioData.koh.hillindex == previndex);
 
 				padnum = g_ScenarioData.koh.hillpads[g_ScenarioData.koh.hillindex];
+			} else if (g_ScenarioData.koh.hillcount == 1) {
+				g_ScenarioData.koh.hillindex = 0;
+				padnum = g_ScenarioData.koh.hillpads[0];
 			} else {
 				g_ScenarioData.koh.hillindex = 0;
 			}
@@ -315,7 +348,7 @@ void kohTick(void)
 			if (prop->type == PROPTYPE_PLAYER || prop->type == PROPTYPE_CHR) {
 				inhill = false;
 
-				if (prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+				if (kohPropInHill(prop)) {
 					inhill = true;
 				}
 
@@ -468,7 +501,7 @@ void kohTick(void)
 							if (radarGetTeamIndex(g_MpAllChrPtrs[playernum2]->team) == g_ScenarioData.koh.occupiedteam) {
 								prop = g_MpAllChrPtrs[playernum2]->prop;
 
-								if (prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+								if (kohPropInHill(prop)) {
 									g_MpAllChrConfigPtrs[playernum2]->numpoints++;
 								}
 							}
