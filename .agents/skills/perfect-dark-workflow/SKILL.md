@@ -25,7 +25,7 @@ description: Essential commands, build steps, and coordinate system rules for mo
 
 ## 4. Testing and Running
 - **Command Line**: `./build/pd.arm64 --test-map --moddir mods/mod_allinone`
-- **Map Editor**: `Perfect Dark Kit — Map Editor.app` → Test / Play (T) — build via `./scripts/build-pd-kit.sh` or `./scripts/pd-kit.sh open map-editor`
+- **Map Editor**: `Perfect Dark Kit.app` → open Map Editor, or `./scripts/pd-kit.sh open map-editor`
 - **Editor backend**: `python3 journal/uff_viewer/test_map.py map.json --level uff --seg --deploy --play`
 
 ## 5. C Code Guidelines (N64 Engine)

@@ -54,6 +54,7 @@ PD_PORT_VERSION="$(read_port_version)"
 PD_KIT_APP_MAP_EDITOR="$(kit_json_field apps.mapEditor.bundleFileName)"
 PD_KIT_APP_ANIM_LAB="$(kit_json_field apps.animLab.bundleFileName)"
 PD_KIT_APP_ASSET_UPGRADER="$(kit_json_field apps.assetUpgrader.bundleFileName)"
+PD_KIT_APP_HUB="$(kit_json_field apps.kitHub.bundleFileName)"
 
 PD_KIT_SUPPORT_ROOT="${HOME}/Library/Application Support/PerfectDarkKit"
 PD_KIT_LOGS_ROOT="${HOME}/Library/Logs/PerfectDarkKit"
@@ -76,12 +77,22 @@ apps = {}
 for key, cfg in manifest.get("apps", {}).items():
     bundle = cfg.get("bundleFileName", "")
     app_path = release / bundle
-    apps[key] = {
+    entry = {
         "productName": cfg.get("productName"),
         "bundleFileName": bundle,
         "built": app_path.is_dir(),
         "path": str(app_path),
     }
+    if key == "kitHub" and app_path.is_dir():
+        wrapped_root = app_path / "Contents" / "Resources" / "Apps"
+        wrapped = {}
+        for child_key, child_cfg in manifest.get("apps", {}).items():
+            if child_key == "kitHub":
+                continue
+            child_bundle = child_cfg.get("bundleFileName", "")
+            wrapped[child_key] = (wrapped_root / child_bundle).is_dir()
+        entry["wrappedApps"] = wrapped
+    apps[key] = entry
 
 payload = {
     "name": manifest.get("name", "Perfect Dark Kit"),

@@ -3,6 +3,15 @@
   "supportDirName": "PerfectDarkKit",
   "logsDirName": "PerfectDarkKit",
   "apps": {
+    "kitHub": {
+      "id": "kit-hub",
+      "productName": "Perfect Dark Kit",
+      "bundleFileName": "Perfect Dark Kit.app",
+      "logFile": "kit-hub.log",
+      "legacySupportDir": null,
+      "legacyLogFile": null,
+      "wraps": ["mapEditor", "animLab", "assetUpgrader"]
+    },
     "mapEditor": {
       "id": "map-editor",
       "productName": "Perfect Dark Kit — Map Editor",

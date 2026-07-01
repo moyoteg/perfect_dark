@@ -46,6 +46,11 @@ function loadManifest() {
     supportDirName: 'PerfectDarkKit',
     logsDirName: 'PerfectDarkKit',
     apps: {
+      kitHub: {
+        id: 'kit-hub',
+        productName: 'Perfect Dark Kit',
+        logFile: 'kit-hub.log',
+      },
       mapEditor: {
         id: 'map-editor',
         productName: 'Perfect Dark Kit — Map Editor',

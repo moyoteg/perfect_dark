@@ -4,7 +4,7 @@
 # Usage:
 #   ./scripts/pd-kit.sh version
 #   ./scripts/pd-kit.sh build [--game-only|--apps-only]
-#   ./scripts/pd-kit.sh open map-editor|anim-lab|asset-upgrader
+#   ./scripts/pd-kit.sh open [kit|map-editor|anim-lab|asset-upgrader]
 #   ./scripts/pd-kit.sh validate [level ...]
 #   ./scripts/pd-kit.sh play [--test-map] [--mod mod_allinone]
 
@@ -24,12 +24,13 @@ ${PD_KIT_NAME} v${PD_KIT_VERSION} (port v${PD_PORT_VERSION})
 Usage:
   pd-kit.sh version
   pd-kit.sh build [--game-only|--apps-only|--no-symlink|--skip-game]
-  pd-kit.sh open map-editor|anim-lab|asset-upgrader
+  pd-kit.sh open [kit|map-editor|anim-lab|asset-upgrader]
   pd-kit.sh validate [level ...]
   pd-kit.sh play [--test-map] [--mod MOD]
 
 Examples:
   ./scripts/pd-kit.sh build
+  ./scripts/pd-kit.sh open
   ./scripts/pd-kit.sh open map-editor
   ./scripts/pd-kit.sh validate my_arena testarena
   ./scripts/pd-kit.sh play --test-map --mod mod_allinone
@@ -47,8 +48,11 @@ build)
 	exec "$SCRIPT_DIR/build-pd-kit.sh" "$@"
 	;;
 open)
-	app="${1:-}"
+	app="${1:-kit}"
 	case "$app" in
+	kit | hub | "")
+		kit_open_app "$PD_KIT_APP_HUB"
+		;;
 	map-editor | editor)
 		kit_open_app "$PD_KIT_APP_MAP_EDITOR"
 		;;
