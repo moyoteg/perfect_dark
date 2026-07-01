@@ -177,4 +177,18 @@ module.exports = {
   kitLogFile,
   kitSupportDir,
   resolveKitStateDir,
+  requireKitModule,
 };
+
+function requireKitModule(moduleName) {
+  const candidates = [
+    path.join(__dirname, moduleName),
+    path.join(process.resourcesPath || '', 'pd_kit', moduleName),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return require(candidate);
+    }
+  }
+  throw new Error(`Perfect Dark Kit module not found: ${moduleName}`);
+}

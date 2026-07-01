@@ -108,30 +108,9 @@ PY
 }
 
 prepare_icon() {
+	"$SCRIPT_DIR/pd-kit-icons.sh" map-editor
 	mkdir -p "$ELECTRON_DIR/build"
-	local icon_src="$BUILD_DIR/EditorAppIcon.icns"
-	if [[ ! -f "$icon_src" ]]; then
-		# Reuse shell-app icon generator when missing.
-		if [[ -f "$SCRIPT_DIR/generate-map-editor-icon.swift" ]]; then
-			mkdir -p "$BUILD_DIR"
-			local png="$BUILD_DIR/map-editor-1024.png"
-			if [[ ! -f "$png" ]]; then
-				swift "$SCRIPT_DIR/generate-map-editor-icon.swift" "$png"
-			fi
-			local iconset="$BUILD_DIR/EditorAppIcon.iconset"
-			rm -rf "$iconset"
-			mkdir -p "$iconset"
-			local size
-			for size in 16 32 128 256 512; do
-				sips -z "$size" "$size" "$png" --out "$iconset/icon_${size}x${size}.png" >/dev/null
-				sips -z "$((size * 2))" "$((size * 2))" "$png" --out "$iconset/icon_${size}x${size}@2x.png" >/dev/null
-			done
-			iconutil -c icns "$iconset" -o "$icon_src"
-		fi
-	fi
-	if [[ -f "$icon_src" ]]; then
-		cp "$icon_src" "$ELECTRON_DIR/build/icon.icns"
-	fi
+	cp "$BUILD_DIR/MapEditorAppIcon.icns" "$ELECTRON_DIR/build/icon.icns"
 }
 
 install_built_app() {

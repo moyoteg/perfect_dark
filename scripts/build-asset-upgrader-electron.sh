@@ -19,6 +19,7 @@ VENV="$ROOT/.venv-asset-upgrader"
 RELEASE_DIR="$PD_KIT_RELEASE_DIR"
 APP_NAME="${PD_KIT_APP_ASSET_UPGRADER%.app}"
 APP_BUNDLE="$RELEASE_DIR/${APP_NAME}.app"
+BUILD_DIR="$ROOT/.tmp-map-editor-app-build"
 SYMLINK_AT_ROOT=1
 
 while [[ $# -gt 0 ]]; do
@@ -44,6 +45,12 @@ done
 
 MODE="${MODE:-build}"
 
+prepare_icon() {
+	"$SCRIPT_DIR/pd-kit-icons.sh" asset-upgrader
+	mkdir -p "$ELECTRON_DIR/build"
+	cp "$BUILD_DIR/AssetUpgraderAppIcon.icns" "$ELECTRON_DIR/build/icon.icns"
+}
+
 echo "==> Ensuring Python venv for asset upgrader"
 if [[ ! -x "$VENV/bin/python3" ]]; then
 	python3 -m venv "$VENV"
@@ -61,6 +68,7 @@ cfg_path.write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
 PY
 
 echo "==> Installing Electron dependencies"
+prepare_icon
 (cd "$ELECTRON_DIR" && npm install)
 
 install_built_app() {

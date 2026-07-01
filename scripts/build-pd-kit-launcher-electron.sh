@@ -57,11 +57,9 @@ write_repo_config() {
 }
 
 prepare_icon() {
+	"$SCRIPT_DIR/pd-kit-icons.sh" kit-hub
 	mkdir -p "$ELECTRON_DIR/build"
-	local icon_src="$BUILD_DIR/EditorAppIcon.icns"
-	if [[ -f "$icon_src" ]]; then
-		cp "$icon_src" "$ELECTRON_DIR/build/icon.icns"
-	fi
+	cp "$BUILD_DIR/KitHubAppIcon.icns" "$ELECTRON_DIR/build/icon.icns"
 }
 
 install_built_app() {

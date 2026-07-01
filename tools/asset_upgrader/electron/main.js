@@ -24,6 +24,7 @@ function requireKitPaths() {
 }
 
 const kitPaths = requireKitPaths();
+const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instance.js');
 
 const APP_TITLE = kitPaths.appConfig('assetUpgrader').productName;
 const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'assetUpgrader');
@@ -221,6 +222,20 @@ function createWindow() {
     },
   });
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+}
+
+function focusMainWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    return;
+  }
+  createWindow();
+}
+
+if (!bindSingleInstance(app, focusMainWindow)) {
+  process.exit(0);
 }
 
 function registerIpc() {

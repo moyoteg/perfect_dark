@@ -76,14 +76,9 @@ prepare_lab_bundle() {
 }
 
 prepare_icon() {
+	"$SCRIPT_DIR/pd-kit-icons.sh" anim-lab
 	mkdir -p "$ELECTRON_DIR/build"
-	local icon_src="$BUILD_DIR/LlmPlayAppIcon.icns"
-	if [[ ! -f "$icon_src" && -f "$BUILD_DIR/EditorAppIcon.icns" ]]; then
-		icon_src="$BUILD_DIR/EditorAppIcon.icns"
-	fi
-	if [[ -f "$icon_src" ]]; then
-		cp "$icon_src" "$ELECTRON_DIR/build/icon.icns"
-	fi
+	cp "$BUILD_DIR/AnimLabAppIcon.icns" "$ELECTRON_DIR/build/icon.icns"
 }
 
 install_built_app() {

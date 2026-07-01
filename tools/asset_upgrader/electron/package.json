@@ -31,13 +31,18 @@
       {
         "from": "../../../tools/pd_kit",
         "to": "pd_kit",
-        "filter": ["kit.json", "electron_paths.js"]
+        "filter": ["kit.json", "electron_paths.js", "electron_single_instance.js"]
       }
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [{ "target": "dir", "arch": ["arm64", "x64"] }],
-      "identity": null
+      "icon": "build/icon.icns",
+      "identity": null,
+      "extendInfo": {
+        "CFBundleDisplayName": "Perfect Dark Kit — Asset Upgrader",
+        "LSMultipleInstancesProhibited": true
+      }
     },
     "asar": true
   }
