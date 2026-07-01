@@ -362,6 +362,234 @@ def hill_zone_center_from_mapdef(mapdef: MapDef) -> tuple[float, float] | None:
     return None
 
 
+# CTF delivery / case pads — visible floor markers (ring + team-coloured square).
+CTF_ZONE_HALF = 400.0
+CTF_RING_WIDTH = 80.0
+CTF_RING_COLOUR = HILL_RING_COLOUR
+# 12-bit floorcolour (RRRR GGGG BBBB) aligned with g_TeamColours RGB ordering.
+CTF_TEAM_FLOOR_COLOUR = (0xF00, 0xFF0, 0x00F, 0xF0F)
+# Seg floor RGBA8: arena grey, dark ring, then per-team zone tints.
+CTF_SEG_ARENA_RGBA = HILL_SEG_ARENA_RGBA
+CTF_SEG_RING_RGBA = HILL_SEG_RING_RGBA
+CTF_TEAM_SEG_RGBA = (
+    0xFF4040FF,  # team 0 red — delivery zone
+    0xFFFF40FF,  # team 1 yellow
+    0x4040FFFF,  # team 2 blue
+    0xFF40FFFF,  # team 3 magenta
+)
+# Muted tint for Case (briefcase spawn) pads when both are marked.
+CTF_CASE_SEG_RGBA = (
+    0x804040FF,
+    0x808040FF,
+    0x404080FF,
+    0x804080FF,
+)
+
+
+def ctf_team_floor_colour(team: int) -> int:
+    """Tile floorcolour for a CTF team index (0–3)."""
+    return CTF_TEAM_FLOOR_COLOUR[team % len(CTF_TEAM_FLOOR_COLOUR)]
+
+
+def ctf_zones_from_mapdef(mapdef: MapDef) -> list[tuple[float, float, int, bool]]:
+    """Return CTF marker zones as (center_x, center_z, team, is_respawn).
+
+    ``is_respawn`` is True for CaseRespawn pads (delivery / score zone).
+    """
+    zones: list[tuple[float, float, int, bool]] = []
+    for cmd in mapdef.intro:
+        if isinstance(cmd, Case):
+            pad = mapdef.pads[cmd.pad]
+            zones.append((pad.x, pad.z, cmd.team, False))
+        elif isinstance(cmd, CaseRespawn):
+            pad = mapdef.pads[cmd.pad]
+            zones.append((pad.x, pad.z, cmd.team, True))
+    return zones
+
+
+def _subtract_rect_from_quad(
+    xmin: float,
+    zmin: float,
+    xmax: float,
+    zmax: float,
+    hx0: float,
+    hz0: float,
+    hx1: float,
+    hz1: float,
+    *,
+    y: float,
+    floorcolour: int,
+) -> list[dict]:
+    """Axis-aligned quad minus a rectangular hole (non-overlapping pieces)."""
+    if hx1 <= xmin or hx0 >= xmax or hz1 <= zmin or hz0 >= zmax:
+        return [tile_quad(xmin, zmin, xmax, zmax, y=y, floorcolour=floorcolour)]
+    pieces: list[dict] = []
+    if hz0 > zmin:
+        pieces.append(tile_quad(xmin, zmin, xmax, hz0, y=y, floorcolour=floorcolour))
+    if hz1 < zmax:
+        pieces.append(tile_quad(xmin, hz1, xmax, zmax, y=y, floorcolour=floorcolour))
+    pieces.append(
+        tile_quad(xmin, max(hz0, zmin), min(hx0, xmax), min(hz1, zmax), y=y, floorcolour=floorcolour)
+    )
+    pieces.append(
+        tile_quad(max(hx1, xmin), max(hz0, zmin), xmax, min(hz1, zmax), y=y, floorcolour=floorcolour)
+    )
+    out: list[dict] = []
+    for piece in pieces:
+        vs = piece["vertices"]
+        if vs[2]["x"] > vs[0]["x"] and vs[1]["z"] > vs[0]["z"]:
+            out.append(piece)
+    return out
+
+
+def _floor_tiles_minus_zones(
+    half: float,
+    y: float,
+    cuts: list[tuple[float, float, float]],
+    *,
+    floorcolour: int = 4095,
+) -> list[dict]:
+    """Full box floor with square holes removed for each (cx, cz, cut_half)."""
+    h = int(half)
+    tiles = [tile_quad(-h, -h, h, h, y=y, floorcolour=floorcolour)]
+    for cx, cz, cut_half in cuts:
+        co = int(cut_half)
+        hx0, hx1 = int(cx - co), int(cx + co)
+        hz0, hz1 = int(cz - co), int(cz + co)
+        new_tiles: list[dict] = []
+        for tile in tiles:
+            vs = tile["vertices"]
+            new_tiles.extend(
+                _subtract_rect_from_quad(
+                    vs[0]["x"],
+                    vs[0]["z"],
+                    vs[2]["x"],
+                    vs[2]["z"],
+                    hx0,
+                    hz0,
+                    hx1,
+                    hz1,
+                    y=y,
+                    floorcolour=floorcolour,
+                )
+            )
+        tiles = new_tiles
+    return tiles
+
+
+def floor_box_with_ctf_zones(
+    name: str,
+    *,
+    half: float,
+    y: float = 0.0,
+    zones: list[tuple[float, float, int, bool]],
+    zone_half: float = CTF_ZONE_HALF,
+    ring_width: float = CTF_RING_WIDTH,
+    arena_room_index: int = 1,
+    arena_colour: int = 4095,
+    ring_colour: int = CTF_RING_COLOUR,
+) -> dict:
+    """Box arena with marked CTF pads: dark ring + team-coloured square per zone.
+
+    Each zone entry is ``(center_x, center_z, team, is_respawn)``. CaseRespawn
+    pads use full team ``floorcolour``; Case pads use the same hue at lower seg
+    opacity (see ``ctf_zone_all_floor_faces``). Room 1 carries all collision quads.
+    """
+    cut_outer = zone_half + ring_width
+    cuts = [(cx, cz, cut_outer) for cx, cz, _, _ in zones]
+    arena_tiles = _floor_tiles_minus_zones(half, y, cuts, floorcolour=arena_colour)
+    for cx, cz, team, is_respawn in zones:
+        arena_tiles.extend(
+            hill_ring_tiles(cx, cz, zone_half, ring_width, y=y, floorcolour=ring_colour)
+        )
+        zone_colour = ctf_team_floor_colour(team)
+        arena_tiles.append(
+            tile_quad(
+                cx - zone_half,
+                cz - zone_half,
+                cx + zone_half,
+                cz + zone_half,
+                y=y,
+                floorcolour=zone_colour,
+                floortype="carpet" if is_respawn else "default",
+            )
+        )
+        # Collision under the coloured seg marker (same pattern as KOTH hill quad).
+        arena_tiles.append(
+            tile_quad(
+                cx - zone_half,
+                cz - zone_half,
+                cx + zone_half,
+                cz + zone_half,
+                y=y,
+                floorcolour=arena_colour,
+            )
+        )
+    prefix = name.upper()
+    return {
+        "rooms": {
+            f"ROOM_{prefix}_0000": [],
+            f"ROOM_{prefix}_{arena_room_index:04d}": arena_tiles,
+        }
+    }
+
+
+def ctf_zone_all_floor_faces(
+    half: float,
+    zones: list[tuple[float, float, int, bool]],
+    *,
+    zone_half: float = CTF_ZONE_HALF,
+    ring_width: float = CTF_RING_WIDTH,
+    y: float = 0.0,
+) -> list[tuple]:
+    """All CTF floor quads for seg room 1 (arena shell, rings, team squares).
+
+    Returns faces as ``((x0,y,z0), (x1,y,z0), (x1,y,z1), (x0,y,z1), colour_index)``.
+    Colour indices: 0=arena, 1=ring, 2+ = one per zone (respawn bright, case muted).
+    """
+    yi = int(y)
+    cut_outer = zone_half + ring_width
+    cuts = [(cx, cz, cut_outer) for cx, cz, _, _ in zones]
+    arena_tiles = _floor_tiles_minus_zones(half, y, cuts, floorcolour=4095)
+
+    def _tile_to_face(tile: dict, colour_index: int) -> tuple:
+        vs = tile["vertices"]
+        return (
+            (vs[0]["x"], yi, vs[0]["z"]),
+            (vs[3]["x"], yi, vs[3]["z"]),
+            (vs[2]["x"], yi, vs[2]["z"]),
+            (vs[1]["x"], yi, vs[1]["z"]),
+            colour_index,
+        )
+
+    faces = [_tile_to_face(t, 0) for t in arena_tiles]
+    zone_colour_idx = 2
+    for cx, cz, _team, _is_respawn in zones:
+        for ring_tile in hill_ring_tiles(
+            cx, cz, zone_half, ring_width, y=y, floorcolour=4095
+        ):
+            faces.append(_tile_to_face(ring_tile, 1))
+        zone_tile = tile_quad(
+            cx - zone_half,
+            cz - zone_half,
+            cx + zone_half,
+            cz + zone_half,
+            y=y,
+        )
+        faces.append(_tile_to_face(zone_tile, zone_colour_idx))
+        zone_colour_idx += 1
+    return faces
+
+
+def ctf_zone_face_colours(zones: list[tuple[float, float, int, bool]]) -> list[int]:
+    """Seg colour table for ``ctf_zone_all_floor_faces`` (arena, ring, per-zone)."""
+    colours = [CTF_SEG_ARENA_RGBA, CTF_SEG_RING_RGBA]
+    for _, _, team, is_respawn in zones:
+        palette = CTF_TEAM_SEG_RGBA if is_respawn else CTF_CASE_SEG_RGBA
+        colours.append(palette[team % len(palette)])
+    return colours
+
+
 # Pads must sit slightly ABOVE the floor. The engine's ground search
 # (cdFindGroundFromList) only accepts a floor whose Y is strictly less than the
 # search cylinder's Y (`ground < pos.y`). If a spawn pad is exactly on the floor
@@ -426,7 +654,7 @@ def configure_matrix_test_room(half: float = 5000.0, pad_y: float = PAD_FLOOR_OF
 def configure_animation_lab(*, half: float = 5000.0, pad_y: float = PAD_FLOOR_OFFSET) -> MapDef:
     """Animation parade arena — player south, twelve guards on a north line.
 
-    Deploy with ``DEPLOY_AS = \"uff\"`` so ``--test-map`` loads this geometry and
+    Deploy with ``pdmap build animlab --deploy``; boot via ``--test-animlab`` (``STAGE_ANIMLAB``).
     the parade setup (``MapDef.anim_parade = True``).
     """
     from .anim_parade import NUM_SLOTS, PAD_PARADE_FIRST
@@ -438,13 +666,14 @@ def configure_animation_lab(*, half: float = 5000.0, pad_y: float = PAD_FLOOR_OF
     g.add_pad(index=0, x=0.0, y=pad_y, z=-2500.0, room=1)
     g.add_intro(Spawn(0))
 
-    # Pads 1..12: guard line at z=+2800, spaced 600 units on X.
-    span = 600.0 * (NUM_SLOTS - 1)
+    # Pads 1..N: guard line at z=+2800; spacing fits inside ±5000 box.
+    span = min(9000.0, max(480.0 * (NUM_SLOTS - 1), 600.0))
+    spacing = span / max(NUM_SLOTS - 1, 1)
     x0 = -span / 2.0
     for slot in range(NUM_SLOTS):
         g.add_pad(
             index=PAD_PARADE_FIRST + slot,
-            x=x0 + slot * 600.0,
+            x=x0 + slot * spacing,
             y=pad_y,
             z=2800.0,
             room=1,
