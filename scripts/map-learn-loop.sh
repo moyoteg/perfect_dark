@@ -5,12 +5,12 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 PIDFILE="$REPO/journal/map_learn/.learn-loop.pid"
 INTERVAL="${MAP_LEARN_INTERVAL_SEC:-120}"
-PROMPT='Map learn loop: run pdmap learn run; read journal/map_learn/gaps.md; implement next probe or close doc gaps; target deterministic map creation with near-perfect docs.'
+PROMPT='Run pdmap learn iteration: probe codebase, merge facts, update gaps.md and MAP_DETERMINISTIC_SPEC.md, fix probes if doc coverage stalls, target near-perfect deterministic map creation docs.'
 
 mkdir -p "$(dirname "$PIDFILE")"
 echo "$$ heartbeat" > "$PIDFILE"
 
 while true; do
   sleep "$INTERVAL"
-  echo "AGENT_LOOP_WAKE_map_learn {\"prompt\":\"$PROMPT\",\"iteration\":\"auto\"}"
+  echo "AGENT_LOOP_WAKE_map_learn {\"prompt\":\"$PROMPT\"}"
 done

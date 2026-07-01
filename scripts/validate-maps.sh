@@ -129,7 +129,28 @@ launch_registered() {
 	ensure_binary
 	cd "$REPO"
 	local log="$LOG_DIR/validate_launch_${name}.log"
+	local last_log="$LOG_DIR/.last_validation_launch.log"
+	{
+		echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) $name boot-stage=$boot_hex ==="
+		echo "cmd: $PD --moddir mods/mod_allinone --boot-stage $boot_hex --skip-intro"
+	} >>"$last_log"
 	echo "Launching $name → $PD --moddir mods/mod_allinone --boot-stage $boot_hex --skip-intro"
+	if [[ "$(uname -s)" == "Darwin" ]] && command -v osascript >/dev/null 2>&1; then
+		# Agent/CI shells often lack a GUI GL context; Terminal gets a real window.
+		local cmd="cd $(printf '%q' "$REPO") && $(printf '%q' "$PD") --moddir $(printf '%q' "$MODDIR") --boot-stage $boot_hex --skip-intro 2>&1 | tee -a $(printf '%q' "$last_log") $(printf '%q' "$log")"
+		osascript - "$cmd" <<'APPLESCRIPT' >/dev/null
+on run argv
+	tell application "Terminal"
+		activate
+		do script (item 1 of argv)
+	end tell
+end run
+APPLESCRIPT
+		echo "  opened: Terminal.app (macOS GUI session)"
+		echo "  log: ${last_log#$REPO/}"
+		echo "  log: ${log#$REPO/}"
+		return 0
+	fi
 	nohup "$PD" --moddir "$MODDIR" --boot-stage "$boot_hex" --skip-intro \
 		>>"$log" 2>&1 &
 	echo "$!" > "$LOG_DIR/.validate_${name}.pid"

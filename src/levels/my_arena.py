@@ -5,7 +5,7 @@ from tools.pdmap.builders import (
     add_floor_weapons,
     add_ammo_row,
     add_mp_scenarios,
-    floor_box_tiles,
+    floor_box_with_hill_zone,
 )
 from tools.pdmap.core import MapDef
 from tools.pdmap.intro import Spawn
@@ -14,7 +14,7 @@ from tools.pdmap import weapons as W
 # Match Matrix/uff box — large enough for spawn/pickup/culling at scale.
 BOX_HALF = 5000.0
 BOX_HEIGHT = 3000.0
-SEG_MODE = "empty"
+SEG_MODE = "hill"
 
 # Pads slightly above Y=0 so ground search accepts the floor (see MAP_CREATION.md).
 SPAWN_Y = 10.0
@@ -46,8 +46,8 @@ def build() -> MapDef:
     g.add_pad(index=14, x=4200.0, y=SPAWN_Y, z=4200.0, room=1)    # team 3 case
     g.add_pad(index=15, x=4200.0, y=SPAWN_Y, z=4000.0, room=1)    # team 3 respawn
 
-    # --- KOTH hill anchor ---
-    g.add_pad(index=16, x=500.0, y=SPAWN_Y, z=0.0, room=1)
+    # --- KOTH hill anchor (room 2 = visible capture zone at map center) ---
+    g.add_pad(index=16, x=500.0, y=SPAWN_Y, z=0.0, room=2)
 
     g.add_intro(Spawn(pad=0))
     g.add_intro(Spawn(pad=1))
@@ -69,4 +69,10 @@ def build() -> MapDef:
 
 
 def build_tiles_json():
-    return floor_box_tiles("my_arena", half=BOX_HALF, y=0.0, room_index=1)
+    return floor_box_with_hill_zone(
+        "my_arena",
+        half=BOX_HALF,
+        y=0.0,
+        hill_center_x=500.0,
+        hill_center_z=0.0,
+    )

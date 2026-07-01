@@ -36,3 +36,7 @@ scripts/release/*.app/
 /Perfect Dark Map Editor.app
 /Perfect Dark Map Editor (Electron).app
 /Play Last Test Map.app
+work/asset_upgrader/.env
+tools/asset_upgrader/electron/node_modules/
+scripts/release/asset-upgrader-electron-dist/
+.venv-asset-upgrader/

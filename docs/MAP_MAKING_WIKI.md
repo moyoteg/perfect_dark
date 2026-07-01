@@ -463,14 +463,14 @@ of bot pipeline; render when room is onscreen.
 
 ### Scenarios (`--scenario-0` … `--scenario-5`)
 
-| ID | Name | Intro needed |
-|---|---|---|
-| 0 | Combat | Spawns only |
-| 1 | Hold the Briefcase | — |
-| 2 | Hacker Central | — |
-| 3 | Pop a Cap | — |
-| 4 | King of the Hill | `Hill(pad=…)` per hill pad |
-| 5 | Capture the Case | `Case` + **`CaseRespawn`** per team |
+| ID | Name | Intro needed | HUD countdown while holding/scoring |
+|---|---|---|---|
+| 0 | Combat | Spawns only | — |
+| 1 | Hold the Briefcase | — | Green timer (30 s to next point) while holding briefcase |
+| 2 | Hacker Central | — | Download timer while hacking |
+| 3 | Pop a Cap | — | — |
+| 4 | King of the Hill | `Hill(pad=…)` per hill pad | Green timer while your team holds the hill |
+| 5 | Capture the Case | `Case` + **`CaseRespawn`** per team | **None** — capture is instant at home base |
 
 **Editor:** place two scenario pads per CTF team — **Capture the Case** (intro `Case`)
 and **Case respawn (CTF)** (intro `CaseRespawn`). Export emits both via JSON and Python.

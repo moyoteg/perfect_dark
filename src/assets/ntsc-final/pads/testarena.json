@@ -229,7 +229,7 @@
 			"aiignorey": false,
 			"aiduck": false,
 			"liftnum": 0,
-			"room": 1
+			"room": 2
 		},
 		{
 			"id": "PAD_TESTARENA_0007",
@@ -884,7 +884,7 @@
 					"flag8000": false
 				}
 			],
-			"waygroup": "WAYGROUP_TESTARENA_0001"
+			"waygroup": "WAYGROUP_TESTARENA_0002"
 		},
 		{
 			"id": "WAYPOINT_TESTARENA_0007",
@@ -1206,7 +1206,23 @@
 	"waygroups": [
 		{
 			"id": "WAYGROUP_TESTARENA_0001",
-			"neighbours": []
+			"neighbours": [
+				{
+					"waygroup": "WAYGROUP_TESTARENA_0002",
+					"flag4000": false,
+					"flag8000": false
+				}
+			]
+		},
+		{
+			"id": "WAYGROUP_TESTARENA_0002",
+			"neighbours": [
+				{
+					"waygroup": "WAYGROUP_TESTARENA_0001",
+					"flag4000": false,
+					"flag8000": false
+				}
+			]
 		}
 	],
 	"cover": []

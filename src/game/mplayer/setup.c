@@ -200,6 +200,7 @@ struct mparena g_MpArenas[] = {
 	{ STAGE_TEST_UFF,        0, 0x7FFF       }, // Matrix Test Room
 	{ STAGE_MY_ARENA,        0, 0x7FFD       }, // My Arena
 	{ STAGE_TESTARENA,       0, 0x7FFC       }, // Test Arena
+	{ STAGE_ANIMLAB,       0, 0x7FFB       }, // Animation Lab
 	// Random
 	{ STAGE_MP_RANDOM_MULTI, 0, L_MPMENU_294 }, // Random Multi
 	{ STAGE_MP_RANDOM_SOLO,  0, L_MPMENU_295 }, // Random Solo
