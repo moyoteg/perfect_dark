@@ -1364,7 +1364,9 @@ void scenarioHandleDroppedToken(struct chrdata *chr, struct prop *prop)
 				weapon->team = i;
 				obj = prop->obj;
 
-				padUnpack(g_ScenarioData.ctc.spawnpadsperteam[g_ScenarioData.ctc.teamindexes[i]].homepad,
+				// Return to this team's Case pad (homepad). teamindexes[] is only
+				// for shuffling player spawns at CaseRespawn pads — not case bases.
+				padUnpack(g_ScenarioData.ctc.spawnpadsperteam[i].homepad,
 						PADFIELD_POS | PADFIELD_LOOK | PADFIELD_UP | PADFIELD_ROOM, &pad);
 				mtx00016d58(&mtx, 0, 0, 0, -pad.look.x, -pad.look.y, -pad.look.z, pad.up.x, pad.up.y, pad.up.z);
 

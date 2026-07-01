@@ -559,7 +559,7 @@
 			"aiignorey": false,
 			"aiduck": false,
 			"liftnum": 0,
-			"room": 1
+			"room": 2
 		}
 	],
 	"waypoints": [
@@ -1380,13 +1380,29 @@
 					"flag8000": false
 				}
 			],
-			"waygroup": "WAYGROUP_MY_ARENA_0001"
+			"waygroup": "WAYGROUP_MY_ARENA_0002"
 		}
 	],
 	"waygroups": [
 		{
 			"id": "WAYGROUP_MY_ARENA_0001",
-			"neighbours": []
+			"neighbours": [
+				{
+					"waygroup": "WAYGROUP_MY_ARENA_0002",
+					"flag4000": false,
+					"flag8000": false
+				}
+			]
+		},
+		{
+			"id": "WAYGROUP_MY_ARENA_0002",
+			"neighbours": [
+				{
+					"waygroup": "WAYGROUP_MY_ARENA_0001",
+					"flag4000": false,
+					"flag8000": false
+				}
+			]
 		}
 	],
 	"cover": []

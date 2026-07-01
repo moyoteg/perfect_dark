@@ -206,6 +206,11 @@ class MapDef:
                 "waygroups": waygroups, "cover": cover_json}
 
     def pack_setup(self) -> bytes:
+        if getattr(self, "anim_parade", False):
+            from .anim_parade import pack_anim_parade_setup
+
+            return pack_anim_parade_setup(self)
+
         props_bin = b"".join(p.pack() for p in self.props) + struct.pack(">I", 0x34)
         intro_bin = b"".join(cmd.pack() for cmd in self.intro) + struct.pack(">I", 12)
 

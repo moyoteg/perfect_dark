@@ -10,6 +10,7 @@ from .core import ROOT
 
 TEST_MAP_SLOT = "uff"
 STAGE_TEST_UFF = 0x4D
+STAGE_ANIMLAB = 0x82
 
 MOD_CHOICES: dict[str, str] = {
     "mod_allinone": "mods/mod_allinone",
@@ -30,11 +31,15 @@ SCENARIO_CHOICES = {
 
 
 def detect_pd_binary() -> str:
+    """Return the repo-built pd binary (always prefer native arm64 on macOS)."""
+    arm64 = os.path.join(ROOT, "build", "pd.arm64")
+    if sys.platform == "darwin" and os.path.isfile(arm64):
+        return arm64
     machine = platform.machine().lower()
     if machine in ("arm64", "aarch64"):
         name = "pd.arm64"
     elif sys.platform == "darwin":
-        name = "pd.arm64" if machine == "arm64" else "pd.x86_64"
+        name = "pd.arm64"
     else:
         name = "pd.x86_64"
     path = os.path.join(ROOT, "build", name)
@@ -52,23 +57,34 @@ def play_command(
     scenario: int = 0,
     pd_binary: str | None = None,
     deploy_name: str | None = None,
+    level: str | None = None,
     use_test_map: bool | None = None,
     play: bool = True,
     **_ignored,
 ) -> list[str]:
-    """Build argv to launch pd. Pass ``deploy_name='uff'`` or ``use_test_map=True`` for --test-map."""
+    """Build argv to launch pd.
+
+    Pass ``level='animlab'`` for ``--test-animlab`` (STAGE_ANIMLAB).
+    Pass ``level='uff'`` or ``use_test_map=True`` for ``--test-map`` (STAGE_TEST_UFF).
+    """
     if mod_key not in MOD_CHOICES:
         raise ValueError(f"Unknown mod {mod_key!r}; choose from {', '.join(MOD_CHOICES)}")
     mod_path = os.path.join(ROOT, MOD_CHOICES[mod_key])
     binary = pd_binary or detect_pd_binary()
+    map_level = (level or deploy_name or TEST_MAP_SLOT).strip().lower()
     if use_test_map is None:
-        use_test_map = (deploy_name or TEST_MAP_SLOT) == TEST_MAP_SLOT
+        use_test_map = map_level in (TEST_MAP_SLOT, "uff")
     cmd = [binary]
-    if use_test_map and play:
-        cmd.append("--test-map")
-        cmd.append(f"--scenario-{scenario}")
-    else:
-        cmd.extend(["--boot-stage", str(STAGE_TEST_UFF)])
-        cmd.append("--skip-intro")
+    if play:
+        if map_level == "animlab":
+            cmd.append("--test-animlab")
+            cmd.append(f"--scenario-{scenario}")
+        elif use_test_map:
+            cmd.append("--test-map")
+            cmd.append(f"--scenario-{scenario}")
+        else:
+            stage = STAGE_ANIMLAB if map_level == "animlab" else STAGE_TEST_UFF
+            cmd.extend(["--boot-stage", str(stage)])
+            cmd.append("--skip-intro")
     cmd.extend(["--moddir", mod_path])
     return cmd

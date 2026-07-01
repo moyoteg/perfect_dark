@@ -29,10 +29,10 @@ python3 tools/pdmap.py learn curriculum validate
 | 4 | `learn_04_ammo` | Ammo crate | Combat | Ammo crate at +X; picking up refills matching ammo type. |
 | 5 | `learn_05_loadout` | Loadout intro / ailist 0x1000 | Combat | Combat start: default loadout weapons (Falcon2, CMP150, …) in hand. |
 | 6 | `learn_06_waypoints` | Symmetric waypoints / bot spawn | Combat | Add 1–4 simulants in Combat Simulator; bots move without crashing. |
-| 7 | `learn_07_hill` | King of the Hill anchor | KOTH | Launch with --scenario-4; hill marker at +Z; KOTH scoring works. |
-| 8 | `learn_08_ctf_case` | Case + CaseRespawn (CTF pair) | CTF | Launch with --scenario-5; briefcase at -Z, respawn at +Z (team 0). |
+| 7 | `learn_07_hill` | King of the Hill anchor | KOTH | Launch with --scenario-4; green hill zone at +Z with dark ring boundary; KOTH scoring only inside hill room. |
+| 8 | `learn_08_ctf_case` | Case + CaseRespawn (CTF pair) | CTF | Launch with --scenario-5; briefcase at -Z, respawn at +Z (team 0). Bright red delivery square + dark ring at +Z (CaseRespawn); muted red marker at -Z (Case). Steal enemy case and touch home pad to score instantly. No hold countdown (that is --scenario-1 Hold Briefcase only). |
 | 9 | `learn_09_deploy_uff` | Deploy-as uff / --test-map slot | Combat | Same empty box; confirms play-learn-step deploys into uff test slot. |
-| 10 | `learn_10_full_arena` | Composite (my_arena-like) | Combat | All features together in a 5000×3000 box: pickups, KOTH anchor, 4-team CTF, four spawns. |
+| 10 | `learn_10_full_arena` | Composite (my_arena-like) | CTF | Launch with --scenario-5 (Capture the Case). Grey arena floor; small coloured squares only at CTF pads (seg mode ctf). Enemy briefcase at -Z (team 1 Case, muted yellow square + ring). Walk north to -Z, pick up the briefcase, return south to +Z and stand on the bright red delivery square (team 0 CaseRespawn) — scoring triggers when you touch your home Case prop at +Z while holding the enemy case. KOTH hill at +X (room 2). |
 | 11 | `learn_11_y_autocorrect` | Pad Y auto-correction (Y=0 → 10) | Combat | Player still spawns safely despite JSON Y=0 on pad (pipeline fix). |
 
 ## Boot commands (examples)
@@ -58,7 +58,7 @@ python3 tools/pdmap.py from-json journal/map_learn/maps/learn_06_waypoints.json 
 ```bash
 ./scripts/play-learn-step.sh 10
 # or:
-python3 tools/pdmap.py from-json journal/map_learn/maps/learn_10_full_arena.json --deploy-as uff --deploy --play
+python3 tools/pdmap.py from-json journal/map_learn/maps/learn_10_full_arena.json --deploy-as uff --deploy --play --scenario-5
 ```
 
 ## Artifacts
@@ -76,11 +76,11 @@ python3 tools/pdmap.py from-json journal/map_learn/maps/learn_10_full_arena.json
 - [pipeline] Level modules with SEG_SCRIPT: 0 (none) (tags: SEG_SCRIPT, seg)
 - [pipeline] pdmap from-json is the canonical entry point for deterministic box maps (tags: cli)
 - [pipeline] Fixture minimal_map 2.json builds cleanly via from-json pipeline (tags: fixture, minimal_map 2.json)
-- [pipeline] Box-arena modules without SEG_SCRIPT (procedural seg): 8 (tags: box, seg)
+- [pipeline] register --apply e2e dry-run: learn_scratch patch anchors present in C sources (tags: e2e)
 - [pipeline] Fixture minimal_map.json builds cleanly via from-json pipeline (tags: fixture, minimal_map.json)
-- [pipeline] Box-arena modules without SEG_SCRIPT (procedural seg): 9 (tags: box, seg)
-- [engine] Stage registration (pdmap register --apply) — manual C wiring, not a runtime map test
+- [pipeline] Box-arena modules without SEG_SCRIPT (procedural seg): 20 (tags: box, seg)
+- [pipeline] register --apply e2e passes (learn_scratch dry-run) (tags: e2e, live)
+- [engine] Stage registration (pdmap register --apply) — dry-run probes only; live apply needs make smoke
 - [engine] PDMAP_SEG_MODE=empty — build flag; all steps use empty seg via play script
-- [engine] Runtime headless smoke (--test-map log parse) — future probe target
 - [engine] Custom SEG_SCRIPT seg generators — no modules in repo yet
 

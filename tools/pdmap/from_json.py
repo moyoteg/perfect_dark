@@ -12,11 +12,17 @@ from dataclasses import dataclass
 from typing import Any
 
 from .builders import (
+    HILL_ROOM_INDEX,
     PAD_FLOOR_OFFSET,
     add_ammo_row,
     add_floor_weapons,
     add_loadout_intro,
+    ctf_zones_from_mapdef,
     floor_box_tiles,
+    floor_box_with_ctf_zones,
+    floor_box_with_hill_and_ctf_zones,
+    floor_box_with_hill_zone,
+    hill_zone_center_from_mapdef,
 )
 from .core import MapDef
 from .intro import Case, CaseRespawn, Hill, Spawn
@@ -170,8 +176,38 @@ class EditorMapSpec:
         )
 
     def tiles_json(self) -> dict:
-        """Collision floor matching the box arena."""
+        """Collision floor matching the box arena (hill / CTF zone tiles when anchored)."""
+        center = hill_zone_center_from_mapdef(self.mapdef)
+        ctf_zones = ctf_zones_from_mapdef(self.mapdef)
+        if center is not None and ctf_zones:
+            return floor_box_with_hill_and_ctf_zones(
+                self.name,
+                half=self.box_half,
+                y=0.0,
+                hill_center_x=center[0],
+                hill_center_z=center[1],
+                zones=ctf_zones,
+            )
+        if center is not None:
+            return floor_box_with_hill_zone(
+                self.name,
+                half=self.box_half,
+                y=0.0,
+                hill_center_x=center[0],
+                hill_center_z=center[1],
+            )
+        if ctf_zones:
+            return floor_box_with_ctf_zones(
+                self.name,
+                half=self.box_half,
+                y=0.0,
+                zones=ctf_zones,
+            )
         return floor_box_tiles(self.name, half=self.box_half, y=0.0, room_index=1)
+
+    def tiles_room_count(self) -> int:
+        """Number of tile rooms (room 0 + arena + optional hill room)."""
+        return HILL_ROOM_INDEX + 1 if hill_zone_center_from_mapdef(self.mapdef) else 2
 
 
 def load_editor_json(path: str | None) -> dict[str, Any]:

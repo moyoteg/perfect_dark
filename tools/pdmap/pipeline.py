@@ -23,6 +23,24 @@ from .tiles import copy_tiles_from_template
 from .validate import validate_all, validate_mapdef
 
 
+def _write_pad_layout_log(name: str, mapdef: MapDef) -> str:
+    """Dump pad positions + scenario intro anchors for post-deploy verification."""
+    pad_log = os.path.join(BUILD_DIR, f"{name}_pads_layout.log")
+    os.makedirs(BUILD_DIR, exist_ok=True)
+    with open(pad_log, "w", encoding="utf-8") as fp:
+        fp.write(f"# Pad layout for {name} ({len(mapdef.pads)} pads)\n")
+        for p in mapdef.pads:
+            fp.write(
+                f"pad {p.index}: x={p.x:.0f} y={p.y:.0f} z={p.z:.0f} room={p.room}\n"
+            )
+        for cmd in mapdef.intro:
+            if hasattr(cmd, "team") and hasattr(cmd, "pad"):
+                fp.write(f"intro {type(cmd).__name__}: team={cmd.team} pad={cmd.pad}\n")
+            elif hasattr(cmd, "pad"):
+                fp.write(f"intro {type(cmd).__name__}: pad={cmd.pad}\n")
+    return pad_log
+
+
 def _resolve_seg_script(mod, name: str) -> str | None:
     if hasattr(mod, "SEG_SCRIPT"):
         return mod.SEG_SCRIPT
@@ -123,6 +141,7 @@ def build_from_spec(
     compile_pads(name, pads_json_path)
     if verbose:
         print("  Compiled pads binary")
+        print(f"  Pad layout log: {_write_pad_layout_log(name, mapdef)}")
 
     tiles_json_path = os.path.join(ROOT, "src", "assets", ROMID, "tiles", f"{name}.json")
     tiles_data = spec.tiles_json()
@@ -209,6 +228,7 @@ def build_from_module(
     compile_pads(name, pads_json_path)
     if verbose:
         print("  Compiled pads binary")
+        print(f"  Pad layout log: {_write_pad_layout_log(name, mapdef)}")
 
     tiles_json_path = os.path.join(ROOT, "src", "assets", ROMID, "tiles", f"{name}.json")
     if hasattr(mod, "build_tiles_json"):

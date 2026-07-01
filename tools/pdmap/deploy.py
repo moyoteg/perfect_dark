@@ -19,21 +19,25 @@ def _validate_seg_before_deploy(seg_path: str) -> None:
         )
 
 
-def deploy(name: str, mod_dirs: list[str] | None = None):
+def deploy(name: str, mod_dirs: list[str] | None = None, *, deploy_as: str | None = None):
     """Deploy built assets (tiles, pads, seg) to mod bgdata directories."""
     if mod_dirs is None:
         mod_dirs = MOD_DIRS
 
+    asset_name = deploy_as or name
+
     bgdata_assets = [
-        f"bg_{name}_tilesZ",
-        f"bg_{name}_padsZ",
-        f"bg_{name}.seg",
+        f"bg_{asset_name}_tilesZ",
+        f"bg_{asset_name}_padsZ",
+        f"bg_{asset_name}.seg",
     ]
 
     for mod_dir in mod_dirs:
         os.makedirs(mod_dir, exist_ok=True)
         for asset in bgdata_assets:
-            src = os.path.join(BUILD_DIR, asset)
+            # Built artifacts keep the level module name; deploy copies to asset_name.
+            built = asset.replace(asset_name, name, 1) if asset_name != name else asset
+            src = os.path.join(BUILD_DIR, built)
             dst = os.path.join(mod_dir, asset)
             if os.path.exists(src):
                 if asset.endswith(".seg"):
@@ -44,11 +48,12 @@ def deploy(name: str, mod_dirs: list[str] | None = None):
                 print(f"  WARNING: {src} not found, skipping")
 
 
-def deploy_setup(name: str, mod_dirs: list[str] | None = None):
+def deploy_setup(name: str, mod_dirs: list[str] | None = None, *, deploy_as: str | None = None):
     """Deploy setup binary to mod files directories (parent of bgdata)."""
     if mod_dirs is None:
         mod_dirs = MOD_DIRS
 
+    asset_name = deploy_as or name
     setup_path = os.path.join(SETUP_DIR, f"Ump_setup{name}Z")
     if not os.path.exists(setup_path):
         print(f"  WARNING: Setup not found at {setup_path}")
@@ -57,14 +62,15 @@ def deploy_setup(name: str, mod_dirs: list[str] | None = None):
     for mod_dir in mod_dirs:
         files_dir = os.path.dirname(mod_dir)
         os.makedirs(files_dir, exist_ok=True)
-        dst = os.path.join(files_dir, f"Ump_setup{name}Z")
+        dst = os.path.join(files_dir, f"Ump_setup{asset_name}Z")
         shutil.copy2(setup_path, dst)
         print(f"  Deployed setup -> {dst}")
 
 
-def deploy_all(name: str, mod_dirs: list[str] | None = None):
-    deploy(name, mod_dirs)
-    deploy_setup(name, mod_dirs)
+def deploy_all(name: str, mod_dirs: list[str] | None = None, *, deploy_as: str | None = None):
+    asset_name = deploy_as or name
+    deploy(name, mod_dirs, deploy_as=asset_name)
+    deploy_setup(name, mod_dirs, deploy_as=asset_name)
 
 
 def build_box_seg_asset(name: str, *, half: float = 5000.0, height: float = 3000.0,

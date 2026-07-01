@@ -166,6 +166,49 @@ void ctcTickChr(struct chrdata *chr)
 	if (chr);
 }
 
+/**
+ * True when intro placed a Case (home) pad for this physical team index.
+ */
+static bool ctcTeamHasConfiguredHome(s32 physTeam)
+{
+	if (physTeam < 0 || physTeam >= ARRAYCOUNT(g_ScenarioData.ctc.spawnpadsperteam)) {
+		return false;
+	}
+
+	return g_ScenarioData.ctc.spawnpadsperteam[physTeam].homepad >= 0;
+}
+
+/**
+ * Box-arena tutorials put every CTF base in room 1; highlighting that room tints
+ * the whole floor one team colour. Skip room tint when multiple bases share a room
+ * (seg pad markers remain visible).
+ */
+static bool ctcShouldHighlightBaseroom(s32 tokenIndex)
+{
+	RoomNum room;
+	s32 i;
+	s32 count;
+
+	if (tokenIndex < 0 || tokenIndex >= ARRAYCOUNT(g_ScenarioData.ctc.baserooms)) {
+		return false;
+	}
+
+	room = g_ScenarioData.ctc.baserooms[tokenIndex];
+	if (room < 0 || g_ScenarioData.ctc.tokens[tokenIndex] == NULL) {
+		return false;
+	}
+
+	count = 0;
+	for (i = 0; i < ARRAYCOUNT(g_ScenarioData.ctc.baserooms); i++) {
+		if (g_ScenarioData.ctc.baserooms[i] == room
+				&& g_ScenarioData.ctc.tokens[i] != NULL) {
+			count++;
+		}
+	}
+
+	return count == 1;
+}
+
 void ctcInitProps(void)
 {
 	struct mpchrconfig *mpchr;
@@ -279,10 +322,12 @@ void ctcInitProps(void)
 		g_ScenarioData.ctc.baserooms[i] = -1;
 	}
 
-	if (g_ScenarioData.ctc.playercountsperteam[0] != 0) {
+	// Spawn home briefcases for every team with a Case pad in the setup intro,
+	// not only teams with live players — required for solo --test-map tutorials.
+	if (ctcTeamHasConfiguredHome(0)) {
 		g_CtcTokenObj0 = template;
 		tmp = &g_CtcTokenObj0;
-		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[g_ScenarioData.ctc.teamindexes[0]].homepad;
+		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[0].homepad;
 
 		setupPlaceWeapon(tmp, 1000);
 
@@ -294,10 +339,10 @@ void ctcInitProps(void)
 		g_ScenarioData.ctc.baserooms[0] = g_ScenarioData.ctc.tokens[0]->rooms[0];
 	}
 
-	if (g_ScenarioData.ctc.playercountsperteam[1] != 0) {
+	if (ctcTeamHasConfiguredHome(1)) {
 		g_CtcTokenObj1 = template;
 		tmp = &g_CtcTokenObj1;
-		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[g_ScenarioData.ctc.teamindexes[1]].homepad;
+		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[1].homepad;
 
 		setupPlaceWeapon(tmp, 1001);
 
@@ -309,10 +354,10 @@ void ctcInitProps(void)
 		g_ScenarioData.ctc.baserooms[1] = g_ScenarioData.ctc.tokens[1]->rooms[0];
 	}
 
-	if (g_ScenarioData.ctc.playercountsperteam[2] != 0) {
+	if (ctcTeamHasConfiguredHome(2)) {
 		g_CtcTokenObj2 = template;
 		tmp = &g_CtcTokenObj2;
-		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[g_ScenarioData.ctc.teamindexes[2]].homepad;
+		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[2].homepad;
 
 		setupPlaceWeapon(tmp, 1002);
 
@@ -324,10 +369,10 @@ void ctcInitProps(void)
 		g_ScenarioData.ctc.baserooms[2] = g_ScenarioData.ctc.tokens[2]->rooms[0];
 	}
 
-	if (g_ScenarioData.ctc.playercountsperteam[3] != 0) {
+	if (ctcTeamHasConfiguredHome(3)) {
 		g_CtcTokenObj3 = template;
 		tmp = &g_CtcTokenObj3;
-		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[g_ScenarioData.ctc.teamindexes[3]].homepad;
+		tmp->base.pad = g_ScenarioData.ctc.spawnpadsperteam[3].homepad;
 
 		setupPlaceWeapon(tmp, 1003);
 
@@ -340,7 +385,8 @@ void ctcInitProps(void)
 	}
 
 	for (i = 0; i < ARRAYCOUNT(g_ScenarioData.ctc.playercountsperteam); i++) {
-		if (g_ScenarioData.ctc.playercountsperteam[i] && g_ScenarioData.ctc.baserooms[i] != -1) {
+		if (g_ScenarioData.ctc.tokens[i] != NULL
+				&& ctcShouldHighlightBaseroom(i)) {
 			roomSetLightOp(g_ScenarioData.ctc.baserooms[i], LIGHTOP_HIGHLIGHT, 0, 0, 0);
 		}
 	}
@@ -485,7 +531,9 @@ bool ctcIsRoomHighlighted(RoomNum room)
 	s32 i;
 
 	for (i = 0; i < ARRAYCOUNT(g_ScenarioData.ctc.teamindexes); i++) {
-		if (g_ScenarioData.ctc.baserooms[i] == room && g_ScenarioData.ctc.teamindexes[i] != -1) {
+		if (g_ScenarioData.ctc.baserooms[i] == room
+				&& g_ScenarioData.ctc.tokens[i] != NULL
+				&& ctcShouldHighlightBaseroom(i)) {
 			return true;
 		}
 	}
@@ -498,7 +546,9 @@ void ctcHighlightRoom(RoomNum roomnum, s32 *arg1, s32 *arg2, s32 *arg3)
 	s32 i;
 
 	for (i = 0; i < ARRAYCOUNT(g_ScenarioData.ctc.baserooms); i++) {
-		if (g_ScenarioData.ctc.baserooms[i] == roomnum) {
+		if (g_ScenarioData.ctc.baserooms[i] == roomnum
+				&& g_ScenarioData.ctc.tokens[i] != NULL
+				&& ctcShouldHighlightBaseroom(i)) {
 			u32 colour = g_TeamColours[i];
 			f32 a = *arg1;
 			f32 b = *arg2;

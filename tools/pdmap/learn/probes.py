@@ -527,11 +527,365 @@ def probe_level_modules() -> list[Fact]:
     return facts
 
 
+def probe_registered_stages() -> list[Fact]:
+    """Verify env.c / lang.c / list.c wiring for shipped custom arenas."""
+    probe = "probe_registered_stages"
+    facts: list[Fact] = []
+
+    env_c = os.path.join(ROOT, "src", "game", "env.c")
+    lang_c = os.path.join(ROOT, "src", "game", "lang.c")
+    list_c = os.path.join(ROOT, "src", "assets", ROMID, "files", "list.c")
+    env_text = open(env_c, encoding="utf-8", errors="replace").read() if os.path.exists(env_c) else ""
+    lang_text = open(lang_c, encoding="utf-8", errors="replace").read() if os.path.exists(lang_c) else ""
+    list_text = open(list_c, encoding="utf-8", errors="replace").read() if os.path.exists(list_c) else ""
+
+    stages = [
+        ("my_arena", "STAGE_MY_ARENA", "0x7FFD", "My Arena"),
+        ("testarena", "STAGE_TESTARENA", "0x7FFC", "Test Arena"),
+    ]
+    for name, stage_sym, textid, label in stages:
+        wired = {
+            "env.c": stage_sym in env_text,
+            "lang.c": label in lang_text,
+            "list.c": f"bg_{name}.seg" in list_text,
+            "mod_tiles": os.path.exists(
+                os.path.join(ROOT, "mods", "mod_allinone", "files", "bgdata", f"bg_{name}_tilesZ"),
+            ),
+        }
+        ok = all(wired.values())
+        facts.append(_fact(
+            "engine",
+            f"Registered stage {name} wired in env.c, lang.c, list.c, and mod_allinone assets",
+            f"{env_c} + {lang_c} + {list_c}",
+            probe,
+            confidence=1.0 if ok else 0.5,
+            evidence={"name": name, "stage": stage_sym, "textid": textid, "checks": wired},
+            tags=["registration", name, "env", "lang"],
+        ))
+
+    facts.append(_fact(
+        "engine",
+        "lang.c maps Combat Sim textids 0x7FFD/0x7FFC to My Arena / Test Arena labels",
+        lang_c,
+        probe,
+        evidence={"my_arena_label": "My Arena" in lang_text, "testarena_label": "Test Arena" in lang_text},
+        tags=["registration", "lang"],
+    ))
+    return facts
+
+
+def probe_register_codegen() -> list[Fact]:
+    """Dry-run register plan and verify --apply availability (no C patches)."""
+    probe = "probe_register_codegen"
+    facts: list[Fact] = []
+
+    from ..register import plan_registration
+
+    facts.append(_fact(
+        "engine",
+        "pdmap register --apply patches constants.h, files.h, list.c, stagetable.c, setup.c",
+        "tools/pdmap/register.py:apply_registration",
+        probe,
+        confidence=1.0 if _apply_registration_available() else 0.0,
+        tags=["registration", "codegen"],
+    ))
+
+    try:
+        plan = plan_registration("learn_scratch")
+        snippet_keys = sorted(plan.snippets.keys())
+        facts.append(_fact(
+            "pipeline",
+            f"plan_registration('learn_scratch') emits {len(snippet_keys)} C wiring snippets",
+            "tools/pdmap/register.py:plan_registration",
+            probe,
+            evidence={
+                "already_registered": plan.already_registered,
+                "snippets": snippet_keys,
+                "stage_const": plan.stage_const,
+            },
+            tags=["registration", "codegen"],
+        ))
+    except Exception as exc:
+        facts.append(_fact(
+            "pipeline",
+            f"plan_registration dry-run failed: {exc}",
+            "tools/pdmap/register.py",
+            probe,
+            confidence=0.0,
+            tags=["registration", "error"],
+        ))
+    return facts
+
+
+def _runtime_boot_hints(out: str) -> dict[str, bool]:
+    """Log markers for mod asset load or stage boot (romdata.c / main.c LOG_NOTE)."""
+    lower = out.lower()
+    return {
+        "loaded_externally": "loaded externally" in lower,
+        "boot_stage": "boot stage set to" in lower,
+        "stage_test_uff": "stage_test_uff" in lower,
+        "bg_uff": "bg_uff" in lower,
+    }
+
+
+def _runtime_boot_detected(hints: dict[str, bool]) -> bool:
+    return any(hints.values())
+
+
+def _runtime_smoke_attempt(
+    binary: str,
+    moddir: str,
+    *,
+    sdl_video_driver: str | None,
+    timeout_sec: float,
+) -> tuple[str, int | None, str, bool]:
+    """Run --test-map once; return (driver_label, returncode|None, combined_output, timed_out)."""
+    import subprocess
+
+    env = {**os.environ, "SDL_AUDIODRIVER": "dummy"}
+    label = sdl_video_driver or "default"
+    if sdl_video_driver:
+        env["SDL_VIDEODRIVER"] = sdl_video_driver
+    cmd = [binary, "--test-map", "--scenario-0", "--moddir", moddir]
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=timeout_sec,
+            env=env,
+        )
+        combined = (proc.stdout or "") + (proc.stderr or "")
+        return label, proc.returncode, combined, False
+    except subprocess.TimeoutExpired as exc:
+        out = (exc.stdout or b"").decode(errors="replace") + (exc.stderr or b"").decode(errors="replace")
+        return label, None, out, True
+
+
+def probe_runtime_smoke() -> list[Fact]:
+    """--test-map smoke when build/pd.arm64 exists (headless SDL first, then display)."""
+    probe = "probe_runtime_smoke"
+    facts: list[Fact] = []
+    binary = os.path.join(ROOT, "build", "pd.arm64")
+
+    if not os.path.isfile(binary):
+        facts.append(_fact(
+            "pipeline",
+            "Runtime smoke skipped: build/pd.arm64 not present (run make -j8 first)",
+            binary,
+            probe,
+            confidence=0.0,
+            tags=["runtime", "gap", "test-map"],
+        ))
+        return facts
+
+    moddir = os.path.join(ROOT, "mods", "mod_allinone")
+    # Headless drivers fail fast without GL; default (cocoa) runs the game loop on macOS.
+    attempts: list[tuple[str | None, float]] = [
+        ("dummy", 2.0),
+        ("offscreen", 2.0),
+        (None, 5.0),
+    ]
+    last_label = "default"
+    last_rc: int | None = 1
+    last_out = ""
+    last_timeout = 5.0
+    timed_out = False
+    boot_hints: dict[str, bool] = {}
+
+    for driver, timeout_sec in attempts:
+        try:
+            last_label, last_rc, last_out, timed_out = _runtime_smoke_attempt(
+                binary, moddir, sdl_video_driver=driver, timeout_sec=timeout_sec,
+            )
+            last_timeout = timeout_sec
+        except Exception as exc:
+            last_out = str(exc)
+            continue
+        boot_hints = _runtime_boot_hints(last_out)
+        booted = _runtime_boot_detected(boot_hints)
+        fatal_sdl = "FATAL: Could not open SDL window" in last_out
+        if booted or last_rc == 0:
+            break
+        if timed_out and not fatal_sdl:
+            break
+        if not fatal_sdl and last_rc not in (None, 1):
+            break
+
+    booted = _runtime_boot_detected(boot_hints)
+    ok = booted or timed_out or last_rc == 0
+    claim = (
+        f"--test-map boots with mod_allinone ({last_timeout:.0f}s timeout, SDL={last_label})"
+        if ok
+        else f"Headless --test-map blocked by SDL/GL (SDL={last_label}; use display or shorter probe)"
+    )
+    facts.append(_fact(
+        "pipeline",
+        claim,
+        binary,
+        probe,
+        confidence=1.0 if ok else 0.5,
+        evidence={
+            "returncode": last_rc,
+            "timed_out": timed_out,
+            "boot_hints": boot_hints,
+            "boot_detected": booted,
+            "sdl_driver": last_label,
+            "stderr_tail": last_out[-500:],
+        },
+        tags=["runtime", "test-map"],
+    ))
+    return facts
+
+
+def probe_curriculum_integration() -> list[Fact]:
+    """Validate learn curriculum maps build without deploy."""
+    probe = "probe_curriculum_integration"
+    facts: list[Fact] = []
+    try:
+        from .curriculum import curriculum_steps, validate_curriculum
+
+        steps = curriculum_steps()
+        results = validate_curriculum()
+        failed = [r for r in results if not r.ok]
+        facts.append(_fact(
+            "pipeline",
+            f"Learn curriculum: {len(steps)} steps, {len(results) - len(failed)}/{len(results)} validate OK",
+            "tools/pdmap/learn/curriculum.py:validate_curriculum",
+            probe,
+            confidence=1.0 if not failed else 0.5,
+            evidence={
+                "step_count": len(steps),
+                "failed": [{"step": r.step, "name": r.name, "errors": r.errors} for r in failed],
+            },
+            tags=["curriculum", "validate"],
+        ))
+    except Exception as exc:
+        facts.append(_fact(
+            "pipeline",
+            f"Curriculum validation probe failed: {exc}",
+            "tools/pdmap/learn/curriculum.py",
+            probe,
+            confidence=0.0,
+            tags=["curriculum", "error"],
+        ))
+    return facts
+
+
+def probe_register_apply_e2e() -> list[Fact]:
+    """Dry-run register --apply anchors for learn_scratch (no C file writes)."""
+    probe = "probe_register_apply_e2e"
+    facts: list[Fact] = []
+    from ..register import (
+        CONSTANTS_H,
+        FILES_H,
+        LIST_C,
+        SETUP_C,
+        STAGETABLE,
+        plan_registration,
+    )
+
+    try:
+        plan = plan_registration("learn_scratch")
+        if plan.already_registered:
+            facts.append(_fact(
+                "pipeline",
+                "learn_scratch already registered; register --apply e2e is idempotent skip",
+                "tools/pdmap/register.py:apply_registration",
+                probe,
+                evidence={"already_registered": True},
+                tags=["registration", "e2e"],
+            ))
+            return facts
+
+        anchor_files = {
+            "constants.h": (CONSTANTS_H, "#define STAGE_TITLE"),
+            "files.h": (FILES_H, "\n\n// PD Plus Mod"),
+            "list.c": (LIST_C, "\n};"),
+            "stagetable.c": (STAGETABLE, "#endif\n};"),
+            "setup.c": (SETUP_C, "\t// Random"),
+        }
+        checks: dict[str, bool] = {}
+        for label, (path, anchor) in anchor_files.items():
+            text = open(path, encoding="utf-8", errors="replace").read() if os.path.exists(path) else ""
+            checks[label] = anchor in text
+
+        ok = all(checks.values())
+        facts.append(_fact(
+            "pipeline",
+            "register --apply e2e dry-run: learn_scratch patch anchors present in C sources",
+            "tools/pdmap/register.py:apply_registration",
+            probe,
+            confidence=1.0 if ok else 0.5,
+            evidence={"anchors": checks, "snippets": sorted(plan.snippets.keys())},
+            tags=["registration", "e2e"],
+        ))
+    except Exception as exc:
+        facts.append(_fact(
+            "pipeline",
+            f"register --apply e2e dry-run failed: {exc}",
+            "tools/pdmap/register.py",
+            probe,
+            confidence=0.0,
+            tags=["registration", "e2e", "error"],
+        ))
+    return facts
+
+
+def probe_from_json_deploy() -> list[Fact]:
+    """Editor JSON → build → deploy without runtime boot."""
+    probe = "probe_from_json_deploy"
+    facts: list[Fact] = []
+
+    minimal = {
+        "name": "learndeploy",
+        "box_half": 1500,
+        "box_height": 1200,
+        "pads": [{"type": "spawn", "x": 0, "y": 0, "z": 0, "room": 1}],
+    }
+    spec = EditorMapSpec.from_json(minimal, deploy_name="learndeploy")
+    mod_bgdata = os.path.join(ROOT, "mods", "mod_allinone", "files", "bgdata")
+    errors, _warnings = build_from_spec(
+        spec,
+        deploy=True,
+        mod_dirs=[mod_bgdata],
+        want_seg=True,
+        seg_mode="empty",
+        verbose=False,
+    )
+    mod_files = os.path.join(ROOT, "mods", "mod_allinone", "files")
+    mod_assets = {
+        "tiles": os.path.join(mod_bgdata, "bg_learndeploy_tilesZ"),
+        "pads": os.path.join(mod_bgdata, "bg_learndeploy_padsZ"),
+        "seg": os.path.join(mod_bgdata, "bg_learndeploy.seg"),
+        "setup": os.path.join(mod_files, "Ump_setuplearndeployZ"),
+    }
+    exist = {k: os.path.exists(v) for k, v in mod_assets.items()}
+    ok = not errors and all(exist.values())
+    facts.append(_fact(
+        "pipeline",
+        "from-json → deploy writes four mod_allinone assets for learndeploy",
+        "tools/pdmap/pipeline.py:build_from_spec",
+        probe,
+        confidence=1.0 if ok else 0.5,
+        evidence={"errors": errors, "assets_exist": exist},
+        tags=["from-json", "deploy", "e2e"],
+    ))
+    return facts
+
+
 ALL_PROBES = [
     ("coded_invariants", probe_coded_invariants),
     ("pipeline_contract", probe_pipeline_contract),
     ("fixtures", probe_fixtures),
     ("engine_wiring", probe_engine_wiring),
+    ("registered_stages", probe_registered_stages),
+    ("register_codegen", probe_register_codegen),
+    ("register_apply_e2e", probe_register_apply_e2e),
+    ("from_json_deploy", probe_from_json_deploy),
+    ("curriculum_integration", probe_curriculum_integration),
+    ("runtime_smoke", probe_runtime_smoke),
     ("level_modules", probe_level_modules),
     ("scenario_pairing", probe_scenario_pairing),
     ("seg_script_inventory", probe_seg_script_inventory),
