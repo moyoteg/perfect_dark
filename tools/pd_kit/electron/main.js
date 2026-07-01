@@ -152,7 +152,7 @@ function toolCards() {
     return {
       key,
       title: cfg.productName,
-      shortTitle: cfg.productName.replace(/^Perfect Dark Kit — /, ''),
+      shortTitle: cfg.shortTitle || cfg.productName,
       description: describeApp(key),
       built: Boolean(appPath),
       wrapped: fs.existsSync(wrappedPath),

@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-readonly APP_TITLE="Perfect Dark Kit — Map Editor"
+readonly APP_TITLE="PD Map Editor"
 readonly DEFAULT_HOST="127.0.0.1"
 readonly DEFAULT_PORT="8765"
 readonly PORT_MIN="8765"

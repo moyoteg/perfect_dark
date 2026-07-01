@@ -1,6 +1,6 @@
 {
   "name": "perfect-dark-map-editor",
-  "productName": "Perfect Dark Kit — Map Editor",
+  "productName": "PD Map Editor",
   "version": "1.0.0",
   "description": "Electron shell for the Perfect Dark uff map editor",
   "main": "main.js",
@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.perfectdark.kit.map-editor",
-    "productName": "Perfect Dark Kit — Map Editor",
+    "productName": "PD Map Editor",
     "directories": {
       "output": "../../../scripts/release/electron-dist",
       "buildResources": "build"
@@ -52,7 +52,7 @@
       "icon": "build/icon.icns",
       "identity": null,
       "extendInfo": {
-        "CFBundleDisplayName": "Perfect Dark Kit — Map Editor",
+        "CFBundleDisplayName": "PD Map Editor",
         "LSMultipleInstancesProhibited": true
       }
     },
