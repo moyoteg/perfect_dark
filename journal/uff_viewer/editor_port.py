@@ -30,29 +30,9 @@ def _repo_root() -> str:
 
 def resolve_state_dir() -> str:
     """Match serve_editor.py state directory resolution."""
-    env_state = os.environ.get("PD_EDITOR_STATE_DIR", "").strip()
-    if env_state:
-        os.makedirs(env_state, exist_ok=True)
-        return env_state
+    from tools.pd_kit.paths import resolve_editor_state_dir
 
-    root = _repo_root()
-    repo_viewer = os.path.join(root, "journal", "uff_viewer")
-    if os.path.isdir(repo_viewer):
-        try:
-            probe = os.path.join(repo_viewer, ".pd_editor_write_probe")
-            with open(probe, "w", encoding="utf-8") as fp:
-                fp.write("ok")
-            os.remove(probe)
-            return repo_viewer
-        except OSError:
-            pass
-
-    fallback = os.path.join(
-        os.path.expanduser("~/Library/Application Support"),
-        "PerfectDarkMapEditor",
-    )
-    os.makedirs(fallback, exist_ok=True)
-    return fallback
+    return resolve_editor_state_dir(_repo_root())
 
 
 def port_file_path(state_dir: str | None = None) -> str:

@@ -205,7 +205,7 @@ It might be possible to build and run the game on platforms that are not specifi
 
 ## Custom multiplayer maps
 
-This fork includes a map pipeline (`tools/pdmap`), custom Combat Sim arenas (`my_arena`, `testarena`), and the **Perfect Dark Map Editor** app.
+This fork ships the **Perfect Dark Kit** — map pipeline (`tools/pdmap`), custom Combat Sim arenas (`my_arena`, `testarena`), and desktop authoring apps. See **[`PERFECT_DARK_KIT.md`](PERFECT_DARK_KIT.md)** for the full manifest, build order, and CLI.
 
 ### QUICKSTART (new mappers, macOS arm64)
 
@@ -224,10 +224,11 @@ This fork includes a map pipeline (`tools/pdmap`), custom Combat Sim arenas (`my
    ./build/pd.arm64 --moddir mods/mod_allinone
    ```
    Combat Sim → **Custom Maps** → **My Arena** or **Test Arena**.
-4. **Map editor:** build once, then double-click:
+4. **Build the kit** (game + all authoring apps):
    ```bash
-   ./scripts/build-map-editor-electron.sh
-   open "scripts/release/Perfect Dark Map Editor.app"
+   ./scripts/build-pd-kit.sh
+   # or: ./scripts/pd-kit.sh open map-editor
+   open "scripts/release/Perfect Dark Kit — Map Editor.app"
    ```
    Use **Test / Play (T)** to build, deploy, and launch `--test-map`.
 5. **Validate a level:**

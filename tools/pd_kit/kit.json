@@ -1,0 +1,34 @@
+{
+  "name": "Perfect Dark Kit",
+  "supportDirName": "PerfectDarkKit",
+  "logsDirName": "PerfectDarkKit",
+  "apps": {
+    "mapEditor": {
+      "id": "map-editor",
+      "productName": "Perfect Dark Kit — Map Editor",
+      "bundleFileName": "Perfect Dark Kit — Map Editor.app",
+      "logFile": "map-editor.log",
+      "legacySupportDir": "PerfectDarkMapEditor",
+      "legacyLogFile": "PerfectDarkMapEditor.log"
+    },
+    "animLab": {
+      "id": "anim-lab",
+      "productName": "Perfect Dark Kit — Animation Lab",
+      "bundleFileName": "Perfect Dark Kit — Animation Lab.app",
+      "logFile": "anim-lab.log",
+      "legacySupportDir": "PerfectDarkAnimLab",
+      "legacyLogFile": "PerfectDarkAnimLab.log"
+    },
+    "assetUpgrader": {
+      "id": "asset-upgrader",
+      "productName": "Perfect Dark Kit — Asset Upgrader",
+      "bundleFileName": "Perfect Dark Kit — Asset Upgrader.app",
+      "logFile": "asset-upgrader.log",
+      "legacySupportDir": null,
+      "legacyLogFile": null
+    }
+  },
+  "release": {
+    "manifestFile": "kit-manifest.json"
+  }
+}

@@ -14,14 +14,17 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=pd-kit-common.sh
+source "$SCRIPT_DIR/pd-kit-common.sh"
+REPO_ROOT="$PD_KIT_REPO_ROOT"
 ELECTRON_DIR="$REPO_ROOT/journal/uff_viewer/electron"
 VIEWER_DIR="$REPO_ROOT/journal/uff_viewer"
 EDITOR_BUNDLE_STAGING="$ELECTRON_DIR/editor-bundle"
-RELEASE_DIR="$SCRIPT_DIR/release"
-APP_NAME="Perfect Dark Map Editor"
+RELEASE_DIR="$PD_KIT_RELEASE_DIR"
+APP_NAME="${PD_KIT_APP_MAP_EDITOR%.app}"
 APP_BUNDLE="$RELEASE_DIR/${APP_NAME}.app"
 LEGACY_ELECTRON_BUNDLE="$RELEASE_DIR/Perfect Dark Map Editor (Electron).app"
+LEGACY_APP_BUNDLE="$RELEASE_DIR/Perfect Dark Map Editor.app"
 BUILD_DIR="$REPO_ROOT/.tmp-map-editor-app-build"
 SYMLINK_AT_ROOT=1
 DEV_ONLY=0
@@ -213,12 +216,12 @@ main() {
 
 	install_built_app
 
-	# Remove old Electron-named bundle and repo-root duplicates.
-	rm -rf "$LEGACY_ELECTRON_BUNDLE" "$REPO_ROOT/Perfect Dark Map Editor (Electron).app"
-	rm -f "$REPO_ROOT/Perfect Dark Map Editor.app"
+	# Remove legacy bundle names and repo-root duplicates.
+	rm -rf "$LEGACY_ELECTRON_BUNDLE" "$LEGACY_APP_BUNDLE" "$REPO_ROOT/Perfect Dark Map Editor (Electron).app"
+	rm -f "$REPO_ROOT/Perfect Dark Map Editor.app" "$REPO_ROOT/${APP_NAME}.app"
 
 	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
-		ln -sfn "$APP_BUNDLE" "$REPO_ROOT/${APP_NAME}.app"
+		kit_symlink_app "${APP_NAME}.app"
 	fi
 
 	printf '\nBuilt map editor app:\n'
