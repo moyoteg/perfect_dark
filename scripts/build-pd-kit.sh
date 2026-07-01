@@ -47,7 +47,7 @@ Usage: $0 [--game-only] [--apps-only] [--no-symlink] [--skip-game]
 Build Perfect Dark Kit v${PD_KIT_VERSION} (port v${PD_PORT_VERSION}).
 
   --game-only    Build ./build/pd.arm64 only
-  --apps-only    Build Map Editor, Animation Lab, Asset Upgrader only
+  --apps-only    Build child apps + Kit hub wrapper
   --no-symlink   Do not create repo-root .app symlinks
   --skip-game    Skip cmake when build/pd.arm64 already exists
 EOF
@@ -76,19 +76,35 @@ build_game() {
 }
 
 build_apps() {
-	local symlink_flag=()
+	echo "==> Building Map Editor"
 	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
-		symlink_flag=(--no-symlink)
+		"$SCRIPT_DIR/build-map-editor-electron.sh" --no-symlink
+	else
+		"$SCRIPT_DIR/build-map-editor-electron.sh"
 	fi
 
-	echo "==> Building Map Editor"
-	"$SCRIPT_DIR/build-map-editor-electron.sh" "${symlink_flag[@]}"
-
 	echo "==> Building Animation Lab"
-	"$SCRIPT_DIR/build-anim-lab-electron.sh" "${symlink_flag[@]}"
+	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
+		"$SCRIPT_DIR/build-anim-lab-electron.sh" --no-symlink
+	else
+		"$SCRIPT_DIR/build-anim-lab-electron.sh"
+	fi
 
 	echo "==> Building Asset Upgrader"
-	"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build "${symlink_flag[@]}"
+	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
+		"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build --no-symlink
+	else
+		"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build
+	fi
+}
+
+build_kit_hub() {
+	echo "==> Building Kit Hub (wraps all tools)"
+	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
+		"$SCRIPT_DIR/build-pd-kit-launcher-electron.sh" --no-symlink
+	else
+		"$SCRIPT_DIR/build-pd-kit-launcher-electron.sh"
+	fi
 }
 
 main() {
@@ -101,17 +117,21 @@ main() {
 
 	if [[ "$BUILD_APPS" -eq 1 ]]; then
 		build_apps
+		write_kit_release_manifest "$PD_BINARY" >/dev/null
+		build_kit_hub
 	fi
 
-	local manifest_path
 	manifest_path="$(write_kit_release_manifest "$PD_BINARY")"
+	if [[ -d "$PD_KIT_RELEASE_DIR/$PD_KIT_APP_HUB" ]]; then
+		cp "$manifest_path" "$PD_KIT_RELEASE_DIR/$PD_KIT_APP_HUB/Contents/Resources/kit-manifest.json"
+	fi
 	echo ""
 	echo "==> Kit build complete"
 	echo "    Manifest: $manifest_path"
 	echo "    Game:     $PD_BINARY"
 	echo "    Release:  $PD_KIT_RELEASE_DIR/"
 	echo ""
-	echo "Launch tools: ./scripts/pd-kit.sh open map-editor"
+	echo "Launch hub: ./scripts/pd-kit.sh open"
 }
 
 main "$@"

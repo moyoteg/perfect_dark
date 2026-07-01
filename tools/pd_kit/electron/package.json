@@ -1,0 +1,52 @@
+{
+  "name": "perfect-dark-kit",
+  "productName": "Perfect Dark Kit",
+  "version": "0.2.0",
+  "description": "Perfect Dark Kit hub — launcher for all modding tools",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac dir",
+    "build:dir": "electron-builder --mac dir"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.perfectdark.kit",
+    "productName": "Perfect Dark Kit",
+    "directories": {
+      "output": "../../../scripts/release/kit-hub-dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../../../tools/pd_kit",
+        "to": "pd_kit",
+        "filter": ["kit.json", "electron_paths.js"]
+      },
+      {
+        "from": "../../../KIT_VERSION",
+        "to": "KIT_VERSION"
+      },
+      {
+        "from": "../../../PORT_VERSION",
+        "to": "PORT_VERSION"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [{ "target": "dir", "arch": ["arm64", "x64"] }],
+      "icon": "build/icon.icns",
+      "identity": null
+    },
+    "asar": true
+  }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+    <title>Perfect Dark Kit</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Modding stack</p>
+          <h1 id="kitTitle">Perfect Dark Kit</h1>
+          <p id="kitSubtitle" class="subtitle">Launch every authoring tool from one place.</p>
+        </div>
+        <div class="meta">
+          <div class="pill" id="kitVersionPill">Kit v0.0.0</div>
+          <div class="pill muted" id="portVersionPill">Port v0.0.0</div>
+        </div>
+      </header>
+
+      <section class="actions-row">
+        <button id="playBtn" type="button" class="primary">Play with Mod</button>
+        <button id="testMapBtn" type="button">Test Map</button>
+        <button id="revealReleaseBtn" type="button" class="ghost">Reveal Release Folder</button>
+      </section>
+
+      <section class="grid" id="toolGrid"></section>
+
+      <footer class="footer">
+        <p id="repoLine" class="muted"></p>
+        <p id="statusLine" class="status"></p>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -224,11 +224,11 @@ This fork ships the **Perfect Dark Kit** — map pipeline (`tools/pdmap`), custo
    ./build/pd.arm64 --moddir mods/mod_allinone
    ```
    Combat Sim → **Custom Maps** → **My Arena** or **Test Arena**.
-4. **Build the kit** (game + all authoring apps):
+4. **Build the kit** (game + hub that wraps all tools):
    ```bash
    ./scripts/build-pd-kit.sh
-   # or: ./scripts/pd-kit.sh open map-editor
-   open "scripts/release/Perfect Dark Kit — Map Editor.app"
+   open "Perfect Dark Kit.app"
+   # or: ./scripts/pd-kit.sh open
    ```
    Use **Test / Play (T)** to build, deploy, and launch `--test-map`.
 5. **Validate a level:**

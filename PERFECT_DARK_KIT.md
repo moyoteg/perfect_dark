@@ -11,9 +11,10 @@ The **Perfect Dark Kit** is the unified modding stack for this repository: PC po
 |-----------|------|-------------|
 | **PC port** | Play modded Perfect Dark | `./build/pd.arm64 --moddir mods/mod_allinone` |
 | **pdmap pipeline** | Validate → build → deploy → register maps | `python3 tools/pdmap.py …` |
-| **Map Editor** | 3D JSON editor + Test/Play | `Perfect Dark Kit — Map Editor.app` |
-| **Animation Lab** | Animation catalog + parade test map | `Perfect Dark Kit — Animation Lab.app` |
-| **Asset Upgrader** | Batch texture upgrade for mods | `Perfect Dark Kit — Asset Upgrader.app` |
+| **Kit Hub** | Launch all tools from one `.app` | `Perfect Dark Kit.app` |
+| **Map Editor** | 3D JSON editor + Test/Play | nested in hub + `scripts/release/` |
+| **Animation Lab** | Animation catalog + parade test map | nested in hub + `scripts/release/` |
+| **Asset Upgrader** | Batch texture upgrade for mods | nested in hub + `scripts/release/` |
 | **Docs** | Workflow + binary reference | [`docs/MAP_MAKING_WIKI.md`](docs/MAP_MAKING_WIKI.md) |
 
 **BYO ROM** — no game assets are bundled. Place `pd.ntsc-final.z64` in `data/` (see [`README.md`](README.md)).
@@ -37,17 +38,19 @@ Provide your NTSC-final ROM and symlink at repo root (see README QUICKSTART).
 This builds:
 
 - `./build/pd.arm64`
+- `scripts/release/Perfect Dark Kit.app` (hub — **wraps all tools below**)
 - `scripts/release/Perfect Dark Kit — Map Editor.app`
 - `scripts/release/Perfect Dark Kit — Animation Lab.app`
 - `scripts/release/Perfect Dark Kit — Asset Upgrader.app`
 - `scripts/release/kit-manifest.json`
 
-Repo-root symlinks are created for each `.app` when the build succeeds.
+Child apps are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` so the hub is self-contained. Repo-root symlinks are created for the hub and each tool when the build succeeds.
 
 ### 3. CLI launcher
 
 ```bash
 ./scripts/pd-kit.sh version
+./scripts/pd-kit.sh open
 ./scripts/pd-kit.sh open map-editor
 ./scripts/pd-kit.sh validate my_arena testarena
 ./scripts/pd-kit.sh play --test-map --mod mod_allinone
@@ -58,8 +61,10 @@ Repo-root symlinks are created for each `.app` when the build succeeds.
 | `pd-kit.sh version` | Print kit + port version and support paths |
 | `pd-kit.sh build` | Same as `build-pd-kit.sh` |
 | `pd-kit.sh build --game-only` | CMake `pd` target only |
-| `pd-kit.sh build --apps-only` | Electron apps only |
-| `pd-kit.sh open map-editor` | Open Map Editor `.app` |
+| `pd-kit.sh build --apps-only` | Child apps + Kit hub wrapper |
+| `pd-kit.sh open` | Open **Perfect Dark Kit.app** hub (default) |
+| `pd-kit.sh open kit` | Same as `open` |
+| `pd-kit.sh open map-editor` | Open Map Editor directly |
 | `pd-kit.sh open anim-lab` | Open Animation Lab `.app` |
 | `pd-kit.sh open asset-upgrader` | Open Asset Upgrader `.app` |
 | `pd-kit.sh validate [level …]` | Run `pdmap validate` (default: `my_arena testarena`) |
@@ -123,6 +128,11 @@ Bump **`KIT_VERSION`** when shipping kit tool changes. Bump **`PORT_VERSION`** w
 ```
 scripts/release/
 ├── kit-manifest.json
+├── Perfect Dark Kit.app                    ← hub (wraps Apps/*)
+│   └── Contents/Resources/Apps/
+│       ├── Perfect Dark Kit — Map Editor.app
+│       ├── Perfect Dark Kit — Animation Lab.app
+│       └── Perfect Dark Kit — Asset Upgrader.app
 ├── Perfect Dark Kit — Map Editor.app
 ├── Perfect Dark Kit — Animation Lab.app
 └── Perfect Dark Kit — Asset Upgrader.app
