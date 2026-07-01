@@ -1,8 +1,8 @@
 {
-  "name": "perfect-dark-map-editor",
-  "productName": "Perfect Dark Kit — Map Editor",
+  "name": "perfect-dark-anim-lab",
+  "productName": "Perfect Dark Kit — Animation Lab",
   "version": "1.0.0",
-  "description": "Electron shell for the Perfect Dark uff map editor",
+  "description": "Perfect Dark Kit — animation parade and catalog browser",
   "main": "main.js",
   "private": true,
   "scripts": {
@@ -15,10 +15,10 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "com.perfectdark.kit.map-editor",
-    "productName": "Perfect Dark Kit — Map Editor",
+    "appId": "com.perfectdark.kit.anim-lab",
+    "productName": "Perfect Dark Kit — Animation Lab",
     "directories": {
-      "output": "../../../scripts/release/electron-dist",
+      "output": "../../../scripts/release/anim-lab-dist",
       "buildResources": "build"
     },
     "files": [
@@ -28,8 +28,8 @@
     ],
     "extraResources": [
       {
-        "from": "editor-bundle",
-        "to": "editor",
+        "from": "anim-lab-bundle",
+        "to": "anim-lab",
         "filter": ["**/*"]
       },
       {
@@ -43,10 +43,7 @@
       "target": [
         {
           "target": "dir",
-          "arch": [
-            "arm64",
-            "x64"
-          ]
+          "arch": ["arm64", "x64"]
         }
       ],
       "icon": "build/icon.icns",

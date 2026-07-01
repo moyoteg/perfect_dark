@@ -12,11 +12,24 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
-const APP_TITLE = 'Perfect Dark Map Editor';
-const LOG_FILE = path.join(
-  app.getPath('home'),
-  'Library/Logs/PerfectDarkMapEditor.log'
-);
+function requireKitPaths() {
+  const candidates = [
+    path.join(__dirname, '../../../tools/pd_kit/electron_paths.js'),
+    path.join(process.resourcesPath || '', 'pd_kit', 'electron_paths.js'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      // Packaged .app copies kit helpers into Contents/Resources/pd_kit/.
+      return require(candidate);
+    }
+  }
+  throw new Error('Perfect Dark Kit paths module not found');
+}
+
+const kitPaths = requireKitPaths();
+
+const APP_TITLE = kitPaths.appConfig('mapEditor').productName;
+const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'mapEditor');
 const DEFAULT_HOST = '127.0.0.1';
 const PORT_MIN = 8765;
 const PORT_MAX = 8775;
@@ -199,28 +212,13 @@ function resolveEditorPaths(repoRoot) {
 }
 
 function resolveStateDir(repoRoot, editorSource) {
-  const envState = (process.env.PD_EDITOR_STATE_DIR || '').trim();
-  if (envState) {
-    fs.mkdirSync(envState, { recursive: true });
-    return envState;
-  }
-  const repoViewer = path.join(repoRoot, 'journal', 'uff_viewer');
-  if (editorSource === 'repo') {
-    try {
-      const probe = path.join(repoViewer, '.pd_editor_write_probe');
-      fs.writeFileSync(probe, 'ok', 'utf8');
-      fs.unlinkSync(probe);
-      return repoViewer;
-    } catch {
-      // fall through
-    }
-  }
-  const fallback = path.join(
+  return kitPaths.resolveKitStateDir(
     app.getPath('home'),
-    'Library/Application Support/PerfectDarkMapEditor'
+    'mapEditor',
+    repoRoot,
+    'journal/uff_viewer',
+    'PD_EDITOR_STATE_DIR'
   );
-  fs.mkdirSync(fallback, { recursive: true });
-  return fallback;
 }
 
 function resolvePython() {
