@@ -1,6 +1,6 @@
 {
   "name": "perfect-dark-asset-upgrader",
-  "productName": "Perfect Dark Kit — Asset Upgrader",
+  "productName": "PD Asset Upgrader",
   "version": "0.2.0",
   "description": "Perfect Dark Kit — mass texture upgrade supervisor for mods",
   "main": "main.js",
@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.perfectdark.kit.asset-upgrader",
-    "productName": "Perfect Dark Kit — Asset Upgrader",
+    "productName": "PD Asset Upgrader",
     "directories": {
       "output": "../../../scripts/release/asset-upgrader-electron-dist",
       "buildResources": "build"
@@ -40,7 +40,7 @@
       "icon": "build/icon.icns",
       "identity": null,
       "extendInfo": {
-        "CFBundleDisplayName": "Perfect Dark Kit — Asset Upgrader",
+        "CFBundleDisplayName": "PD Asset Upgrader",
         "LSMultipleInstancesProhibited": true
       }
     },

@@ -2,7 +2,7 @@
 # Build the Electron-based Perfect Dark Map Editor macOS .app bundle.
 #
 # Outputs:
-#   scripts/release/Perfect Dark Map Editor.app
+#   scripts/release/PD Map Editor.app
 #
 # Usage:
 #   ./scripts/build-map-editor-electron.sh              # builds + repo-root symlink
@@ -196,8 +196,11 @@ main() {
 	install_built_app
 
 	# Remove legacy bundle names and repo-root duplicates.
-	rm -rf "$LEGACY_ELECTRON_BUNDLE" "$LEGACY_APP_BUNDLE" "$REPO_ROOT/Perfect Dark Map Editor (Electron).app"
-	rm -f "$REPO_ROOT/Perfect Dark Map Editor.app" "$REPO_ROOT/${APP_NAME}.app"
+	rm -rf "$LEGACY_ELECTRON_BUNDLE" "$LEGACY_APP_BUNDLE"
+	rm -rf "$RELEASE_DIR/Perfect Dark Kit — Map Editor.app"
+	rm -f "$REPO_ROOT/Perfect Dark Map Editor (Electron).app"
+	rm -f "$REPO_ROOT/Perfect Dark Map Editor.app" "$REPO_ROOT/Perfect Dark Kit — Map Editor.app"
+	rm -f "$REPO_ROOT/${APP_NAME}.app"
 
 	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
 		kit_symlink_app "${APP_NAME}.app"

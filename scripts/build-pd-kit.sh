@@ -76,28 +76,17 @@ build_game() {
 }
 
 build_apps() {
+	kit_prune_legacy_app_bundles
 	"$SCRIPT_DIR/pd-kit-icons.sh" all
 
 	echo "==> Building Map Editor"
-	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
-		"$SCRIPT_DIR/build-map-editor-electron.sh" --no-symlink
-	else
-		"$SCRIPT_DIR/build-map-editor-electron.sh"
-	fi
+	"$SCRIPT_DIR/build-map-editor-electron.sh" --no-symlink
 
 	echo "==> Building Animation Lab"
-	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
-		"$SCRIPT_DIR/build-anim-lab-electron.sh" --no-symlink
-	else
-		"$SCRIPT_DIR/build-anim-lab-electron.sh"
-	fi
+	"$SCRIPT_DIR/build-anim-lab-electron.sh" --no-symlink
 
 	echo "==> Building Asset Upgrader"
-	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
-		"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build --no-symlink
-	else
-		"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build
-	fi
+	"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build --no-symlink
 }
 
 build_kit_hub() {
@@ -121,6 +110,7 @@ main() {
 		build_apps
 		write_kit_release_manifest "$PD_BINARY" >/dev/null
 		build_kit_hub
+		kit_prune_legacy_app_bundles
 	fi
 
 	manifest_path="$(write_kit_release_manifest "$PD_BINARY")"

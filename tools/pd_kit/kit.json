@@ -6,6 +6,7 @@
     "kitHub": {
       "id": "kit-hub",
       "productName": "Perfect Dark Kit",
+      "shortTitle": "Kit",
       "bundleFileName": "Perfect Dark Kit.app",
       "logFile": "kit-hub.log",
       "legacySupportDir": null,
@@ -14,24 +15,27 @@
     },
     "mapEditor": {
       "id": "map-editor",
-      "productName": "Perfect Dark Kit — Map Editor",
-      "bundleFileName": "Perfect Dark Kit — Map Editor.app",
+      "productName": "PD Map Editor",
+      "shortTitle": "Map Editor",
+      "bundleFileName": "PD Map Editor.app",
       "logFile": "map-editor.log",
       "legacySupportDir": "PerfectDarkMapEditor",
       "legacyLogFile": "PerfectDarkMapEditor.log"
     },
     "animLab": {
       "id": "anim-lab",
-      "productName": "Perfect Dark Kit — Animation Lab",
-      "bundleFileName": "Perfect Dark Kit — Animation Lab.app",
+      "productName": "PD Anim Lab",
+      "shortTitle": "Anim Lab",
+      "bundleFileName": "PD Anim Lab.app",
       "logFile": "anim-lab.log",
       "legacySupportDir": "PerfectDarkAnimLab",
       "legacyLogFile": "PerfectDarkAnimLab.log"
     },
     "assetUpgrader": {
       "id": "asset-upgrader",
-      "productName": "Perfect Dark Kit — Asset Upgrader",
-      "bundleFileName": "Perfect Dark Kit — Asset Upgrader.app",
+      "productName": "PD Asset Upgrader",
+      "shortTitle": "Asset Upgrader",
+      "bundleFileName": "PD Asset Upgrader.app",
       "logFile": "asset-upgrader.log",
       "legacySupportDir": null,
       "legacyLogFile": null

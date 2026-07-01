@@ -2,7 +2,7 @@
 # Build the Electron-based Perfect Dark Animation Lab macOS .app bundle.
 #
 # Outputs:
-#   scripts/release/Perfect Dark Animation Lab.app
+#   scripts/release/PD Anim Lab.app
 #
 # Usage:
 #   ./scripts/build-anim-lab-electron.sh              # builds + repo-root symlink
@@ -150,8 +150,9 @@ main() {
 	npm run build
 	install_built_app
 
-	rm -rf "$LEGACY_APP_BUNDLE"
-	rm -f "$REPO_ROOT/Perfect Dark Animation Lab.app" "$REPO_ROOT/${APP_NAME}.app"
+	rm -rf "$LEGACY_APP_BUNDLE" "$RELEASE_DIR/Perfect Dark Kit — Animation Lab.app"
+	rm -f "$REPO_ROOT/Perfect Dark Animation Lab.app" "$REPO_ROOT/Perfect Dark Kit — Animation Lab.app"
+	rm -f "$REPO_ROOT/${APP_NAME}.app"
 	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
 		kit_symlink_app "${APP_NAME}.app"
 	fi

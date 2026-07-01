@@ -121,6 +121,25 @@ kit_symlink_app() {
 	fi
 }
 
+# Remove superseded .app bundles and repo-root symlinks from older naming schemes.
+kit_prune_legacy_app_bundles() {
+	local legacy=(
+		"Perfect Dark Kit — Map Editor.app"
+		"Perfect Dark Kit — Animation Lab.app"
+		"Perfect Dark Kit — Asset Upgrader.app"
+		"Perfect Dark Map Editor.app"
+		"Perfect Dark Map Editor (Electron).app"
+		"Perfect Dark Map Editor 2.app"
+		"Perfect Dark Map Editor 3.app"
+		"Perfect Dark Animation Lab.app"
+	)
+	local name
+	for name in "${legacy[@]}"; do
+		rm -rf "$PD_KIT_RELEASE_DIR/$name" 2>/dev/null || true
+		rm -f "$PD_KIT_REPO_ROOT/$name" 2>/dev/null || true
+	done
+}
+
 kit_open_app() {
 	local bundle_name="$1"
 	local bundle_path="$PD_KIT_RELEASE_DIR/$bundle_name"

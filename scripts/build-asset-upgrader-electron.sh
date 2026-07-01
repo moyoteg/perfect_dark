@@ -2,7 +2,7 @@
 # Build the Electron-based Perfect Dark Kit Asset Upgrader macOS .app bundle.
 #
 # Outputs:
-#   scripts/release/Perfect Dark Kit — Asset Upgrader.app
+#   scripts/release/PD Asset Upgrader.app
 #
 # Usage:
 #   ./scripts/build-asset-upgrader-electron.sh --build [--no-symlink]
@@ -89,7 +89,7 @@ install_built_app() {
 	fi
 
 	mkdir -p "$RELEASE_DIR"
-	rm -rf "$APP_BUNDLE" "$RELEASE_DIR/PD Asset Upgrader.app"
+	rm -rf "$APP_BUNDLE" "$RELEASE_DIR/Perfect Dark Kit — Asset Upgrader.app"
 	cp -R "$built" "$APP_BUNDLE"
 
 	mkdir -p "$APP_BUNDLE/Contents/Resources"
@@ -112,7 +112,7 @@ echo "==> Building macOS .app with electron-builder"
 (cd "$ELECTRON_DIR" && npm run build)
 install_built_app
 
-rm -f "$ROOT/PD Asset Upgrader.app"
+rm -f "$ROOT/Perfect Dark Kit — Asset Upgrader.app"
 if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
 	kit_symlink_app "${APP_NAME}.app"
 fi
