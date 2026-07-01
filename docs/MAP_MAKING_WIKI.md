@@ -482,6 +482,48 @@ add_mp_scenarios(g,
 )
 ```
 
+### KOTH hill visual markers (box arenas)
+
+KOTH capture is **room-based** (`kingofthehill.inc`): the engine highlights the hill
+pad's **room** green (then team colour when occupied). A single-room box arena makes
+the **entire floor** the hill — gameplay may work but there is no visible boundary.
+
+**Required for readable KOTH in box maps:**
+
+1. **Hill pad in room 2** (`room=2` on the scenario pad; spawn stays in room 1).
+2. **Floor tiles in room 2** covering only the capture square (typically
+   `floor_box_with_hill_zone()` in `tools/pdmap/builders.py`).
+3. **Matching collision in room 1** — same hill square quad duplicated in room 1
+   tiles. pdmap box segs are single-room; collision geo is collected only from the
+   player's seg room list (room 1). Without the room-1 hill quad, the cut-out hole
+   has no floor and players fall through the green seg marker.
+4. **Ring tiles in room 1** — dark seg floor strips just outside the hill square
+   mark the boundary (collision ring tiles in room 1 mirror the same layout).
+5. **`PDMAP_SEG_MODE=hill` seg (room 1 only)** — floor quads for arena, dark ring,
+   and static green hill square. Tiles stay in room 2 for KOTH capture; seg must
+   stay **single-room** (multi-room custom segs crash in ``relinkPtr``). KOTH
+   pulse tints tile room 2; the hill square stays visibly green via seg colour.
+
+`from-json` / `EditorMapSpec.tiles_json()` auto-emits hill zone tiles when a `Hill`
+intro command is present. Constants: `HILL_ZONE_HALF=600`, `HILL_RING_WIDTH=100`,
+colours `HILL_ZONE_COLOUR` / `HILL_RING_COLOUR`.
+
+```python
+from tools.pdmap.builders import floor_box_with_hill_zone, HILL_ROOM_INDEX
+
+g.add_pad(index=hill_pad, x=0, y=SPAWN_Y, z=1500, room=HILL_ROOM_INDEX)
+g.add_intro(Hill(pad=hill_pad))
+
+def build_tiles_json():
+    return floor_box_with_hill_zone(
+        "mymap", half=BOX_HALF, y=0.0,
+        hill_center_x=0.0, hill_center_z=1500.0,
+    )
+```
+
+Launch with `--scenario-4`. Production maps `my_arena` and `testarena` use the same
+pattern.
+
 ### pdmap `validate` checks
 
 - Contiguous pad indices 0..N-1
