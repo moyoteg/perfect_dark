@@ -20,7 +20,6 @@ from .builders import (
     ctf_zones_from_mapdef,
     floor_box_tiles,
     floor_box_with_ctf_zones,
-    floor_box_with_hill_and_ctf_zones,
     floor_box_with_hill_zone,
     hill_zone_center_from_mapdef,
 )
@@ -178,16 +177,6 @@ class EditorMapSpec:
     def tiles_json(self) -> dict:
         """Collision floor matching the box arena (hill / CTF zone tiles when anchored)."""
         center = hill_zone_center_from_mapdef(self.mapdef)
-        ctf_zones = ctf_zones_from_mapdef(self.mapdef)
-        if center is not None and ctf_zones:
-            return floor_box_with_hill_and_ctf_zones(
-                self.name,
-                half=self.box_half,
-                y=0.0,
-                hill_center_x=center[0],
-                hill_center_z=center[1],
-                zones=ctf_zones,
-            )
         if center is not None:
             return floor_box_with_hill_zone(
                 self.name,
@@ -196,6 +185,7 @@ class EditorMapSpec:
                 hill_center_x=center[0],
                 hill_center_z=center[1],
             )
+        ctf_zones = ctf_zones_from_mapdef(self.mapdef)
         if ctf_zones:
             return floor_box_with_ctf_zones(
                 self.name,

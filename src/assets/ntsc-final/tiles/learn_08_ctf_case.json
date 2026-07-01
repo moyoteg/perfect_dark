@@ -1,7 +1,7 @@
 {
     "rooms": {
-        "ROOM_UFF_0000": [],
-        "ROOM_UFF_0001": [
+        "ROOM_LEARN_08_CTF_CASE_0000": [],
+        "ROOM_LEARN_08_CTF_CASE_0001": [
             {
                 "flag0001": true,
                 "flag0002": true,

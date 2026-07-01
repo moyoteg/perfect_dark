@@ -5,9 +5,6 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 PD="$REPO/build/pd.arm64"
-MODDIR="$REPO/mods/mod_allinone"
-LOG_DIR="$REPO/journal/map_learn"
-LAST_LOG="$LOG_DIR/.last_validation_launch.log"
 STEP="${1:-1}"
 NO_PLAY=false
 if [[ "${2:-}" == "--no-play" ]]; then
@@ -32,18 +29,18 @@ fi
 SCENARIO=0
 case "$STEP" in
   7) SCENARIO=4 ;;  # KOTH
-  8|10) SCENARIO=5 ;;  # CTF (step 10 composite: briefcase prop needs scenario 5)
+  8) SCENARIO=5 ;;  # CTF
 esac
 
-# KOTH / CTF steps need visible floor markers in seg (tiles are collision-only).
+# KOTH steps need visible hill floor in seg room 2 (tiles are collision-only).
 SEG_MODE=empty
-if [[ "$STEP" == "7" ]]; then
+if [[ "$STEP" == "7" || "$STEP" == "10" ]]; then
   SEG_MODE=hill
-elif [[ "$STEP" == "8" || "$STEP" == "10" ]]; then
+elif [[ "$STEP" == "8" ]]; then
   SEG_MODE=ctf
 fi
 
-DEPLOY_ARGS=(
+CMD_ARGS=(
   from-json "$JSON"
   --deploy-as uff
   --deploy
@@ -51,6 +48,9 @@ DEPLOY_ARGS=(
   --scenario "$SCENARIO"
   --binary "$PD"
 )
+if [[ "$NO_PLAY" == false ]]; then
+  CMD_ARGS+=(--play)
+fi
 
 cd "$REPO"
 # seg-mode flag wins inside pdmap; do not clobber with empty here.
@@ -65,32 +65,4 @@ if [[ ! -x "$PD" ]]; then
   exit 1
 fi
 
-if [[ "$NO_PLAY" == false ]]; then
-  map_name="$(basename "$JSON" .json)"
-  {
-    echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) ${map_name} test-map scenario-${SCENARIO} (play-learn-step) ==="
-    echo "cmd: $PD --test-map --scenario-${SCENARIO} --num-sims 0 --moddir mods/mod_allinone"
-  } >>"$LAST_LOG"
-  if [[ "$(uname -s)" == "Darwin" ]] && command -v osascript >/dev/null 2>&1; then
-    # Build + deploy here; launch in Terminal.app for a real GL context (matches validate-maps).
-    python3 tools/pdmap.py "${DEPLOY_ARGS[@]}"
-    play_cmd="cd $(printf '%q' "$REPO") && $(printf '%q' "$PD") --test-map --scenario-${SCENARIO} --num-sims 0 --moddir $(printf '%q' "$MODDIR") 2>&1 | tee -a $(printf '%q' "$LAST_LOG")"
-    osascript - "$play_cmd" <<'APPLESCRIPT' >/dev/null
-on run argv
-	tell application "Terminal"
-		activate
-		do script (item 1 of argv)
-	end tell
-end run
-APPLESCRIPT
-    echo "  opened: Terminal.app (--scenario-${SCENARIO})"
-    echo "  log: ${LAST_LOG#$REPO/}"
-    exit 0
-  fi
-fi
-
-if [[ "$NO_PLAY" == true ]]; then
-  python3 tools/pdmap.py "${DEPLOY_ARGS[@]}"
-else
-  python3 tools/pdmap.py "${DEPLOY_ARGS[@]}" --play
-fi
+python3 tools/pdmap.py "${CMD_ARGS[@]}"

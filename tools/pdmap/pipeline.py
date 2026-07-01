@@ -16,6 +16,7 @@ from .core import (
     load_level_module,
 )
 from .deploy import deploy_all
+from .builders import ctf_zones_from_mapdef, hill_zone_center_from_mapdef
 from .from_json import EditorMapSpec
 from .pads_builder import write_pads_json
 from .setup_packer import write_setup_binary
@@ -49,12 +50,35 @@ def _resolve_seg_script(mod, name: str) -> str | None:
     return None
 
 
-def _build_box_seg_to_build_dir(name: str, *, half: float, height: float) -> str:
-    from .seg import validate_seg_g_vtx, write_box_seg
+def _build_box_seg_to_build_dir(
+    name: str,
+    *,
+    half: float,
+    height: float,
+    hill_center: tuple[float, float] | None = None,
+    ctf_zones: list[tuple[float, float, int, bool]] | None = None,
+) -> str:
+    from .seg import validate_seg_g_vtx, write_box_seg, write_ctf_box_seg, write_hill_box_seg
 
     os.makedirs(BUILD_DIR, exist_ok=True)
     build_dst = os.path.join(BUILD_DIR, f"bg_{name}.seg")
-    write_box_seg(build_dst, half=half, height=height)
+    if ctf_zones:
+        write_ctf_box_seg(
+            build_dst,
+            half=half,
+            height=height,
+            zones=ctf_zones,
+        )
+    elif hill_center is not None:
+        write_hill_box_seg(
+            build_dst,
+            half=half,
+            height=height,
+            hill_center_x=hill_center[0],
+            hill_center_z=hill_center[1],
+        )
+    else:
+        write_box_seg(build_dst, half=half, height=height)
     with open(build_dst, "rb") as seg_fp:
         errors = validate_seg_g_vtx(seg_fp.read())
     if errors:
@@ -119,20 +143,33 @@ def build_from_spec(
             f"{list(spec.y_corrected_pads)} (must be above floor Y=0)"
         )
 
-    pre_errors = validate_mapdef(mapdef, tiles_room_count=2)
+    pre_errors = validate_mapdef(mapdef, tiles_room_count=spec.tiles_room_count())
     if pre_errors:
         return pre_errors, warnings
 
     if want_seg:
+        hill_center = hill_zone_center_from_mapdef(mapdef)
+        ctf_zones = ctf_zones_from_mapdef(mapdef)
         if seg_mode:
-            os.environ.setdefault("PDMAP_SEG_MODE", seg_mode)
+            effective_seg_mode = seg_mode
+        elif ctf_zones:
+            effective_seg_mode = "ctf"
+        elif hill_center:
+            effective_seg_mode = "hill"
+        else:
+            effective_seg_mode = "empty"
+        os.environ["PDMAP_SEG_MODE"] = effective_seg_mode
         if verbose:
             print(
                 f"  Building box seg (half={spec.box_half:.0f} "
-                f"height={spec.box_height:.0f}, mode={os.environ.get('PDMAP_SEG_MODE', 'empty')})"
+                f"height={spec.box_height:.0f}, mode={effective_seg_mode})"
             )
         _build_box_seg_to_build_dir(
-            name, half=spec.box_half, height=spec.box_height
+            name,
+            half=spec.box_half,
+            height=spec.box_height,
+            hill_center=hill_center,
+            ctf_zones=ctf_zones or None,
         )
 
     pads_json_path = write_pads_json(mapdef)
@@ -196,16 +233,26 @@ def build_from_module(
     """Build from ``src/levels/<name>.py`` (legacy / hand-authored levels)."""
     mod = load_level_module(name)
     mapdef = mod.build()
+    deploy_as = getattr(mod, "DEPLOY_AS", None)
     seg_script = seg_script_path or _resolve_seg_script(mod, name)
     has_box_dims = hasattr(mod, "BOX_HALF") and hasattr(mod, "BOX_HEIGHT")
     do_seg = want_seg or bool(seg_script) or has_box_dims
 
     if do_seg:
+        hill_center = hill_zone_center_from_mapdef(mapdef)
+        ctf_zones = ctf_zones_from_mapdef(mapdef)
         seg_mode = getattr(mod, "SEG_MODE", None)
         if seg_mode:
-            os.environ.setdefault("PDMAP_SEG_MODE", str(seg_mode))
+            effective_seg_mode = str(seg_mode)
+        elif ctf_zones:
+            effective_seg_mode = "ctf"
+        elif hill_center:
+            effective_seg_mode = "hill"
         elif has_box_dims:
-            os.environ.setdefault("PDMAP_SEG_MODE", "empty")
+            effective_seg_mode = "empty"
+        else:
+            effective_seg_mode = "empty"
+        os.environ["PDMAP_SEG_MODE"] = effective_seg_mode
         if seg_script:
             if verbose:
                 print(f"  Building seg via {seg_script}")
@@ -214,8 +261,17 @@ def build_from_module(
             half = float(getattr(mod, "BOX_HALF", 5000.0))
             height = float(getattr(mod, "BOX_HEIGHT", 3000.0))
             if verbose:
-                print(f"  Building box seg (half={half:.0f} height={height:.0f})")
-            _build_box_seg_to_build_dir(name, half=half, height=height)
+                print(
+                    f"  Building box seg (half={half:.0f} height={height:.0f}, "
+                    f"mode={effective_seg_mode})"
+                )
+            _build_box_seg_to_build_dir(
+                name,
+                half=half,
+                height=height,
+                hill_center=hill_center,
+                ctf_zones=ctf_zones or None,
+            )
     elif deploy and verbose:
         print(
             "  WARNING: seg build skipped; deploy will copy existing BUILD_DIR seg "
@@ -259,7 +315,7 @@ def build_from_module(
         if deploy:
             if verbose:
                 print("  Deploying...")
-            deploy_all(name, mod_dirs)
+            deploy_all(name, mod_dirs, deploy_as=deploy_as)
         return [], []
 
     errors, warnings = validate_all(name, mapdef)
@@ -268,8 +324,10 @@ def build_from_module(
 
     if deploy:
         if verbose:
+            if deploy_as and deploy_as != name:
+                print(f"  Deploy-as: {name} → {deploy_as} (test-map slot)")
             print("  Deploying...")
-        deploy_all(name, mod_dirs)
+        deploy_all(name, mod_dirs, deploy_as=deploy_as)
         if verbose:
             print("  Deploy complete")
 

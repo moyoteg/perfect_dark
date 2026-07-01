@@ -237,18 +237,9 @@ def _curriculum_registry() -> list[CurriculumStep]:
             slug="full_arena",
             title="Composite (my_arena-like)",
             tests="Spawns + weapons + ammo + CTF pair + hill in one map",
-            expected=(
-                "Launch with --scenario-5 (Capture the Case). Grey arena floor; small "
-                "coloured squares only at CTF pads (seg mode ctf). Enemy briefcase at "
-                "-Z (team 1 Case, muted yellow square + ring). Walk north to -Z, pick up "
-                "the briefcase, return south to +Z and stand on the bright red delivery "
-                "square (team 0 CaseRespawn) — scoring triggers when you touch your home "
-                "Case prop at +Z while holding the enemy case. After a score (or if the "
-                "carrier is killed), each briefcase warps back to its own Case pad "
-                "(team 1 → -Z yellow, team 0 → +Z red). KOTH hill at +X (room 2)."
-            ),
-            scenario=5,
-            fact_tags=("level-module", "my_arena", "ctf"),
+            expected="All features together: pickups, KOTH anchor, CTF pair, four spawns.",
+            scenario=0,
+            fact_tags=("level-module", "my_arena"),
             json_body={
                 "box_half": 2500,
                 "box_height": 2000,
@@ -260,11 +251,9 @@ def _curriculum_registry() -> list[CurriculumStep]:
                     _weapon(4, 0, -1500, 0x11),
                     _weapon(5, 0, 1500, 0x13),
                     _ammo(6, 0, 0, 4),  # shotgun
-                    _scenario(7, 0, -500, "case", 1),
-                    _scenario(8, 0, 500, "case", 0),
+                    _scenario(7, 0, -500, "case", 0),
+                    _scenario(8, 0, 500, "case_respawn", 0),
                     _scenario(9, 500, 0, "hill", room=2),
-                    _scenario(10, 0, 500, "case_respawn", 0),
-                    _scenario(11, 0, -500, "case_respawn", 1),
                 ],
             },
         ),
