@@ -229,9 +229,9 @@ def floor_box_with_hill_zone(
 ) -> dict:
     """Box arena with a marked KOTH hill: ring tiles in room 1, capture floor in room 2.
 
-    Hill capture scoring still uses tile room ``hill_room_index`` (KOTH highlight).
-    Collision is collected from the player's *seg* room list, which pdmap box arenas
-    keep as room 1 only (single-room seg + ``STAGE_IS_PDMAP_BOX_ARENA`` bbox hack).
+    Hill capture scoring uses ``prop->rooms[0] == hill pad room`` on stock maps.
+    pdmap box arenas keep players in seg room 1; the engine uses position bounds
+    (``PDMAP_KOTH_HILL_HALF``) via ``kohPropInHill()`` instead.
     Room 1 therefore must include a collision quad over the hill square; room 2 keeps
     the same footprint for ``LIGHTOP_HIGHLIGHT`` / ``prop->rooms`` when seg room 2
     exists on stock maps.

@@ -4065,6 +4065,9 @@
 		|| (stage) == STAGE_MY_ARENA \
 		|| (stage) == STAGE_TESTARENA)
 
+// Must match tools/pdmap/builders.py HILL_ZONE_HALF (default hill capture square).
+#define PDMAP_KOTH_HILL_HALF 600.0f
+
 #define STAGE_MP_RANDOM_MULTI 0x02
 #define STAGE_MP_RANDOM_SOLO  0x03
 #define STAGE_MP_RANDOM_GEX   0x04
