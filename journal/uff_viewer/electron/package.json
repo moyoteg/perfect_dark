@@ -35,7 +35,7 @@
       {
         "from": "../../../tools/pd_kit",
         "to": "pd_kit",
-        "filter": ["kit.json", "electron_paths.js"]
+        "filter": ["kit.json", "electron_paths.js", "electron_single_instance.js"]
       }
     ],
     "mac": {
@@ -50,7 +50,11 @@
         }
       ],
       "icon": "build/icon.icns",
-      "identity": null
+      "identity": null,
+      "extendInfo": {
+        "CFBundleDisplayName": "Perfect Dark Kit — Map Editor",
+        "LSMultipleInstancesProhibited": true
+      }
     },
     "asar": true,
     "extraMetadata": {

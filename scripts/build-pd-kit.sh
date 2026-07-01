@@ -76,6 +76,8 @@ build_game() {
 }
 
 build_apps() {
+	"$SCRIPT_DIR/pd-kit-icons.sh" all
+
 	echo "==> Building Map Editor"
 	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
 		"$SCRIPT_DIR/build-map-editor-electron.sh" --no-symlink

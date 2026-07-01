@@ -27,6 +27,7 @@ function requireKitPaths() {
 }
 
 const kitPaths = requireKitPaths();
+const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instance.js');
 
 const APP_TITLE = kitPaths.appConfig('mapEditor').productName;
 const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'mapEditor');
@@ -708,6 +709,24 @@ async function bootstrap() {
   const url = editorUrl(activePort);
   log(`Server healthy on port ${activePort}; loading ${url}`);
   createWindow(url);
+}
+
+function focusMainWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    return;
+  }
+  if (activePort) {
+    createWindow(editorUrl(activePort));
+    return;
+  }
+  bootstrap();
+}
+
+if (!bindSingleInstance(app, focusMainWindow)) {
+  process.exit(0);
 }
 
 app.whenReady().then(() => {

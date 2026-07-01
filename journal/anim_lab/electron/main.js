@@ -25,6 +25,7 @@ function requireKitPaths() {
 }
 
 const kitPaths = requireKitPaths();
+const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instance.js');
 
 const APP_TITLE = kitPaths.appConfig('animLab').productName;
 const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'animLab');
@@ -480,6 +481,24 @@ async function bootstrap() {
 
   log(`Server healthy on port ${activePort}`);
   createWindow(labUrl(activePort));
+}
+
+function focusMainWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    return;
+  }
+  if (activePort) {
+    createWindow(labUrl(activePort));
+    return;
+  }
+  bootstrap();
+}
+
+if (!bindSingleInstance(app, focusMainWindow)) {
+  process.exit(0);
 }
 
 app.whenReady().then(bootstrap);

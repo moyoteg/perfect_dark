@@ -24,6 +24,7 @@ function requireKitPaths() {
 }
 
 const kitPaths = requireKitPaths();
+const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instance.js');
 
 const APP_TITLE = kitPaths.loadManifest().name || 'Perfect Dark Kit';
 const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'kitHub');
@@ -272,6 +273,18 @@ function registerIpc() {
       });
     });
   });
+}
+
+function focusMainWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+  }
+}
+
+if (!bindSingleInstance(app, focusMainWindow)) {
+  process.exit(0);
 }
 
 app.whenReady().then(() => {
