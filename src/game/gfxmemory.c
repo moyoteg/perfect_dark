@@ -45,6 +45,13 @@
 #define GFX_SIZE_MULTIPLIER 1
 #endif
 
+#ifndef PLATFORM_N64
+/* matrix_battle_64 / large sim MP: match STAGE_ANIMLAB pool sizes. */
+#define GFX_POOL_LARGE_MP_VTX_KB 512
+#define GFX_POOL_LARGE_MP_GFX_KB 768
+extern s32 g_StageNum;
+#endif
+
 u8 *g_GfxBuffers[NUM_GFXTASKS + 1];
 u32 var800aa58c;
 u8 *g_VtxBuffers[NUM_GFXTASKS + 1];
@@ -110,6 +117,29 @@ void gfxReset(void)
 		// Argument specified mtxvtx_size\n
 		g_VtxSizesByPlayerCount[PLAYERCOUNT() - 1] = strtol(argFindByPrefix(1, "-mvtx"), NULL, 0) * 1024;
 	}
+
+#ifndef PLATFORM_N64
+	/* pdmap box arenas (matrix_battle_64 on STAGE_TEST_UFF) ship with -mvtx98
+	 * (~50 KiB per buffer). chrTick allocates gfxAllocate(nummatrices*sizeof(Mtxf))
+	 * per visible chr (chr.c ~2719); dozens of bots overflow the vtx pool,
+	 * corrupting bone matrices and causing vertex explosion on render. */
+	if (STAGE_IS_PDMAP_BOX_ARENA(g_StageNum)
+			&& g_StageNum != STAGE_ANIMLAB
+			&& g_Vars.normmplayerisrunning
+			&& g_Vars.mpquickteamnumsims >= 8) {
+		u32 poolindex = PLAYERCOUNT() - 1;
+		u32 largevtx = GFX_POOL_LARGE_MP_VTX_KB * 1024;
+		u32 largegfx = GFX_POOL_LARGE_MP_GFX_KB * 1024 * GFX_SIZE_MULTIPLIER;
+
+		if (g_VtxSizesByPlayerCount[poolindex] < largevtx) {
+			g_VtxSizesByPlayerCount[poolindex] = largevtx;
+		}
+
+		if (g_GfxSizesByPlayerCount[poolindex] < largegfx) {
+			g_GfxSizesByPlayerCount[poolindex] = largegfx;
+		}
+	}
+#endif
 
 	// %d Players : Allocating %d bytes for master dl's\n
 	g_GfxBuffers[0] = mempAlloc(g_GfxSizesByPlayerCount[PLAYERCOUNT() - 1] * NUM_GFXTASKS, MEMPOOL_STAGE);
