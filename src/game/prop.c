@@ -69,7 +69,37 @@ void propsSort(void)
 	f32 depths[201];
 
 	// Populate onscreenprops with the list of props
+#ifndef PLATFORM_N64
+	/* Animation Lab: collect scenery (PROPTYPE_OBJ) first. Hundreds of parade
+	 * chr can fill g_Vars.onscreenprops before StdObject props are reached in
+	 * the activeprops list, leaving plaza/hub props invisible. */
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		for (prop = g_Vars.activeprops; prop != g_Vars.pausedprops; prop = prop->next) {
+			if (prop->type != PROPTYPE_OBJ) {
+				continue;
+			}
+
+			if ((prop->flags & (PROPFLAG_ONTHISSCREENTHISTICK | PROPFLAG_ENABLED))
+					== (PROPFLAG_ONTHISSCREENTHISTICK | PROPFLAG_ENABLED)) {
+				if (count < maxonscreen) {
+					g_Vars.onscreenprops[count] = prop;
+					count++;
+				}
+			}
+		}
+	}
+#endif
+
+	prop = g_Vars.activeprops;
+
 	while (prop != g_Vars.pausedprops) {
+#ifndef PLATFORM_N64
+		if (g_Vars.stagenum == STAGE_ANIMLAB && prop->type == PROPTYPE_OBJ) {
+			prop = prop->next;
+			continue;
+		}
+#endif
+
 		if ((prop->flags & (PROPFLAG_ONTHISSCREENTHISTICK | PROPFLAG_ENABLED)) == (PROPFLAG_ONTHISSCREENTHISTICK | PROPFLAG_ENABLED)) {
 			depths[count] = prop->z;
 			g_Vars.onscreenprops[count] = prop;
@@ -775,7 +805,7 @@ struct prop *shotCalculateHits(s32 handnum, bool isshooting, struct coord *gunpo
 					root = root->parent;
 				}
 
-				if (root->type == PROPTYPE_CHR || root->type == PROPTYPE_PLAYER) {
+				if ((root->type == PROPTYPE_CHR || root->type == PROPTYPE_PLAYER) && root->chr != NULL) {
 					chrHit(&shotdata, &shotdata.hits[i]);
 				} else if (hitprop->type == PROPTYPE_OBJ || hitprop->type == PROPTYPE_WEAPON || hitprop->type == PROPTYPE_DOOR) {
 					objHit(&shotdata, &shotdata.hits[i]);

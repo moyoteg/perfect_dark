@@ -6,6 +6,7 @@
 #include "game/menu.h"
 #include "game/savebuffer.h"
 #include "game/mplayer/mplayer.h"
+#include "game/mplayer/chrslots.h"
 #include <string.h>
 #include "fs.h"
 #include "system.h"
@@ -491,9 +492,7 @@ static void mpsetupInjectPreset(struct mpsetupfile *setupfile, const char *name,
 
 	// Configure simulants
 	for (int i = 0; i < MAX_BOTS; i++) {
-		if (i + 4 < 32) {
-			g_MpSetup.chrslots |= (1 << (i + 4));
-		}
+		mpChrSlotEnable(i + MAX_PLAYERS);
 		
 		g_BotConfigsArray[i].type = BOTTYPE_GENERAL;
 		g_BotConfigsArray[i].difficulty = BOTDIFF_NORMAL;

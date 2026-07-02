@@ -76,6 +76,14 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 			chr->team = 1 << g_BotConfigsArray[aibotnum].base.team;
 			chr->squadron = 0;
 
+#ifndef PLATFORM_N64
+			// Large MP battles exhaust the texture pool via gfxRenderRadialShadow
+			// when dozens of chr are visible (same root cause as STAGE_ANIMLAB).
+			if (g_Vars.mpquickteamnumsims >= 8) {
+				chr->chrflags |= CHRCFLAG_NOSHADOW;
+			}
+#endif
+
 			if (g_BotCount < MAX_BOTS) {
 				g_MpBotChrPtrs[g_BotCount] = chr;
 				g_BotCount++;
@@ -271,7 +279,22 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 					return;
 				}
 
+#ifndef PLATFORM_N64
+				{
+					/* Stock 10 slots = 6 gun + 4 scenario items. Large MP maps can
+					 * scatter 12+ distinct floor weapons; a full inventory used to
+					 * make botinvGiveProp write through a NULL item pointer. */
+					s32 maxitems = 10;
+
+					if (g_Vars.mpquickteamnumsims >= 16) {
+						maxitems = 20;
+					}
+
+					botinvInit(chr, maxitems);
+				}
+#else
 				botinvInit(chr, 10);
+#endif
 			}
 		}
 	}

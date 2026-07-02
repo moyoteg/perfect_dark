@@ -536,6 +536,10 @@ void modelNodeGetModelRelativePosition(struct model *model, struct modelnode *no
 
 f32 modelGetChrRotY(struct model *model)
 {
+	if (!model) {
+		return 0;
+	}
+
 	if ((model->definition->rootnode->type & 0xff) == MODELNODETYPE_CHRINFO) {
 		union modelrwdata *rwdata = modelGetNodeRwData(model, model->definition->rootnode);
 		return rwdata->chrinfo.yrot;
@@ -4073,6 +4077,10 @@ s32 modelCalculateRwDataIndexes(struct modelnode *basenode)
 
 void modelAllocateRwData(struct modeldef *modeldef)
 {
+	if (modeldef == NULL) {
+		return;
+	}
+
 	modeldef->rwdatalen = modelCalculateRwDataIndexes(modeldef->rootnode);
 }
 

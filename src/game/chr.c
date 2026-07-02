@@ -4228,7 +4228,7 @@ void chrBruise(struct model *model, s32 hitpart, struct modelnode *node, struct 
 													Col *colours = vtxstoreAllocate(rodata->numcolours, VTXSTORETYPE_CHRCOL, 0, 0);
 													s32 j;
 
-													if (colours) {
+													if (colours && rwdata->colours) {
 														for (j = 0; j < rodata->numcolours; j++) {
 															colours[j] = rwdata->colours[j];
 														}
@@ -4237,7 +4237,8 @@ void chrBruise(struct model *model, s32 hitpart, struct modelnode *node, struct 
 													}
 												}
 
-												if ((uintptr_t)rwdata->colours != ALIGN8((uintptr_t)rodata->vertices + rodata->numvertices * sizeof(Vtx))) {
+												if (rwdata->colours
+														&& (uintptr_t)rwdata->colours != ALIGN8((uintptr_t)rodata->vertices + rodata->numvertices * sizeof(Vtx))) {
 													s32 offset = rwdata->vertices[word / sizeof(Vtx) + i].colour >> 2;
 													Col *colours = (Col *) ((uintptr_t)rwdata->colours + spac);
 
@@ -4645,6 +4646,10 @@ void chrHit(struct shotdata *shotdata, struct hit *hit)
 	}
 
 	chr = prop->chr;
+
+	if (chr == NULL || hit->model == NULL) {
+		return;
+	}
 
 	if ((chr->chrflags & CHRCFLAG_HIDDEN) == 0) {
 		sp98.x = shotdata->gunpos2d.x - (hit->distance * shotdata->gundir2d.x) / shotdata->gundir2d.z;

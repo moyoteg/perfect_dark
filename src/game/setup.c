@@ -20,6 +20,11 @@
 #include "game/lv.h"
 #include "game/mplayer/scenarios.h"
 #include "game/challenge.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#include "warcolors_probe.h"
+#endif
+#include "system.h"
 #include "game/lang.h"
 #include "game/mplayer/mplayer.h"
 #include "game/pad.h"
@@ -297,7 +302,13 @@ void propsReset(void)
 	g_AutogunDamageRxScale = 1;
 	g_AmmoQuantityScale = 1;
 
-	g_MaxThrownLaptops = g_Vars.normmplayerisrunning ? 12 : PLAYERCOUNT();
+	/* Retail MP: one thrown-laptop slot per player index (12 max). PC test maps
+	 * may enable --unlimited-sentries for a 64-slot pool (no replace-on-deploy). */
+	if (g_UnlimitedLaptopSentries) {
+		g_MaxThrownLaptops = 64;
+	} else {
+		g_MaxThrownLaptops = g_Vars.normmplayerisrunning ? 12 : PLAYERCOUNT();
+	}
 
 	g_ThrownLaptops = mempAlloc(ALIGN16(g_MaxThrownLaptops * sizeof(struct autogunobj)), MEMPOOL_STAGE);
 	g_ThrownLaptopBeams = mempAlloc(ALIGN16(g_MaxThrownLaptops * sizeof(struct beam)), MEMPOOL_STAGE);
@@ -442,6 +453,15 @@ void setupCreateObject(struct defaultobj *obj, s32 cmdindex)
 
 		padUnpack(obj->pad, PADFIELD_POS | PADFIELD_LOOK | PADFIELD_UP | PADFIELD_BBOX | PADFIELD_ROOM, &pad);
 
+		if (g_ModelStates[modelnum].modeldef == NULL) {
+#ifndef PLATFORM_N64
+			sysLogPrintf(LOG_WARNING,
+					"setupCreateObject: skip type=%u model=%u pad=%d (no modeldef)",
+					obj->type, modelnum, obj->pad);
+#endif
+			return;
+		}
+
 		if (pad.room > 0) {
 			mtx00016d58(&mtx, 0, 0, 0, -pad.look.x, -pad.look.y, -pad.look.z, pad.up.x, pad.up.y, pad.up.z);
 
@@ -583,26 +603,35 @@ void setupCreateObject(struct defaultobj *obj, s32 cmdindex)
 				}
 			}
 
-			modelSetScale(obj->model, obj->model->scale * scale);
-			mtx00015f04(obj->model->scale, &mtx);
+			if (prop2 && obj->model) {
+				modelSetScale(obj->model, obj->model->scale * scale);
+				mtx00015f04(obj->model->scale, &mtx);
 
-			if (obj->flags2 & OBJFLAG2_DONTPAUSE) {
-				prop2->flags |= PROPFLAG_DONTPAUSE;
+				if (obj->flags2 & OBJFLAG2_DONTPAUSE) {
+					prop2->flags |= PROPFLAG_DONTPAUSE;
+				}
+
+				if (obj->flags & OBJFLAG_00000002) {
+					func0f06ab60(obj, &pos, &mtx, rooms, &centre);
+				} else {
+					func0f06a730(obj, &pos, &mtx, rooms, &centre);
+				}
+
+				if (obj->hidden & OBJHFLAG_00008000) {
+					propActivateThisFrame(prop2);
+				} else {
+					propActivate(prop2);
+				}
+
+				propEnable(prop2);
+			} else if (g_ModelStates[modelnum].modeldef == NULL || prop2 == NULL) {
+#ifndef PLATFORM_N64
+				sysLogPrintf(LOG_WARNING,
+						"setupCreateObject: skip obj type=%u model=%u pad=%d (modeldef=%p prop=%p)",
+						obj->type, modelnum, obj->pad,
+						g_ModelStates[modelnum].modeldef, prop2);
+#endif
 			}
-
-			if (obj->flags & OBJFLAG_00000002) {
-				func0f06ab60(obj, &pos, &mtx, rooms, &centre);
-			} else {
-				func0f06a730(obj, &pos, &mtx, rooms, &centre);
-			}
-
-			if (obj->hidden & OBJHFLAG_00008000) {
-				propActivateThisFrame(prop2);
-			} else {
-				propActivate(prop2);
-			}
-
-			propEnable(prop2);
 		}
 	}
 }
@@ -1344,6 +1373,11 @@ void setupLoadFiles(s32 stagenum)
 		g_LoadType = LOADTYPE_PADS;
 
 		g_StageSetup.padfiledata = fileLoadToNew(g_Stages[g_StageIndex].padsfileid, FILELOADMETHOD_DEFAULT, LOADTYPE_PADS);
+#ifndef PLATFORM_N64
+		if (g_StageSetup.padfiledata) {
+			warColorsSetPadFileSize(fileGetLoadedSize(g_Stages[g_StageIndex].padsfileid));
+		}
+#endif
 
 		g_StageSetup.waypoints = NULL;
 		g_StageSetup.waygroups = NULL;
@@ -1530,6 +1564,9 @@ void setupCreateProps(s32 stagenum)
 	if (!STAGE_IS_MENU(stagenum)) {
 		if (g_StageSetup.padfiledata) {
 			setupPreparePads();
+#ifndef PLATFORM_N64
+			warColorsProbePadsIfRequested();
+#endif
 		}
 
 		setupLoadWaypoints();
@@ -2133,6 +2170,11 @@ void setupCreateProps(s32 stagenum)
 
 					slotsdone[slotnum] = true;
 				}
+
+#ifndef PLATFORM_N64
+				sysLogPrintf(LOG_WARNING, "Battle64 spawn: allocated_bots=%d maxsimulants=%d MPFEATURE_8BOTS=%d",
+						chrnum, maxsimulants, challengeIsFeatureUnlocked(MPFEATURE_8BOTS));
+#endif
 			}
 
 			if (g_Vars.normmplayerisrunning) {

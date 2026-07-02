@@ -157,16 +157,25 @@ void titleSetLight(Lights1 *light, u8 r, u8 g, u8 b, f32 luminosity, struct coor
 }
 
 extern s32 sysArgCheck(const char *arg);
+extern s32 sysArgGetInt(const char *arg, s32 defval);
+#ifndef PLATFORM_N64
+extern u8 g_MpFeaturesUnlocked[80];
+#endif
 
 void titleInitLegal(void)
 {
-	musicQueueStopAllEvent();
+	// PC port: titleInit() may call this from mainInit before sndInit(), so
+	// musicQueueStopAllEvent -> musicTickEvents would dereference null seq players.
+	if (!sysArgCheck("--test-map") && !sysArgCheck("--test-animlab")) {
+		musicQueueStopAllEvent();
+	}
+
 	var800624f4 = 1;
 	g_TitleTimer = 0;
 	g_TitleButtonPressed = false;
 	g_TitleFastForward = false;
 
-	if (sysArgCheck("--test-map")) {
+	if (sysArgCheck("--test-map") || sysArgCheck("--test-animlab")) {
 		// FAST BOOT HACK: Boot into MP match instantly with bots and weapons.
 		//
 		// IMPORTANT: only claim the human player slot here (bit 0). The 8 simulant
@@ -177,8 +186,9 @@ void titleInitLegal(void)
 		// bot slot looks "occupied", so mpGetSlotForNewBot() keeps returning the
 		// capped fallback slot (7) and all 8 creations overwrite the same config
 		// while slots 0-6 stay configless -> no bots actually spawn (chr=0).
+		s32 teststagenum = sysArgCheck("--test-animlab") ? STAGE_ANIMLAB : STAGE_TEST_UFF;
 		g_MpSetup.chrslots = 0x01; // Player 1 only; simulants added via quick-team
-		g_MpSetup.stagenum = STAGE_TEST_UFF;
+		g_MpSetup.stagenum = teststagenum;
 		g_MpSetup.options = 0;
 		g_MpSetup.scenario = 0;
 		
@@ -199,12 +209,94 @@ void titleInitLegal(void)
 
 		// Simulants (use quick-team system so bots actually get created)
 		g_Vars.mpquickteam = MPQUICKTEAM_PLAYERSANDSIMS;
-		g_Vars.mpquickteamnumsims = 8;
-		g_Vars.mpsimdifficulty = BOTDIFF_NORMAL;
+		g_Vars.mpquickteamnumsims = sysArgGetInt("--num-sims", 8);
+		if (g_Vars.mpquickteamnumsims < 0) {
+			g_Vars.mpquickteamnumsims = 0;
+		}
+		if (g_Vars.mpquickteamnumsims > MAX_BOTS) {
+			g_Vars.mpquickteamnumsims = MAX_BOTS;
+		}
+		if (sysArgCheck("--solo")) {
+			g_Vars.mpquickteamnumsims = 0;
+		}
+		{
+			s32 simdiff = sysArgGetInt("--sim-difficulty", BOTDIFF_NORMAL);
+
+			if (simdiff < BOTDIFF_MEAT) {
+				simdiff = BOTDIFF_MEAT;
+			}
+
+			if (simdiff > BOTDIFF_DARK) {
+				simdiff = BOTDIFF_DARK;
+			}
+
+			g_Vars.mpsimdifficulty = simdiff;
+		}
+
+#ifndef PLATFORM_N64
+		// Unlock full simulant count for --test-map (stock profile caps at 4).
+		g_MpFeaturesUnlocked[MPFEATURE_8BOTS] |= 1;
+		g_MpFeaturesUnlocked[MPFEATURE_BOTDIFF_HARD] |= 1;
+		g_MpFeaturesUnlocked[MPFEATURE_BOTDIFF_PERFECT] |= 1;
+		g_MpFeaturesUnlocked[MPFEATURE_BOTDIFF_DARK] |= 1;
+		if (sysArgCheck("--teams-battle")) {
+			g_MpSetup.options |= MPOPTION_TEAMSENABLED;
+		}
+
+		// Optional MP limit overrides (mpApplyLimits: 60/100/400 = no limit).
+		if (sysArgCheck("--time-limit")) {
+			s32 timelimit = sysArgGetInt("--time-limit", g_MpSetup.timelimit);
+
+			if (timelimit < 0) {
+				timelimit = 0;
+			}
+			if (timelimit > 60) {
+				timelimit = 60;
+			}
+			g_MpSetup.timelimit = timelimit;
+		}
+		if (sysArgCheck("--score-limit")) {
+			s32 scorelimit = sysArgGetInt("--score-limit", g_MpSetup.scorelimit);
+
+			if (scorelimit < 0) {
+				scorelimit = 0;
+			}
+			if (scorelimit > 100) {
+				scorelimit = 100;
+			}
+			g_MpSetup.scorelimit = scorelimit;
+		}
+		if (sysArgCheck("--team-score-limit")) {
+			s32 teamscorelimit = sysArgGetInt("--team-score-limit", g_MpSetup.teamscorelimit);
+
+			if (teamscorelimit < 0) {
+				teamscorelimit = 0;
+			}
+			if (teamscorelimit > 400) {
+				teamscorelimit = 400;
+			}
+			g_MpSetup.teamscorelimit = teamscorelimit;
+		}
+
+		// matrix_battle_64 defaults: long matches (stock func0f187fec is 10 min / 20 team kills).
+		if (sysArgCheck("--teams-battle")
+				&& !sysArgCheck("--time-limit")
+				&& !sysArgCheck("--score-limit")
+				&& !sysArgCheck("--team-score-limit")) {
+			g_MpSetup.timelimit = 59;        // 60 minutes
+			g_MpSetup.scorelimit = 100;      // no individual kill cap
+			g_MpSetup.teamscorelimit = 400;  // no team kill cap
+		}
+#endif
 
 		setNumPlayers(1);
 		mpStartMatch();
-		mainChangeToStage(STAGE_TEST_UFF);
+#ifndef PLATFORM_N64
+		if (sysArgCheck("--teams-battle")) {
+			mpApplyTeamsBattleSplit();
+		}
+#endif
+		mainChangeToStage(teststagenum);
 		return;
 	}
 	

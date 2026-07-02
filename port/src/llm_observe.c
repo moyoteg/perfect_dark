@@ -33,6 +33,25 @@ static void llmObserveAppend(char *buf, s32 cap, s32 *pos, const char *fmt, ...)
 	buf[*pos] = '\0';
 }
 
+/* g_MpAllChrPtrs can briefly hold stale pointers during spawn teardown; validate
+ * against the chr slot pool before dereferencing for the LLM JSON snapshot. */
+static bool llmObserveChrIsUsable(struct chrdata *chr)
+{
+	s32 i;
+
+	if (!chr || !g_ChrSlots) {
+		return false;
+	}
+
+	for (i = 0; i < chrsGetNumSlots(); i++) {
+		if (&g_ChrSlots[i] == chr && g_ChrSlots[i].chrnum >= 0) {
+			return chr->prop != NULL;
+		}
+	}
+
+	return false;
+}
+
 void llmBridgeBuildObservation(void)
 {
 	char localJson[LLM_OBSERVE_CAP];
@@ -70,7 +89,9 @@ void llmBridgeBuildObservation(void)
 			llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, ",");
 		}
 
-		if (chr && chr->prop) {
+		/* Human players need chr->model; bots use aibot->roty. Either may be
+		 * unset briefly during spawn/respawn teardown in large MP sessions. */
+		if (chr && chr->prop && (chr->aibot || chr->model)) {
 			llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos,
 					"{\"id\":%d,\"team\":%d,\"pos\":{\"x\":%.1f,\"y\":%.1f,\"z\":%.1f},"
 					"\"facing_deg\":%.1f,\"health\":%.3f,\"dead\":%s}",
@@ -90,11 +111,12 @@ void llmBridgeBuildObservation(void)
 	llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, "],\"actors\":[");
 
 	for (i = 0; i < g_MpNumChrs; i++) {
-		struct chrdata *chr = g_MpAllChrPtrs[i];
+		struct chrdata *chr = mpGetChrFromPlayerIndex(i);
 		const char *kind = (i < playercount) ? "player" : "bot";
 		s32 botcmd = -1;
+		bool dead;
 
-		if (!chr || !chr->prop) {
+		if (!llmObserveChrIsUsable(chr)) {
 			continue;
 		}
 
@@ -107,6 +129,8 @@ void llmBridgeBuildObservation(void)
 			botcmd = chr->aibot->command;
 		}
 
+		dead = chrIsDead(chr);
+
 		llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos,
 				"{\"id\":%d,\"kind\":\"%s\",\"team\":%d,\"pos\":{\"x\":%.1f,\"y\":%.1f,\"z\":%.1f},"
 				"\"health\":%.3f,\"weapon\":%d,\"command\":%d,\"dead\":%s}",
@@ -117,7 +141,7 @@ void llmBridgeBuildObservation(void)
 				chr->maxdamage > 0.f ? (chr->maxdamage - chr->damage) / chr->maxdamage : 1.f,
 				chr->aibot ? chr->aibot->weaponnum : -1,
 				botcmd,
-				chrIsDead(chr) ? "true" : "false");
+				dead ? "true" : "false");
 	}
 
 	llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, "],\"events\":[]}");
