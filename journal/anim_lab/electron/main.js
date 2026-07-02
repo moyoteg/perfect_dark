@@ -5,7 +5,7 @@
  * Spawns serve_animlab.py and loads the lab UI in an embedded BrowserWindow.
  */
 
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const http = require('http');
@@ -29,6 +29,20 @@ const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instan
 
 const APP_TITLE = kitPaths.appConfig('animLab').productName;
 const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'animLab');
+
+/** macOS menu bar / Dock label; npm start otherwise shows "Electron". */
+function configureAppIdentity() {
+  app.setName(APP_TITLE);
+  if (process.platform === 'darwin') {
+    app.setAboutPanelOptions({
+      applicationName: APP_TITLE,
+      applicationVersion: app.getVersion(),
+      version: app.getVersion(),
+    });
+  }
+}
+
+configureAppIdentity();
 const DEFAULT_HOST = '127.0.0.1';
 const PORT_MIN = 8776;
 const PORT_MAX = 8795;
@@ -37,6 +51,8 @@ const BUNDLED_SUBDIR = 'anim-lab';
 
 /** @type {import('child_process').ChildProcess | null} */
 let serverProcess = null;
+/** @type {boolean} */
+let serverWeSpawned = false;
 /** @type {BrowserWindow | null} */
 let mainWindow = null;
 /** @type {string} */
@@ -175,20 +191,46 @@ function resolveRepoRoot() {
 }
 
 function resolveLabPaths(repoRoot) {
-  const bundleDir = resolveBundledLabDir();
-  if (bundleDir) {
-    return {
-      bundleDir,
-      serveScript: path.join(bundleDir, 'serve_animlab.py'),
-      source: 'bundle',
-    };
-  }
   const repoLab = path.join(repoRoot, 'journal', 'anim_lab');
   const repoServe = path.join(repoLab, 'serve_animlab.py');
-  if (fileReadable(repoServe)) {
+  const repoHtml = path.join(repoLab, 'anim_lab.html');
+
+  // Dev npm start: always prefer live repo sources over bundled copies.
+  if (!app.isPackaged && fileReadable(repoServe) && fileReadable(repoHtml)) {
+    return { bundleDir: '', serveScript: repoServe, source: 'repo' };
+  }
+
+  const bundleDir = resolveBundledLabDir();
+  if (bundleDir) {
+    const serveScript = path.join(bundleDir, 'serve_animlab.py');
+    if (fileReadable(serveScript)) {
+      return { bundleDir, serveScript, source: 'bundle' };
+    }
+    log(`Bundled lab dir missing readable serve script: ${serveScript}`);
+  }
+
+  if (fileReadable(repoServe) && fileReadable(repoHtml)) {
     return { bundleDir: '', serveScript: repoServe, source: 'repo' };
   }
   return null;
+}
+
+function refreshServerContext(repoRoot) {
+  const labPaths = resolveLabPaths(repoRoot);
+  if (!labPaths) return null;
+  const { serveScript, bundleDir, source } = labPaths;
+  const stateDir = resolveStateDir(repoRoot, source);
+  if (!serverContext) {
+    const pythonBin = resolvePython();
+    if (!pythonBin) return null;
+    serverContext = { pythonBin, serveScript, repoRoot, stateDir, bundleDir };
+    return serverContext;
+  }
+  serverContext.serveScript = serveScript;
+  serverContext.bundleDir = bundleDir;
+  serverContext.stateDir = stateDir;
+  serverContext.repoRoot = repoRoot;
+  return serverContext;
 }
 
 function resolveStateDir(repoRoot, source) {
@@ -290,8 +332,11 @@ async function waitForServerReady(stateDir) {
     }
     if (portFromFile && (await healthOk(Number(portFromFile)))) return portFromFile;
     const scanned = await findHealthyPort(PORT_MIN, PORT_MAX, serverContext?.bundleDir || '');
-    if (scanned && serverProcess && !serverProcess.killed) return scanned;
+    // Reuse any healthy anim-lab server (e.g. auto-port 8778 after 8776 busy).
+    if (scanned) return scanned;
     if (serverProcess && serverProcess.exitCode !== null) {
+      const fallback = await findHealthyPort(PORT_MIN, PORT_MAX, '');
+      if (fallback) return fallback;
       throw new Error(`serve_animlab.py exited with code ${serverProcess.exitCode}`);
     }
     // eslint-disable-next-line no-await-in-loop
@@ -342,6 +387,7 @@ function spawnServer(pythonBin, serveScript, repoRoot, stateDir, bundleDir) {
 async function handleServerExit(code, signal) {
   log(`serve_animlab.py exited code=${code} signal=${signal || ''}`);
   serverProcess = null;
+  serverWeSpawned = false;
   if (quitting) return;
 
   const stillHealthy = await findHealthyPort(PORT_MIN, PORT_MAX, serverContext?.bundleDir || '');
@@ -354,24 +400,43 @@ async function handleServerExit(code, signal) {
     return;
   }
 
-  if (!serverContext || restartAttempts >= MAX_RESTART_ATTEMPTS) {
-    if (mainWindow) {
-      dialog.showErrorBox(APP_TITLE, `Animation Lab server stopped (code ${code}).\n\nLog: ${LOG_FILE}`);
-      app.quit();
+  const ctx = serverContext?.repoRoot
+    ? refreshServerContext(serverContext.repoRoot)
+    : null;
+  if (!ctx) {
+    log('No server context for restart; keeping window open');
+    return;
+  }
+
+  if (restartAttempts >= MAX_RESTART_ATTEMPTS) {
+    log(`Server restart paused after ${MAX_RESTART_ATTEMPTS} attempts; will retry on next blip`);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      dialog.showMessageBox(mainWindow, {
+        type: 'warning',
+        title: APP_TITLE,
+        message: 'Animation Lab server stopped',
+        detail:
+          `The local server exited (code ${code ?? 'null'}, signal ${signal || 'none'}).\n\n` +
+          `The app will keep running and retry when you reopen the window.\n\nLog: ${LOG_FILE}`,
+        buttons: ['OK'],
+      }).catch(() => {});
     }
+    restartAttempts = 0;
     return;
   }
 
   restartAttempts += 1;
+  log(`Restarting anim-lab server (attempt ${restartAttempts}/${MAX_RESTART_ATTEMPTS})`);
   try {
     serverProcess = spawnServer(
-      serverContext.pythonBin,
-      serverContext.serveScript,
-      serverContext.repoRoot,
-      serverContext.stateDir,
-      serverContext.bundleDir
+      ctx.pythonBin,
+      ctx.serveScript,
+      ctx.repoRoot,
+      ctx.stateDir,
+      ctx.bundleDir
     );
-    activePort = await waitForServerReady(serverContext.stateDir);
+    serverWeSpawned = true;
+    activePort = await waitForServerReady(ctx.stateDir);
     restartAttempts = 0;
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.loadURL(labUrl(activePort));
@@ -387,7 +452,7 @@ function showStartupError(message) {
 }
 
 function labUrl(port) {
-  return `http://${DEFAULT_HOST}:${port}/?v=${Date.now()}`;
+  return `http://${DEFAULT_HOST}:${port}/?port=${port}&v=${Date.now()}`;
 }
 
 function createWindow(url) {
@@ -405,18 +470,23 @@ function createWindow(url) {
       sandbox: true,
     },
   });
+  mainWindow.on('page-title-updated', (event) => {
+    event.preventDefault();
+    mainWindow.setTitle(APP_TITLE);
+  });
   mainWindow.loadURL(url);
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 function killServer() {
-  if (!serverProcess || serverProcess.killed) return;
+  if (!serverWeSpawned || !serverProcess || serverProcess.killed) return;
   try {
     serverProcess.kill('SIGTERM');
   } catch {
     // ignore
   }
   serverProcess = null;
+  serverWeSpawned = false;
 }
 
 async function bootstrap() {
@@ -454,6 +524,7 @@ async function bootstrap() {
   const existing = await findHealthyPort(PORT_MIN, PORT_MAX, bundleDir);
   if (existing) {
     activePort = existing;
+    serverWeSpawned = false;
     log(`Reusing healthy server on port ${activePort}`);
     createWindow(labUrl(activePort));
     return;
@@ -468,6 +539,7 @@ async function bootstrap() {
 
   serverContext = { pythonBin, serveScript, repoRoot, stateDir, bundleDir };
   serverProcess = spawnServer(pythonBin, serveScript, repoRoot, stateDir, bundleDir);
+  serverWeSpawned = true;
 
   try {
     activePort = await waitForServerReady(stateDir);
@@ -497,9 +569,55 @@ function focusMainWindow() {
   bootstrap();
 }
 
+async function ensureServerForActivate() {
+  if (activePort && (await healthOk(Number(activePort)))) return activePort;
+  if (serverContext?.repoRoot) {
+    const ctx = refreshServerContext(serverContext.repoRoot);
+    if (ctx && !serverProcess) {
+      try {
+        serverProcess = spawnServer(
+          ctx.pythonBin,
+          ctx.serveScript,
+          ctx.repoRoot,
+          ctx.stateDir,
+          ctx.bundleDir
+        );
+        serverWeSpawned = true;
+        activePort = await waitForServerReady(ctx.stateDir);
+        return activePort;
+      } catch (err) {
+        log(`Activate server restart failed: ${err.message}`);
+      }
+    }
+  }
+  const scanned = await findHealthyPort(PORT_MIN, PORT_MAX, serverContext?.bundleDir || '');
+  if (scanned) {
+    activePort = scanned;
+    return activePort;
+  }
+  return '';
+}
+
+function registerIpcHandlers() {
+  ipcMain.handle('anim-lab:get-port', () => activePort || '');
+  ipcMain.handle('anim-lab:ensure-server', async () => {
+    const port = await ensureServerForActivate();
+    if (port && mainWindow && !mainWindow.isDestroyed()) {
+      const current = mainWindow.webContents.getURL();
+      const expectedPort = String(port);
+      if (!current.includes(`port=${expectedPort}`) && !current.includes(`://${DEFAULT_HOST}:${expectedPort}/`)) {
+        mainWindow.loadURL(labUrl(port));
+      }
+    }
+    return port;
+  });
+}
+
 if (!bindSingleInstance(app, focusMainWindow)) {
   process.exit(0);
 }
+
+registerIpcHandlers();
 
 app.whenReady().then(bootstrap);
 
@@ -512,9 +630,14 @@ app.on('before-quit', () => {
   killServer();
 });
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0 && activePort) {
-    createWindow(labUrl(activePort));
+app.on('activate', async () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    await ensureServerForActivate();
+    if (activePort) {
+      createWindow(labUrl(activePort));
+    } else {
+      bootstrap();
+    }
   }
 });
 

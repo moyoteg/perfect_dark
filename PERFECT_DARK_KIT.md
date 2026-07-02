@@ -13,6 +13,7 @@ The **Perfect Dark Kit** is the unified modding stack for this repository: PC po
 | **pdmap pipeline** | Validate → build → deploy → register maps | `python3 tools/pdmap.py …` |
 | **Kit Hub** | Launch all tools from one `.app` | `Perfect Dark Kit.app` |
 | **Map Editor** | 3D JSON editor + Test/Play | nested in hub + `scripts/release/` |
+| **Map Launcher** | Test map playtesting + learn curriculum | hub card → `./scripts/launch-map-launcher.sh` (dev) |
 | **Animation Lab** | Animation catalog + parade test map | nested in hub + `scripts/release/` |
 | **Asset Upgrader** | Batch texture upgrade for mods | nested in hub + `scripts/release/` |
 | **Play Last Test Map** | Replay last editor Test/Play | hub card + `scripts/release/` |
@@ -70,6 +71,7 @@ Child apps are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` when 
 | `pd-kit.sh open` | Open **Perfect Dark Kit.app** hub (default) |
 | `pd-kit.sh open kit` | Same as `open` |
 | `pd-kit.sh open map-editor` | Open Map Editor directly |
+| `pd-kit.sh open map-launcher` | Open Map Launcher (dev Electron or `.app` when built) |
 | `pd-kit.sh open anim-lab` | Open Animation Lab `.app` |
 | `pd-kit.sh open asset-upgrader` | Open Asset Upgrader `.app` |
 | `pd-kit.sh open play-last-test-map` | Open Play Last Test Map `.app` |
@@ -104,6 +106,7 @@ Canonical manifest: [`tools/pd_kit/kit.json`](tools/pd_kit/kit.json)
 | `~/Library/Application Support/PerfectDarkKit/anim-lab/` | Animation Lab state fallback |
 | `~/Library/Application Support/PerfectDarkKit/asset-upgrader/` | Reserved for upgrader UI state |
 | `~/Library/Logs/PerfectDarkKit/map-editor.log` | Map Editor + `serve_editor.py` |
+| `~/Library/Logs/PerfectDarkKit/map-launcher.log` | Map Launcher supervisor |
 | `~/Library/Logs/PerfectDarkKit/anim-lab.log` | Animation Lab + `serve_animlab.py` |
 | `~/Library/Logs/PerfectDarkKit/asset-upgrader.log` | Asset Upgrader supervisor |
 

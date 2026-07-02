@@ -35,7 +35,9 @@ function showOutput(text) {
 
 function badgeForTool(tool) {
   if (tool.built) {
-    return tool.wrapped ? ['Wrapped in kit', 'ok'] : ['Available', 'ok'];
+    if (tool.wrapped) return ['Wrapped in kit', 'ok'];
+    if (tool.devMode) return ['Dev mode', 'ok'];
+    return ['Available', 'ok'];
   }
   return tool.optional ? ['Optional — not built', 'warn'] : ['Not built', 'warn'];
 }

@@ -1,6 +1,6 @@
 {
   "name": "perfect-dark-anim-lab",
-  "productName": "PD Anim Lab",
+  "productName": "Perfect Dark Animation Lab",
   "version": "1.0.0",
   "description": "Perfect Dark Kit — animation parade and catalog browser",
   "main": "main.js",
@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.perfectdark.kit.anim-lab",
-    "productName": "PD Anim Lab",
+    "productName": "Perfect Dark Animation Lab",
     "directories": {
       "output": "../../../scripts/release/anim-lab-dist",
       "buildResources": "build"
@@ -44,7 +44,7 @@
       "icon": "build/icon.icns",
       "identity": null,
       "extendInfo": {
-        "CFBundleDisplayName": "PD Anim Lab",
+        "CFBundleDisplayName": "Perfect Dark Animation Lab",
         "LSMultipleInstancesProhibited": true
       }
     },

@@ -61,6 +61,15 @@ function loadManifest() {
         logFile: 'map-editor.log',
         legacySupportDir: 'PerfectDarkMapEditor',
       },
+      mapLauncher: {
+        id: 'map-launcher',
+        productName: 'PD Map Launcher',
+        shortTitle: 'Map Launcher',
+        bundleFileName: 'PD Map Launcher.app',
+        logFile: 'map-launcher.log',
+        optional: true,
+        devLaunchScript: 'scripts/launch-map-launcher.sh',
+      },
       animLab: {
         id: 'anim-lab',
         productName: 'PD Anim Lab',

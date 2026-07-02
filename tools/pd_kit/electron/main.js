@@ -151,10 +151,18 @@ function appBundlePath(appKey) {
   return '';
 }
 
+/** True when no .app exists but kit.json lists a dev launch script in the repo. */
+function devLaunchAvailable(appKey) {
+  const cfg = kitPaths.appConfig(appKey);
+  if (!cfg.devLaunchScript) return false;
+  return fs.existsSync(path.join(repoRoot, cfg.devLaunchScript));
+}
+
 function toolCards() {
   return hubAppKeys().map((key) => {
     const cfg = kitPaths.appConfig(key);
     const appPath = appBundlePath(key);
+    const devMode = !appPath && devLaunchAvailable(key);
     const wrappedPath = path.join(wrappedAppsDir(), cfg.bundleFileName);
     return {
       key,
@@ -163,10 +171,11 @@ function toolCards() {
       description: cfg.description || '',
       category: cfg.category || 'authoring',
       optional: Boolean(cfg.optional),
-      built: Boolean(appPath),
+      built: Boolean(appPath) || devMode,
+      devMode,
       wrapped: fs.existsSync(wrappedPath),
-      path: appPath,
-      buildScript: cfg.buildScript || null,
+      path: appPath || (devMode ? path.join(repoRoot, cfg.devLaunchScript) : ''),
+      buildScript: cfg.buildScript || cfg.devLaunchScript || null,
     };
   });
 }
@@ -272,17 +281,29 @@ function registerIpc() {
   });
 
   ipcMain.handle('kit:launch-app', async (_event, appKey) => {
+    const cfg = kitPaths.appConfig(appKey);
     const appPath = appBundlePath(appKey);
-    if (!appPath) {
-      const cfg = kitPaths.appConfig(appKey);
-      const hint = cfg.buildScript ? ` Run: ./${cfg.buildScript}` : ' Run: ./scripts/build-pd-kit.sh --apps-only';
-      return { ok: false, error: `${cfg.shortTitle || appKey} is not built.${hint}` };
+    if (appPath) {
+      log(`Launch ${appKey}: ${appPath}`);
+      await new Promise((resolve, reject) => {
+        execFile('open', [appPath], (err) => (err ? reject(err) : resolve()));
+      });
+      return { ok: true, path: appPath };
     }
-    log(`Launch ${appKey}: ${appPath}`);
-    await new Promise((resolve, reject) => {
-      execFile('open', [appPath], (err) => (err ? reject(err) : resolve()));
-    });
-    return { ok: true, path: appPath };
+    if (cfg.devLaunchScript) {
+      const scriptPath = path.join(repoRoot, cfg.devLaunchScript);
+      if (fs.existsSync(scriptPath)) {
+        log(`Launch ${appKey} (dev): ${scriptPath}`);
+        const result = await runScript(cfg.devLaunchScript, [], { detached: true });
+        return { ok: result.ok, path: scriptPath, devMode: true };
+      }
+    }
+    const hint = cfg.buildScript
+      ? ` Run: ./${cfg.buildScript}`
+      : cfg.devLaunchScript
+        ? ` Run: ./${cfg.devLaunchScript}`
+        : ' Run: ./scripts/build-pd-kit.sh --apps-only';
+    return { ok: false, error: `${cfg.shortTitle || appKey} is not built.${hint}` };
   });
 
   ipcMain.handle('kit:launch-game', async (_event, options) => {

@@ -13,6 +13,7 @@
       "legacyLogFile": null,
       "wraps": [
         "mapEditor",
+        "mapLauncher",
         "animLab",
         "assetUpgrader",
         "playLastTestMap",
@@ -29,6 +30,17 @@
       "category": "authoring",
       "legacySupportDir": "PerfectDarkMapEditor",
       "legacyLogFile": "PerfectDarkMapEditor.log"
+    },
+    "mapLauncher": {
+      "id": "map-launcher",
+      "productName": "PD Map Launcher",
+      "shortTitle": "Map Launcher",
+      "bundleFileName": "PD Map Launcher.app",
+      "logFile": "map-launcher.log",
+      "description": "Launch test maps and all 31 progressive curriculum steps from one UI.",
+      "category": "companion",
+      "optional": true,
+      "devLaunchScript": "scripts/launch-map-launcher.sh"
     },
     "animLab": {
       "id": "anim-lab",

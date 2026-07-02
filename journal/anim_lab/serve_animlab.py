@@ -16,10 +16,12 @@ import argparse
 import json
 import os
 import shlex
+import signal
 import socket
 import subprocess
 import sys
 import threading
+import time
 import traceback
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -30,6 +32,36 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _env_root = os.environ.get("PD_REPO_ROOT", "").strip()
 ROOT = os.path.abspath(_env_root) if _env_root else os.path.dirname(os.path.dirname(HERE))
 DEFAULT_PORT = 8776
+
+
+def _file_readable(file_path: str) -> bool:
+    """True when file bytes are locally readable (handles iCloud placeholder files)."""
+    try:
+        with open(file_path, "rb") as fp:
+            fp.read(1)
+        return True
+    except OSError:
+        return False
+
+
+def _resolve_lab_dir() -> str:
+    """Directory containing anim_lab.html — bundle, script dir, or repo journal fallback."""
+    candidates: list[str] = []
+    bundle = os.environ.get("PD_ANIM_LAB_BUNDLE_DIR", "").strip()
+    if bundle:
+        candidates.append(bundle)
+    candidates.append(HERE)
+    repo_lab = os.path.join(ROOT, "journal", "anim_lab")
+    if repo_lab not in candidates:
+        candidates.append(repo_lab)
+    for candidate in candidates:
+        html = os.path.join(candidate, "anim_lab.html")
+        if _file_readable(html):
+            return candidate
+    return HERE
+
+
+LAB_DIR = _resolve_lab_dir()
 
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
@@ -56,11 +88,11 @@ from tools.pdmap.play import (  # noqa: E402
 MAP_PRESETS: dict[str, dict[str, Any]] = {
     "animlab": {
         "label": "Animation Lab",
-        "description": "20-guard parade line — best for Combat (scenario 0)",
+        "description": "Full named-catalog parade grid + full-tour cycler",
         "scenarios": [0],
         "bootFlag": "--test-animlab",
         "stage": STAGE_ANIMLAB,
-        "hint": "Walk north from spawn toward the guard line.",
+        "hint": "Walk north: full-tour cycler east (x≈700); grid loops one anim per cell.",
     },
     "uff": {
         "label": "UFF Arena",
@@ -83,6 +115,8 @@ SIM_DIFFICULTIES = {
 _GAME_PROCS: dict[int, subprocess.Popen[Any]] = {}
 _GAME_LOCK = threading.Lock()
 _BUILD_LOCK = threading.Lock()
+# Default parade size when serve_animlab builds animlab (override via ANIMLAB_PARADE_MAX).
+_DEFAULT_ANIMLAB_PARADE_MAX = "570"
 
 
 def _writable_state_dir() -> str:
@@ -112,7 +146,8 @@ def _log_traceback(message: str) -> None:
 
 
 def _localhost_origin(origin: str | None) -> bool:
-    if not origin:
+    # Browsers send Origin: null for file:// pages (common dev workflow).
+    if not origin or origin == "null":
         return True
     host = urlparse(origin).hostname
     return host in ("localhost", "127.0.0.1", "::1")
@@ -152,6 +187,134 @@ def _showcase_payload() -> list[dict[str, Any]]:
     return full_catalog_payload()["parade"]
 
 
+def _stop_running_games() -> list[int]:
+    """Terminate tracked game processes and stray pd.arm64 from this repo."""
+    killed: list[int] = []
+    live: list[tuple[int, subprocess.Popen[Any]]] = []
+
+    with _GAME_LOCK:
+        for pid, proc in list(_GAME_PROCS.items()):
+            _GAME_PROCS.pop(pid, None)
+            if proc.poll() is None:
+                try:
+                    proc.terminate()
+                    live.append((pid, proc))
+                    killed.append(pid)
+                except OSError:
+                    pass
+
+    deadline = time.monotonic() + 2.0
+    for pid, proc in live:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            try:
+                proc.kill()
+            except OSError:
+                pass
+            continue
+        try:
+            proc.wait(timeout=remaining)
+        except subprocess.TimeoutExpired:
+            try:
+                proc.kill()
+            except OSError:
+                pass
+
+    pd_binary = detect_pd_binary()
+    try:
+        probe = subprocess.run(
+            ["pgrep", "-f", pd_binary],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        for line in probe.stdout.splitlines():
+            line = line.strip()
+            if not line.isdigit():
+                continue
+            pid = int(line)
+            if pid == os.getpid():
+                continue
+            try:
+                os.kill(pid, signal.SIGTERM)
+                if pid not in killed:
+                    killed.append(pid)
+            except ProcessLookupError:
+                pass
+    except OSError:
+        pass
+
+    if killed:
+        _log(f"stopped previous game process(es): {killed}")
+    return killed
+
+
+_ENGINE_SOURCE_PATHS: tuple[str, ...] = (
+    "src/game/camera.c",
+    "src/game/propobj.c",
+    "src/game/prop.c",
+    "src/game/varsreset.c",
+    "src/game/bg.c",
+    "src/game/chraction.c",
+    "src/lib/main.c",
+    "port/src/pdmain.c",
+    "src/include/constants.h",
+)
+
+
+def _rebuild_engine_if_stale() -> dict[str, Any]:
+    """Rebuild pd.arm64 when animlab engine sources are newer than the binary."""
+    pd_binary = detect_pd_binary()
+    if not os.path.isfile(pd_binary):
+        return {
+            "ok": False,
+            "error": "missing_binary",
+            "binaryPath": pd_binary,
+            "stderr": f"Game binary not found at {pd_binary}. Build: cmake --build build --target pd",
+        }
+
+    src_mtimes: list[float] = []
+    for rel in _ENGINE_SOURCE_PATHS:
+        path = os.path.join(ROOT, rel)
+        if os.path.isfile(path):
+            src_mtimes.append(os.path.getmtime(path))
+    if not src_mtimes:
+        return {"ok": True, "skipped": True, "reason": "no engine sources tracked"}
+
+    latest_src = max(src_mtimes)
+    bin_mtime = os.path.getmtime(pd_binary)
+    if bin_mtime >= latest_src:
+        return {"ok": True, "skipped": True, "reason": "binary up to date", "binaryPath": pd_binary}
+
+    cmd = ["cmake", "--build", "build", "--target", "pd", "-j8"]
+    cmd_str = " ".join(shlex.quote(part) for part in cmd)
+    _log(f"engine rebuild (stale binary): {cmd_str}")
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError as exc:
+        return {"ok": False, "error": "engine_build_failed", "command": cmd_str, "stderr": str(exc)}
+
+    ok = proc.returncode == 0
+    result: dict[str, Any] = {
+        "ok": ok,
+        "skipped": False,
+        "command": cmd_str,
+        "stdout": proc.stdout,
+        "stderr": proc.stderr,
+        "returncode": proc.returncode,
+        "binaryPath": pd_binary,
+    }
+    if not ok:
+        result["error"] = "engine_build_failed"
+    return result
+
+
 def _build_level(level: str, *, seg: bool, deploy: bool) -> dict[str, Any]:
     level = level.strip().lower()
     if level not in ("animlab", "uff"):
@@ -167,9 +330,16 @@ def _build_level(level: str, *, seg: bool, deploy: bool) -> dict[str, Any]:
         cmd.append("--seg")
     if deploy:
         cmd.append("--deploy")
+    cmd.extend(["--mod", "mod_allinone"])
 
     cmd_str = " ".join(shlex.quote(part) for part in cmd)
     _log(f"build start: {cmd_str}")
+
+    build_env = os.environ.copy()
+    if level == "animlab" and not build_env.get("ANIMLAB_PARADE_MAX", "").strip():
+        build_env["ANIMLAB_PARADE_MAX"] = _DEFAULT_ANIMLAB_PARADE_MAX
+    if level == "animlab" and not build_env.get("ANIMLAB_MUSEUM_MAX", "").strip():
+        build_env["ANIMLAB_MUSEUM_MAX"] = "0"  # 0 = full StdObject catalog
 
     with _BUILD_LOCK:
         try:
@@ -179,6 +349,7 @@ def _build_level(level: str, *, seg: bool, deploy: bool) -> dict[str, Any]:
                 capture_output=True,
                 text=True,
                 check=False,
+                env=build_env,
             )
         except OSError as exc:
             return {
@@ -278,7 +449,8 @@ def _play_game(payload: dict[str, Any]) -> dict[str, Any]:
         play_argv.append("--solo")
 
     cmd_str = " ".join(shlex.quote(part) for part in play_argv)
-    _log(f"play launch: {cmd_str}")
+    stopped = _stop_running_games()
+    _log(f"play launch: {cmd_str}" + (f" (stopped pids {stopped})" if stopped else ""))
 
     launch_meta = {
         "level": level,
@@ -297,6 +469,7 @@ def _play_game(payload: dict[str, Any]) -> dict[str, Any]:
         pass
 
     play_sh = os.path.join(STATE_DIR, ".last_play.sh")
+    play_log = os.path.join(STATE_DIR, ".last_play.log")
     with open(play_sh, "w", encoding="utf-8") as fp:
         fp.write("#!/bin/bash\n# Generated by serve_animlab — replay last launch.\n")
         fp.write("set -euo pipefail\n")
@@ -305,15 +478,39 @@ def _play_game(payload: dict[str, Any]) -> dict[str, Any]:
     os.chmod(play_sh, 0o755)
 
     try:
-        game = subprocess.Popen(
-            play_argv,
-            cwd=ROOT,
-            start_new_session=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        with open(play_log, "w", encoding="utf-8") as log_fp:
+            log_fp.write(f"# {cmd_str}\n")
+            game = subprocess.Popen(
+                play_argv,
+                cwd=ROOT,
+                start_new_session=True,
+                stdout=log_fp,
+                stderr=subprocess.STDOUT,
+            )
     except OSError as exc:
         return {"ok": False, "error": "launch_failed", "command": cmd_str, "stderr": str(exc)}
+
+    # Surface immediate crashes (missing mod, SIGSEGV, SDL init) instead of silent success.
+    time.sleep(0.75)
+    exit_code = game.poll()
+    if exit_code is not None:
+        log_tail = ""
+        try:
+            with open(play_log, encoding="utf-8") as fp:
+                log_tail = fp.read()[-4000:]
+        except OSError:
+            pass
+        with _GAME_LOCK:
+            _GAME_PROCS.pop(game.pid, None)
+        _log(f"play exited early pid={game.pid} rc={exit_code}")
+        return {
+            "ok": False,
+            "error": "game_exited_early",
+            "exitCode": exit_code,
+            "command": cmd_str,
+            "stderr": log_tail or f"Game exited immediately (code {exit_code}). Log: {play_log}",
+            "logPath": play_log,
+        }
 
     with _GAME_LOCK:
         _GAME_PROCS[game.pid] = game
@@ -326,6 +523,7 @@ def _play_game(payload: dict[str, Any]) -> dict[str, Any]:
         "scenarioName": SCENARIO_CHOICES[scenario],
         "level": level,
         "hint": _launch_hint(level, scenario),
+        "logPath": play_log,
     }
 
 
@@ -352,6 +550,14 @@ def _launch(payload: dict[str, Any]) -> dict[str, Any]:
 
     if not play:
         result["note"] = f"Deployed {level} without launching."
+        return result
+
+    engine_result = _rebuild_engine_if_stale()
+    result["engine"] = engine_result
+    if not engine_result.get("ok"):
+        result["ok"] = False
+        result["error"] = engine_result.get("error", "engine_build_failed")
+        result["stderr"] = engine_result.get("stderr")
         return result
 
     play_payload = dict(payload)
@@ -502,6 +708,20 @@ class AnimLabHandler(BaseHTTPRequestHandler):
             _json_response(self, 200, payload)
             return
 
+        if path == "/api/preview-geometry":
+            try:
+                sys.path.insert(0, ROOT)
+                from tools.pdmap.anim_layout_geometry import animlab_preview_geometry
+
+                payload = animlab_preview_geometry()
+            except Exception as exc:
+                _log_traceback(f"GET /api/preview-geometry failed: {exc}")
+                _json_response(self, 500, {"ok": False, "error": str(exc)})
+                return
+            payload["ok"] = True
+            _json_response(self, 200, payload)
+            return
+
         if path == "/api/play-config":
             _json_response(self, 200, _play_config_payload())
             return
@@ -548,10 +768,14 @@ class AnimLabHandler(BaseHTTPRequestHandler):
                 self.send_error(403)
                 return
 
-        file_path = os.path.join(HERE, rel)
-        if not os.path.isfile(file_path):
-            self.send_error(404, f"Not found: {rel}")
-            return
+        file_path = os.path.join(LAB_DIR, rel)
+        if not _file_readable(file_path):
+            repo_fallback = os.path.join(ROOT, "journal", "anim_lab", rel)
+            if repo_fallback != file_path and _file_readable(repo_fallback):
+                file_path = repo_fallback
+            else:
+                self.send_error(404, f"Not found: {rel}")
+                return
 
         content_type = "application/octet-stream"
         if rel.endswith(".html"):
@@ -643,7 +867,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    os.chdir(HERE)
+    os.chdir(LAB_DIR)
+    # Touch UI assets so iCloud evicted files download before the first browser request.
+    for name in ("anim_lab.html", "serve_animlab.py"):
+        asset = os.path.join(LAB_DIR, name)
+        if os.path.exists(asset):
+            try:
+                with open(asset, "rb") as fp:
+                    fp.read(1)
+            except OSError:
+                pass
     port = args.port
     if args.auto_port:
         port = _pick_port(args.host, args.port)
