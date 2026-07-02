@@ -9,6 +9,7 @@ const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const { spawn, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { bindSingleInstance } = require('../pd_kit/electron_single_instance.js');
 
 const APP_TITLE = 'PD Map Launcher';
 const LOG_FILE_NAME = 'map-launcher.log';
@@ -828,6 +829,7 @@ function createWindow() {
     height: 900,
     minWidth: 960,
     minHeight: 680,
+    show: false,
     title: APP_TITLE,
     icon: appIcon || undefined,
     backgroundColor: '#0b0d12',
@@ -842,7 +844,33 @@ function createWindow() {
     event.preventDefault();
     mainWindow.setTitle(APP_TITLE);
   });
+  mainWindow.once('ready-to-show', () => {
+    focusMainWindow();
+  });
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+}
+
+/** Bring the launcher window (and Dock tile) to the foreground on macOS. */
+function focusMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    createWindow();
+    return;
+  }
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore();
+  }
+  mainWindow.show();
+  mainWindow.focus();
+  if (process.platform === 'darwin' && app.dock) {
+    app.dock.show();
+  }
+}
+
+if (!bindSingleInstance(app, focusMainWindow)) {
+  process.exit(0);
 }
 
 app.whenReady().then(() => {
@@ -863,6 +891,10 @@ app.whenReady().then(() => {
   initLearnMapLaunchers();
   registerIpc();
   createWindow();
+});
+
+app.on('activate', () => {
+  focusMainWindow();
 });
 
 app.on('window-all-closed', () => {

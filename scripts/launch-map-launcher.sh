@@ -27,4 +27,22 @@ if [[ ! -d "$APP_DIR/node_modules/electron" ]]; then
 fi
 
 export PD_REPO_ROOT="$REPO_ROOT"
-exec npm --prefix "$APP_DIR" start
+ELECTRON_BIN="$APP_DIR/node_modules/.bin/electron"
+ELECTRON_APP="$APP_DIR/node_modules/electron/dist/Electron.app"
+LOG_DIR="${HOME}/Library/Logs/PerfectDarkKit"
+STDIO_LOG="$LOG_DIR/map-launcher-stdio.log"
+mkdir -p "$LOG_DIR"
+
+if [[ ! -d "$ELECTRON_APP" ]]; then
+	echo "ERROR: Electron.app not found at $ELECTRON_APP (run npm install in $APP_DIR)" >&2
+	exit 1
+fi
+
+# Foreground dev mode: logs on stdout, Ctrl+C stops the app.
+if [[ "${1:-}" == "--foreground" ]]; then
+	exec "$ELECTRON_BIN" "$APP_DIR"
+fi
+
+# macOS GUI detach: plain nohup/node exits quickly; open(1) keeps Electron alive.
+open -a "$ELECTRON_APP" --args "$APP_DIR"
+echo "PD Map Launcher opening (PD_REPO_ROOT=${REPO_ROOT}). Log: ${LOG_DIR}/map-launcher.log"
