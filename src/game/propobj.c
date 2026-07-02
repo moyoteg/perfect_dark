@@ -132,6 +132,13 @@ f32 g_AutogunAccuracyScale = 1;
 f32 g_AutogunDamageTxScale = 1;
 f32 g_AutogunDamageRxScale = 1;
 f32 g_AmmoQuantityScale = 1;
+/* Retail laptop sentry deploy takes up to 200 rounds (u8 ammoquantity; 255 = infinite). */
+s32 g_LaptopSentryAmmoCap = 200;
+/* When >1, thrown laptops consume ammo every N fire ticks (--laptop-sentry-x4 => 4). */
+s32 g_LaptopSentryAmmoScale = 1;
+bool g_UnlimitedLaptopSentries = false;
+/* --laptop-sentry-infinite-ammo: deployed sentries use ammoquantity 255 (no drain). */
+bool g_LaptopSentryInfiniteAmmo = false;
 struct padeffectobj *g_PadEffects = NULL;
 s32 g_LastPadEffectIndex = -1;
 struct autogunobj *g_ThrownLaptops = NULL;
@@ -389,6 +396,10 @@ f32 objGetRotatedLocalMin(struct modelrodata_bbox *bbox, f32 arg1, f32 arg2, f32
 {
 	f32 sum = 0;
 
+	if (!bbox) {
+		return 0;
+	}
+
 	if (arg1 >= 0) {
 		sum += bbox->xmin * arg1;
 	} else {
@@ -413,6 +424,10 @@ f32 objGetRotatedLocalMin(struct modelrodata_bbox *bbox, f32 arg1, f32 arg2, f32
 f32 objGetRotatedLocalMax(struct modelrodata_bbox *bbox, f32 arg1, f32 arg2, f32 arg3)
 {
 	f32 sum = 0;
+
+	if (!bbox) {
+		return 0;
+	}
 
 	if (arg1 <= 0) {
 		sum += bbox->xmin * arg1;
@@ -1351,7 +1366,13 @@ struct modelnode *modelFindBboxNode(struct model *model)
 
 struct modelrodata_bbox *modelFindBboxRodata(struct model *model)
 {
-	struct modelnode *node = modelFindBboxNode(model);
+	struct modelnode *node;
+
+	if (!model) {
+		return NULL;
+	}
+
+	node = modelFindBboxNode(model);
 
 	if (node) {
 		return &node->rodata->bbox;
@@ -1532,7 +1553,7 @@ s32 func0f068fc8(struct prop *prop, bool arg1)
 	if (prop->rooms[0] == -1) {
 		actual = rngRandom() % 255;
 		extra = 0;
-	} else if (obj->type == OBJTYPE_DOOR) {
+	} else if (obj != NULL && obj->type == OBJTYPE_DOOR) {
 		struct doorobj *door = (struct doorobj *)obj;
 
 		if (g_Vars.normmplayerisrunning) {
@@ -1636,7 +1657,7 @@ void propCalculateShadeColour(struct prop *prop, u8 *nextcol, u16 floorcol)
 		// fix props flickering in split screen when one of the players has night vision or IR Goggles on
 		if (prop->type != PROPTYPE_PLAYER || g_Vars.currentplayer->prop != prop) {
 			if (USINGDEVICE(DEVICE_NIGHTVISION) || USINGDEVICE(DEVICE_IRSCANNER)) {
-				if (prop->rooms[0] >= 0) {
+				if (prop->rooms[0] >= 0 && prop->rooms[0] < g_Vars.roomcount) {
 					shade = g_Rooms[prop->rooms[0]].br_settled_regional;
 				}
 			}
@@ -1648,7 +1669,9 @@ void propCalculateShadeColour(struct prop *prop, u8 *nextcol, u16 floorcol)
 
 		alphafrac = 1.0f - shade * (1.0f / 2550.0f);
 
-		scenarioHighlightRoom(prop->rooms[0], &roomr, &roomg, &roomb);
+		if (prop->rooms[0] >= 0 && prop->rooms[0] < g_Vars.roomcount) {
+			scenarioHighlightRoom(prop->rooms[0], &roomr, &roomg, &roomb);
+		}
 
 		nextcol[0] = (nextcol[0] * roomr) >> 8;
 		nextcol[1] = (nextcol[1] * roomg) >> 8;
@@ -1833,14 +1856,13 @@ void func0f069850(struct defaultobj *obj, struct coord *pos, f32 rot[3][3], stru
 					"func0f069850: no bbox type=%u modelnum=%u pad=%d",
 					obj->type, obj->modelnum, obj->pad);
 #endif
-			/* Pad-bound props without bbox rodata still need a collision stub. */
-			cyl->header.type = GEOTYPE_CYL;
-			cyl->header.flags = GEOFLAG_WALL | GEOFLAG_BLOCK_SIGHT | GEOFLAG_BLOCK_SHOOT;
-			cyl->x = pos->x;
-			cyl->z = pos->z;
-			cyl->radius = 40.0f;
-			cyl->ymin = pos->y;
-			cyl->ymax = pos->y + 80.0f;
+			/* Default 80×80×80 unit box — must be a geoblock, not geocyl layout. */
+			{
+				struct modelrodata_bbox stub = {
+					0, -40.0f, 40.0f, 0.0f, 80.0f, -40.0f, 40.0f,
+				};
+				objCalculateGeoBlockFromBboxAndMtx(&stub, &mtx, (struct geoblock *)cyl);
+			}
 		}
 
 		if (obj->type == OBJTYPE_HOVERBIKE) {
@@ -2066,12 +2088,23 @@ void objCreateDebris(struct defaultobj *obj, struct prop *prop)
 
 struct prop *objInit(struct defaultobj *obj, struct modeldef *modeldef, struct prop *prop, struct model *model)
 {
+	if (!modeldef) {
+		return NULL;
+	}
+
 	if (prop == NULL) {
 		prop = propAllocate();
 	}
 
 	if (model == NULL) {
 		model = modelmgrInstantiateModelWithoutAnim(modeldef);
+	}
+
+	if (!model) {
+		if (prop) {
+			propFree(prop);
+		}
+		return NULL;
 	}
 
 	if (prop && model) {
@@ -2262,7 +2295,23 @@ void func0f06a650(struct defaultobj *obj, struct coord *pos, Mtxf *arg2, RoomNum
 
 void func0f06a730(struct defaultobj *obj, struct coord *arg1, Mtxf *mtx, RoomNum *rooms, struct coord *centre)
 {
-	struct modelrodata_bbox *bbox = modelFindBboxRodata(obj->model);
+	struct modelrodata_bbox *bbox;
+
+	if (!obj || !obj->model) {
+#ifndef PLATFORM_N64
+		if (obj) {
+			sysLogPrintf(LOG_WARNING,
+					"func0f06a730: skip type=%u modelnum=%u pad=%d (no model)",
+					obj->type, obj->modelnum, obj->pad);
+		}
+#endif
+		if (obj) {
+			func0f06a580(obj, arg1, mtx, rooms);
+		}
+		return;
+	}
+
+	bbox = modelFindBboxRodata(obj->model);
 
 	// Floor snap needs a model bbox; CHR weapon models and bad setup props may lack one.
 	if (bbox == NULL) {
@@ -9359,7 +9408,18 @@ void autogunTickShoot(struct prop *autogunprop)
 
 				if (fireleft || fireright) {
 					if (autogun->ammoquantity > 0 && autogun->ammoquantity != 255) {
-						autogun->ammoquantity--;
+						bool consumeammo = true;
+
+						/* u8 ammoquantity caps at 254; scale drain for 4x sentry duration. */
+						if (g_LaptopSentryAmmoScale > 1
+								&& (autogun->base.flags & OBJFLAG_THROWNLAPTOP)) {
+							consumeammo = (autogun->firecount % g_LaptopSentryAmmoScale)
+									== (g_LaptopSentryAmmoScale - 1);
+						}
+
+						if (consumeammo) {
+							autogun->ammoquantity--;
+						}
 					}
 				}
 
@@ -10898,6 +10958,10 @@ void objInitMatrices(struct prop *prop)
 	struct defaultobj *obj = prop->obj;
 	Mtxf mtx;
 
+	if (!obj->model || !obj->model->definition) {
+		return;
+	}
+
 	if (obj->type == OBJTYPE_DOOR) {
 		doorInitMatrices(prop);
 	} else {
@@ -11063,6 +11127,11 @@ s32 objTickPlayer(struct prop *prop)
 	bool embedded = false;
 	bool sp556 = false;
 	bool invalidframe = false;
+
+	if (!model || !model->definition) {
+		prop->flags &= ~PROPFLAG_ONTHISSCREENTHISTICK;
+		return TICKOP_NONE;
+	}
 
 	if (obj->hidden & OBJHFLAG_ISRETICK) {
 		obj->hidden &= ~OBJHFLAG_ISRETICK;
@@ -11406,12 +11475,20 @@ s32 objTickPlayer(struct prop *prop)
 		}
 
 		if (sp556 == false) {
-			model->matrices = gfxAllocate(model->definition->nummatrices * sizeof(Mtxf));
-			objInitMatrices(prop);
-			modelUpdateRelationsQuick(model, model->definition->rootnode);
+			struct modelrodata_bbox *bbox = objFindBboxRodata(obj);
+
+			// StdObjects without model bbox rodata cannot run matrix setup safely.
+			if (bbox != NULL && model->definition->nummatrices > 0) {
+				model->matrices = gfxAllocate(model->definition->nummatrices * sizeof(Mtxf));
+				objInitMatrices(prop);
+				modelUpdateRelationsQuick(model, model->definition->rootnode);
+			}
 		}
 
-		prop->z = -model->matrices[0].m[3][2];
+		if (model->matrices) {
+			prop->z = -model->matrices[0].m[3][2];
+		}
+
 		func0f07063c(prop, fulltick);
 		child = prop->child;
 
@@ -15803,6 +15880,10 @@ void objTestHit(struct prop *prop, struct shotdata *shotdata)
 	struct model *model = obj->model;
 	struct modelrodata_bbox *bbox = objFindBboxRodata(obj);
 
+	if (bbox == NULL) {
+		return;
+	}
+
 	if ((prop->flags & PROPFLAG_ONTHISSCREENTHISTICK)
 			&& (obj->hidden & OBJHFLAG_00001000) == 0
 			&& (obj->flags2 & OBJFLAG2_SHOOTTHROUGH) == 0) {
@@ -18550,6 +18631,28 @@ void func0f08b25c(struct weaponobj *weapon, struct chrdata *chr)
 	func0f08b208(weapon, chr);
 }
 
+/**
+ * Pick a thrown-laptop pool index. Retail MP uses the player index (one active
+ * sentry per player; redeploy explodes the previous). --unlimited-sentries uses
+ * the first free slot so many sentries can coexist.
+ */
+static s32 laptopPickDeployIndex(s32 playernum)
+{
+	s32 i;
+
+	if (g_UnlimitedLaptopSentries) {
+		for (i = 0; i < g_MaxThrownLaptops; i++) {
+			if (g_ThrownLaptops[i].base.prop == NULL) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	return playernum;
+}
+
 struct autogunobj *laptopDeploy(s32 modelnum, struct gset *gset, struct chrdata *chr)
 {
 	struct modeldef *modeldef;
@@ -18564,12 +18667,15 @@ struct autogunobj *laptopDeploy(s32 modelnum, struct gset *gset, struct chrdata 
 		index = playermgrGetPlayerNumByProp(chr->prop);
 	}
 
+	index = laptopPickDeployIndex(index);
+
 	if (index >= 0 && index < g_MaxThrownLaptops) {
 		setupLoadModeldef(modelnum);
 		modeldef = g_ModelStates[modelnum].modeldef;
 		laptop = &g_ThrownLaptops[index];
 
-		if (laptop->base.prop) {
+		/* Retail: replacing this player's prior sentry. Unlimited: only free slots. */
+		if (!g_UnlimitedLaptopSentries && laptop->base.prop) {
 #if VERSION >= VERSION_NTSC_1_0
 			explosionCreateSimple(NULL, &laptop->base.prop->pos, laptop->base.prop->rooms, EXPLOSIONTYPE_LAPTOP, index);
 #else
@@ -18637,7 +18743,10 @@ struct autogunobj *laptopDeploy(s32 modelnum, struct gset *gset, struct chrdata 
 			laptop->shotbondsum = 0;
 
 			if (chr->aibot) {
-				laptop->ammoquantity = botactTryRemoveAmmoFromReserve(chr->aibot, WEAPON_LAPTOPGUN, FUNC_PRIMARY, 200);
+				laptop->ammoquantity = botactTryRemoveAmmoFromReserve(chr->aibot, WEAPON_LAPTOPGUN, FUNC_PRIMARY, g_LaptopSentryAmmoCap);
+				if (g_LaptopSentryInfiniteAmmo) {
+					laptop->ammoquantity = 255;
+				}
 			} else if (chr->prop->type == PROPTYPE_PLAYER) {
 				s32 qty;
 				s32 prevplayernum = g_Vars.currentplayernum;
@@ -18645,13 +18754,13 @@ struct autogunobj *laptopDeploy(s32 modelnum, struct gset *gset, struct chrdata 
 				setCurrentPlayerNum(playermgrGetPlayerNumByProp(chr->prop));
 				qty = bgunGetAmmoQtyForWeapon(WEAPON_LAPTOPGUN, FUNC_PRIMARY);
 
-				if (qty >= 200) {
-					laptop->ammoquantity = 200;
+				if (qty >= g_LaptopSentryAmmoCap) {
+					laptop->ammoquantity = g_LaptopSentryAmmoCap;
 				} else {
 					laptop->ammoquantity = qty;
 				}
 
-				if (cheatIsActive(CHEAT_UNLIMITEDAMMOLAPTOP)) {
+				if (cheatIsActive(CHEAT_UNLIMITEDAMMOLAPTOP) || g_LaptopSentryInfiniteAmmo) {
 					laptop->ammoquantity = 255;
 				} else {
 					qty -= laptop->ammoquantity;
@@ -20086,6 +20195,18 @@ bool func0f08e8ac(struct prop *prop, struct coord *pos, f32 arg2, bool arg3)
 	bool result = false;
 	u32 stack;
 
+#ifndef PLATFORM_N64
+	/* Animation Lab: guards/props use tile rooms 2+ for collision (≤30 chr/room)
+	 * but the player stays in room 1. Skip per-room ONSCREEN — use draw distance
+	 * and camera FOV only so district grids and the props yard render. */
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		if (!posIsInDrawDistance(pos)) {
+			return false;
+		}
+		return camIsPosInFovAndVisibleRoom(prop->rooms, pos, arg2);
+	}
+#endif
+
 	rooms = prop->rooms;
 	roomnum = *rooms;
 
@@ -20128,9 +20249,16 @@ bool posIsInDrawDistance(struct coord *pos)
 	f32 y = pos->y - campos->y;
 	f32 z = pos->z - campos->z;
 	f32 aggregate = x * x + y * y + z * z;
+	f32 maxdist = 32000.0f;
 	bool result = true;
 
-	if (aggregate > 32000 * 32000) {
+#ifndef PLATFORM_N64
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		maxdist = ANIMLAB_DRAW_DIST;
+	}
+#endif
+
+	if (aggregate > maxdist * maxdist) {
 		result = false;
 	}
 

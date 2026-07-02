@@ -4077,6 +4077,10 @@ s32 modelCalculateRwDataIndexes(struct modelnode *basenode)
 
 void modelAllocateRwData(struct modeldef *modeldef)
 {
+	if (modeldef == NULL) {
+		return;
+	}
+
 	modeldef->rwdatalen = modelCalculateRwDataIndexes(modeldef->rootnode);
 }
 
