@@ -269,7 +269,7 @@ def cmd_from_json(args):
         print(f"  Wrote level module -> {os.path.relpath(level_path, ROOT)}")
 
     mod_dirs = [_mod_bgdata(args.mod)] if args.deploy else None
-    seg_mode = args.seg_mode or "empty"
+    seg_mode = args.seg_mode  # None → auto hill/empty in build_from_spec
 
     try:
         errors, warnings = build_from_spec(
@@ -390,6 +390,50 @@ def cmd_learn(args):
             print("No gaps file yet — run: pdmap learn run")
         return
 
+    if args.learn_cmd == "curriculum":
+        from .learn import curriculum as learn_curriculum
+
+        sub = getattr(args, "curriculum_cmd", None)
+        if sub == "generate":
+            steps = learn_curriculum.generate_all(write_levels=not args.no_levels)
+            path = learn_curriculum.emit_curriculum_md()
+            print(f"Generated {len(steps)} curriculum maps")
+            print(f"  JSON -> {os.path.relpath(learn_curriculum.MAPS_DIR, ROOT)}")
+            print(f"  Levels -> {os.path.relpath(learn_curriculum.LEVELS_DIR, ROOT)}")
+            print(f"  Index -> {os.path.relpath(path, ROOT)}")
+            return
+        if sub == "validate":
+            results = learn_curriculum.validate_curriculum(verbose=args.verbose)
+            failed = [r for r in results if not r.ok]
+            for r in results:
+                status = "OK" if r.ok else "FAIL"
+                print(f"  [{status}] step {r.step:02d} {r.name}")
+                for e in r.errors:
+                    print(f"         ERROR: {e}")
+            if failed:
+                print(f"\n{len(failed)} step(s) failed validation", file=sys.stderr)
+                sys.exit(1)
+            print(f"\nAll {len(results)} curriculum steps validated (0 errors)")
+            return
+        if sub == "emit-doc":
+            path = learn_curriculum.emit_curriculum_md()
+            print(f"Wrote {os.path.relpath(path, ROOT)}")
+            return
+        if sub == "build":
+            results = learn_curriculum.build_curriculum(deploy=args.deploy)
+            failed = [r for r in results if not r.ok]
+            for r in results:
+                status = "OK" if r.ok else "FAIL"
+                print(f"  [{status}] {r.name}")
+                for e in r.errors:
+                    print(f"         ERROR: {e}")
+            if failed:
+                sys.exit(1)
+            print(f"Built {len(results)} curriculum maps")
+            return
+        print("Usage: pdmap learn curriculum {generate|validate|emit-doc|build}", file=sys.stderr)
+        sys.exit(1)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -460,8 +504,8 @@ def main():
     )
     p_json.add_argument(
         "--seg-mode",
-        default="empty",
-        help="PDMAP_SEG_MODE for box seg (default: empty — collision from tiles only)",
+        default=None,
+        help="PDMAP_SEG_MODE for box seg (default: hill when map has KOTH anchor, else empty)",
     )
     p_json.add_argument("--no-seg", action="store_true", help="Skip box seg build")
     p_json.add_argument(
@@ -502,6 +546,27 @@ def main():
     p_learn_emit.set_defaults(func=cmd_learn, learn_cmd="emit-spec")
     p_learn_gaps = learn_sub.add_parser("gaps", help="Print open documentation gaps")
     p_learn_gaps.set_defaults(func=cmd_learn, learn_cmd="gaps")
+
+    p_learn_curr = learn_sub.add_parser(
+        "curriculum",
+        help="Generate / validate progressive learn test maps",
+    )
+    curr_sub = p_learn_curr.add_subparsers(dest="curriculum_cmd")
+    p_curr_gen = curr_sub.add_parser("generate", help="Write JSON + level modules + CURRICULUM.md")
+    p_curr_gen.add_argument(
+        "--no-levels",
+        action="store_true",
+        help="Skip writing src/levels/learn_*.py modules",
+    )
+    p_curr_gen.set_defaults(func=cmd_learn, learn_cmd="curriculum", curriculum_cmd="generate")
+    p_curr_val = curr_sub.add_parser("validate", help="Validate all curriculum maps (0 errors)")
+    p_curr_val.add_argument("-v", "--verbose", action="store_true")
+    p_curr_val.set_defaults(func=cmd_learn, learn_cmd="curriculum", curriculum_cmd="validate")
+    p_curr_doc = curr_sub.add_parser("emit-doc", help="Regenerate journal/map_learn/CURRICULUM.md")
+    p_curr_doc.set_defaults(func=cmd_learn, learn_cmd="curriculum", curriculum_cmd="emit-doc")
+    p_curr_build = curr_sub.add_parser("build", help="Build all curriculum maps")
+    p_curr_build.add_argument("--deploy", "-d", action="store_true")
+    p_curr_build.set_defaults(func=cmd_learn, learn_cmd="curriculum", curriculum_cmd="build")
 
     p_reg = sub.add_parser("register", help="Generate stage registration plan (four C wiring points)")
     p_reg.add_argument("name", help="Level / asset name")

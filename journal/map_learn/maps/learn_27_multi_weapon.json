@@ -1,0 +1,42 @@
+{
+  "box_half": 2500,
+  "box_height": 2000,
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    },
+    {
+      "index": 1,
+      "type": "weapon",
+      "x": -800,
+      "y": 10,
+      "z": 0,
+      "room": 1,
+      "weapon": 17
+    },
+    {
+      "index": 2,
+      "type": "weapon",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1,
+      "weapon": 10
+    },
+    {
+      "index": 3,
+      "type": "weapon",
+      "x": 800,
+      "y": 10,
+      "z": 0,
+      "room": 1,
+      "weapon": 19
+    }
+  ],
+  "name": "learn_27_multi_weapon"
+}

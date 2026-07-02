@@ -239,6 +239,10 @@ u32 langGetLangBankIndexFromStagenum(s32 stagenum)
 	case STAGE_EXTRA24:       bank = LANGBANK_MP13; break;
 	case STAGE_EXTRA25:       bank = LANGBANK_STAT; break;
 	case STAGE_EXTRA26:       bank = LANGBANK_MP13; break;
+	// pdmap custom box arenas (no dedicated lang; reuse uff test bank)
+	case STAGE_MY_ARENA:      bank = LANGBANK_UFF; break;
+	case STAGE_TESTARENA:     bank = LANGBANK_UFF; break;
+	case STAGE_ANIMLAB:       bank = LANGBANK_UFF; break;
 #endif
 	default:
 		while (true) {

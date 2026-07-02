@@ -1,5 +1,39 @@
 {
   "facts": {
+    "doc_042bd154635b2294": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/90)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 90
+      },
+      "id": "doc_042bd154635b2294",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_0d76f35fdd92ce20": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/110)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 110
+      },
+      "id": "doc_0d76f35fdd92ce20",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
     "doc_0e1802809acadd2d": {
       "category": "doc",
       "claim": "Required-topic doc coverage: 100.0% (12/12)",
@@ -49,6 +83,23 @@
       ],
       "verified_by": "probe_doc_coverage"
     },
+    "doc_5101c9d55ff9b4b9": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/74)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 74
+      },
+      "id": "doc_5101c9d55ff9b4b9",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
     "doc_51d52563cecd2be1": {
       "category": "doc",
       "claim": "Documentation covers topic '--test-map' (STAGE_TEST_UFF)",
@@ -78,6 +129,23 @@
       "tags": [
         "doc-coverage",
         "register"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_55aa0a141ef8ed96": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/89)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 89
+      },
+      "id": "doc_55aa0a141ef8ed96",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
       ],
       "verified_by": "probe_doc_coverage"
     },
@@ -143,6 +211,40 @@
       "tags": [
         "doc-coverage",
         "intro"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_8754ab3025a361c2": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/91)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 91
+      },
+      "id": "doc_8754ab3025a361c2",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_886085ce7a0188d4": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/88)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 88
+      },
+      "id": "doc_886085ce7a0188d4",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
       ],
       "verified_by": "probe_doc_coverage"
     },
@@ -262,6 +364,74 @@
       ],
       "verified_by": "probe_doc_coverage"
     },
+    "doc_aa8d48a083b3869e": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/117)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 117
+      },
+      "id": "doc_aa8d48a083b3869e",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_af595f63d80fbca9": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/73)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 73
+      },
+      "id": "doc_af595f63d80fbca9",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_b3c1a9414795b427": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/64)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 64
+      },
+      "id": "doc_b3c1a9414795b427",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_b77a95d2a81dcfe9": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/71)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 71
+      },
+      "id": "doc_b77a95d2a81dcfe9",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
     "doc_bc2dd973fe225e5d": {
       "category": "doc",
       "claim": "Learned-claim substring coverage: 0.0% (0/47)",
@@ -292,6 +462,57 @@
       "tags": [
         "doc-coverage",
         "learn"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_bf2d790e1e549049": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/92)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 92
+      },
+      "id": "doc_bf2d790e1e549049",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_c303bc772b6ae1cd": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/101)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 101
+      },
+      "id": "doc_c303bc772b6ae1cd",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_c775c9f0072ee003": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/115)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 115
+      },
+      "id": "doc_c775c9f0072ee003",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
       ],
       "verified_by": "probe_doc_coverage"
     },
@@ -329,6 +550,23 @@
       ],
       "verified_by": "probe_doc_coverage"
     },
+    "doc_e00dcb4c6c6b142c": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/86)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 86
+      },
+      "id": "doc_e00dcb4c6c6b142c",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
     "doc_e2c9bc6227d5bae6": {
       "category": "doc",
       "claim": "Documentation covers topic 'symmetric' (waypoint)",
@@ -342,6 +580,23 @@
       "tags": [
         "doc-coverage",
         "symmetric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_e6e99be6cad175ea": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/87)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 87
+      },
+      "id": "doc_e6e99be6cad175ea",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
       ],
       "verified_by": "probe_doc_coverage"
     },
@@ -378,6 +633,21 @@
         "metric"
       ],
       "verified_by": "probe_doc_coverage"
+    },
+    "engine_04d16a2795f23f0d": {
+      "category": "engine",
+      "claim": "files.h defines 189 FILE_BG_* asset constants",
+      "confidence": 1.0,
+      "evidence": {
+        "count": 189
+      },
+      "id": "engine_04d16a2795f23f0d",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/include/files.h",
+      "tags": [
+        "registration",
+        "files.h"
+      ],
+      "verified_by": "probe_engine_wiring"
     },
     "engine_05d7a07b18aa300a": {
       "category": "engine",
@@ -418,12 +688,53 @@
       ],
       "verified_by": "probe_engine_wiring"
     },
+    "engine_4ab8fa22beeb2a82": {
+      "category": "engine",
+      "claim": "lang.c maps Combat Sim textids 0x7FFD/0x7FFC to My Arena / Test Arena labels",
+      "confidence": 1.0,
+      "evidence": {
+        "my_arena_label": true,
+        "testarena_label": true
+      },
+      "id": "engine_4ab8fa22beeb2a82",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/lang.c",
+      "tags": [
+        "registration",
+        "lang"
+      ],
+      "verified_by": "probe_registered_stages"
+    },
+    "engine_4cce35f4ea49d21c": {
+      "category": "engine",
+      "claim": "Registered stage testarena wired in env.c, lang.c, list.c, and mod_allinone assets",
+      "confidence": 1.0,
+      "evidence": {
+        "checks": {
+          "env.c": true,
+          "lang.c": true,
+          "list.c": true,
+          "mod_tiles": true
+        },
+        "name": "testarena",
+        "stage": "STAGE_TESTARENA",
+        "textid": "0x7FFC"
+      },
+      "id": "engine_4cce35f4ea49d21c",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/env.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/lang.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/assets/ntsc-final/files/list.c",
+      "tags": [
+        "registration",
+        "testarena",
+        "env",
+        "lang"
+      ],
+      "verified_by": "probe_registered_stages"
+    },
     "engine_4dc2432d735ec0d5": {
       "category": "engine",
       "claim": "stagetable.c maps STAGE_* ids to five bgdata file ids per stage",
       "confidence": 1.0,
       "evidence": {
-        "stage_symbol_refs": 87
+        "stage_symbol_refs": 90
       },
       "id": "engine_4dc2432d735ec0d5",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/stagetable.c",
@@ -461,20 +772,18 @@
       ],
       "verified_by": "probe_scenario_pairing"
     },
-    "engine_d99e30a8eea4f457": {
+    "engine_afee329cf45e90f0": {
       "category": "engine",
-      "claim": "files.h defines 180 FILE_BG_* asset constants",
+      "claim": "pdmap register --apply patches constants.h, files.h, list.c, stagetable.c, setup.c",
       "confidence": 1.0,
-      "evidence": {
-        "count": 180
-      },
-      "id": "engine_d99e30a8eea4f457",
-      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/include/files.h",
+      "evidence": {},
+      "id": "engine_afee329cf45e90f0",
+      "source": "tools/pdmap/register.py:apply_registration",
       "tags": [
         "registration",
-        "files.h"
+        "codegen"
       ],
-      "verified_by": "probe_engine_wiring"
+      "verified_by": "probe_register_codegen"
     },
     "engine_eff2779b53fc5d95": {
       "category": "engine",
@@ -489,12 +798,37 @@
       ],
       "verified_by": "probe_engine_wiring"
     },
+    "engine_f3a0de8c875f7ab1": {
+      "category": "engine",
+      "claim": "Registered stage my_arena wired in env.c, lang.c, list.c, and mod_allinone assets",
+      "confidence": 1.0,
+      "evidence": {
+        "checks": {
+          "env.c": true,
+          "lang.c": true,
+          "list.c": true,
+          "mod_tiles": true
+        },
+        "name": "my_arena",
+        "stage": "STAGE_MY_ARENA",
+        "textid": "0x7FFD"
+      },
+      "id": "engine_f3a0de8c875f7ab1",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/env.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/lang.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/assets/ntsc-final/files/list.c",
+      "tags": [
+        "registration",
+        "my_arena",
+        "env",
+        "lang"
+      ],
+      "verified_by": "probe_registered_stages"
+    },
     "engine_f471ce6be58e5c40": {
       "category": "engine",
       "claim": "g_MpArenas[] in setup.c lists Combat Simulator menu entries",
       "confidence": 1.0,
       "evidence": {
-        "arena_row_refs": 89
+        "arena_row_refs": 92
       },
       "id": "engine_f471ce6be58e5c40",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/mplayer/setup.c",
@@ -661,22 +995,78 @@
       ],
       "verified_by": "probe_coded_invariants"
     },
-    "pipeline_0267083335d5b605": {
+    "pipeline_0096cfedf255f0fc": {
       "category": "pipeline",
-      "claim": "Level module my_arena: 8 pads, box_arena=True, custom_tiles=True",
+      "claim": "from-json \u2192 deploy writes four mod_allinone assets for learndeploy",
       "confidence": 1.0,
       "evidence": {
-        "intro": 13,
-        "pads": 8,
-        "props": 3
+        "assets_exist": {
+          "pads": true,
+          "seg": true,
+          "setup": true,
+          "tiles": true
+        },
+        "errors": []
       },
-      "id": "pipeline_0267083335d5b605",
-      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/my_arena.py",
+      "id": "pipeline_0096cfedf255f0fc",
+      "source": "tools/pdmap/pipeline.py:build_from_spec",
+      "tags": [
+        "from-json",
+        "deploy",
+        "e2e"
+      ],
+      "verified_by": "probe_from_json_deploy"
+    },
+    "pipeline_0225eb8e070d8af0": {
+      "category": "pipeline",
+      "claim": "Level module learn_28_hill_collision: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 10,
+        "pads": 2,
+        "props": 0
+      },
+      "id": "pipeline_0225eb8e070d8af0",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_28_hill_collision.py",
       "tags": [
         "level-module",
-        "my_arena"
+        "learn_28_hill_collision"
       ],
       "verified_by": "probe_level_modules"
+    },
+    "pipeline_08dbd26ff3f00ccc": {
+      "category": "pipeline",
+      "claim": "Level module learn_15_seg_empty: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_08dbd26ff3f00ccc",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_15_seg_empty.py",
+      "tags": [
+        "level-module",
+        "learn_15_seg_empty"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_0bdc387c7e4823c0": {
+      "category": "pipeline",
+      "claim": "Level modules with SEG_SCRIPT: 1 (learn_29_custom_seg_script)",
+      "confidence": 1.0,
+      "evidence": {
+        "modules": [
+          "learn_29_custom_seg_script"
+        ]
+      },
+      "id": "pipeline_0bdc387c7e4823c0",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels",
+      "tags": [
+        "seg",
+        "SEG_SCRIPT"
+      ],
+      "verified_by": "probe_seg_script_inventory"
     },
     "pipeline_1291157c51667b6c": {
       "category": "pipeline",
@@ -696,20 +1086,124 @@
       ],
       "verified_by": "probe_scenario_pairing"
     },
-    "pipeline_21de6fe5468c9401": {
+    "pipeline_13d7d425c8bfdb9e": {
       "category": "pipeline",
-      "claim": "Level modules with SEG_SCRIPT: 0 (none)",
+      "claim": "Level module my_arena: 17 pads, box_arena=True, custom_tiles=True",
       "confidence": 1.0,
       "evidence": {
-        "modules": []
+        "intro": 21,
+        "pads": 17,
+        "props": 4
       },
-      "id": "pipeline_21de6fe5468c9401",
-      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels",
+      "id": "pipeline_13d7d425c8bfdb9e",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/my_arena.py",
       "tags": [
-        "seg",
-        "SEG_SCRIPT"
+        "level-module",
+        "my_arena"
       ],
-      "verified_by": "probe_seg_script_inventory"
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_16570711862ca398": {
+      "category": "pipeline",
+      "claim": "Level module learn_06_waypoints: 4 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 12,
+        "pads": 4,
+        "props": 0
+      },
+      "id": "pipeline_16570711862ca398",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_06_waypoints.py",
+      "tags": [
+        "level-module",
+        "learn_06_waypoints"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_17ca1c08d74952b1": {
+      "category": "pipeline",
+      "claim": "Level module learn_12_testarena_fixture: 15 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 21,
+        "pads": 15,
+        "props": 2
+      },
+      "id": "pipeline_17ca1c08d74952b1",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_12_testarena_fixture.py",
+      "tags": [
+        "level-module",
+        "learn_12_testarena_fixture"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_1848031201fc967c": {
+      "category": "pipeline",
+      "claim": "Level module learn_10_full_arena: 12 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 17,
+        "pads": 12,
+        "props": 3
+      },
+      "id": "pipeline_1848031201fc967c",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_10_full_arena.py",
+      "tags": [
+        "level-module",
+        "learn_10_full_arena"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_19a52179308b8aa1": {
+      "category": "pipeline",
+      "claim": "Level module learn_11_y_autocorrect: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_19a52179308b8aa1",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_11_y_autocorrect.py",
+      "tags": [
+        "level-module",
+        "learn_11_y_autocorrect"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_2166e7339e52c533": {
+      "category": "pipeline",
+      "claim": "Level module learn_29_custom_seg_script: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_2166e7339e52c533",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_29_custom_seg_script.py",
+      "tags": [
+        "level-module",
+        "learn_29_custom_seg_script"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_26ded15268530472": {
+      "category": "pipeline",
+      "claim": "Level module learn_09_deploy_uff: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_26ded15268530472",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_09_deploy_uff.py",
+      "tags": [
+        "level-module",
+        "learn_09_deploy_uff"
+      ],
+      "verified_by": "probe_level_modules"
     },
     "pipeline_27c5772bd6947e96": {
       "category": "pipeline",
@@ -725,6 +1219,23 @@
       "tags": [
         "level-module",
         "edit_play_1782851648"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_28c7c03391d80d71": {
+      "category": "pipeline",
+      "claim": "Level module learn_08_ctf_case: 3 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 11,
+        "pads": 3,
+        "props": 0
+      },
+      "id": "pipeline_28c7c03391d80d71",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_08_ctf_case.py",
+      "tags": [
+        "level-module",
+        "learn_08_ctf_case"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -753,6 +1264,74 @@
         "build"
       ],
       "verified_by": "probe_pipeline_contract"
+    },
+    "pipeline_32ff176d7c23c22f": {
+      "category": "pipeline",
+      "claim": "Level module learn_14_procedural_seg: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_32ff176d7c23c22f",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_14_procedural_seg.py",
+      "tags": [
+        "level-module",
+        "learn_14_procedural_seg"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_36e58d2227ae68e7": {
+      "category": "pipeline",
+      "claim": "Level module learn_16_my_arena_registered: 17 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 21,
+        "pads": 17,
+        "props": 4
+      },
+      "id": "pipeline_36e58d2227ae68e7",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_16_my_arena_registered.py",
+      "tags": [
+        "level-module",
+        "learn_16_my_arena_registered"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_38d65bd22c41935f": {
+      "category": "pipeline",
+      "claim": "Level module learn_23_bot_four_cap: 4 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 12,
+        "pads": 4,
+        "props": 0
+      },
+      "id": "pipeline_38d65bd22c41935f",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_23_bot_four_cap.py",
+      "tags": [
+        "level-module",
+        "learn_23_bot_four_cap"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_3e181c1026e93492": {
+      "category": "pipeline",
+      "claim": "Level module learn_21_hacker_central: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 10,
+        "pads": 2,
+        "props": 0
+      },
+      "id": "pipeline_3e181c1026e93492",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_21_hacker_central.py",
+      "tags": [
+        "level-module",
+        "learn_21_hacker_central"
+      ],
+      "verified_by": "probe_level_modules"
     },
     "pipeline_492cb036302e0ac7": {
       "category": "pipeline",
@@ -785,6 +1364,115 @@
       ],
       "verified_by": "probe_level_modules"
     },
+    "pipeline_51d043ecc8e7d702": {
+      "category": "pipeline",
+      "claim": "Level module learn_30_mod_hygiene: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_51d043ecc8e7d702",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_30_mod_hygiene.py",
+      "tags": [
+        "level-module",
+        "learn_30_mod_hygiene"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_577d663696947dad": {
+      "category": "pipeline",
+      "claim": "Level module animlab: 21 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 21,
+        "props": 0
+      },
+      "id": "pipeline_577d663696947dad",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/animlab.py",
+      "tags": [
+        "level-module",
+        "animlab"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_584aec2a066cf984": {
+      "category": "pipeline",
+      "claim": "Learn curriculum: 31 steps, 31/31 validate OK",
+      "confidence": 1.0,
+      "evidence": {
+        "failed": [],
+        "step_count": 31
+      },
+      "id": "pipeline_584aec2a066cf984",
+      "source": "tools/pdmap/learn/curriculum.py:validate_curriculum",
+      "tags": [
+        "curriculum",
+        "validate"
+      ],
+      "verified_by": "probe_curriculum_integration"
+    },
+    "pipeline_5eadd9a910bb28ec": {
+      "category": "pipeline",
+      "claim": "--test-map boots with mod_allinone (5s timeout, SDL=default)",
+      "confidence": 1.0,
+      "evidence": {
+        "boot_detected": false,
+        "boot_hints": {
+          "bg_uff": false,
+          "boot_stage": false,
+          "loaded_externally": false,
+          "stage_test_uff": false
+        },
+        "returncode": null,
+        "sdl_driver": "default",
+        "stderr_tail": " function: glMultiTexCoordP4uiv\nERROR: GL: could not find function: glNormalP3ui\nERROR: GL: could not find function: glNormalP3uiv\nERROR: GL: could not find function: glColorP3ui\nERROR: GL: could not find function: glColorP3uiv\nERROR: GL: could not find function: glColorP4ui\nERROR: GL: could not find function: glColorP4uiv\nERROR: GL: could not find function: glSecondaryColorP3ui\nERROR: GL: could not find function: glSecondaryColorP3uiv\nWARNING: GL: using core profile or ES, watch out for errors\n",
+        "timed_out": true
+      },
+      "id": "pipeline_5eadd9a910bb28ec",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/build/pd.arm64",
+      "tags": [
+        "runtime",
+        "test-map"
+      ],
+      "verified_by": "probe_runtime_smoke"
+    },
+    "pipeline_603c954d153fbedc": {
+      "category": "pipeline",
+      "claim": "Level module learn_04_ammo: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 2,
+        "props": 1
+      },
+      "id": "pipeline_603c954d153fbedc",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_04_ammo.py",
+      "tags": [
+        "level-module",
+        "learn_04_ammo"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_67f25ae0d2a5fd90": {
+      "category": "pipeline",
+      "claim": "Level module learn_17_from_json_cli: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_67f25ae0d2a5fd90",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_17_from_json_cli.py",
+      "tags": [
+        "level-module",
+        "learn_17_from_json_cli"
+      ],
+      "verified_by": "probe_level_modules"
+    },
     "pipeline_68940ec276b70f77": {
       "category": "pipeline",
       "claim": "pdmap from-json is the canonical entry point for deterministic box maps",
@@ -796,6 +1484,91 @@
         "cli"
       ],
       "verified_by": "probe_pipeline_contract"
+    },
+    "pipeline_6f8ac2547903a3f7": {
+      "category": "pipeline",
+      "claim": "Level module learn_26_solo_ctf: 5 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 13,
+        "pads": 5,
+        "props": 0
+      },
+      "id": "pipeline_6f8ac2547903a3f7",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_26_solo_ctf.py",
+      "tags": [
+        "level-module",
+        "learn_26_solo_ctf"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_7055600fa28e9e07": {
+      "category": "pipeline",
+      "claim": "Level module learn_24_mpweapon_loadout: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_7055600fa28e9e07",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_24_mpweapon_loadout.py",
+      "tags": [
+        "level-module",
+        "learn_24_mpweapon_loadout"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_79737fb20738023f": {
+      "category": "pipeline",
+      "claim": "Level module testarena: 15 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 21,
+        "pads": 15,
+        "props": 2
+      },
+      "id": "pipeline_79737fb20738023f",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/testarena.py",
+      "tags": [
+        "level-module",
+        "testarena"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_84df340cfb1b2b5d": {
+      "category": "pipeline",
+      "claim": "Level module learn_02_four_spawns: 4 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 12,
+        "pads": 4,
+        "props": 0
+      },
+      "id": "pipeline_84df340cfb1b2b5d",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_02_four_spawns.py",
+      "tags": [
+        "level-module",
+        "learn_02_four_spawns"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_8506e4012f61dd6f": {
+      "category": "pipeline",
+      "claim": "Level module learn_01_spawn: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_8506e4012f61dd6f",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_01_spawn.py",
+      "tags": [
+        "level-module",
+        "learn_01_spawn"
+      ],
+      "verified_by": "probe_level_modules"
     },
     "pipeline_87c86f0160f7f34a": {
       "category": "pipeline",
@@ -830,30 +1603,105 @@
       ],
       "verified_by": "probe_fixtures"
     },
-    "pipeline_a3f2e84860d31bc6": {
+    "pipeline_924c7f1d27d2e898": {
       "category": "pipeline",
-      "claim": "Box-arena modules without SEG_SCRIPT (procedural seg): 8",
+      "claim": "plan_registration('learn_scratch') emits 4 C wiring snippets",
       "confidence": 1.0,
       "evidence": {
-        "count": 8,
-        "modules": [
-          "csim",
-          "edit_play_1782849221",
-          "edit_play_1782849718",
-          "edit_play_1782851214",
-          "edit_play_1782851648",
-          "edit_play_1782852555",
-          "my_arena",
-          "uff"
+        "already_registered": false,
+        "snippets": [
+          "files_h",
+          "list_c",
+          "setup_c",
+          "stagetable"
+        ],
+        "stage_const": "STAGE_LEARN_SCRATCH  /* assign 0x83 in constants.h */"
+      },
+      "id": "pipeline_924c7f1d27d2e898",
+      "source": "tools/pdmap/register.py:plan_registration",
+      "tags": [
+        "registration",
+        "codegen"
+      ],
+      "verified_by": "probe_register_codegen"
+    },
+    "pipeline_979d3dca2eaad759": {
+      "category": "pipeline",
+      "claim": "Level module learn_31_cover_points: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 10,
+        "pads": 2,
+        "props": 0
+      },
+      "id": "pipeline_979d3dca2eaad759",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_31_cover_points.py",
+      "tags": [
+        "level-module",
+        "learn_31_cover_points"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_99183ff9b5fffc27": {
+      "category": "pipeline",
+      "claim": "register --apply e2e dry-run: learn_scratch patch anchors present in C sources",
+      "confidence": 1.0,
+      "evidence": {
+        "anchors": {
+          "constants.h": true,
+          "files.h": true,
+          "list.c": true,
+          "setup.c": true,
+          "stagetable.c": true
+        },
+        "snippets": [
+          "files_h",
+          "list_c",
+          "setup_c",
+          "stagetable"
         ]
       },
-      "id": "pipeline_a3f2e84860d31bc6",
-      "source": "tools/pdmap/pipeline.py:build_from_spec",
+      "id": "pipeline_99183ff9b5fffc27",
+      "source": "tools/pdmap/register.py:apply_registration",
       "tags": [
-        "seg",
-        "box"
+        "registration",
+        "e2e"
       ],
-      "verified_by": "probe_seg_script_inventory"
+      "verified_by": "probe_register_apply_e2e"
+    },
+    "pipeline_9f2189524e46807b": {
+      "category": "pipeline",
+      "claim": "Level module learn_13_fixture_compact: 5 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 11,
+        "pads": 5,
+        "props": 2
+      },
+      "id": "pipeline_9f2189524e46807b",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_13_fixture_compact.py",
+      "tags": [
+        "level-module",
+        "learn_13_fixture_compact"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_9f37b877c078ca75": {
+      "category": "pipeline",
+      "claim": "Level module learn_25_boot_stage: 17 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 21,
+        "pads": 17,
+        "props": 4
+      },
+      "id": "pipeline_9f37b877c078ca75",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_25_boot_stage.py",
+      "tags": [
+        "level-module",
+        "learn_25_boot_stage"
+      ],
+      "verified_by": "probe_level_modules"
     },
     "pipeline_ad0573f5d224fa3b": {
       "category": "pipeline",
@@ -879,7 +1727,7 @@
       "evidence": {
         "errors": [],
         "ok": true,
-        "pads": 5
+        "pads": 15
       },
       "id": "pipeline_b5dfdd55d6186e6e",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/journal/uff_viewer/fixtures/minimal_map.json",
@@ -888,6 +1736,120 @@
         "minimal_map.json"
       ],
       "verified_by": "probe_fixtures"
+    },
+    "pipeline_bb6060102985b077": {
+      "category": "pipeline",
+      "claim": "Level module learn_27_multi_weapon: 4 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 4,
+        "props": 3
+      },
+      "id": "pipeline_bb6060102985b077",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_27_multi_weapon.py",
+      "tags": [
+        "level-module",
+        "learn_27_multi_weapon"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_bca56300f591e7f8": {
+      "category": "pipeline",
+      "claim": "Level module learn_05_loadout: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_bca56300f591e7f8",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_05_loadout.py",
+      "tags": [
+        "level-module",
+        "learn_05_loadout"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_c404e8b0422380f4": {
+      "category": "pipeline",
+      "claim": "Level module learn_22_pop_a_cap: 4 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 12,
+        "pads": 4,
+        "props": 0
+      },
+      "id": "pipeline_c404e8b0422380f4",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_22_pop_a_cap.py",
+      "tags": [
+        "level-module",
+        "learn_22_pop_a_cap"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_c42ec25982bcf755": {
+      "category": "pipeline",
+      "claim": "Box-arena modules without SEG_SCRIPT (procedural seg): 40",
+      "confidence": 1.0,
+      "evidence": {
+        "count": 40,
+        "modules": [
+          "animlab",
+          "csim",
+          "edit_play_1782849221",
+          "edit_play_1782849718",
+          "edit_play_1782851214",
+          "edit_play_1782851648",
+          "edit_play_1782852555",
+          "learn_01_spawn",
+          "learn_02_four_spawns",
+          "learn_03_weapon",
+          "learn_04_ammo",
+          "learn_05_loadout"
+        ]
+      },
+      "id": "pipeline_c42ec25982bcf755",
+      "source": "tools/pdmap/pipeline.py:build_from_spec",
+      "tags": [
+        "seg",
+        "box"
+      ],
+      "verified_by": "probe_seg_script_inventory"
+    },
+    "pipeline_c459ba8058ad9ba9": {
+      "category": "pipeline",
+      "claim": "Level module learn_03_weapon: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 2,
+        "props": 1
+      },
+      "id": "pipeline_c459ba8058ad9ba9",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_03_weapon.py",
+      "tags": [
+        "level-module",
+        "learn_03_weapon"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_c7071f188751a42e": {
+      "category": "pipeline",
+      "claim": "Level module learn_19_hold_briefcase: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 10,
+        "pads": 2,
+        "props": 0
+      },
+      "id": "pipeline_c7071f188751a42e",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_19_hold_briefcase.py",
+      "tags": [
+        "level-module",
+        "learn_19_hold_briefcase"
+      ],
+      "verified_by": "probe_level_modules"
     },
     "pipeline_d2fc95abee40609f": {
       "category": "pipeline",
@@ -903,6 +1865,23 @@
       "tags": [
         "level-module",
         "uff"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_d6652ceee36e2f81": {
+      "category": "pipeline",
+      "claim": "Level module learn_20_overlap_pads: 3 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 3,
+        "props": 2
+      },
+      "id": "pipeline_d6652ceee36e2f81",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_20_overlap_pads.py",
+      "tags": [
+        "level-module",
+        "learn_20_overlap_pads"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -923,6 +1902,24 @@
       ],
       "verified_by": "probe_level_modules"
     },
+    "pipeline_e45eae4e7e435012": {
+      "category": "pipeline",
+      "claim": "register --apply e2e passes (learn_scratch dry-run)",
+      "confidence": 1.0,
+      "evidence": {
+        "build": "cmake --build build --target pd",
+        "files_patched": 5,
+        "reverted": true
+      },
+      "id": "pipeline_e45eae4e7e435012",
+      "source": "tools/pdmap/register.py:apply_registration",
+      "tags": [
+        "registration",
+        "e2e",
+        "live"
+      ],
+      "verified_by": "wake_502516_live_e2e"
+    },
     "pipeline_f1ab1fd894c1a10a": {
       "category": "pipeline",
       "claim": "Level module edit_play_1782849718: 1 pads, box_arena=True, custom_tiles=True",
@@ -937,6 +1934,23 @@
       "tags": [
         "level-module",
         "edit_play_1782849718"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_f23a7d5e8287c7da": {
+      "category": "pipeline",
+      "claim": "Level module learn_07_hill: 2 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 10,
+        "pads": 2,
+        "props": 0
+      },
+      "id": "pipeline_f23a7d5e8287c7da",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_07_hill.py",
+      "tags": [
+        "level-module",
+        "learn_07_hill"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -956,13 +1970,30 @@
         "edit_play_1782849221"
       ],
       "verified_by": "probe_level_modules"
+    },
+    "pipeline_fe4f467f6762b076": {
+      "category": "pipeline",
+      "claim": "Level module learn_18_register_scratch: 1 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 9,
+        "pads": 1,
+        "props": 0
+      },
+      "id": "pipeline_fe4f467f6762b076",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_18_register_scratch.py",
+      "tags": [
+        "level-module",
+        "learn_18_register_scratch"
+      ],
+      "verified_by": "probe_level_modules"
     }
   },
   "meta": {
     "doc_coverage_ratio": 1.0,
     "gap_count": 0,
-    "iteration": 9,
-    "last_run": "20260701T003450Z"
+    "iteration": 26,
+    "last_run": "20260701T175918Z"
   },
   "version": 1
 }

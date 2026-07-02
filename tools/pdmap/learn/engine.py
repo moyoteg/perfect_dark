@@ -61,8 +61,12 @@ class LearnEngine:
         os.makedirs(RUNS_DIR, exist_ok=True)
 
         before_ids = set(self._facts)
-        # Gap facts are re-derived each run; drop stale entries from prior iterations.
-        self._facts = {k: v for k, v in self._facts.items() if "gap" not in v.tags}
+        # Gap facts and prior probe output are re-derived each run.
+        probe_ids = {f"probe_{name}" for name, _ in probes.ALL_PROBES}
+        self._facts = {
+            k: v for k, v in self._facts.items()
+            if "gap" not in v.tags and v.verified_by not in probe_ids
+        }
         all_new: list[Fact] = []
         probe_errors: list[str] = []
 
@@ -162,10 +166,10 @@ class LearnEngine:
             "",
             "## Next probe targets",
             "",
-            "- Runtime headless smoke (--test-map log parse)",
-            "- Custom seg generators beyond procedural box (SEG_SCRIPT modules)",
-            "- env.c / lang.c wiring for new registered stages",
-            "- End-to-end register --apply + make smoke on a scratch map name",
+            "- Runtime smoke with STAGE_TEST_UFF log hints (optional CI hardening)",
+            "- Live register --apply on learn_scratch + make rebuild smoke",
+            "- Editor export CTF case/case_respawn pairing validation",
+            "- Custom SEG_SCRIPT modules beyond procedural box",
             "",
         ])
         with open(GAPS_PATH, "w", encoding="utf-8") as fp:

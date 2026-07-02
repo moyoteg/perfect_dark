@@ -1,4 +1,4 @@
-# Map learn gaps (20260701T003450Z)
+# Map learn gaps (20260701T175918Z)
 
 Doc coverage: **100.0%**
 
@@ -8,8 +8,8 @@ _No gaps detected this run._
 
 ## Next probe targets
 
-- Runtime headless smoke (--test-map log parse)
-- Custom seg generators beyond procedural box (SEG_SCRIPT modules)
-- env.c / lang.c wiring for new registered stages
-- End-to-end register --apply + make smoke on a scratch map name
+- Runtime smoke with STAGE_TEST_UFF log hints (optional CI hardening)
+- Live register --apply on learn_scratch + make rebuild smoke
+- Editor export CTF case/case_respawn pairing validation
+- Custom SEG_SCRIPT modules beyond procedural box
 

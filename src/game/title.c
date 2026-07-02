@@ -157,16 +157,22 @@ void titleSetLight(Lights1 *light, u8 r, u8 g, u8 b, f32 luminosity, struct coor
 }
 
 extern s32 sysArgCheck(const char *arg);
+extern s32 sysArgGetInt(const char *arg, s32 defval);
 
 void titleInitLegal(void)
 {
-	musicQueueStopAllEvent();
+	// PC port: titleInit() may call this from mainInit before sndInit(), so
+	// musicQueueStopAllEvent -> musicTickEvents would dereference null seq players.
+	if (!sysArgCheck("--test-map") && !sysArgCheck("--test-animlab")) {
+		musicQueueStopAllEvent();
+	}
+
 	var800624f4 = 1;
 	g_TitleTimer = 0;
 	g_TitleButtonPressed = false;
 	g_TitleFastForward = false;
 
-	if (sysArgCheck("--test-map")) {
+	if (sysArgCheck("--test-map") || sysArgCheck("--test-animlab")) {
 		// FAST BOOT HACK: Boot into MP match instantly with bots and weapons.
 		//
 		// IMPORTANT: only claim the human player slot here (bit 0). The 8 simulant
@@ -177,8 +183,9 @@ void titleInitLegal(void)
 		// bot slot looks "occupied", so mpGetSlotForNewBot() keeps returning the
 		// capped fallback slot (7) and all 8 creations overwrite the same config
 		// while slots 0-6 stay configless -> no bots actually spawn (chr=0).
+		s32 teststagenum = sysArgCheck("--test-animlab") ? STAGE_ANIMLAB : STAGE_TEST_UFF;
 		g_MpSetup.chrslots = 0x01; // Player 1 only; simulants added via quick-team
-		g_MpSetup.stagenum = STAGE_TEST_UFF;
+		g_MpSetup.stagenum = teststagenum;
 		g_MpSetup.options = 0;
 		g_MpSetup.scenario = 0;
 		
@@ -199,12 +206,18 @@ void titleInitLegal(void)
 
 		// Simulants (use quick-team system so bots actually get created)
 		g_Vars.mpquickteam = MPQUICKTEAM_PLAYERSANDSIMS;
-		g_Vars.mpquickteamnumsims = 8;
+		g_Vars.mpquickteamnumsims = sysArgGetInt("--num-sims", 8);
+		if (g_Vars.mpquickteamnumsims < 0) {
+			g_Vars.mpquickteamnumsims = 0;
+		}
+		if (sysArgCheck("--solo")) {
+			g_Vars.mpquickteamnumsims = 0;
+		}
 		g_Vars.mpsimdifficulty = BOTDIFF_NORMAL;
 
 		setNumPlayers(1);
 		mpStartMatch();
-		mainChangeToStage(STAGE_TEST_UFF);
+		mainChangeToStage(teststagenum);
 		return;
 	}
 	

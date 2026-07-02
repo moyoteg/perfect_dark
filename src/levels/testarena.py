@@ -5,7 +5,7 @@ from tools.pdmap.builders import (
     add_floor_weapons,
     add_ammo_row,
     add_mp_scenarios,
-    floor_box_tiles,
+    floor_box_with_hill_zone,
 )
 from tools.pdmap.core import MapDef
 from tools.pdmap.intro import Spawn
@@ -13,7 +13,7 @@ from tools.pdmap import weapons as W
 
 BOX_HALF = 5000.0
 BOX_HEIGHT = 3000.0
-SEG_MODE = "empty"
+SEG_MODE = "hill"
 
 SPAWN_Y = 10.0
 
@@ -31,8 +31,8 @@ def build() -> MapDef:
     g.add_pad(index=4, x=0.0, y=SPAWN_Y, z=0.0, room=1)
     g.add_pad(index=5, x=1500.0, y=SPAWN_Y, z=0.0, room=1)
 
-    # --- KOTH hill ---
-    g.add_pad(index=6, x=0.0, y=SPAWN_Y, z=1500.0, room=1)
+    # --- KOTH hill (room 2 capture zone at +Z) ---
+    g.add_pad(index=6, x=0.0, y=SPAWN_Y, z=1500.0, room=2)
 
     # --- CTF Case + CaseRespawn (teams 0–3, uff reference layout) ---
     g.add_pad(index=7, x=-4200.0, y=SPAWN_Y, z=-4200.0, room=1)
@@ -63,4 +63,10 @@ def build() -> MapDef:
 
 
 def build_tiles_json():
-    return floor_box_tiles("testarena", half=BOX_HALF, y=0.0, room_index=1)
+    return floor_box_with_hill_zone(
+        "testarena",
+        half=BOX_HALF,
+        y=0.0,
+        hill_center_x=0.0,
+        hill_center_z=1500.0,
+    )

@@ -85,7 +85,8 @@ def _resolve_stage_const(name: str) -> tuple[str, int]:
         if const == target:
             return target, int(val, 16)
     ids = [int(val, 16) for _, val in existing]
-    # Custom arenas: stay above stock test stages (UFF=0x4d); avoid title/menu ids.
+    # Custom pdmap arenas: ids may exceed STAGE_TITLE (0x5c) — engine uses
+    # STAGE_IS_MENU(), not a numeric cutoff, for title/boot/credits only.
     stage_val = max(0x80, max(ids) + 1 if ids else 0x80)
     return target, stage_val
 
@@ -264,7 +265,14 @@ def apply_registration(name: str) -> list[str]:
     list_lines = plan.snippets["list_c"].replace(",\n", ",\n\t").split("\n")
     list_block = "\n\t".join(list_lines) + "\n"
     list_text = _read(LIST_C)
-    new_list = _patch_insert_before(list_text, "\n};", list_block, marker=f"bg_{name}.seg")
+    array_close = list_text.rfind("\n};")
+    endif_pos = list_text.rfind("#endif", 0, array_close) if array_close >= 0 else -1
+    if endif_pos >= 0 and "#ifndef PLATFORM_N64" in list_text:
+        new_list = _patch_insert_before(
+            list_text, "#endif", list_block, marker=f"bg_{name}.seg",
+        )
+    else:
+        new_list = _patch_insert_before(list_text, "\n};", list_block, marker=f"bg_{name}.seg")
     if new_list != list_text:
         with open(LIST_C, "w", encoding="utf-8") as fp:
             fp.write(new_list)

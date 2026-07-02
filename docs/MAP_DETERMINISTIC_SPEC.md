@@ -67,7 +67,12 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
 
 ## Pipeline
 
-- **Box-arena modules without SEG_SCRIPT (procedural seg): 8**
+- **--test-map boots with mod_allinone (5s timeout, SDL=default)**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/build/pd.arm64`
+  - Verified by: `probe_runtime_smoke`
+  - Tags: runtime, test-map
+
+- **Box-arena modules without SEG_SCRIPT (procedural seg): 40**
   - Source: `tools/pdmap/pipeline.py:build_from_spec`
   - Verified by: `probe_seg_script_inventory`
   - Tags: seg, box
@@ -86,6 +91,16 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/journal/uff_viewer/fixtures/minimal_map.json`
   - Verified by: `probe_fixtures`
   - Tags: fixture, minimal_map.json
+
+- **Learn curriculum: 31 steps, 31/31 validate OK**
+  - Source: `tools/pdmap/learn/curriculum.py:validate_curriculum`
+  - Verified by: `probe_curriculum_integration`
+  - Tags: curriculum, validate
+
+- **Level module animlab: 21 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/animlab.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, animlab
 
 - **Level module csim: 10 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/csim.py`
@@ -117,17 +132,177 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_level_modules`
   - Tags: level-module, edit_play_1782852555
 
-- **Level module my_arena: 8 pads, box_arena=True, custom_tiles=True**
+- **Level module learn_01_spawn: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_01_spawn.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_01_spawn
+
+- **Level module learn_02_four_spawns: 4 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_02_four_spawns.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_02_four_spawns
+
+- **Level module learn_03_weapon: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_03_weapon.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_03_weapon
+
+- **Level module learn_04_ammo: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_04_ammo.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_04_ammo
+
+- **Level module learn_05_loadout: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_05_loadout.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_05_loadout
+
+- **Level module learn_06_waypoints: 4 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_06_waypoints.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_06_waypoints
+
+- **Level module learn_07_hill: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_07_hill.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_07_hill
+
+- **Level module learn_08_ctf_case: 3 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_08_ctf_case.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_08_ctf_case
+
+- **Level module learn_09_deploy_uff: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_09_deploy_uff.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_09_deploy_uff
+
+- **Level module learn_10_full_arena: 12 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_10_full_arena.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_10_full_arena
+
+- **Level module learn_11_y_autocorrect: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_11_y_autocorrect.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_11_y_autocorrect
+
+- **Level module learn_12_testarena_fixture: 15 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_12_testarena_fixture.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_12_testarena_fixture
+
+- **Level module learn_13_fixture_compact: 5 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_13_fixture_compact.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_13_fixture_compact
+
+- **Level module learn_14_procedural_seg: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_14_procedural_seg.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_14_procedural_seg
+
+- **Level module learn_15_seg_empty: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_15_seg_empty.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_15_seg_empty
+
+- **Level module learn_16_my_arena_registered: 17 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_16_my_arena_registered.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_16_my_arena_registered
+
+- **Level module learn_17_from_json_cli: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_17_from_json_cli.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_17_from_json_cli
+
+- **Level module learn_18_register_scratch: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_18_register_scratch.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_18_register_scratch
+
+- **Level module learn_19_hold_briefcase: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_19_hold_briefcase.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_19_hold_briefcase
+
+- **Level module learn_20_overlap_pads: 3 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_20_overlap_pads.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_20_overlap_pads
+
+- **Level module learn_21_hacker_central: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_21_hacker_central.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_21_hacker_central
+
+- **Level module learn_22_pop_a_cap: 4 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_22_pop_a_cap.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_22_pop_a_cap
+
+- **Level module learn_23_bot_four_cap: 4 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_23_bot_four_cap.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_23_bot_four_cap
+
+- **Level module learn_24_mpweapon_loadout: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_24_mpweapon_loadout.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_24_mpweapon_loadout
+
+- **Level module learn_25_boot_stage: 17 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_25_boot_stage.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_25_boot_stage
+
+- **Level module learn_26_solo_ctf: 5 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_26_solo_ctf.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_26_solo_ctf
+
+- **Level module learn_27_multi_weapon: 4 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_27_multi_weapon.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_27_multi_weapon
+
+- **Level module learn_28_hill_collision: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_28_hill_collision.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_28_hill_collision
+
+- **Level module learn_29_custom_seg_script: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_29_custom_seg_script.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_29_custom_seg_script
+
+- **Level module learn_30_mod_hygiene: 1 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_30_mod_hygiene.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_30_mod_hygiene
+
+- **Level module learn_31_cover_points: 2 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_31_cover_points.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_31_cover_points
+
+- **Level module my_arena: 17 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/my_arena.py`
   - Verified by: `probe_level_modules`
   - Tags: level-module, my_arena
+
+- **Level module testarena: 15 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/testarena.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, testarena
 
 - **Level module uff: 58 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/uff.py`
   - Verified by: `probe_level_modules`
   - Tags: level-module, uff
 
-- **Level modules with SEG_SCRIPT: 0 (none)**
+- **Level modules with SEG_SCRIPT: 1 (learn_29_custom_seg_script)**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels`
   - Verified by: `probe_seg_script_inventory`
   - Tags: seg, SEG_SCRIPT
@@ -137,10 +312,30 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_pipeline_contract`
   - Tags: from-json, build
 
+- **from-json → deploy writes four mod_allinone assets for learndeploy**
+  - Source: `tools/pdmap/pipeline.py:build_from_spec`
+  - Verified by: `probe_from_json_deploy`
+  - Tags: from-json, deploy, e2e
+
 - **pdmap from-json is the canonical entry point for deterministic box maps**
   - Source: `tools/pdmap/__init__.py:cmd_from_json`
   - Verified by: `probe_pipeline_contract`
   - Tags: cli
+
+- **plan_registration('learn_scratch') emits 4 C wiring snippets**
+  - Source: `tools/pdmap/register.py:plan_registration`
+  - Verified by: `probe_register_codegen`
+  - Tags: registration, codegen
+
+- **register --apply e2e dry-run: learn_scratch patch anchors present in C sources**
+  - Source: `tools/pdmap/register.py:apply_registration`
+  - Verified by: `probe_register_apply_e2e`
+  - Tags: registration, e2e
+
+- **register --apply e2e passes (learn_scratch dry-run)**
+  - Source: `tools/pdmap/register.py:apply_registration`
+  - Verified by: `wake_502516_live_e2e`
+  - Tags: registration, e2e, live
 
 - **validate_mapdef passes after Y correction on minimal spawn map**
   - Source: `tools/pdmap/validate.py`
@@ -169,7 +364,17 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_scenario_pairing`
   - Tags: scenario, uff, reference
 
-- **files.h defines 180 FILE_BG_* asset constants**
+- **Registered stage my_arena wired in env.c, lang.c, list.c, and mod_allinone assets**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/env.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/lang.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/assets/ntsc-final/files/list.c`
+  - Verified by: `probe_registered_stages`
+  - Tags: registration, my_arena, env, lang
+
+- **Registered stage testarena wired in env.c, lang.c, list.c, and mod_allinone assets**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/env.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/lang.c + /Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/assets/ntsc-final/files/list.c`
+  - Verified by: `probe_registered_stages`
+  - Tags: registration, testarena, env, lang
+
+- **files.h defines 189 FILE_BG_* asset constants**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/include/files.h`
   - Verified by: `probe_engine_wiring`
   - Tags: registration, files.h
@@ -178,6 +383,16 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/mplayer/setup.c`
   - Verified by: `probe_engine_wiring`
   - Tags: registration, menu
+
+- **lang.c maps Combat Sim textids 0x7FFD/0x7FFC to My Arena / Test Arena labels**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/lang.c`
+  - Verified by: `probe_registered_stages`
+  - Tags: registration, lang
+
+- **pdmap register --apply patches constants.h, files.h, list.c, stagetable.c, setup.c**
+  - Source: `tools/pdmap/register.py:apply_registration`
+  - Verified by: `probe_register_codegen`
+  - Tags: registration, codegen
 
 - **pdmap register --apply patches files.h, list.c, stagetable.c, setup.c, and constants.h**
   - Source: `tools/pdmap/register.py:apply_registration`

@@ -148,17 +148,37 @@ def validate_gdl_g_vtx(gdl: bytes) -> list[str]:
     return errors
 
 
+def _iter_compressed_rooms(rooms_blob: bytes):
+    """Yield decompressed room blocks from a Section-1 blob (one or more RareZip chunks)."""
+    offset = 0
+    while offset + 5 <= len(rooms_blob):
+        if rooms_blob[offset:offset + 2] != b"\x11\x73":
+            break
+        declen = int.from_bytes(rooms_blob[offset + 2:offset + 5], "big")
+        deco = zlib.decompressobj(-15)
+        room = deco.decompress(rooms_blob[offset + 5:])[:declen]
+        consumed = len(rooms_blob[offset + 5:]) - len(deco.unused_data)
+        yield room
+        offset += 5 + consumed
+
+
 def validate_seg_g_vtx(seg_data: bytes) -> list[str]:
-    """Decode a bg *.seg room GDL and validate every G_VTX load."""
+    """Decode a bg *.seg room GDL(s) and validate every G_VTX load."""
     try:
         prim_size, sec1_cmp, prim_cmp = struct.unpack(">III", seg_data[0:12])
-        room_blob = seg_data[12 + prim_cmp:12 + sec1_cmp]
-        room = unzip1172(room_blob)
-        gdl_ptr = struct.unpack(">I", room[32:36])[0]
-        gdl_start = gdl_ptr - (SEG_BASE + prim_size)
-        if gdl_start < 0 or gdl_start >= len(room):
-            return [f"invalid GDL offset {gdl_start} in room block"]
-        return validate_gdl_g_vtx(room[gdl_start:])
+        rooms_blob = seg_data[12 + prim_cmp:12 + sec1_cmp]
+        errors: list[str] = []
+        for room_index, room in enumerate(_iter_compressed_rooms(rooms_blob)):
+            gdl_ptr = struct.unpack(">I", room[32:36])[0]
+            gdl_start = gdl_ptr - (SEG_BASE + prim_size)
+            if gdl_start < 0 or gdl_start >= len(room):
+                errors.append(f"room {room_index}: invalid GDL offset {gdl_start}")
+                continue
+            errors.extend(
+                f"room {room_index}: {msg}"
+                for msg in validate_gdl_g_vtx(room[gdl_start:])
+            )
+        return errors
     except Exception as exc:
         return [f"seg G_VTX validation failed: {exc!r}"]
 
@@ -184,7 +204,7 @@ def _face_gdl(face_index):
     return gdl
 
 
-def _build_gdl(setup_gdl):
+def _build_gdl(setup_gdl, *, floor_quad_count: int | None = None):
     """Build the room display list.
 
     Default ("full") draws the complete six-face coloured box. Getting this
@@ -202,6 +222,10 @@ def _build_gdl(setup_gdl):
 
     Modes (PDMAP_SEG_MODE):
       empty  (default) setup GDL only — safe for in-box --test-map camera
+      hill   KOTH floor quads only (room 1 arena+ring, room 2 capture square)
+      ctf    CTF floor quads only (arena + ring + team squares per Case/CaseRespawn)
+      marker overlap-pad lesson — grey arena + green centre square (no walls)
+      parade Animation lab — arena + category-coloured slot squares
       walls  ceiling + four walls (no floor); editor preview only — clips in-box
       full   all six faces of the box; editor preview only — clips in-box
       debug  same faces as full, high-contrast solid colour per face (diagnosis)
@@ -220,6 +244,13 @@ def _build_gdl(setup_gdl):
 
     if mode == "floor":
         return setup_gdl + _face_gdl(0) + _enddl()
+
+    if mode == "hill" or mode == "ctf" or mode == "parade" or mode == "parade_districts" or mode == "marker":
+        count = floor_quad_count or 1
+        gdl = setup_gdl
+        for fi in range(count):
+            gdl += _face_gdl(fi)
+        return gdl + _enddl()
 
     # Face indices: 0=floor, 1=ceiling, 2..5=walls.
     if mode in ("full", "debug", "rainbow"):
@@ -286,14 +317,14 @@ def _extract_setup_gdl(template_seg, ncols):
     return bytes(patched)
 
 
-def _build_room_block(template_seg, faces, face_colours):
+def _build_room_block(template_seg, faces, face_colours, *, floor_quad_count: int | None = None):
     nverts = len(faces) * 4
     ncols = len(face_colours) + 1
     verts = _build_vertices(faces)
     cols = _build_colours(face_colours)
 
     setup_gdl = _extract_setup_gdl(template_seg, ncols)
-    gdl = _build_gdl(setup_gdl)
+    gdl = _build_gdl(setup_gdl, floor_quad_count=floor_quad_count or len(faces))
 
     off_blocks = 24
     off_verts = _align8(off_blocks + 20)
@@ -320,7 +351,11 @@ def _build_room_block(template_seg, faces, face_colours):
     return bytes(buf)
 
 
-def _build_primary(prim_inf, room_cmp):
+def _build_primary(prim_inf, room_cmp_sizes):
+    """Build primary section with one or more compressed room blobs chained."""
+    if isinstance(room_cmp_sizes, int):
+        room_cmp_sizes = [room_cmp_sizes]
+
     buf = bytearray(prim_inf)
 
     room_tbl_ofs = 24
@@ -335,21 +370,23 @@ def _build_primary(prim_inf, room_cmp):
                      0,
                      0)
 
-    # Room table. Index 0 is the dummy room; index 1 is the single real room;
-    # index 2 is the end-marker (points just past room 1's data so the engine
-    # can compute room 1's compressed size); index 3+ terminate with zero.
-    #
-    # The engine sets g_Vars.roomcount = number of NONZERO entries (here 2:
-    # indices 1 and 2), and reads the Section-3 bbox/gfxdatalen lists for
-    # roomcount-1 (= 1) rooms. _patch_section3_gfxdatalen MUST emit exactly that
-    # many entries (SEG_NUM_ROOMS - 1) or the gfxdatalen list is read at the
-    # wrong offset (yielding 0 -> a too-small room allocation and corruption).
+    # Room table: index 0 dummy; indices 1..N real rooms; index N+1 end-marker.
+    # g_Vars.roomcount = number of nonzero entries from index 1 onward.
+    # Section-3 bbox/gfxdatalen count MUST be roomcount - 1.
+    offsets = []
+    cursor = ROOM_BASE
+    for size in room_cmp_sizes:
+        offsets.append(cursor)
+        cursor += size
+    end_marker = cursor
+    num_real = len(room_cmp_sizes)
+
     for i in range(20):
         pos = room_tbl_ofs + i * 20
-        if i == 1:
-            pg = ROOM_BASE
-        elif i == 2:
-            pg = ROOM_BASE + room_cmp
+        if 1 <= i <= num_real:
+            pg = offsets[i - 1]
+        elif i == num_real + 1:
+            pg = end_marker
         else:
             pg = 0
         struct.pack_into(">IfffBB", buf, pos, pg, 0.0, 0.0, 0.0, 0, 0)
@@ -361,30 +398,21 @@ def _build_primary(prim_inf, room_cmp):
     return bytes(buf)
 
 
-def _patch_section3_gfxdatalen(rest, new_room_len):
+def _patch_section3_gfxdatalen(rest, room_decompressed_lens):
+    if isinstance(room_decompressed_lens, int):
+        room_decompressed_lens = [room_decompressed_lens]
+
     _, s2_cmp = struct.unpack(">HH", rest[0:4])
     s2_end = 4 + s2_cmp
 
-    # Must equal g_Vars.roomcount - 1. The room table (build_primary) has 2
-    # nonzero entries (the real room + the end-marker), so roomcount is 2 and
-    # the engine reads exactly one bbox + one gfxdatalen + one numlights entry.
-    num_entries = 1
+    num_entries = len(room_decompressed_lens)
     bbox = bytearray()
-    for i in range(num_entries):
-        if i == 0:
-            bbox += struct.pack(">hhhhhh", -32768, -32768, -32768, 32767, 32767, 32767)
-        else:
-            bbox += struct.pack(">hhhhhh", 0, 0, 0, 0, 0, 0)
+    for _i in range(num_entries):
+        bbox += struct.pack(">hhhhhh", -32768, -32768, -32768, 32767, 32767, 32767)
 
     gfxdatalen = bytearray(num_entries * 2)
-    # Room 0 (index 0 here) gfxdatalen. The engine reads this as a count of
-    # 16-byte units: g_Rooms[r].gfxdatalen = ALIGN16(value * 0x10 + 0x100), and
-    # uses it to size the room allocation. Writing the raw decompressed room
-    # length yields a comfortably large allocation (value*16 >> room size),
-    # which is safe headroom for the host-format expansion. NOTE: num_entries
-    # MUST equal the number of real+phantom rooms in the room table (see
-    # build_primary), or the engine reads gfxdatalen from the wrong offset.
-    struct.pack_into(">H", gfxdatalen, 0, min(0xFFFF, new_room_len))
+    for i, room_len in enumerate(room_decompressed_lens):
+        struct.pack_into(">H", gfxdatalen, i * 2, min(0xFFFF, room_len))
     numlights = bytearray(num_entries)
 
     s3_decompressed = bytes(bbox + gfxdatalen + numlights)
@@ -435,6 +463,647 @@ def build_box_seg(*, half=5000, height=3000, face_colours=None, template_seg=Non
             + "\n  ".join(g_vtx_errors)
         )
     return result
+
+
+def build_hill_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    hill_center_x: float,
+    hill_center_z: float,
+    hill_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for KOTH box arenas: arena + dark ring + green hill in room 1.
+
+    Requires ``PDMAP_SEG_MODE=hill``. Tile room 2 still owns KOTH capture collision;
+    all visible floor markers live in seg room 1 (the engine's stable single-room
+    layout). KOTH ``LIGHTOP_HIGHLIGHT`` targets tile room 2 — the hill square uses
+    a static green seg colour so it stays visible without room-2 gfx.
+    """
+    from .builders import (
+        HILL_RING_WIDTH,
+        HILL_SEG_ARENA_RGBA,
+        HILL_SEG_RING_RGBA,
+        HILL_SEG_ZONE_RGBA,
+        HILL_ZONE_HALF,
+        hill_zone_all_floor_faces,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "hill"
+    try:
+        if hill_half is None:
+            hill_half = HILL_ZONE_HALF
+        if ring_width is None:
+            ring_width = HILL_RING_WIDTH
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = hill_zone_all_floor_faces(
+            half,
+            hill_center_x,
+            hill_center_z,
+            hill_half=hill_half,
+            ring_width=ring_width,
+        )
+        face_colours = [
+            HILL_SEG_ARENA_RGBA,
+            HILL_SEG_RING_RGBA,
+            HILL_SEG_ZONE_RGBA,
+        ]
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit hill box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_hill_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    hill_center_x: float,
+    hill_center_z: float,
+    hill_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> str:
+    data = build_hill_box_seg(
+        half=half,
+        height=height,
+        hill_center_x=hill_center_x,
+        hill_center_z=hill_center_z,
+        hill_half=hill_half,
+        ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_ctf_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    zones: list[tuple[float, float, int, bool]],
+    zone_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for CTF box arenas: arena + dark rings + team zone squares.
+
+    Requires ``PDMAP_SEG_MODE=ctf``. Visible delivery markers live in seg room 1;
+    tile room 1 carries matching collision quads via ``floor_box_with_ctf_zones``.
+    """
+    from .builders import (
+        CTF_RING_WIDTH,
+        CTF_ZONE_HALF,
+        ctf_zone_all_floor_faces,
+        ctf_zone_face_colours,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "ctf"
+    try:
+        if zone_half is None:
+            zone_half = CTF_ZONE_HALF
+        if ring_width is None:
+            ring_width = CTF_RING_WIDTH
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = ctf_zone_all_floor_faces(
+            half,
+            zones,
+            zone_half=zone_half,
+            ring_width=ring_width,
+        )
+        face_colours = ctf_zone_face_colours(zones)
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit CTF box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_ctf_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    zones: list[tuple[float, float, int, bool]],
+    zone_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> str:
+    data = build_ctf_box_seg(
+        half=half,
+        height=height,
+        zones=zones,
+        zone_half=zone_half,
+        ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_parade_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    slots: list[dict],
+    zone_half=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for Animation Lab: arena + category-coloured slot squares.
+
+    Requires ``PDMAP_SEG_MODE=parade``. Tile room 1 carries matching collision
+    quads via ``floor_box_with_parade_slots``.
+    """
+    from .builders import (
+        PARADE_ZONE_HALF,
+        parade_slot_all_floor_faces,
+        parade_slot_face_colours,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "parade"
+    try:
+        if zone_half is None:
+            zone_half = PARADE_ZONE_HALF
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = parade_slot_all_floor_faces(half, slots, zone_half=zone_half)
+        face_colours = parade_slot_face_colours(slots)
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit parade box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def build_parade_districts_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    districts: list[dict],
+    props_district: dict | None = None,
+    museum_district: dict | None = None,
+    special: dict | None = None,
+    zone_half=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for Animation Lab: arena + district/props/tour markers only.
+
+    Requires ``PDMAP_SEG_MODE=parade_districts``. Safe (~12 faces) vs full parade
+    mode which embeds one quad per guard (~570).
+    """
+    from .builders import PARADE_ZONE_HALF, parade_district_seg_faces
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "parade_districts"
+    try:
+        if zone_half is None:
+            zone_half = PARADE_ZONE_HALF
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces, face_colours = parade_district_seg_faces(
+            half,
+            districts,
+            props_district=props_district,
+            museum_district=museum_district,
+            special=special,
+            zone_half=zone_half,
+        )
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit parade-districts box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_parade_districts_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    districts: list[dict],
+    props_district: dict | None = None,
+    museum_district: dict | None = None,
+    special: dict | None = None,
+    zone_half=None,
+    template_seg=None,
+) -> str:
+    data = build_parade_districts_box_seg(
+        half=half,
+        height=height,
+        districts=districts,
+        props_district=props_district,
+        museum_district=museum_district,
+        special=special,
+        zone_half=zone_half,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_center_marker_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    center_x: float = 0.0,
+    center_z: float = 0.0,
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for overlap-pad lessons: grey arena + green centre square.
+
+    Requires ``PDMAP_SEG_MODE=marker``. Tile room 1 carries matching collision
+    quads via ``floor_box_with_center_marker``.
+    """
+    from .builders import (
+        CENTER_MARKER_HALF,
+        CENTER_MARKER_RING_WIDTH,
+        center_marker_all_floor_faces,
+        center_marker_face_colours,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "marker"
+    try:
+        if marker_half is None:
+            marker_half = CENTER_MARKER_HALF
+        if ring_width is None:
+            ring_width = CENTER_MARKER_RING_WIDTH
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = center_marker_all_floor_faces(
+            half,
+            center_x=center_x,
+            center_z=center_z,
+            marker_half=marker_half,
+            ring_width=ring_width,
+        )
+        face_colours = center_marker_face_colours()
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit center-marker box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_center_marker_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    center_x: float = 0.0,
+    center_z: float = 0.0,
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> str:
+    data = build_center_marker_box_seg(
+        half=half,
+        height=height,
+        center_x=center_x,
+        center_z=center_z,
+        marker_half=marker_half,
+        ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_cover_markers_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    markers: list[tuple[float, float]],
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for cover-point lessons: grey arena + green squares at cover XZ.
+
+    Requires ``PDMAP_SEG_MODE=marker``. Tile room 1 carries matching collision
+    quads via ``floor_box_with_cover_markers``.
+    """
+    from .builders import (
+        CENTER_MARKER_HALF,
+        CENTER_MARKER_RING_WIDTH,
+        center_marker_face_colours,
+        marker_positions_all_floor_faces,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "marker"
+    try:
+        if marker_half is None:
+            marker_half = CENTER_MARKER_HALF
+        if ring_width is None:
+            ring_width = CENTER_MARKER_RING_WIDTH
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = marker_positions_all_floor_faces(
+            half,
+            markers,
+            marker_half=marker_half,
+            ring_width=ring_width,
+        )
+        face_colours = center_marker_face_colours()
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit cover-marker box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_cover_markers_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    markers: list[tuple[float, float]],
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> str:
+    data = build_cover_markers_box_seg(
+        half=half,
+        height=height,
+        markers=markers,
+        marker_half=marker_half,
+        ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def write_parade_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    slots: list[dict],
+    zone_half=None,
+    template_seg=None,
+) -> str:
+    data = build_parade_box_seg(
+        half=half,
+        height=height,
+        slots=slots,
+        zone_half=zone_half,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
 
 
 def write_box_seg(out_path, *, half=5000, height=3000, face_colours=None,

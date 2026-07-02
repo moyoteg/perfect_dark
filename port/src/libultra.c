@@ -333,13 +333,9 @@ s32 osEepromLongWrite(OSMesgQueue *mq, u8 address, u8 *buffer, int nbytes)
 
 s32 osPfsIsPlug(OSMesgQueue *queue, u8 *pattern)
 {
+	// No hardware controller paks on PC. joyPollPfs ORs in bit 0x10 (EEPROM).
 	if (pattern) {
 		*pattern = 0;
-		for (s32 i = 0; i < MAXCONTROLLERS; ++i) {
-			if (inputRumbleSupported(i)) {
-				*pattern |= 1 << i;
-			}
-		}
 	}
 	return 0;
 }

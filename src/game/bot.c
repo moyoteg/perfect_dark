@@ -2701,7 +2701,11 @@ void botTickUnpaused(struct chrdata *chr)
 						s32 numtokens = 0;
 
 						for (i = 0; i != 4; i++) {
-							if (i != botteamindex && g_ScenarioData.ctc.playercountsperteam[i]) {
+							// playercountsperteam can be set for teams without a Case pad/token
+							// (e.g. --test-map sims on teams 2/3 in a two-base tutorial map).
+							if (i != botteamindex
+									&& g_ScenarioData.ctc.playercountsperteam[i]
+									&& g_ScenarioData.ctc.tokens[i]) {
 								if (g_ScenarioData.ctc.tokens[i]->type == PROPTYPE_WEAPON
 										|| g_ScenarioData.ctc.tokens[i]->type == PROPTYPE_OBJ) {
 									// Token is not held
@@ -2763,7 +2767,7 @@ void botTickUnpaused(struct chrdata *chr)
 						// Find out where the bot's token is
 						struct prop *token = g_ScenarioData.ctc.tokens[radarGetTeamIndex(chr->team)];
 
-						if (token->type == PROPTYPE_CHR || token->type == PROPTYPE_PLAYER) {
+						if (token && (token->type == PROPTYPE_CHR || token->type == PROPTYPE_PLAYER)) {
 							struct chrdata *tokenchr = token->chr;
 
 							if (tokenchr->team == chr->team) {
@@ -2783,7 +2787,7 @@ void botTickUnpaused(struct chrdata *chr)
 									aibot->abortattacktimer60 = -1;
 								}
 							}
-						} else {
+						} else if (token) {
 							// Token is not held - go to the pos to defend it
 							newaction = MA_AIBOTGOTOPOS;
 							aibot->gotopos.x = token->pos.x;

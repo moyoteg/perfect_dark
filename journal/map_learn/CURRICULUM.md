@@ -29,11 +29,31 @@ python3 tools/pdmap.py learn curriculum validate
 | 4 | `learn_04_ammo` | Ammo crate | Combat | Ammo crate at +X; picking up refills matching ammo type. |
 | 5 | `learn_05_loadout` | Loadout intro / ailist 0x1000 | Combat | Combat start: default loadout weapons (Falcon2, CMP150, …) in hand. |
 | 6 | `learn_06_waypoints` | Symmetric waypoints / bot spawn | Combat | Add 1–4 simulants in Combat Simulator; bots move without crashing. |
-| 7 | `learn_07_hill` | King of the Hill anchor | KOTH | Launch with --scenario-4; hill marker at +Z; KOTH scoring works. |
-| 8 | `learn_08_ctf_case` | Case + CaseRespawn (CTF pair) | CTF | Launch with --scenario-5; briefcase at -Z, respawn at +Z (team 0). |
+| 7 | `learn_07_hill` | King of the Hill anchor | KOTH | Launch with --scenario-4; green hill zone at +Z with dark ring boundary; KOTH scoring only inside hill room. |
+| 8 | `learn_08_ctf_case` | Case + CaseRespawn (CTF pair) | CTF | Launch with --scenario-5; briefcase at -Z, respawn at +Z (team 0). Bright red delivery square + dark ring at +Z (CaseRespawn); muted red marker at -Z (Case). Steal enemy case and touch home pad to score instantly. No hold countdown (that is --scenario-1 Hold Briefcase only). |
 | 9 | `learn_09_deploy_uff` | Deploy-as uff / --test-map slot | Combat | Same empty box; confirms play-learn-step deploys into uff test slot. |
-| 10 | `learn_10_full_arena` | Composite (my_arena-like) | Combat | All features together in a 5000×3000 box: pickups, KOTH anchor, 4-team CTF, four spawns. |
+| 10 | `learn_10_full_arena` | Composite (my_arena-like) | CTF | Launch with --scenario-5 (Capture the Case). Grey arena floor; small coloured squares only at CTF pads (seg mode ctf). Enemy briefcase at -Z (team 1 Case, muted yellow square + ring). Walk north to -Z, pick up the briefcase, return south to +Z and stand on the bright red delivery square (team 0 CaseRespawn) — scoring triggers when you touch your home Case prop at +Z while holding the enemy case. After a score (or if the carrier is killed), each briefcase warps back to its own Case pad (team 1 → -Z yellow, team 0 → +Z red). KOTH hill at +X (room 2). |
 | 11 | `learn_11_y_autocorrect` | Pad Y auto-correction (Y=0 → 10) | Combat | Player still spawns safely despite JSON Y=0 on pad (pipeline fix). |
+| 12 | `learn_12_testarena_fixture` | Registered testarena layout (minimal_map.json) | CTF | Launch with --scenario-5. Layout matches registered STAGE_TESTARENA / minimal_map.json fixture (four spawns, weapon, ammo, hill, 4× Case pairs). Combat Sim menu shows 'Test Arena' label (textid 0x7FFC) when played from menu — manual. |
+| 13 | `learn_13_fixture_compact` | Compact fixture (minimal_map 2.json) | KOTH | Launch with --scenario-4; hill at +Z; weapon/ammo pickups work in 5000 box. |
+| 14 | `learn_14_procedural_seg` | Procedural box seg (PDMAP_SEG_MODE=full) | Combat | Build with --seg-mode full: visible box walls from procedural generator. Collision still from tiles; seg is visual. May show near-plane clip in FPS — contrast with step 15 empty mode. |
+| 15 | `learn_15_seg_empty` | Empty seg mode (PDMAP_SEG_MODE=empty) | Combat | Launch with --seg-mode empty: no visible seg walls; flat grey floor from tiles only. |
+| 16 | `learn_16_my_arena_registered` | Registered my_arena layout | CTF | Launch with --scenario-5. Layout matches registered STAGE_MY_ARENA. Combat Sim menu shows 'My Arena' (textid 0x7FFD) when played from menu — manual. |
+| 17 | `learn_17_from_json_cli` | from-json CLI canonical path | Combat | Same spawn box; validates via from-json → build_from_spec without level module edits. |
+| 18 | `learn_18_register_scratch` | Registration probe target (learn_scratch pattern) | Combat | Automated: pdmap register --apply learn_scratch dry-run passes (probe_register_apply_e2e). Live stage registration requires make rebuild — manual smoke only. |
+| 19 | `learn_19_hold_briefcase` | Hold the Briefcase (scenario 1) | 1 | Launch with --scenario-1. Pick up briefcase; green 30s countdown while holding; score on timer expiry. No CTF Case/CaseRespawn pads required. |
+| 20 | `learn_20_overlap_pads` | Cross-type pad overlap (spawn + weapon + ammo) | Combat | Launch with --scenario-0. Marker seg (grey floor, no walls): bright green centre square (~5 m) marks the overlap point. Player spawns on that square with AR34 pickup and shotgun ammo crate at the same spot — look down at your feet; all three function (stock uff pattern). |
+| 21 | `learn_21_hacker_central` | Hacker Central (scenario 2) | 2 | Launch with --scenario-2. Two multi-ammo crates feed the HTM bank; terminal (MODEL_GOODPC) stands upright on floor pads (up=+Y). Pick up Data Uplink, interact with terminal — download progress bar runs ~20s. |
+| 22 | `learn_22_pop_a_cap` | Pop a Cap (scenario 3) | 3 | Launch with --scenario-3. Solo (--num-sims 0): you are always the victim — green 1:00 countdown at top center is the survival timer (+1 point each minute alive; not match start, kill limit, or time limit). Pop-a-cap scoring works with spawns only — no special pads. |
+| 23 | `learn_23_bot_four_cap` | Bot count cap (stock 4 simulants) | Combat | Launch with --scenario-0 --num-sims 8. Only 4 bots spawn (stock MP cap without MPFEATURE_8BOTS). Bots pathfind without crash. |
+| 24 | `learn_24_mpweapon_loadout` | MPWEAPON CLI loadout namespace | Combat | Launch with --scenario-0 --loadout 1,9,16,4,0,37. Starting weapons: Falcon2, CMP150, AR34, MagSec4, empty, Shield (MPWEAPON space — distinct from floor weaponnum 0x11 for AR34 props in learn_03_weapon). |
+| 25 | `learn_25_boot_stage` | Boot registered stage (my_arena) | CTF | Manual: build+deploy my_arena assets, then ./build/pd.arm64 --boot-stage STAGE_MY_ARENA --skip-intro --moddir mods/mod_allinone --scenario-5. Loads bg_my_arena.* (not uff test slot). |
+| 26 | `learn_26_solo_ctf` | Solo human CTF (no simulants) | CTF | Launch with --scenario-5 --num-sims 0. Human-only: pick up case at -Z, return to +Z CaseRespawn; instant score without bots. |
+| 27 | `learn_27_multi_weapon` | Multiple floor weapons (weaponnum namespace) | Combat | Launch with --scenario-0. Three floor pickups at -X, center, +X each grant the correct weapon (weaponnum space — contrast learn_24 MPWEAPON loadout). |
+| 28 | `learn_28_hill_collision` | Hill room-1 collision mirror (no fall-through) | KOTH | Launch with --scenario-4. Walk the dark ring boundary around the green hill square at +Z — floor solid everywhere; no void fall-through at hill edge. |
+| 29 | `learn_29_custom_seg_script` | Custom SEG_SCRIPT seg generator | Combat | Build with level module SEG_SCRIPT (not procedural-only). Visible box seg from scripts/learn_29_seg_build.py; G_VTX loads ≤16; no relinkPtr crash. Walk to each coloured wall — solid perimeter collision (tiles), not seg geometry. |
+| 30 | `learn_30_mod_hygiene` | Deploy hygiene / external asset load | Combat | Launch with --scenario-0. stderr/log shows bg_uff tiles/pads/seg/setup 'loaded externally' from mods/mod_allinone (not ROM embedded). Re-deploy after every edit — stale assets cause silent regressions. |
+| 31 | `learn_31_cover_points` | AI cover points (add_cover) | Combat | Launch with --scenario-0 --num-sims 2. Two cover points at X=±800; bright green floor squares (~5 m) with dark rings mark each cover pad (same style as step 20 centre marker). Bots spawn at ±X=2000 and pathfind; cover behaviour is AI-only — markers are visual only. |
 
 ## Boot commands (examples)
 
@@ -58,7 +78,7 @@ python3 tools/pdmap.py from-json journal/map_learn/maps/learn_06_waypoints.json 
 ```bash
 ./scripts/play-learn-step.sh 10
 # or:
-python3 tools/pdmap.py from-json journal/map_learn/maps/learn_10_full_arena.json --deploy-as uff --deploy --play
+python3 tools/pdmap.py from-json journal/map_learn/maps/learn_10_full_arena.json --deploy-as uff --deploy --play --scenario-5
 ```
 
 ## Artifacts
@@ -68,19 +88,5 @@ python3 tools/pdmap.py from-json journal/map_learn/maps/learn_10_full_arena.json
 
 ## Facts not yet covered by a dedicated map
 
-- [engine] lang.c maps Combat Sim textids 0x7FFD/0x7FFC to My Arena / Test Arena labels (tags: lang)
-- [engine] Registered stage testarena wired in env.c, lang.c, list.c, and mod_allinone assets (tags: env, lang, testarena)
-- [engine] stagetable.c maps STAGE_* ids to five bgdata file ids per stage (tags: stagetable)
-- [invariant] BOX_HALF+BOX_HEIGHT levels get procedural box seg; SEG_SCRIPT overrides with custom generator (tags: pipeline, seg)
-- [invariant] PDMAP_SEG_MODE=empty avoids near-plane viewport sheet in FPS (tags: rendering, seg)
-- [pipeline] Level modules with SEG_SCRIPT: 0 (none) (tags: SEG_SCRIPT, seg)
-- [pipeline] pdmap from-json is the canonical entry point for deterministic box maps (tags: cli)
-- [pipeline] Fixture minimal_map 2.json builds cleanly via from-json pipeline (tags: fixture, minimal_map 2.json)
-- [pipeline] Box-arena modules without SEG_SCRIPT (procedural seg): 8 (tags: box, seg)
-- [pipeline] Fixture minimal_map.json builds cleanly via from-json pipeline (tags: fixture, minimal_map.json)
-- [pipeline] Box-arena modules without SEG_SCRIPT (procedural seg): 9 (tags: box, seg)
-- [engine] Stage registration (pdmap register --apply) — manual C wiring, not a runtime map test
-- [engine] PDMAP_SEG_MODE=empty — build flag; all steps use empty seg via play script
-- [engine] Runtime headless smoke (--test-map log parse) — future probe target
-- [engine] Custom SEG_SCRIPT seg generators — no modules in repo yet
+_All actionable invariant/pipeline topics have a curriculum step._
 

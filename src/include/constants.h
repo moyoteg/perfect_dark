@@ -4046,6 +4046,10 @@
 #define STAGE_TEST_LAM      0x50
 #define STAGE_MY_ARENA      0x80
 #define STAGE_TESTARENA     0x81
+#define STAGE_ANIMLAB        0x82
+/* Anim Lab: tighter bubble than stock 32000 — full-map visibility overflows the master GDL. */
+#define ANIMLAB_DRAW_DIST      7500.0f
+#define ANIMLAB_DRAW_DIST_SQ   (ANIMLAB_DRAW_DIST * ANIMLAB_DRAW_DIST)
 #define STAGE_TITLE         0x5c
 #define STAGE_BOOTPAKMENU   0x5d
 #define STAGE_CREDITS       0x5e
@@ -4063,7 +4067,8 @@
 #define STAGE_IS_PDMAP_BOX_ARENA(stage) \
 	((stage) == STAGE_TEST_UFF \
 		|| (stage) == STAGE_MY_ARENA \
-		|| (stage) == STAGE_TESTARENA)
+		|| (stage) == STAGE_TESTARENA \
+		|| (stage) == STAGE_ANIMLAB)
 
 #define STAGE_MP_RANDOM_MULTI 0x02
 #define STAGE_MP_RANDOM_SOLO  0x03
@@ -4184,6 +4189,7 @@
 #define STAGEINDEX_TEST_MP20     0x3c
 #define STAGEINDEX_MY_ARENA      0x57
 #define STAGEINDEX_TESTARENA     0x58
+#define STAGEINDEX_ANIMLAB       0x59
 
 #define SURFACETYPE_DEFAULT      0
 #define SURFACETYPE_STONE        1

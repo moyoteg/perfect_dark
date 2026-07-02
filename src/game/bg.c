@@ -87,6 +87,9 @@
 #define VTXBATCHTYPE_XLU 0x02
 
 struct drawslot g_BgDrawSlots[61];
+
+// Parallel to g_Vars.onscreenprops — one room id per on-screen prop (heap, maxprops+1).
+RoomNum *g_BgRoomNumsByProp;
 u8 *g_BgPrimaryData;
 u32 var800a4920;
 u32 g_BgSection3;
@@ -875,7 +878,7 @@ Gfx *bgRenderSceneInXray(Gfx *gdl)
 	RoomNum *room;
 	s16 i;
 	s32 j;
-	RoomNum roomnumsbyprop[200];
+	RoomNum *roomnumsbyprop = g_BgRoomNumsByProp;
 	struct prop *prop;
 	struct prop **ptr;
 	s32 k;
@@ -971,7 +974,7 @@ Gfx *bgRenderScene(Gfx *gdl)
 	s32 firstroomnum = -1;
 	s32 i;
 	s32 roomnum;
-	RoomNum roomnumsbyprop[200];
+	RoomNum *roomnumsbyprop = g_BgRoomNumsByProp;
 	struct prop **ptr;
 	struct drawslot *thing;
 	RoomNum *roomnumptr;
@@ -1986,17 +1989,22 @@ void bgBuildTables(s32 stagenum)
 			// pdmap box arena: force room 1's bbox to the full box so collision-
 			// geo collection and culling cover every spawn. Extents MUST match
 			// BOX_HALF / BOX_HEIGHT in src/levels/*.py and the floor tiles.
-			g_Rooms[1].bbmin[0] = -5000.0f;
+			f32 half = 5000.0f;
+
+			if (g_Vars.stagenum == STAGE_ANIMLAB) {
+				half = 8000.0f;
+			}
+
+			g_Rooms[1].bbmin[0] = -half;
 			g_Rooms[1].bbmin[1] = 0.0f;
-			g_Rooms[1].bbmin[2] = -5000.0f;
-			g_Rooms[1].bbmax[0] = 5000.0f;
+			g_Rooms[1].bbmin[2] = -half;
+			g_Rooms[1].bbmax[0] = half;
 			g_Rooms[1].bbmax[1] = 3000.0f;
-			g_Rooms[1].bbmax[2] = 5000.0f;
+			g_Rooms[1].bbmax[2] = half;
 			g_Rooms[1].centre.x = 0.0f;
 			g_Rooms[1].centre.y = 1500.0f;
 			g_Rooms[1].centre.z = 0.0f;
-			// Bounding sphere radius: half the box diagonal (~7416).
-			g_Rooms[1].radius = 7500.0f;
+			g_Rooms[1].radius = half * 1.06f;
 		}
 
 		// The next part of section 3 is a list of roomgfxdata sizes.

@@ -4,8 +4,22 @@
 #include "data.h"
 #include "types.h"
 
+#ifndef PLATFORM_N64
+extern s32 sysArgCheck(const char *arg);
+void titleInitLegal(void);
+#endif
+
 void titleInit(void)
 {
+#ifndef PLATFORM_N64
+	// Apply --test-map / --test-animlab before STAGE_TITLE loads so the async
+	// controller-pak banner and intro sequence are skipped entirely.
+	if (sysArgCheck("--test-map") || sysArgCheck("--test-animlab")) {
+		titleInitLegal();
+		return;
+	}
+#endif
+
 	g_TitleMode = -1;
 	g_TitleNextMode = TITLEMODE_LEGAL;
 

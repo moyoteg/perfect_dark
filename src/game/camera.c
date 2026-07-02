@@ -638,6 +638,18 @@ bool camIsPosInFovAndVisibleRoom(RoomNum *rooms, struct coord *pos, f32 arg2)
 	}
 
 	if (!hasdata) {
+#ifndef PLATFORM_N64
+		/* Animation Lab: chr/obj tile rooms 2+ may lack ROOMFLAG_ONSCREEN while the
+		 * player stays in room 1. Fall back to the camera room's draw slot for FOV. */
+		if (g_Vars.stagenum == STAGE_ANIMLAB && g_Vars.currentplayer) {
+			RoomNum camroom = g_Vars.currentplayer->cam_room;
+
+			if (camroom > 0 && camroom < g_Vars.roomcount) {
+				thisthing = bgGetRoomDrawSlot(camroom);
+				return camIsPosInScreenBox(pos, arg2, thisthing);
+			}
+		}
+#endif
 		return false;
 	}
 

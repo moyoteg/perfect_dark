@@ -37,7 +37,7 @@ def render_level_module(spec: EditorMapSpec) -> str:
     for prop in g.props:
         cls = type(prop).__name__
         if cls == "Weapon":
-            weapon_pads.append((prop.chr_, prop.weapon))
+            weapon_pads.append((prop.pad, prop.weapon))
     ammo_pads: list[tuple[int, int]] = []
     for prop in g.props:
         if type(prop).__name__ == "AmmoCrate":
@@ -63,7 +63,18 @@ def render_level_module(spec: EditorMapSpec) -> str:
         append("    add_floor_weapons,")
     if ammo_pads:
         append("    add_ammo_row,")
-    append("    floor_box_tiles,")
+    has_hill = any(sc == "hill" for _, sc, _ in scenario_pads)
+    has_ctf = any(sc in ("case", "case_respawn") for _, sc, _ in scenario_pads)
+    if has_hill and has_ctf:
+        append("    ctf_zones_from_mapdef,")
+        append("    floor_box_with_hill_and_ctf_zones,")
+    elif has_hill:
+        append("    floor_box_with_hill_zone,")
+    elif has_ctf:
+        append("    ctf_zones_from_mapdef,")
+        append("    floor_box_with_ctf_zones,")
+    else:
+        append("    floor_box_tiles,")
     append(")")
     append("from tools.pdmap.core import MapDef")
     intro_imports: set[str] = set()
@@ -144,7 +155,30 @@ def render_level_module(spec: EditorMapSpec) -> str:
     append("")
     append("")
     append("def build_tiles_json():")
-    append(f'    return floor_box_tiles("{name}", half=BOX_HALF, y=0.0, room_index=1)')
+    hill_pad = next((pad for pad, sc, _ in scenario_pads if sc == "hill"), None)
+    has_ctf = any(sc in ("case", "case_respawn") for _, sc, _ in scenario_pads)
+    if hill_pad is not None and has_ctf:
+        hp = g.pads[hill_pad]
+        append("    g = build()")
+        append("    return floor_box_with_hill_and_ctf_zones(")
+        append(f'        "{name}", half=BOX_HALF, y=0.0,')
+        append(f"        hill_center_x={_fmt_num(hp.x)}, hill_center_z={_fmt_num(hp.z)},")
+        append("        zones=ctf_zones_from_mapdef(g),")
+        append("    )")
+    elif hill_pad is not None:
+        hp = g.pads[hill_pad]
+        append(f'    return floor_box_with_hill_zone(')
+        append(f'        "{name}", half=BOX_HALF, y=0.0,')
+        append(f"        hill_center_x={_fmt_num(hp.x)}, hill_center_z={_fmt_num(hp.z)},")
+        append("    )")
+    elif has_ctf:
+        append("    g = build()")
+        append("    return floor_box_with_ctf_zones(")
+        append(f'        "{name}", half=BOX_HALF, y=0.0,')
+        append("        zones=ctf_zones_from_mapdef(g),")
+        append("    )")
+    else:
+        append(f'    return floor_box_tiles("{name}", half=BOX_HALF, y=0.0, room_index=1)')
     append("")
 
     return "\n".join(lines)
