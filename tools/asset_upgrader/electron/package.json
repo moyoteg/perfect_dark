@@ -1,8 +1,8 @@
 {
-  "name": "perfect-dark-map-editor",
-  "productName": "PD Map Editor",
-  "version": "1.0.0",
-  "description": "Electron shell for the Perfect Dark uff map editor",
+  "name": "perfect-dark-asset-upgrader",
+  "productName": "PD Asset Upgrader",
+  "version": "0.2.0",
+  "description": "Perfect Dark Kit — mass texture upgrade supervisor for mods",
   "main": "main.js",
   "private": true,
   "scripts": {
@@ -15,23 +15,19 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "com.perfectdark.kit.map-editor",
-    "productName": "PD Map Editor",
+    "appId": "com.perfectdark.kit.asset-upgrader",
+    "productName": "PD Asset Upgrader",
     "directories": {
-      "output": "../../../scripts/release/electron-dist",
+      "output": "../../../scripts/release/asset-upgrader-electron-dist",
       "buildResources": "build"
     },
     "files": [
       "main.js",
       "preload.js",
-      "repo-config.json"
+      "repo-config.json",
+      "renderer/**/*"
     ],
     "extraResources": [
-      {
-        "from": "editor-bundle",
-        "to": "editor",
-        "filter": ["**/*"]
-      },
       {
         "from": "../../../tools/pd_kit",
         "to": "pd_kit",
@@ -40,25 +36,14 @@
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": [
-        {
-          "target": "dir",
-          "arch": [
-            "arm64",
-            "x64"
-          ]
-        }
-      ],
+      "target": [{ "target": "dir", "arch": ["arm64", "x64"] }],
       "icon": "build/icon.icns",
       "identity": null,
       "extendInfo": {
-        "CFBundleDisplayName": "PD Map Editor",
+        "CFBundleDisplayName": "PD Asset Upgrader",
         "LSMultipleInstancesProhibited": true
       }
     },
-    "asar": true,
-    "extraMetadata": {
-      "main": "main.js"
-    }
+    "asar": true
   }
 }

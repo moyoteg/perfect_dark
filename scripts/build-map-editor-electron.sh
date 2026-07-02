@@ -2,7 +2,7 @@
 # Build the Electron-based Perfect Dark Map Editor macOS .app bundle.
 #
 # Outputs:
-#   scripts/release/Perfect Dark Map Editor.app
+#   scripts/release/PD Map Editor.app
 #
 # Usage:
 #   ./scripts/build-map-editor-electron.sh              # builds + repo-root symlink
@@ -14,14 +14,17 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=pd-kit-common.sh
+source "$SCRIPT_DIR/pd-kit-common.sh"
+REPO_ROOT="$PD_KIT_REPO_ROOT"
 ELECTRON_DIR="$REPO_ROOT/journal/uff_viewer/electron"
 VIEWER_DIR="$REPO_ROOT/journal/uff_viewer"
 EDITOR_BUNDLE_STAGING="$ELECTRON_DIR/editor-bundle"
-RELEASE_DIR="$SCRIPT_DIR/release"
-APP_NAME="Perfect Dark Map Editor"
+RELEASE_DIR="$PD_KIT_RELEASE_DIR"
+APP_NAME="${PD_KIT_APP_MAP_EDITOR%.app}"
 APP_BUNDLE="$RELEASE_DIR/${APP_NAME}.app"
 LEGACY_ELECTRON_BUNDLE="$RELEASE_DIR/Perfect Dark Map Editor (Electron).app"
+LEGACY_APP_BUNDLE="$RELEASE_DIR/Perfect Dark Map Editor.app"
 BUILD_DIR="$REPO_ROOT/.tmp-map-editor-app-build"
 SYMLINK_AT_ROOT=1
 DEV_ONLY=0
@@ -105,30 +108,9 @@ PY
 }
 
 prepare_icon() {
+	"$SCRIPT_DIR/pd-kit-icons.sh" map-editor
 	mkdir -p "$ELECTRON_DIR/build"
-	local icon_src="$BUILD_DIR/EditorAppIcon.icns"
-	if [[ ! -f "$icon_src" ]]; then
-		# Reuse shell-app icon generator when missing.
-		if [[ -f "$SCRIPT_DIR/generate-map-editor-icon.swift" ]]; then
-			mkdir -p "$BUILD_DIR"
-			local png="$BUILD_DIR/map-editor-1024.png"
-			if [[ ! -f "$png" ]]; then
-				swift "$SCRIPT_DIR/generate-map-editor-icon.swift" "$png"
-			fi
-			local iconset="$BUILD_DIR/EditorAppIcon.iconset"
-			rm -rf "$iconset"
-			mkdir -p "$iconset"
-			local size
-			for size in 16 32 128 256 512; do
-				sips -z "$size" "$size" "$png" --out "$iconset/icon_${size}x${size}.png" >/dev/null
-				sips -z "$((size * 2))" "$((size * 2))" "$png" --out "$iconset/icon_${size}x${size}@2x.png" >/dev/null
-			done
-			iconutil -c icns "$iconset" -o "$icon_src"
-		fi
-	fi
-	if [[ -f "$icon_src" ]]; then
-		cp "$icon_src" "$ELECTRON_DIR/build/icon.icns"
-	fi
+	cp "$BUILD_DIR/MapEditorAppIcon.icns" "$ELECTRON_DIR/build/icon.icns"
 }
 
 install_built_app() {
@@ -213,12 +195,15 @@ main() {
 
 	install_built_app
 
-	# Remove old Electron-named bundle and repo-root duplicates.
-	rm -rf "$LEGACY_ELECTRON_BUNDLE" "$REPO_ROOT/Perfect Dark Map Editor (Electron).app"
-	rm -f "$REPO_ROOT/Perfect Dark Map Editor.app"
+	# Remove legacy bundle names and repo-root duplicates.
+	rm -rf "$LEGACY_ELECTRON_BUNDLE" "$LEGACY_APP_BUNDLE"
+	rm -rf "$RELEASE_DIR/Perfect Dark Kit — Map Editor.app"
+	rm -f "$REPO_ROOT/Perfect Dark Map Editor (Electron).app"
+	rm -f "$REPO_ROOT/Perfect Dark Map Editor.app" "$REPO_ROOT/Perfect Dark Kit — Map Editor.app"
+	rm -f "$REPO_ROOT/${APP_NAME}.app"
 
 	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
-		ln -sfn "$APP_BUNDLE" "$REPO_ROOT/${APP_NAME}.app"
+		kit_symlink_app "${APP_NAME}.app"
 	fi
 
 	printf '\nBuilt map editor app:\n'

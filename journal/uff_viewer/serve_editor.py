@@ -31,49 +31,31 @@ _env_root = os.environ.get("PD_REPO_ROOT", "").strip()
 ROOT = os.path.abspath(_env_root) if _env_root else os.path.dirname(os.path.dirname(HERE))
 DEFAULT_PORT = 8765
 
-
-def _writable_state_dir() -> str:
-    """Persist port/pid/last-test artifacts; honor PD_EDITOR_STATE_DIR when set."""
-    env_state = os.environ.get("PD_EDITOR_STATE_DIR", "").strip()
-    if env_state:
-        os.makedirs(env_state, exist_ok=True)
-        return env_state
-
-    repo_viewer = os.path.join(ROOT, "journal", "uff_viewer")
-    if os.path.isdir(repo_viewer):
-        try:
-            probe = os.path.join(repo_viewer, ".pd_editor_write_probe")
-            with open(probe, "w", encoding="utf-8") as fp:
-                fp.write("ok")
-            os.remove(probe)
-            return repo_viewer
-        except OSError:
-            pass
-    fallback = os.path.join(
-        os.path.expanduser("~/Library/Application Support"),
-        "PerfectDarkMapEditor",
-    )
-    os.makedirs(fallback, exist_ok=True)
-    return fallback
-
-
-STATE_DIR = _writable_state_dir()
-PORT_FILE = os.path.join(STATE_DIR, ".editor_server.port")
-
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+
+
+def _writable_state_dir() -> str:
+    """Persist port/pid/last-test artifacts; honor PD_EDITOR_STATE_DIR when set."""
+    from tools.pd_kit.paths import resolve_editor_state_dir
+
+    return resolve_editor_state_dir(ROOT)
+
+
+STATE_DIR = _writable_state_dir()
+PORT_FILE = os.path.join(STATE_DIR, ".editor_server.port")
 
 from test_map import (  # noqa: E402
     DEFAULT_LOADOUT,
     build_shell_script,
 )
 from tools.pdmap.play import TEST_MAP_SLOT, detect_pd_binary, play_command  # noqa: E402
+from tools.pd_kit.paths import kit_log_file  # noqa: E402
 
 _detect_pd_binary = detect_pd_binary  # legacy alias for editor bundle
-
-LOG_FILE = os.path.expanduser("~/Library/Logs/PerfectDarkMapEditor.log")
+LOG_FILE = str(kit_log_file("mapEditor"))
 
 # Track detached game processes (pid -> popen) for optional /api/status polling.
 _GAME_PROCS: dict[int, subprocess.Popen[Any]] = {}
