@@ -5,7 +5,7 @@
 			"pos": [
 				-3500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -38,7 +38,7 @@
 			"pos": [
 				-2500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -71,7 +71,7 @@
 			"pos": [
 				-1500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -104,7 +104,7 @@
 			"pos": [
 				-500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -137,7 +137,7 @@
 			"pos": [
 				500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -170,7 +170,7 @@
 			"pos": [
 				1500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -203,7 +203,7 @@
 			"pos": [
 				2500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -236,7 +236,7 @@
 			"pos": [
 				3500.0,
 				10.0,
-				-3600.0
+				-3400.0
 			],
 			"dir": [
 				0.0,
@@ -533,7 +533,7 @@
 			"pos": [
 				-3500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -566,7 +566,7 @@
 			"pos": [
 				-2500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -599,7 +599,7 @@
 			"pos": [
 				-1500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -632,7 +632,7 @@
 			"pos": [
 				-500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -665,7 +665,7 @@
 			"pos": [
 				500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -698,7 +698,7 @@
 			"pos": [
 				1500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -731,7 +731,7 @@
 			"pos": [
 				2500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -764,7 +764,7 @@
 			"pos": [
 				3500.0,
 				10.0,
-				-4000.0
+				-4200.0
 			],
 			"dir": [
 				0.0,
@@ -797,7 +797,7 @@
 			"pos": [
 				-3500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -830,7 +830,7 @@
 			"pos": [
 				-2500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -863,7 +863,7 @@
 			"pos": [
 				-1500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -896,7 +896,7 @@
 			"pos": [
 				-500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -929,7 +929,7 @@
 			"pos": [
 				500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -962,7 +962,7 @@
 			"pos": [
 				1500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -995,7 +995,7 @@
 			"pos": [
 				2500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -1028,7 +1028,7 @@
 			"pos": [
 				3500.0,
 				10.0,
-				-4200.0
+				-4600.0
 			],
 			"dir": [
 				0.0,
@@ -1061,7 +1061,7 @@
 			"pos": [
 				-3500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1094,7 +1094,7 @@
 			"pos": [
 				-2500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1127,7 +1127,7 @@
 			"pos": [
 				-1500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1160,7 +1160,7 @@
 			"pos": [
 				-500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1193,7 +1193,7 @@
 			"pos": [
 				500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1226,7 +1226,7 @@
 			"pos": [
 				1500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1259,7 +1259,7 @@
 			"pos": [
 				2500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1292,7 +1292,7 @@
 			"pos": [
 				3500.0,
 				10.0,
-				3600.0
+				3400.0
 			],
 			"dir": [
 				0.0,
@@ -1589,7 +1589,7 @@
 			"pos": [
 				-3500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1622,7 +1622,7 @@
 			"pos": [
 				-2500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1655,7 +1655,7 @@
 			"pos": [
 				-1500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1688,7 +1688,7 @@
 			"pos": [
 				-500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1721,7 +1721,7 @@
 			"pos": [
 				500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1754,7 +1754,7 @@
 			"pos": [
 				1500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1787,7 +1787,7 @@
 			"pos": [
 				2500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1820,7 +1820,7 @@
 			"pos": [
 				3500.0,
 				10.0,
-				4000.0
+				4200.0
 			],
 			"dir": [
 				0.0,
@@ -1853,7 +1853,7 @@
 			"pos": [
 				-3500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -1886,7 +1886,7 @@
 			"pos": [
 				-2500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -1919,7 +1919,7 @@
 			"pos": [
 				-1500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -1952,7 +1952,7 @@
 			"pos": [
 				-500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -1985,7 +1985,7 @@
 			"pos": [
 				500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -2018,7 +2018,7 @@
 			"pos": [
 				1500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -2051,7 +2051,7 @@
 			"pos": [
 				2500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -2084,7 +2084,7 @@
 			"pos": [
 				3500.0,
 				10.0,
-				4200.0
+				4600.0
 			],
 			"dir": [
 				0.0,
@@ -2738,6 +2738,402 @@
 			"aiduck": false,
 			"liftnum": 0,
 			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0053",
+			"pos": [
+				-2800.0,
+				10.0,
+				-500.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0054",
+			"pos": [
+				2800.0,
+				10.0,
+				-500.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0055",
+			"pos": [
+				-700.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0056",
+			"pos": [
+				700.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0057",
+			"pos": [
+				-2400.0,
+				10.0,
+				-1200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0058",
+			"pos": [
+				2400.0,
+				10.0,
+				-1200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0059",
+			"pos": [
+				-2400.0,
+				10.0,
+				1200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_005A",
+			"pos": [
+				2400.0,
+				10.0,
+				1200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_005B",
+			"pos": [
+				-1500.0,
+				10.0,
+				-2400.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_005C",
+			"pos": [
+				1500.0,
+				10.0,
+				-2400.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_005D",
+			"pos": [
+				-1500.0,
+				10.0,
+				2400.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_005E",
+			"pos": [
+				1500.0,
+				10.0,
+				2400.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
 		}
 	],
 	"waypoints": [
@@ -2813,7 +3209,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -2855,7 +3251,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -2897,12 +3293,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -2944,12 +3340,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -2991,7 +3387,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -3033,7 +3429,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -3214,6 +3610,11 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -3259,11 +3660,6 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -3313,11 +3709,6 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
 					"flag4000": false,
 					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
-					"flag4000": false,
-					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -3363,6 +3754,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -3577,6 +3973,11 @@
 					"flag8000": false
 				},
 				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
 					"flag4000": false,
 					"flag8000": false
@@ -3615,6 +4016,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3661,6 +4067,11 @@
 					"flag8000": false
 				},
 				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
 					"flag4000": false,
 					"flag8000": false
@@ -3699,6 +4110,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3751,6 +4167,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3846,11 +4267,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_0019",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
 					"flag4000": false,
 					"flag8000": false
@@ -3862,6 +4278,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3883,11 +4304,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_001A",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
 					"flag4000": false,
 					"flag8000": false
@@ -3899,6 +4315,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3920,11 +4341,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_001B",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
 					"flag4000": false,
 					"flag8000": false
@@ -3936,6 +4352,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3957,11 +4378,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_001C",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
 					"flag4000": false,
 					"flag8000": false
@@ -3973,6 +4389,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -3994,11 +4415,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_001D",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
 					"flag4000": false,
 					"flag8000": false
@@ -4010,6 +4426,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -4030,11 +4451,6 @@
 			"id": "WAYPOINT_MATRIX_BATTLE_64_001E",
 			"pad": "PAD_MATRIX_BATTLE_64_001E",
 			"neighbours": [
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
-					"flag4000": false,
-					"flag8000": false
-				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
 					"flag4000": false,
@@ -4177,7 +4593,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4219,7 +4635,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4261,12 +4677,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4308,12 +4724,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4355,7 +4771,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4397,7 +4813,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4578,6 +4994,11 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -4677,11 +5098,6 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
 					"flag4000": false,
 					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
-					"flag4000": false,
-					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -4727,6 +5143,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -4941,6 +5362,11 @@
 					"flag8000": false
 				},
 				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
 					"flag4000": false,
 					"flag8000": false
@@ -4979,6 +5405,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5025,6 +5456,11 @@
 					"flag8000": false
 				},
 				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
 					"flag4000": false,
 					"flag8000": false
@@ -5063,6 +5499,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5115,6 +5556,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5210,11 +5656,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_0039",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
 					"flag4000": false,
 					"flag8000": false
@@ -5226,6 +5667,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5247,11 +5693,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_003A",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
 					"flag4000": false,
 					"flag8000": false
@@ -5263,6 +5704,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5284,11 +5730,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_003B",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
 					"flag4000": false,
 					"flag8000": false
@@ -5300,6 +5741,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5321,11 +5767,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_003C",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
 					"flag4000": false,
 					"flag8000": false
@@ -5337,6 +5778,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5358,11 +5804,6 @@
 			"pad": "PAD_MATRIX_BATTLE_64_003D",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
 					"flag4000": false,
 					"flag8000": false
@@ -5374,6 +5815,11 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5394,11 +5840,6 @@
 			"id": "WAYPOINT_MATRIX_BATTLE_64_003E",
 			"pad": "PAD_MATRIX_BATTLE_64_003E",
 			"neighbours": [
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
-					"flag4000": false,
-					"flag8000": false
-				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
 					"flag4000": false,
@@ -5489,17 +5930,27 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0053",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0057",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0059",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5531,16 +5982,6 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
 					"flag4000": false,
 					"flag8000": false
@@ -5552,6 +5993,21 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0053",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0059",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5573,22 +6029,7 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5598,12 +6039,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5620,22 +6061,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5653,6 +6084,21 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005A",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -5661,11 +6107,6 @@
 			"id": "WAYPOINT_MATRIX_BATTLE_64_0044",
 			"pad": "PAD_MATRIX_BATTLE_64_0044",
 			"neighbours": [
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
-					"flag4000": false,
-					"flag8000": false
-				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
 					"flag4000": false,
@@ -5677,17 +6118,27 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0058",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005A",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5709,11 +6160,6 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
 					"flag4000": false,
 					"flag8000": false
@@ -5724,7 +6170,17 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0053",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0057",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5746,11 +6202,6 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
 					"flag4000": false,
 					"flag8000": false
@@ -5761,7 +6212,17 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0058",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5783,22 +6244,22 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0059",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5810,22 +6271,12 @@
 			"pad": "PAD_MATRIX_BATTLE_64_0048",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5838,6 +6289,16 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -5846,16 +6307,6 @@
 			"id": "WAYPOINT_MATRIX_BATTLE_64_0049",
 			"pad": "PAD_MATRIX_BATTLE_64_0049",
 			"neighbours": [
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
-					"flag4000": false,
-					"flag8000": false
-				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
 					"flag4000": false,
@@ -5880,6 +6331,21 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0057",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -5889,27 +6355,7 @@
 			"pad": "PAD_MATRIX_BATTLE_64_004A",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5922,6 +6368,21 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0058",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -5931,22 +6392,7 @@
 			"pad": "PAD_MATRIX_BATTLE_64_004B",
 			"neighbours": [
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -5957,6 +6403,21 @@
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0059",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -5988,12 +6449,12 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -6020,17 +6481,27 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0053",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0057",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -6070,6 +6541,21 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0058",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -6089,11 +6575,6 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
 					"flag4000": false,
 					"flag8000": false
@@ -6107,6 +6588,21 @@
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0053",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0059",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
@@ -6115,11 +6611,6 @@
 			"id": "WAYPOINT_MATRIX_BATTLE_64_0050",
 			"pad": "PAD_MATRIX_BATTLE_64_0050",
 			"neighbours": [
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
-					"flag4000": false,
-					"flag8000": false
-				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
 					"flag4000": false,
@@ -6131,17 +6622,27 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005A",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -6163,22 +6664,22 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
-					"flag4000": false,
-					"flag8000": false
-				},
-				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
 					"flag4000": false,
 					"flag8000": false
 				},
 				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
 					"flag4000": false,
 					"flag8000": false
 				}
@@ -6205,7 +6706,108 @@
 					"flag8000": false
 				},
 				{
-					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0053",
+			"pad": "PAD_MATRIX_BATTLE_64_0053",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0057",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0054",
+			"pad": "PAD_MATRIX_BATTLE_64_0054",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0058",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0055",
+			"pad": "PAD_MATRIX_BATTLE_64_0055",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
 					"flag4000": false,
 					"flag8000": false
 				},
@@ -6215,7 +6817,405 @@
 					"flag8000": false
 				},
 				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
 					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0056",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0056",
+			"pad": "PAD_MATRIX_BATTLE_64_0056",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0055",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0057",
+			"pad": "PAD_MATRIX_BATTLE_64_0057",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0053",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0058",
+			"pad": "PAD_MATRIX_BATTLE_64_0058",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005C",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0059",
+			"pad": "PAD_MATRIX_BATTLE_64_0059",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_005A",
+			"pad": "PAD_MATRIX_BATTLE_64_005A",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0054",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_005B",
+			"pad": "PAD_MATRIX_BATTLE_64_005B",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0057",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_005C",
+			"pad": "PAD_MATRIX_BATTLE_64_005C",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0058",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_005D",
+			"pad": "PAD_MATRIX_BATTLE_64_005D",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0059",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_005E",
+			"pad": "PAD_MATRIX_BATTLE_64_005E",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_005A",
 					"flag4000": false,
 					"flag8000": false
 				}

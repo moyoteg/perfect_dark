@@ -4051,8 +4051,8 @@
 #define STAGE_MY_ARENA      0x80
 #define STAGE_TESTARENA     0x81
 #define STAGE_ANIMLAB        0x82
-/* Anim Lab: tighter bubble than stock 32000 — full-map visibility overflows the master GDL. */
-#define ANIMLAB_DRAW_DIST      7500.0f
+/* Anim Lab: below stock 32000 (GDL overflow) but wide enough for ±9000 arena + districts. */
+#define ANIMLAB_DRAW_DIST      20000.0f
 #define ANIMLAB_DRAW_DIST_SQ   (ANIMLAB_DRAW_DIST * ANIMLAB_DRAW_DIST)
 #define STAGE_TITLE         0x5c
 #define STAGE_BOOTPAKMENU   0x5d

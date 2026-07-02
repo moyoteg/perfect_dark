@@ -587,26 +587,35 @@ void setupCreateObject(struct defaultobj *obj, s32 cmdindex)
 				}
 			}
 
-			modelSetScale(obj->model, obj->model->scale * scale);
-			mtx00015f04(obj->model->scale, &mtx);
+			if (prop2 && obj->model) {
+				modelSetScale(obj->model, obj->model->scale * scale);
+				mtx00015f04(obj->model->scale, &mtx);
 
-			if (obj->flags2 & OBJFLAG2_DONTPAUSE) {
-				prop2->flags |= PROPFLAG_DONTPAUSE;
+				if (obj->flags2 & OBJFLAG2_DONTPAUSE) {
+					prop2->flags |= PROPFLAG_DONTPAUSE;
+				}
+
+				if (obj->flags & OBJFLAG_00000002) {
+					func0f06ab60(obj, &pos, &mtx, rooms, &centre);
+				} else {
+					func0f06a730(obj, &pos, &mtx, rooms, &centre);
+				}
+
+				if (obj->hidden & OBJHFLAG_00008000) {
+					propActivateThisFrame(prop2);
+				} else {
+					propActivate(prop2);
+				}
+
+				propEnable(prop2);
+			} else if (g_ModelStates[modelnum].modeldef == NULL || prop2 == NULL) {
+#ifndef PLATFORM_N64
+				sysLogPrintf(LOG_WARNING,
+						"setupCreateObject: skip obj type=%u model=%u pad=%d (modeldef=%p prop=%p)",
+						obj->type, modelnum, obj->pad,
+						g_ModelStates[modelnum].modeldef, prop2);
+#endif
 			}
-
-			if (obj->flags & OBJFLAG_00000002) {
-				func0f06ab60(obj, &pos, &mtx, rooms, &centre);
-			} else {
-				func0f06a730(obj, &pos, &mtx, rooms, &centre);
-			}
-
-			if (obj->hidden & OBJHFLAG_00008000) {
-				propActivateThisFrame(prop2);
-			} else {
-				propActivate(prop2);
-			}
-
-			propEnable(prop2);
 		}
 	}
 }

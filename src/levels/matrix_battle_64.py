@@ -1,6 +1,7 @@
 # Matrix Test Room — two-sided 64-spawn battle layout (32 pads per flank).
 # Deploy with: python3 tools/pdmap.py build matrix_battle_64 --seg --deploy
-# Play with:   ./build/pd.arm64 --test-map --moddir mods/mod_allinone --scenario-0 --num-sims 63 --teams-battle
+# Play with:   ./scripts/play-matrix-battle.sh
+# Or:          ./build/pd.arm64 --test-map --moddir mods/mod_allinone --scenario-0 --num-sims 50 --teams-battle --sim-difficulty 5
 # PC port supports up to 64 fighters (1 human + 63 bots); stock u32 chrslots caps N64 at 32.
 
 from tools.pdmap.builders import add_ammo_row, add_floor_weapons, add_loadout_intro, floor_box_tiles
@@ -24,8 +25,9 @@ _TEAM_COLS = 8
 _TEAM_ROWS = 4
 _X0 = -3500.0
 _X_STEP = 1000.0
-_TEAM0_Z = (-3600.0, -3800.0, -4000.0, -4200.0)
-_TEAM1_Z = (3600.0, 3800.0, 4000.0, 4200.0)
+# 400-unit row spacing (was 200) — reduces spawn-line overlap with 25+ bots per flank.
+_TEAM0_Z = (-3400.0, -3800.0, -4200.0, -4600.0)
+_TEAM1_Z = (3400.0, 3800.0, 4200.0, 4600.0)
 
 
 def _team_spawn_positions(team: int) -> list[tuple[float, float]]:
@@ -59,7 +61,7 @@ def build() -> MapDef:
             pad_index += 1
 
     # Center-zone resupply between flanks (teams at Z ≈ ±3600–4200).
-    # 12 floor weapons + 7 ammo crates — enough pickup diversity for 50+ bots.
+    # 12 floor weapons + 19 ammo crates (7 base + 12 bullet boxes) for 50+ bots.
     weapon_pads: list[tuple[int, float, float, int]] = [
         (64, -2800.0, 0.0, W.WEAPON_AR34),
         (65, -1400.0, 0.0, W.WEAPON_CMP150),
@@ -89,9 +91,29 @@ def build() -> MapDef:
     ]
     for pad, x, z in ammo_pads:
         g.add_pad(index=pad, x=x, y=SPAWN_Y, z=z, room=1)
+    # Large MODEL_MULTI_AMMO_CRATE boxes (retail ammocrate 0x07, not slot-crate 0x14).
     add_ammo_row(g, [76, 81, 82])
-    add_ammo_row(g, [77, 78], ammotype=W.AMMOTYPE_RIFLE, model=0)
-    add_ammo_row(g, [79, 80], ammotype=W.AMMOTYPE_SHOTGUN, model=0)
+    add_ammo_row(g, [77, 78], ammotype=W.AMMOTYPE_RIFLE)
+    add_ammo_row(g, [79, 80], ammotype=W.AMMOTYPE_SHOTGUN)
+
+    # Bullet boxes: multi-ammo crates near weapon lines and team advance flanks.
+    bullet_box_pads: list[tuple[int, float, float]] = [
+        (83, -2800.0, -500.0),   # AR34 lane
+        (84, 2800.0, -500.0),    # MagSec lane
+        (85, -700.0, 0.0),       # west mid weapon line
+        (86, 700.0, 0.0),        # east mid weapon line
+        (87, -2400.0, -1200.0),  # NW heavy-weapon cluster
+        (88, 2400.0, -1200.0),   # NE heavy-weapon cluster
+        (89, -2400.0, 1200.0),   # SW heavy-weapon cluster
+        (90, 2400.0, 1200.0),    # SE heavy-weapon cluster
+        (91, -1500.0, -2400.0),  # team 0 left advance
+        (92, 1500.0, -2400.0),   # team 0 right advance
+        (93, -1500.0, 2400.0),   # team 1 left advance
+        (94, 1500.0, 2400.0),    # team 1 right advance
+    ]
+    for pad, x, z in bullet_box_pads:
+        g.add_pad(index=pad, x=x, y=SPAWN_Y, z=z, room=1)
+    add_ammo_row(g, [pad for pad, _, _ in bullet_box_pads])
 
     add_loadout_intro(g)
     return g

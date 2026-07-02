@@ -166,15 +166,15 @@ void botinvClear(struct chrdata *chr)
 /**
  * Return a free slot from the bot's inventory.
  *
- * In theory this should never fail. The inventory has 10 slots. 6 are for
- * weapons, and 4 are for scenario-specific items such as briefcases and the
- * data uplink.
+ * In theory this should never fail. The inventory has 10 slots by default (6
+ * weapons, and 4 scenario-specific items such as briefcases and the data
+ * uplink). Large PC-port MP battles use a larger pool via botinvInit.
  */
 struct invitem *botinvGetFreeSlot(struct chrdata *chr)
 {
 	s32 i;
 
-	if (!chr || !chr->aibot) {
+	if (!chr || !chr->aibot || !chr->aibot->items) {
 		return NULL;
 	}
 
@@ -196,7 +196,7 @@ struct invitem *botinvGetItem(struct chrdata *chr, s32 weaponnum)
 {
 	s32 i;
 
-	if (!chr || !chr->aibot) {
+	if (!chr || !chr->aibot || !chr->aibot->items) {
 		return NULL;
 	}
 
@@ -284,9 +284,10 @@ bool botinvGiveSingleWeapon(struct chrdata *chr, u32 weaponnum)
 			item->type = INVITEMTYPE_WEAP;
 			item->type_weap.weapon1 = weaponnum;
 			item->type_weap.pickuppad = -1;
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	return false;
@@ -354,7 +355,12 @@ bool botinvGiveProp(struct chrdata *chr, struct prop *prop)
 
 			if (result) {
 				struct invitem *item = botinvGetItem(chr, weaponnum);
-				item->type_weap.pickuppad = obj->pad;
+
+				if (item) {
+					item->type_weap.pickuppad = obj->pad;
+				} else {
+					result = false;
+				}
 			}
 		}
 	} else if (obj->type == OBJTYPE_MULTIAMMOCRATE) {

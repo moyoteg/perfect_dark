@@ -68,6 +68,9 @@
 #include "lib/model.h"
 #include "lib/path.h"
 #include "lib/rng.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#endif
 #include "lib/mtx.h"
 #include "lib/anim.h"
 #include "lib/collision.h"
@@ -300,6 +303,10 @@ f32 objGetLocalXMax(struct modelrodata_bbox *bbox)
 
 f32 objGetLocalYMin(struct modelrodata_bbox *bbox)
 {
+	if (bbox == NULL) {
+		return 0;
+	}
+
 	return bbox->ymin;
 }
 
@@ -619,6 +626,10 @@ s32 objCalculateGeoBlockVertices(f32 xmin, f32 xmax, f32 ymin, f32 ymax, f32 zmi
 
 void objCalculateGeoBlockFromBboxAndMtx(struct modelrodata_bbox *bbox, Mtxf *mtx, struct geoblock *block)
 {
+	if (!bbox || !mtx || !block) {
+		return;
+	}
+
 	block->header.numvertices = objCalculateGeoBlockVertices(
 			bbox->xmin, bbox->xmax, bbox->ymin, bbox->ymax, bbox->zmin, bbox->zmax, mtx, block);
 	block->header.type = GEOTYPE_BLOCK;
@@ -1296,7 +1307,13 @@ struct modelrodata_bbox *modeldefFindBboxRodata(struct modeldef *modeldef)
 
 struct modelnode *modelFindBboxNode(struct model *model)
 {
-	struct modelnode *node = model->definition->rootnode;
+	struct modelnode *node;
+
+	if (model == NULL || model->definition == NULL) {
+		return NULL;
+	}
+
+	node = model->definition->rootnode;
 
 	while (node) {
 		u32 type = node->type & 0xff;
@@ -1761,10 +1778,16 @@ struct hovtype g_HovTypes[];
 void func0f069850(struct defaultobj *obj, struct coord *pos, f32 rot[3][3], struct geocyl *cyl)
 {
 	Mtxf mtx;
-	struct modelrodata_bbox *bbox = objFindBboxRodata(obj);
+	struct modelrodata_bbox *bbox;
 	struct modelrodata_type19 *rodata19 = NULL;
 	struct hoverbikeobj *hoverbike;
 	struct hoverpropobj *hoverprop;
+
+	if (!obj || !obj->model || !obj->model->definition) {
+		return;
+	}
+
+	bbox = objFindBboxRodata(obj);
 
 	mtx3ToMtx4(rot, &mtx);
 	mtx4SetTranslation(pos, &mtx);
@@ -1788,19 +1811,36 @@ void func0f069850(struct defaultobj *obj, struct coord *pos, f32 rot[3][3], stru
 			hoverprop = (struct hoverpropobj *)obj;
 			cyl->ymax = hoverprop->hov.ground + g_HovTypes[hoverprop->hov.type].bobymid + objGetLocalYMax(bbox) * obj->model->scale;
 			cyl->ymin = hoverprop->hov.ground + 20.0f;
-		} else {
+		} else if (bbox != NULL) {
 			cyl->ymin = mtx.m[3][1] + objGetRotatedLocalYMinByMtx4(bbox, &mtx);
 			cyl->ymax = mtx.m[3][1] + objGetRotatedLocalYMaxByMtx4(bbox, &mtx);
+		} else {
+			cyl->ymin = pos->y;
+			cyl->ymax = pos->y + 80.0f;
 		}
 
 		cyl->x = pos->x;
 		cyl->z = pos->z;
 		cyl->radius = 90.0f;
 	} else {
-		if (rodata19 != NULL) {
+		if (rodata19 != NULL && bbox != NULL) {
 			objCalculateGeoBlockFromNode19Data(rodata19, bbox, &mtx, (struct geoblock *)cyl);
-		} else {
+		} else if (bbox != NULL) {
 			objCalculateGeoBlockFromBboxAndMtx(bbox, &mtx, (struct geoblock *)cyl);
+		} else {
+#ifndef PLATFORM_N64
+			sysLogPrintf(LOG_WARNING,
+					"func0f069850: no bbox type=%u modelnum=%u pad=%d",
+					obj->type, obj->modelnum, obj->pad);
+#endif
+			/* Pad-bound props without bbox rodata still need a collision stub. */
+			cyl->header.type = GEOTYPE_CYL;
+			cyl->header.flags = GEOFLAG_WALL | GEOFLAG_BLOCK_SIGHT | GEOFLAG_BLOCK_SHOOT;
+			cyl->x = pos->x;
+			cyl->z = pos->z;
+			cyl->radius = 40.0f;
+			cyl->ymin = pos->y;
+			cyl->ymax = pos->y + 80.0f;
 		}
 
 		if (obj->type == OBJTYPE_HOVERBIKE) {
@@ -2223,6 +2263,17 @@ void func0f06a650(struct defaultobj *obj, struct coord *pos, Mtxf *arg2, RoomNum
 void func0f06a730(struct defaultobj *obj, struct coord *arg1, Mtxf *mtx, RoomNum *rooms, struct coord *centre)
 {
 	struct modelrodata_bbox *bbox = modelFindBboxRodata(obj->model);
+
+	// Floor snap needs a model bbox; CHR weapon models and bad setup props may lack one.
+	if (bbox == NULL) {
+#ifndef PLATFORM_N64
+		sysLogPrintf(LOG_WARNING, "func0f06a730: no bbox type=%u modelnum=%u pad=%d",
+				obj->type, obj->modelnum, obj->pad);
+#endif
+		func0f06a580(obj, arg1, mtx, rooms);
+		return;
+	}
+
 	f32 min = objGetLocalYMin(bbox);
 	f32 max = objGetLocalYMax(bbox);
 	struct coord pos2;

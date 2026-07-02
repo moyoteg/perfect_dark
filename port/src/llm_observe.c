@@ -70,7 +70,9 @@ void llmBridgeBuildObservation(void)
 			llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, ",");
 		}
 
-		if (chr && chr->prop) {
+		/* Human players need chr->model; bots use aibot->roty. Either may be
+		 * unset briefly during spawn/respawn teardown in large MP sessions. */
+		if (chr && chr->prop && (chr->aibot || chr->model)) {
 			llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos,
 					"{\"id\":%d,\"team\":%d,\"pos\":{\"x\":%.1f,\"y\":%.1f,\"z\":%.1f},"
 					"\"facing_deg\":%.1f,\"health\":%.3f,\"dead\":%s}",

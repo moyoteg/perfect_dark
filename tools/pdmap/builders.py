@@ -69,7 +69,9 @@ def add_floor_weapons(
         g.add_prop(WeaponProp(
             weapon=weapon_id,
             scale=scale,
-            model=W.WEAPON_FLOOR_MODEL.get(weapon_id, 0),
+            # model 0: setupPlaceWeapon resolves via playermgrGetModelOfWeapon.
+            # Explicit CHR model IDs lack floor-placement bbox and crash func0f06a730.
+            model=0,
             chr_=pad,
             flags=W.OBJFLAG_FALL,
         ))
@@ -82,11 +84,17 @@ def add_ammo_row(
     ammotype: int = W.AMMOTYPE_PISTOL,
     scale: int = 0x0019,
     model: int = W.MODEL_MULTI_AMMO_CRATE,
+    slot_crate: bool = False,
 ) -> None:
-    """Place floor ammo props. Multi-ammo crate model uses OBJTYPE_MULTIAMMOCRATE
-    (retail HTM bank pads / ammocratemulti) so scenario code can find them."""
+    """Place floor ammo props.
+
+    Default (retail Combat / uff): OBJTYPE_AMMOCRATE (0x07) with
+    MODEL_MULTI_AMMO_CRATE — the large multi-ammo box bots pick up by ammotype.
+
+    slot_crate=True emits OBJTYPE_MULTIAMMOCRATE (0x14) for HTM bank pads where
+    scenario code registers MODEL_MULTI_AMMO_CRATE props by pad index."""
     for pad in pads:
-        if model == W.MODEL_MULTI_AMMO_CRATE:
+        if slot_crate:
             g.add_prop(AmmoCrateMulti(
                 scale=scale,
                 model=model,
@@ -1268,6 +1276,7 @@ def floor_box_with_parade_zones(
     from .anim_catalog import (
         PARADE_CORRIDOR_COLOUR,
         PARADE_CORRIDOR_END_Z,
+        PARADE_CORRIDOR_HALF_WIDTH,
         PARADE_PLAYER_SPAWN_Z,
         PARADE_PROPS_HALF,
         PARADE_SPECIAL_X,
@@ -1276,9 +1285,9 @@ def floor_box_with_parade_zones(
 
     hub_tiles.append(
         tile_quad(
-            -350.0,
+            -PARADE_CORRIDOR_HALF_WIDTH,
             PARADE_PLAYER_SPAWN_Z + 80.0,
-            350.0,
+            PARADE_CORRIDOR_HALF_WIDTH,
             PARADE_CORRIDOR_END_Z,
             y=marker_y,
             floorcolour=PARADE_CORRIDOR_COLOUR,
@@ -1367,7 +1376,7 @@ def floor_box_with_parade_zones(
         z_start = PARADE_PLAYER_SPAWN_Z + 120.0
         z_end = PARADE_CORRIDOR_END_Z
         z_step = (z_end - z_start) / max(1, band_count)
-        spine_half = 220.0
+        spine_half = PARADE_CORRIDOR_HALF_WIDTH
         for i, district in enumerate(districts):
             colour = _hex_to_floor_colour(str(district.get("color", "#505060")))
             z0 = z_start + i * z_step
@@ -1386,11 +1395,15 @@ def floor_box_with_parade_zones(
 
     # Prop museum wing carpet (far west, room 1).
     if museum_district:
-        from .anim_catalog import PARADE_MUSEUM_HALF, PARADE_MUSEUM_CENTER_X, PARADE_PROPS_CENTER_X
+        from .anim_catalog import (
+            PARADE_MUSEUM_CENTER_X,
+            PARADE_PROPS_CENTER_X,
+            parade_museum_half,
+        )
 
         mcx = float(museum_district.get("centerX", 0))
         mcz = float(museum_district.get("centerZ", 0))
-        mh = float(museum_district.get("half", PARADE_MUSEUM_HALF))
+        mh = float(museum_district.get("half", parade_museum_half()))
         museum_colour = int(museum_district.get("floorColour", _hex_to_floor_colour("#0ea5e9")))
         hub_tiles.append(
             tile_quad(
@@ -1601,11 +1614,11 @@ def parade_district_seg_faces(
         faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
 
     if museum_district:
-        from .anim_catalog import PARADE_MUSEUM_HALF
+        from .anim_catalog import parade_museum_half
 
         mcx = float(museum_district.get("centerX", 0))
         mcz = float(museum_district.get("centerZ", 0))
-        mh = float(museum_district.get("half", PARADE_MUSEUM_HALF))
+        mh = float(museum_district.get("half", parade_museum_half()))
         rgba = _hex_to_seg_rgba("#0ea5e9")
         face_colours.append(rgba)
         zone_tile = tile_quad(mcx - mh, mcz - mh, mcx + mh, mcz + mh, y=marker_y)
