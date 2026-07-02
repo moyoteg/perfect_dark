@@ -13,7 +13,7 @@
         <div>
           <p class="eyebrow">Modding stack</p>
           <h1 id="kitTitle">Perfect Dark Kit</h1>
-          <p id="kitSubtitle" class="subtitle">Launch every authoring tool from one place.</p>
+          <p id="kitSubtitle" class="subtitle">Every Perfect Dark tool in one launcher.</p>
         </div>
         <div class="meta">
           <div class="pill" id="kitVersionPill">Kit v0.0.0</div>
@@ -24,14 +24,32 @@
       <section class="actions-row">
         <button id="playBtn" type="button" class="primary">Play with Mod</button>
         <button id="testMapBtn" type="button">Test Map</button>
+        <button id="buildAppsBtn" type="button">Build Apps</button>
         <button id="revealReleaseBtn" type="button" class="ghost">Reveal Release Folder</button>
       </section>
 
-      <section class="grid" id="toolGrid"></section>
+      <section class="section">
+        <div class="section-head">
+          <h2>Desktop Apps</h2>
+          <p class="section-note">Authoring tools and companion launchers</p>
+        </div>
+        <div class="grid" id="toolGrid"></div>
+      </section>
+
+      <section class="section" id="actionSections"></section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Documentation</h2>
+          <p class="section-note">Workflow guides and reference specs</p>
+        </div>
+        <div class="doc-grid" id="docGrid"></div>
+      </section>
 
       <footer class="footer">
         <p id="repoLine" class="muted"></p>
         <p id="statusLine" class="status"></p>
+        <pre id="outputLine" class="output hidden"></pre>
       </footer>
     </div>
     <script src="app.js"></script>

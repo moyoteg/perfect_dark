@@ -15,6 +15,8 @@ The **Perfect Dark Kit** is the unified modding stack for this repository: PC po
 | **Map Editor** | 3D JSON editor + Test/Play | nested in hub + `scripts/release/` |
 | **Animation Lab** | Animation catalog + parade test map | nested in hub + `scripts/release/` |
 | **Asset Upgrader** | Batch texture upgrade for mods | nested in hub + `scripts/release/` |
+| **Play Last Test Map** | Replay last editor Test/Play | hub card + `scripts/release/` |
+| **LLM Play** | AI play adapter (sibling project) | hub card → `../llm-play/LLM Play.app` |
 | **Docs** | Workflow + binary reference | [`docs/MAP_MAKING_WIKI.md`](docs/MAP_MAKING_WIKI.md) |
 
 **BYO ROM** — no game assets are bundled. Place `pd.ntsc-final.z64` in `data/` (see [`README.md`](README.md)).
@@ -42,9 +44,12 @@ This builds:
 - `scripts/release/PD Map Editor.app`
 - `scripts/release/PD Anim Lab.app`
 - `scripts/release/PD Asset Upgrader.app`
+- `scripts/release/Play Last Test Map.app`
 - `scripts/release/kit-manifest.json`
 
-Child apps are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` so the hub is self-contained. A repo-root symlink is created for **Perfect Dark Kit.app** only (child tools stay under `scripts/release/` or launch from the hub).
+Optional (sibling project): `../llm-play/LLM Play.app` — surfaced in the hub when built.
+
+Child apps are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` when present in `scripts/release/`. The hub UI also exposes build, validate, scenario, setup scripts, and documentation links from `tools/pd_kit/kit.json`.
 
 ### 3. CLI launcher
 
@@ -67,6 +72,8 @@ Child apps are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` so th
 | `pd-kit.sh open map-editor` | Open Map Editor directly |
 | `pd-kit.sh open anim-lab` | Open Animation Lab `.app` |
 | `pd-kit.sh open asset-upgrader` | Open Asset Upgrader `.app` |
+| `pd-kit.sh open play-last-test-map` | Open Play Last Test Map `.app` |
+| `pd-kit.sh open llm-play` | Open LLM Play `.app` (sibling project) |
 | `pd-kit.sh validate [level …]` | Run `pdmap validate` (default: `my_arena testarena`) |
 | `pd-kit.sh play [--test-map] [--mod MOD]` | Launch game with mod |
 
@@ -132,13 +139,32 @@ scripts/release/
 │   └── Contents/Resources/Apps/
 │       ├── PD Map Editor.app
 │       ├── PD Anim Lab.app
-│       └── PD Asset Upgrader.app
+│       ├── PD Asset Upgrader.app
+│       ├── Play Last Test Map.app
+│       └── LLM Play.app (when built + wrapped)
 ├── PD Map Editor.app
 ├── PD Anim Lab.app
-└── PD Asset Upgrader.app
+├── PD Asset Upgrader.app
+└── Play Last Test Map.app
+
+../llm-play/LLM Play.app                      ← optional sibling project
 
 build/pd.arm64
 ```
+
+## Hub launcher surface
+
+`Perfect Dark Kit.app` reads `tools/pd_kit/kit.json` and exposes:
+
+| Section | Contents |
+|---------|----------|
+| **Game** | Play with Mod, Test Map |
+| **Desktop Apps** | All `kitHub.wraps` entries (editors + companion apps) |
+| **Build** | Build Apps, Build Game, Build Full Kit |
+| **Validate & Learn** | pdmap validate, curriculum validation, learn step |
+| **Scenarios & Launch** | AIO mod, matrix battle, reset uff, rebuild editors |
+| **Setup & Utilities** | Link ROM, asset upgrader setup/CLI, Ollama setup |
+| **Documentation** | Kit guide, map wiki, specs, anim reference, curriculum |
 
 Generated manifest example fields: `kitVersion`, `portVersion`, `builtAt`, `gameBinary.built`, `apps.*.built`.
 

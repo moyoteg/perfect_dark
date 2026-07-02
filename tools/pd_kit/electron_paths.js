@@ -76,6 +76,23 @@ function loadManifest() {
         bundleFileName: 'PD Asset Upgrader.app',
         logFile: 'asset-upgrader.log',
       },
+      playLastTestMap: {
+        id: 'play-last-test-map',
+        productName: 'Play Last Test Map',
+        shortTitle: 'Replay Test',
+        bundleFileName: 'Play Last Test Map.app',
+        logFile: 'play-last-test-map.log',
+        optional: true,
+      },
+      llmPlay: {
+        id: 'llm-play',
+        productName: 'LLM Play',
+        shortTitle: 'LLM Play',
+        bundleFileName: 'LLM Play.app',
+        logFile: 'llm-play.log',
+        optional: true,
+        siblingPath: '../llm-play/LLM Play.app',
+      },
     },
   };
   return cachedManifest;
