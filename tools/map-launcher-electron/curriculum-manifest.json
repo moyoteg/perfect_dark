@@ -1,0 +1,281 @@
+[
+  {
+    "step": 1,
+    "name": "learn_01_spawn",
+    "title": "Single spawn (Y=10)",
+    "expected": "Player spawns at center, stands on flat floor, no fall-through.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_01_spawn.json"
+  },
+  {
+    "step": 2,
+    "name": "learn_02_four_spawns",
+    "title": "Four corner spawns",
+    "expected": "Quick-team places up to four players at corners (\u00b11500).",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_02_four_spawns.json"
+  },
+  {
+    "step": 3,
+    "name": "learn_03_weapon",
+    "title": "Floor weapon pickup",
+    "expected": "CMP150 (or configured weapon) visible at map center; pickup works.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_03_weapon.json"
+  },
+  {
+    "step": 4,
+    "name": "learn_04_ammo",
+    "title": "Ammo crate",
+    "expected": "Ammo crate at +X; picking up refills matching ammo type.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_04_ammo.json"
+  },
+  {
+    "step": 5,
+    "name": "learn_05_loadout",
+    "title": "Loadout intro / ailist 0x1000",
+    "expected": "Combat start: default loadout weapons (Falcon2, CMP150, \u2026) in hand.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_05_loadout.json"
+  },
+  {
+    "step": 6,
+    "name": "learn_06_waypoints",
+    "title": "Symmetric waypoints / bot spawn",
+    "expected": "Add 1\u20134 simulants in Combat Simulator; bots move without crashing.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_06_waypoints.json"
+  },
+  {
+    "step": 7,
+    "name": "learn_07_hill",
+    "title": "King of the Hill anchor",
+    "expected": "Launch with --scenario-4; green hill zone at +Z with dark ring boundary; KOTH scoring only inside hill room.",
+    "scenario": 4,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_07_hill.json"
+  },
+  {
+    "step": 8,
+    "name": "learn_08_ctf_case",
+    "title": "Case + CaseRespawn (CTF pair)",
+    "expected": "Launch with --scenario-5; briefcase at -Z, respawn at +Z (team 0). Bright red delivery square + dark ring at +Z (CaseRespawn); muted red marker at -Z (Case). Steal enemy case and touch home pad to score instantly. No hold countdown (that is --scenario-1 Hold Briefcase only).",
+    "scenario": 5,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_08_ctf_case.json"
+  },
+  {
+    "step": 9,
+    "name": "learn_09_deploy_uff",
+    "title": "Deploy-as uff / --test-map slot",
+    "expected": "Same empty box; confirms play-learn-step deploys into uff test slot.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_09_deploy_uff.json"
+  },
+  {
+    "step": 10,
+    "name": "learn_10_full_arena",
+    "title": "Composite (my_arena-like)",
+    "expected": "Launch with --scenario-5 (Capture the Case). Grey arena floor; small coloured squares only at CTF pads (seg mode ctf). Enemy briefcase at -Z (team 1 Case, muted yellow square + ring). Walk north to -Z, pick up the briefcase, return south to +Z and stand on the bright red delivery square (team 0 CaseRespawn) \u2014 scoring triggers when you touch your home Case prop at +Z while holding the enemy case. After a score (or if the carrier is killed), each briefcase warps back to its own Case pad (team 1 \u2192 -Z yellow, team 0 \u2192 +Z red). KOTH hill at +X (room 2).",
+    "scenario": 5,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_10_full_arena.json"
+  },
+  {
+    "step": 11,
+    "name": "learn_11_y_autocorrect",
+    "title": "Pad Y auto-correction (Y=0 \u2192 10)",
+    "expected": "Player still spawns safely despite JSON Y=0 on pad (pipeline fix).",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_11_y_autocorrect.json"
+  },
+  {
+    "step": 12,
+    "name": "learn_12_testarena_fixture",
+    "title": "Registered testarena layout (minimal_map.json)",
+    "expected": "Launch with --scenario-5. Layout matches registered STAGE_TESTARENA / minimal_map.json fixture (four spawns, weapon, ammo, hill, 4\u00d7 Case pairs). Combat Sim menu shows 'Test Arena' label (textid 0x7FFC) when played from menu \u2014 manual.",
+    "scenario": 5,
+    "segMode": "ctf",
+    "jsonPath": "journal/map_learn/maps/learn_12_testarena_fixture.json"
+  },
+  {
+    "step": 13,
+    "name": "learn_13_fixture_compact",
+    "title": "Compact fixture (minimal_map 2.json)",
+    "expected": "Launch with --scenario-4; hill at +Z; weapon/ammo pickups work in 5000 box.",
+    "scenario": 4,
+    "segMode": "hill",
+    "jsonPath": "journal/map_learn/maps/learn_13_fixture_compact.json"
+  },
+  {
+    "step": 14,
+    "name": "learn_14_procedural_seg",
+    "title": "Procedural box seg (PDMAP_SEG_MODE=full)",
+    "expected": "Build with --seg-mode full: visible box walls from procedural generator. Collision still from tiles; seg is visual. May show near-plane clip in FPS \u2014 contrast with step 15 empty mode.",
+    "scenario": 0,
+    "segMode": "full",
+    "jsonPath": "journal/map_learn/maps/learn_14_procedural_seg.json"
+  },
+  {
+    "step": 15,
+    "name": "learn_15_seg_empty",
+    "title": "Empty seg mode (PDMAP_SEG_MODE=empty)",
+    "expected": "Launch with --seg-mode empty: no visible seg walls; flat grey floor from tiles only.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_15_seg_empty.json"
+  },
+  {
+    "step": 16,
+    "name": "learn_16_my_arena_registered",
+    "title": "Registered my_arena layout",
+    "expected": "Launch with --scenario-5. Layout matches registered STAGE_MY_ARENA. Combat Sim menu shows 'My Arena' (textid 0x7FFD) when played from menu \u2014 manual.",
+    "scenario": 5,
+    "segMode": "ctf",
+    "jsonPath": "journal/map_learn/maps/learn_16_my_arena_registered.json"
+  },
+  {
+    "step": 17,
+    "name": "learn_17_from_json_cli",
+    "title": "from-json CLI canonical path",
+    "expected": "Same spawn box; validates via from-json \u2192 build_from_spec without level module edits.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_17_from_json_cli.json"
+  },
+  {
+    "step": 18,
+    "name": "learn_18_register_scratch",
+    "title": "Registration probe target (learn_scratch pattern)",
+    "expected": "Automated: pdmap register --apply learn_scratch dry-run passes (probe_register_apply_e2e). Live stage registration requires make rebuild \u2014 manual smoke only.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_18_register_scratch.json"
+  },
+  {
+    "step": 19,
+    "name": "learn_19_hold_briefcase",
+    "title": "Hold the Briefcase (scenario 1)",
+    "expected": "Launch with --scenario-1. Pick up briefcase; green 30s countdown while holding; score on timer expiry. No CTF Case/CaseRespawn pads required.",
+    "scenario": 1,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_19_hold_briefcase.json"
+  },
+  {
+    "step": 20,
+    "name": "learn_20_overlap_pads",
+    "title": "Cross-type pad overlap (spawn + weapon + ammo)",
+    "expected": "Launch with --scenario-0. Marker seg (grey floor, no walls): bright green centre square (~5 m) marks the overlap point. Player spawns on that square with AR34 pickup and shotgun ammo crate at the same spot \u2014 look down at your feet; all three function (stock uff pattern).",
+    "scenario": 0,
+    "segMode": "marker",
+    "jsonPath": "journal/map_learn/maps/learn_20_overlap_pads.json"
+  },
+  {
+    "step": 21,
+    "name": "learn_21_hacker_central",
+    "title": "Hacker Central (scenario 2)",
+    "expected": "Launch with --scenario-2. Two multi-ammo crates feed the HTM bank; terminal (MODEL_GOODPC) stands upright on floor pads (up=+Y). Pick up Data Uplink, interact with terminal \u2014 download progress bar runs ~20s.",
+    "scenario": 2,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_21_hacker_central.json"
+  },
+  {
+    "step": 22,
+    "name": "learn_22_pop_a_cap",
+    "title": "Pop a Cap (scenario 3)",
+    "expected": "Launch with --scenario-3. Solo (--num-sims 0): you are always the victim \u2014 green 1:00 countdown at top center is the survival timer (+1 point each minute alive; not match start, kill limit, or time limit). Pop-a-cap scoring works with spawns only \u2014 no special pads.",
+    "scenario": 3,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_22_pop_a_cap.json"
+  },
+  {
+    "step": 23,
+    "name": "learn_23_bot_four_cap",
+    "title": "Bot count cap (stock 4 simulants)",
+    "expected": "Launch with --scenario-0 --num-sims 8. Only 4 bots spawn (stock MP cap without MPFEATURE_8BOTS). Bots pathfind without crash.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_23_bot_four_cap.json"
+  },
+  {
+    "step": 24,
+    "name": "learn_24_mpweapon_loadout",
+    "title": "MPWEAPON CLI loadout namespace",
+    "expected": "Launch with --scenario-0 --loadout 1,9,16,4,0,37. Starting weapons: Falcon2, CMP150, AR34, MagSec4, empty, Shield (MPWEAPON space \u2014 distinct from floor weaponnum 0x11 for AR34 props in learn_03_weapon).",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_24_mpweapon_loadout.json"
+  },
+  {
+    "step": 25,
+    "name": "learn_25_boot_stage",
+    "title": "Boot registered stage (my_arena)",
+    "expected": "Manual: build+deploy my_arena assets, then ./build/pd.arm64 --boot-stage STAGE_MY_ARENA --skip-intro --moddir mods/mod_allinone --scenario-5. Loads bg_my_arena.* (not uff test slot).",
+    "scenario": 5,
+    "segMode": "ctf",
+    "jsonPath": "journal/map_learn/maps/learn_25_boot_stage.json"
+  },
+  {
+    "step": 26,
+    "name": "learn_26_solo_ctf",
+    "title": "Solo human CTF (no simulants)",
+    "expected": "Launch with --scenario-5 --num-sims 0. Human-only: pick up case at -Z, return to +Z CaseRespawn; instant score without bots.",
+    "scenario": 5,
+    "segMode": "ctf",
+    "jsonPath": "journal/map_learn/maps/learn_26_solo_ctf.json"
+  },
+  {
+    "step": 27,
+    "name": "learn_27_multi_weapon",
+    "title": "Multiple floor weapons (weaponnum namespace)",
+    "expected": "Launch with --scenario-0. Three floor pickups at -X, center, +X each grant the correct weapon (weaponnum space \u2014 contrast learn_24 MPWEAPON loadout).",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_27_multi_weapon.json"
+  },
+  {
+    "step": 28,
+    "name": "learn_28_hill_collision",
+    "title": "Hill room-1 collision mirror (no fall-through)",
+    "expected": "Launch with --scenario-4. Walk the dark ring boundary around the green hill square at +Z \u2014 floor solid everywhere; no void fall-through at hill edge.",
+    "scenario": 4,
+    "segMode": "hill",
+    "jsonPath": "journal/map_learn/maps/learn_28_hill_collision.json"
+  },
+  {
+    "step": 29,
+    "name": "learn_29_custom_seg_script",
+    "title": "Custom SEG_SCRIPT seg generator",
+    "expected": "Build with level module SEG_SCRIPT (not procedural-only). Visible box seg from scripts/learn_29_seg_build.py; G_VTX loads \u226416; no relinkPtr crash. Walk to each coloured wall \u2014 solid perimeter collision (tiles), not seg geometry.",
+    "scenario": 0,
+    "segMode": "full",
+    "jsonPath": "journal/map_learn/maps/learn_29_custom_seg_script.json"
+  },
+  {
+    "step": 30,
+    "name": "learn_30_mod_hygiene",
+    "title": "Deploy hygiene / external asset load",
+    "expected": "Launch with --scenario-0. stderr/log shows bg_uff tiles/pads/seg/setup 'loaded externally' from mods/mod_allinone (not ROM embedded). Re-deploy after every edit \u2014 stale assets cause silent regressions.",
+    "scenario": 0,
+    "segMode": "empty",
+    "jsonPath": "journal/map_learn/maps/learn_30_mod_hygiene.json"
+  },
+  {
+    "step": 31,
+    "name": "learn_31_cover_points",
+    "title": "AI cover points (add_cover)",
+    "expected": "Launch with --scenario-0 --num-sims 2. Two cover points at X=\u00b1800; bright green floor squares (~5 m) with dark rings mark each cover pad (same style as step 20 centre marker). Bots spawn at \u00b1X=2000 and pathfind; cover behaviour is AI-only \u2014 markers are visual only.",
+    "scenario": 0,
+    "segMode": "marker",
+    "jsonPath": "journal/map_learn/maps/learn_31_cover_points.json"
+  }
+]
