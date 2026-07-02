@@ -73,9 +73,11 @@
 #include "data.h"
 #include "types.h"
 #include "system.h"
+#include "input.h"
 
 extern u8 *g_MempHeap;
 extern u32 g_MempHeapSize;
+extern u8 g_PaksPlugged;
 
 void rngSetSeed(u32 seed);
 
@@ -158,7 +160,7 @@ struct stageallocation g_StageAllocations8Mb[] = {
 	{ STAGE_TEST_UFF,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_MY_ARENA,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_TESTARENA,     "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
-	{ STAGE_ANIMLAB,       "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
+	{ STAGE_ANIMLAB,       "-ml0 -me0 -mgfx768 -mvtx512 -ma700"             },
 	{ STAGE_TEST_OLD,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_DUEL,          "-ml0 -me0 -mgfx120 -mvtx100 -ma700"            },
 	{ STAGE_TEST_LAM,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
@@ -244,6 +246,25 @@ Gfx var8005dcc8[] = {
 
 s32 g_MainIsBooting = 1;
 
+/** Mark rumble-ready gamepads without running the N64 controller-pak probe. */
+static void pakPortInitRumblePaks(void)
+{
+	s32 i;
+	u8 plugged = 0x10; /* EEPROM */
+
+	for (i = 0; i < MAX_PLAYERS; i++) {
+		if (inputRumbleSupported(i)) {
+			g_Paks[i].type = PAKTYPE_RUMBLE;
+			g_Paks[i].state = PAKSTATE_READY;
+			g_Paks[i].rumblestate = RUMBLESTATE_1;
+			plugged |= 1 << i;
+		}
+	}
+
+	g_PaksPlugged = plugged;
+	joyRecordPfsState(plugged);
+}
+
 void mainInit(void)
 {
 	s32 x;
@@ -297,6 +318,7 @@ void mainInit(void)
 	mpInit(true);
 	pheadInit();
 	paksInit();
+	pakPortInitRumblePaks();
 	pheadInit2();
 	animsInit();
 	racesInit();
@@ -528,6 +550,14 @@ void mainLoop(void)
 			g_MpSetup.stagenum = g_StageNum;
 			g_MpSetup.options = 0;
 			g_MpSetup.scenario = 0;
+			// --boot-stage skips title.c, which normally applies --scenario-N for
+			// --test-map (learn curriculum CTF/KOTH steps need scenario 5/4 here).
+			if (sysArgCheck("--scenario-0")) g_MpSetup.scenario = 0;
+			if (sysArgCheck("--scenario-1")) g_MpSetup.scenario = 1;
+			if (sysArgCheck("--scenario-2")) g_MpSetup.scenario = 2;
+			if (sysArgCheck("--scenario-3")) g_MpSetup.scenario = 3;
+			if (sysArgCheck("--scenario-4")) g_MpSetup.scenario = 4;
+			if (sysArgCheck("--scenario-5")) g_MpSetup.scenario = 5;
 			mpReset();
 		}
 

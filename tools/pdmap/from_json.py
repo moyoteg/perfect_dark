@@ -12,15 +12,20 @@ from dataclasses import dataclass
 from typing import Any
 
 from .builders import (
+    CENTER_MARKER_HALF,
     HILL_ROOM_INDEX,
     PAD_FLOOR_OFFSET,
     add_ammo_row,
     add_floor_weapons,
     add_loadout_intro,
+    cover_markers_from_mapdef,
     ctf_zones_from_mapdef,
     floor_box_tiles,
+    floor_box_with_center_marker,
+    floor_box_with_cover_markers,
     floor_box_with_ctf_zones,
     floor_box_with_hill_zone,
+    floor_box_with_walls,
     hill_zone_center_from_mapdef,
 )
 from .core import MapDef
@@ -28,6 +33,9 @@ from .intro import Case, CaseRespawn, Hill, Spawn
 from . import weapons as W
 
 _VALID_NAME = re.compile(r"^[a-z][a-z0-9_]{0,31}$")
+
+# Seg draw modes that show perimeter walls — collision must mirror them in tiles.
+_VISIBLE_WALL_SEG_MODES = frozenset({"full", "walls", "box", "debug", "rainbow"})
 
 # Editor weapon IDs → weapons.py constants (fallback to hex literal).
 _WEAPON_CONST: dict[int, str] = {
@@ -81,6 +89,11 @@ class EditorMapSpec:
     mapdef: MapDef
     # Pads whose Y was auto-corrected from at/below floor to spawn_y.
     y_corrected_pads: tuple[int, ...] = ()
+    # Optional green square at origin (overlap-pad lessons under empty seg).
+    center_marker: bool = False
+    center_marker_half: float = CENTER_MARKER_HALF
+    # Visible floor markers at AI cover positions (step 31).
+    cover_markers: bool = False
 
     @classmethod
     def from_json(
@@ -127,7 +140,15 @@ class EditorMapSpec:
             room = int(p.get("room", 1))
             kind = p.get("type", "other")
 
-            g.add_pad(index=i, x=x, y=y, z=z, room=room)
+            pad_kwargs: dict[str, float | int] = {"room": room}
+            if "dir" in p:
+                d = p["dir"]
+                pad_kwargs.update(dir_x=float(d[0]), dir_y=float(d[1]), dir_z=float(d[2]))
+            if "up" in p:
+                u = p["up"]
+                pad_kwargs.update(up_x=float(u[0]), up_y=float(u[1]), up_z=float(u[2]))
+
+            g.add_pad(index=i, x=x, y=y, z=z, **pad_kwargs)
 
             if kind == "spawn":
                 spawn_indices.append(i)
@@ -165,6 +186,13 @@ class EditorMapSpec:
 
         add_loadout_intro(g)
 
+        for cover in data.get("covers") or []:
+            g.add_cover(
+                x=float(cover.get("x", 0)),
+                z=float(cover.get("z", 0)),
+                y=float(cover.get("y", floor_y)),
+            )
+
         return cls(
             name=name,
             box_half=half,
@@ -172,9 +200,14 @@ class EditorMapSpec:
             spawn_y=floor_y,
             mapdef=g,
             y_corrected_pads=tuple(y_corrected),
+            center_marker=bool(data.get("center_marker", False)),
+            center_marker_half=float(
+                data.get("center_marker_half", CENTER_MARKER_HALF)
+            ),
+            cover_markers=bool(data.get("cover_markers", False)),
         )
 
-    def tiles_json(self) -> dict:
+    def tiles_json(self, *, seg_mode: str | None = None) -> dict:
         """Collision floor matching the box arena (hill / CTF zone tiles when anchored)."""
         center = hill_zone_center_from_mapdef(self.mapdef)
         if center is not None:
@@ -192,6 +225,30 @@ class EditorMapSpec:
                 half=self.box_half,
                 y=0.0,
                 zones=ctf_zones,
+            )
+        if self.center_marker:
+            return floor_box_with_center_marker(
+                self.name,
+                half=self.box_half,
+                y=0.0,
+                room_index=1,
+                marker_half=self.center_marker_half,
+            )
+        if self.cover_markers and self.mapdef.covers:
+            return floor_box_with_cover_markers(
+                self.name,
+                half=self.box_half,
+                y=0.0,
+                room_index=1,
+                markers=cover_markers_from_mapdef(self.mapdef),
+            )
+        if seg_mode in _VISIBLE_WALL_SEG_MODES:
+            return floor_box_with_walls(
+                self.name,
+                half=self.box_half,
+                height=self.box_height,
+                y=0.0,
+                room_index=1,
             )
         return floor_box_tiles(self.name, half=self.box_half, y=0.0, room_index=1)
 

@@ -161,7 +161,12 @@ extern s32 sysArgGetInt(const char *arg, s32 defval);
 
 void titleInitLegal(void)
 {
-	musicQueueStopAllEvent();
+	// PC port: titleInit() may call this from mainInit before sndInit(), so
+	// musicQueueStopAllEvent -> musicTickEvents would dereference null seq players.
+	if (!sysArgCheck("--test-map") && !sysArgCheck("--test-animlab")) {
+		musicQueueStopAllEvent();
+	}
+
 	var800624f4 = 1;
 	g_TitleTimer = 0;
 	g_TitleButtonPressed = false;

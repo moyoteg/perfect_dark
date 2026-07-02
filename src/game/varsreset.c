@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "constants.h"
 #include "game/prop.h"
+#include "game/bg.h"
 #include "bss.h"
 #include "lib/memp.h"
 #include "lib/vars.h"
@@ -14,7 +15,10 @@ void varsReset(void)
 	s32 i;
 
 	g_Vars.props = mempAlloc(ALIGN64(g_Vars.maxprops * sizeof(struct prop)), MEMPOOL_STAGE);
-	g_Vars.onscreenprops = mempAlloc(ALIGN64(200 * sizeof(void *)), MEMPOOL_STAGE);
+	// One pointer per prop plus NULL terminator — parade maps can exceed the old 200 cap.
+	g_Vars.onscreenprops = mempAlloc(ALIGN64((g_Vars.maxprops + 1) * sizeof(void *)), MEMPOOL_STAGE);
+	// Parallel room-id list for bgRenderScene / propsRender (same length as onscreenprops).
+	g_BgRoomNumsByProp = mempAlloc(ALIGN16((g_Vars.maxprops + 1) * sizeof(RoomNum)), MEMPOOL_STAGE);
 
 	g_AutoAimScale = 1;
 

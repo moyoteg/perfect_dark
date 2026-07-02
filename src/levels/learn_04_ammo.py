@@ -2,7 +2,6 @@
 
 from tools.pdmap.builders import (
     add_loadout_intro,
-    add_ammo_row,
     floor_box_tiles,
 )
 from tools.pdmap.core import MapDef
@@ -19,13 +18,10 @@ def build() -> MapDef:
 
     # --- Pads (indices MUST match array order 0..N-1) ---
     g.add_pad(index=0, x=0.0, y=10, z=0.0, room=1)  # spawn
-    g.add_pad(index=1, x=1500.0, y=10, z=0.0, room=1)  # ammo
+    g.add_pad(index=1, x=1500.0, y=10, z=0.0, room=1)  # other
 
     # --- Spawn intro commands ---
     g.add_intro(Spawn(pad=0))
-
-    # --- Ammo crates (floor props) ---
-    add_ammo_row(g, [1], ammotype=W.AMMOTYPE_RIFLE)
 
     add_loadout_intro(g)
     return g

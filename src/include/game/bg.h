@@ -17,6 +17,7 @@ Gfx *bgRenderRoomXrayPass(Gfx *gdl, s32 roomnum, struct roomblock *blocks, bool 
 Gfx *bgRenderRoomInXray(Gfx *gdl, s32 roomnum);
 Gfx *bgRenderSceneInXray(Gfx *gdl);
 Gfx *bgRenderScene(Gfx *gdl);
+extern RoomNum *g_BgRoomNumsByProp;
 Gfx *bgRenderArtifacts(Gfx *gdl);
 void bgLoadFile(void *memaddr, u32 offset, u32 len);
 s32 bgGetStageIndex(s32 stagenum);

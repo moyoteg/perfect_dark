@@ -241,6 +241,16 @@ void chrCalculatePushPos(struct chrdata *chr, struct coord *dstpos, RoomNum *dst
 		return;
 	}
 
+#ifndef PLATFORM_N64
+	/* Animation lab parade guards are pad-locked; skip push/collision fan-out
+	 * that can overflow roomGetProps(256) when many chr share overlapping rooms. */
+	if (g_Vars.stagenum == STAGE_ANIMLAB && prop->type != PROPTYPE_PLAYER) {
+		roomsCopy(prop->rooms, dstrooms);
+		chrSetPerimEnabled(chr, true);
+		return;
+	}
+#endif
+
 	chrGetBbox(prop, &radius, &ymax, &ymin);
 	halfradius = radius * 0.5f;
 	chrSetPerimEnabled(chr, false);
@@ -3618,7 +3628,8 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 							radius = 35;
 						}
 
-						if (chr->chrflags & CHRCFLAG_NOSHADOW) {
+						if (chr->chrflags & CHRCFLAG_NOSHADOW
+								|| g_Vars.stagenum == STAGE_ANIMLAB) {
 							shadowalpha = 0;
 						} else if (shademode == SHADEMODE_FRAC) {
 							shadowalpha = (1.0f - shadecolourfracs[3]) * ((alpha * 100) >> 8);
@@ -3630,11 +3641,16 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 							shadowalpha = shadowalpha * (400 - gaptoground) * 0.004f;
 						}
 
-						if (cheatIsActive(CHEAT_SMALLCHARACTERS)) {
-							radius *= 0.4f;
-						}
+						// CHRCFLAG_NOSHADOW must skip the draw entirely — gfxRenderRadialShadow
+						// always calls texSelect (tex pool); zero alpha still exhausts the pool
+						// when hundreds of chr render on the first frame (Animation Lab).
+						if (shadowalpha > 0) {
+							if (cheatIsActive(CHEAT_SMALLCHARACTERS)) {
+								radius *= 0.4f;
+							}
 
-						gdl = gfxRenderRadialShadow(gdl, prop->pos.x, chr->ground, prop->pos.z, chrGetInverseTheta(chr), radius, 0xffffff00 | shadowalpha);
+							gdl = gfxRenderRadialShadow(gdl, prop->pos.x, chr->ground, prop->pos.z, chrGetInverseTheta(chr), radius, 0xffffff00 | shadowalpha);
+						}
 					}
 				}
 			}

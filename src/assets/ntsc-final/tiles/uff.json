@@ -23,24 +23,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -2500,
+                        "x": -5000,
                         "y": 0,
-                        "z": -2500
+                        "z": -5000
                     },
                     {
-                        "x": -2500,
+                        "x": -5000,
                         "y": 0,
-                        "z": -980
+                        "z": -300
                     },
                     {
-                        "x": 2500,
+                        "x": 5000,
                         "y": 0,
-                        "z": -980
+                        "z": -300
                     },
                     {
-                        "x": 2500,
+                        "x": 5000,
                         "y": 0,
-                        "z": -2500
+                        "z": -5000
                     }
                 ]
             },
@@ -65,24 +65,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -2500,
+                        "x": -5000,
                         "y": 0,
-                        "z": -20
+                        "z": 300
                     },
                     {
-                        "x": -2500,
+                        "x": -5000,
                         "y": 0,
-                        "z": 20
+                        "z": 5000
                     },
                     {
-                        "x": 2500,
+                        "x": 5000,
                         "y": 0,
-                        "z": 20
+                        "z": 5000
                     },
                     {
-                        "x": 2500,
+                        "x": 5000,
                         "y": 0,
-                        "z": -20
+                        "z": 300
                     }
                 ]
             },
@@ -107,24 +107,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -2500,
+                        "x": -5000,
                         "y": 0,
-                        "z": 980
+                        "z": -300
                     },
                     {
-                        "x": -2500,
+                        "x": -5000,
                         "y": 0,
-                        "z": 2500
+                        "z": 300
                     },
                     {
-                        "x": 2500,
+                        "x": -1100,
                         "y": 0,
-                        "z": 2500
+                        "z": 300
                     },
                     {
-                        "x": 2500,
+                        "x": -1100,
                         "y": 0,
-                        "z": 980
+                        "z": -300
                     }
                 ]
             },
@@ -149,24 +149,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -2500,
+                        "x": -500,
                         "y": 0,
-                        "z": 20
+                        "z": -300
                     },
                     {
-                        "x": -2500,
+                        "x": -500,
                         "y": 0,
-                        "z": 980
+                        "z": 300
                     },
                     {
-                        "x": -480,
+                        "x": 500,
                         "y": 0,
-                        "z": 980
+                        "z": 300
                     },
                     {
-                        "x": -480,
+                        "x": 500,
                         "y": 0,
-                        "z": 20
+                        "z": -300
                     }
                 ]
             },
@@ -191,24 +191,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": 480,
+                        "x": 1100,
                         "y": 0,
-                        "z": 20
+                        "z": -300
                     },
                     {
-                        "x": 480,
+                        "x": 1100,
                         "y": 0,
-                        "z": 980
+                        "z": 300
                     },
                     {
-                        "x": 2500,
+                        "x": 5000,
                         "y": 0,
-                        "z": 980
+                        "z": 300
                     },
                     {
-                        "x": 2500,
+                        "x": 5000,
                         "y": 0,
-                        "z": 20
+                        "z": -300
                     }
                 ]
             },
@@ -233,24 +233,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -2500,
-                        "y": 0,
-                        "z": -980
+                        "x": -1100,
+                        "y": 2,
+                        "z": 250
                     },
                     {
-                        "x": -2500,
-                        "y": 0,
-                        "z": -20
+                        "x": -1100,
+                        "y": 2,
+                        "z": 300
                     },
                     {
-                        "x": -480,
-                        "y": 0,
-                        "z": -20
+                        "x": -500,
+                        "y": 2,
+                        "z": 300
                     },
                     {
-                        "x": -480,
-                        "y": 0,
-                        "z": -980
+                        "x": -500,
+                        "y": 2,
+                        "z": 250
                     }
                 ]
             },
@@ -275,234 +275,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": 480,
-                        "y": 0,
-                        "z": -980
+                        "x": -1100,
+                        "y": 2,
+                        "z": -300
                     },
                     {
-                        "x": 480,
-                        "y": 0,
-                        "z": -20
+                        "x": -1100,
+                        "y": 2,
+                        "z": -250
                     },
                     {
-                        "x": 2500,
-                        "y": 0,
-                        "z": -20
+                        "x": -500,
+                        "y": 2,
+                        "z": -250
                     },
                     {
-                        "x": 2500,
-                        "y": 0,
-                        "z": -980
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": -20
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": -20
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": -100
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": -980
-                    },
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": -900
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": -900
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": -980
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": -900
-                    },
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": -900
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": -900
-                    },
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": -900
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 3840,
-                "vertices": [
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": -900
-                    },
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": -100
-                    },
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": -900
+                        "x": -500,
+                        "y": 2,
+                        "z": -300
                     }
                 ]
             },
@@ -527,234 +317,24 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -400,
-                        "y": 0,
-                        "z": -900
+                        "x": -1100,
+                        "y": 2,
+                        "z": -250
                     },
                     {
-                        "x": -400,
-                        "y": 0,
-                        "z": -100
+                        "x": -1100,
+                        "y": 2,
+                        "z": 250
                     },
                     {
-                        "x": 400,
-                        "y": 0,
-                        "z": -100
+                        "x": -1050,
+                        "y": 2,
+                        "z": 250
                     },
                     {
-                        "x": 400,
-                        "y": 0,
-                        "z": -900
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": 980
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": 980
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": 900
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": 20
-                    },
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": 100
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": 100
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": 20
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": 100
-                    },
-                    {
-                        "x": -480,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": 100
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "default",
-                "floorcolour": 818,
-                "vertices": [
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": 100
-                    },
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": 480,
-                        "y": 0,
-                        "z": 100
-                    }
-                ]
-            },
-            {
-                "flag0001": true,
-                "flag0002": true,
-                "flag0004": false,
-                "flag0008": true,
-                "flag0010": true,
-                "flag0020": false,
-                "ladder": false,
-                "flag0080": false,
-                "flag0100": false,
-                "underwater": false,
-                "flag0400": false,
-                "aibotcrouch": false,
-                "aibotduck": false,
-                "flag2000": false,
-                "die": false,
-                "climbableledge": false,
-                "floortype": "carpet",
-                "floorcolour": 3840,
-                "vertices": [
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": 100
-                    },
-                    {
-                        "x": -400,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": 900
-                    },
-                    {
-                        "x": 400,
-                        "y": 0,
-                        "z": 100
+                        "x": -1050,
+                        "y": 2,
+                        "z": -250
                     }
                 ]
             },
@@ -779,24 +359,276 @@
                 "floorcolour": 4095,
                 "vertices": [
                     {
-                        "x": -400,
-                        "y": 0,
-                        "z": 100
+                        "x": -550,
+                        "y": 2,
+                        "z": -250
                     },
                     {
-                        "x": -400,
-                        "y": 0,
-                        "z": 900
+                        "x": -550,
+                        "y": 2,
+                        "z": 250
                     },
                     {
-                        "x": 400,
-                        "y": 0,
-                        "z": 900
+                        "x": -500,
+                        "y": 2,
+                        "z": 250
                     },
                     {
-                        "x": 400,
+                        "x": -500,
+                        "y": 2,
+                        "z": -250
+                    }
+                ]
+            },
+            {
+                "flag0001": true,
+                "flag0002": true,
+                "flag0004": false,
+                "flag0008": true,
+                "flag0010": true,
+                "flag0020": false,
+                "ladder": false,
+                "flag0080": false,
+                "flag0100": false,
+                "underwater": false,
+                "flag0400": false,
+                "aibotcrouch": false,
+                "aibotduck": false,
+                "flag2000": false,
+                "die": false,
+                "climbableledge": false,
+                "floortype": "default",
+                "floorcolour": 1709,
+                "vertices": [
+                    {
+                        "x": -1050,
                         "y": 0,
-                        "z": 100
+                        "z": -250
+                    },
+                    {
+                        "x": -1050,
+                        "y": 0,
+                        "z": 250
+                    },
+                    {
+                        "x": -550,
+                        "y": 0,
+                        "z": 250
+                    },
+                    {
+                        "x": -550,
+                        "y": 0,
+                        "z": -250
+                    }
+                ]
+            },
+            {
+                "flag0001": true,
+                "flag0002": true,
+                "flag0004": false,
+                "flag0008": true,
+                "flag0010": true,
+                "flag0020": false,
+                "ladder": false,
+                "flag0080": false,
+                "flag0100": false,
+                "underwater": false,
+                "flag0400": false,
+                "aibotcrouch": false,
+                "aibotduck": false,
+                "flag2000": false,
+                "die": false,
+                "climbableledge": false,
+                "floortype": "default",
+                "floorcolour": 4095,
+                "vertices": [
+                    {
+                        "x": 500,
+                        "y": 2,
+                        "z": 250
+                    },
+                    {
+                        "x": 500,
+                        "y": 2,
+                        "z": 300
+                    },
+                    {
+                        "x": 1100,
+                        "y": 2,
+                        "z": 300
+                    },
+                    {
+                        "x": 1100,
+                        "y": 2,
+                        "z": 250
+                    }
+                ]
+            },
+            {
+                "flag0001": true,
+                "flag0002": true,
+                "flag0004": false,
+                "flag0008": true,
+                "flag0010": true,
+                "flag0020": false,
+                "ladder": false,
+                "flag0080": false,
+                "flag0100": false,
+                "underwater": false,
+                "flag0400": false,
+                "aibotcrouch": false,
+                "aibotduck": false,
+                "flag2000": false,
+                "die": false,
+                "climbableledge": false,
+                "floortype": "default",
+                "floorcolour": 4095,
+                "vertices": [
+                    {
+                        "x": 500,
+                        "y": 2,
+                        "z": -300
+                    },
+                    {
+                        "x": 500,
+                        "y": 2,
+                        "z": -250
+                    },
+                    {
+                        "x": 1100,
+                        "y": 2,
+                        "z": -250
+                    },
+                    {
+                        "x": 1100,
+                        "y": 2,
+                        "z": -300
+                    }
+                ]
+            },
+            {
+                "flag0001": true,
+                "flag0002": true,
+                "flag0004": false,
+                "flag0008": true,
+                "flag0010": true,
+                "flag0020": false,
+                "ladder": false,
+                "flag0080": false,
+                "flag0100": false,
+                "underwater": false,
+                "flag0400": false,
+                "aibotcrouch": false,
+                "aibotduck": false,
+                "flag2000": false,
+                "die": false,
+                "climbableledge": false,
+                "floortype": "default",
+                "floorcolour": 4095,
+                "vertices": [
+                    {
+                        "x": 500,
+                        "y": 2,
+                        "z": -250
+                    },
+                    {
+                        "x": 500,
+                        "y": 2,
+                        "z": 250
+                    },
+                    {
+                        "x": 550,
+                        "y": 2,
+                        "z": 250
+                    },
+                    {
+                        "x": 550,
+                        "y": 2,
+                        "z": -250
+                    }
+                ]
+            },
+            {
+                "flag0001": true,
+                "flag0002": true,
+                "flag0004": false,
+                "flag0008": true,
+                "flag0010": true,
+                "flag0020": false,
+                "ladder": false,
+                "flag0080": false,
+                "flag0100": false,
+                "underwater": false,
+                "flag0400": false,
+                "aibotcrouch": false,
+                "aibotduck": false,
+                "flag2000": false,
+                "die": false,
+                "climbableledge": false,
+                "floortype": "default",
+                "floorcolour": 4095,
+                "vertices": [
+                    {
+                        "x": 1050,
+                        "y": 2,
+                        "z": -250
+                    },
+                    {
+                        "x": 1050,
+                        "y": 2,
+                        "z": 250
+                    },
+                    {
+                        "x": 1100,
+                        "y": 2,
+                        "z": 250
+                    },
+                    {
+                        "x": 1100,
+                        "y": 2,
+                        "z": -250
+                    }
+                ]
+            },
+            {
+                "flag0001": true,
+                "flag0002": true,
+                "flag0004": false,
+                "flag0008": true,
+                "flag0010": true,
+                "flag0020": false,
+                "ladder": false,
+                "flag0080": false,
+                "flag0100": false,
+                "underwater": false,
+                "flag0400": false,
+                "aibotcrouch": false,
+                "aibotduck": false,
+                "flag2000": false,
+                "die": false,
+                "climbableledge": false,
+                "floortype": "default",
+                "floorcolour": 1709,
+                "vertices": [
+                    {
+                        "x": 550,
+                        "y": 0,
+                        "z": -250
+                    },
+                    {
+                        "x": 550,
+                        "y": 0,
+                        "z": 250
+                    },
+                    {
+                        "x": 1050,
+                        "y": 0,
+                        "z": 250
+                    },
+                    {
+                        "x": 1050,
+                        "y": 0,
+                        "z": -250
                     }
                 ]
             }
