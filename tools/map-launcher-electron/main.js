@@ -186,6 +186,8 @@ const LEARN_ACTIONS = {
 
 /** @type {BrowserWindow | null} */
 let mainWindow = null;
+/** Focus requested before app.whenReady (second-instance race). */
+let pendingFocus = false;
 /** @type {string} */
 let repoRoot = '';
 /** @type {string} */
@@ -209,6 +211,28 @@ function normalizeRepoRoot(raw) {
   return raw.trim().replace(/\/Library\/MobileDocuments\//g, '/Library/Mobile Documents/');
 }
 
+/** repo-config.json is written by scripts/launch-map-launcher.sh (open(1) drops env vars). */
+function readBakedRepoRoot() {
+  const candidates = [
+    path.join(__dirname, 'repo-config.json'),
+    path.join(process.resourcesPath || '', 'repo-config.json'),
+    path.join(process.resourcesPath || '', 'repo_root.txt'),
+  ];
+  for (const cfgPath of candidates) {
+    try {
+      if (!fs.existsSync(cfgPath)) continue;
+      if (cfgPath.endsWith('.json')) {
+        const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+        return normalizeRepoRoot(cfg.repoRoot || '');
+      }
+      return normalizeRepoRoot(fs.readFileSync(cfgPath, 'utf8'));
+    } catch {
+      // try next
+    }
+  }
+  return '';
+}
+
 function discoverRepoRoot(startDir) {
   let candidate = path.resolve(startDir);
   for (let i = 0; i < 14; i += 1) {
@@ -225,6 +249,8 @@ function discoverRepoRoot(startDir) {
 function resolveRepoRoot() {
   const fromEnv = normalizeRepoRoot(process.env.PD_REPO_ROOT || '');
   if (fromEnv && fs.existsSync(fromEnv)) return fromEnv;
+  const baked = readBakedRepoRoot();
+  if (baked && fs.existsSync(baked)) return baked;
   const fromExe = discoverRepoRoot(path.dirname(app.getPath('exe')));
   if (fromExe) return fromExe;
   return discoverRepoRoot(__dirname) || discoverRepoRoot(process.cwd());
@@ -829,7 +855,6 @@ function createWindow() {
     height: 900,
     minWidth: 960,
     minHeight: 680,
-    show: false,
     title: APP_TITLE,
     icon: appIcon || undefined,
     backgroundColor: '#0b0d12',
@@ -845,7 +870,19 @@ function createWindow() {
     mainWindow.setTitle(APP_TITLE);
   });
   mainWindow.once('ready-to-show', () => {
+    log('Window ready-to-show');
     focusMainWindow();
+  });
+  // Fallback: some macOS/GPU paths never emit ready-to-show when show:false was used.
+  const showFallback = setTimeout(() => {
+    if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      log('WARNING: forcing window visible (ready-to-show fallback)');
+      focusMainWindow();
+    }
+  }, 2500);
+  mainWindow.once('show', () => clearTimeout(showFallback));
+  mainWindow.webContents.on('did-fail-load', (_event, code, description, url) => {
+    log(`ERROR: did-fail-load code=${code} url=${url} ${description}`);
   });
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -862,20 +899,34 @@ function focusMainWindow() {
   if (mainWindow.isMinimized()) {
     mainWindow.restore();
   }
+  if (!mainWindow.isVisible()) {
+    mainWindow.center();
+  }
   mainWindow.show();
   mainWindow.focus();
-  if (process.platform === 'darwin' && app.dock) {
-    app.dock.show();
+  if (process.platform === 'darwin') {
+    if (app.dock) {
+      app.dock.show();
+    }
+    app.focus({ steal: true });
   }
 }
 
-if (!bindSingleInstance(app, focusMainWindow)) {
+/** Defer focus until after app.whenReady (second-instance can arrive early). */
+function requestFocusMainWindow() {
+  if (!app.isReady()) {
+    pendingFocus = true;
+    return;
+  }
+  focusMainWindow();
+}
+
+if (!bindSingleInstance(app, requestFocusMainWindow)) {
   process.exit(0);
 }
 
 app.whenReady().then(() => {
   repoRoot = resolveRepoRoot();
-  applyAppIcon();
   logFile = path.join(
     app.getPath('home'),
     'Library',
@@ -883,14 +934,19 @@ app.whenReady().then(() => {
     'PerfectDarkKit',
     LOG_FILE_NAME
   );
+  applyAppIcon();
   if (!repoRoot) {
     log('WARNING: repo root not resolved — curriculum uses bundled manifest only');
   } else {
     log(`REPO_ROOT=${repoRoot}`);
   }
-  initLearnMapLaunchers();
   registerIpc();
   createWindow();
+  initLearnMapLaunchers();
+  if (pendingFocus) {
+    pendingFocus = false;
+    focusMainWindow();
+  }
 });
 
 app.on('activate', () => {
