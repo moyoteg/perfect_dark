@@ -62,9 +62,24 @@ open)
 	asset-upgrader | upgrader | textures)
 		kit_open_app "$PD_KIT_APP_ASSET_UPGRADER"
 		;;
+	play-last-test-map | replay | replay-test)
+		kit_open_app "Play Last Test Map.app"
+		;;
+	llm-play | llm)
+		if [[ -d "$PD_KIT_RELEASE_DIR/LLM Play.app" ]]; then
+			kit_open_app "LLM Play.app"
+		elif [[ -d "$PD_KIT_REPO_ROOT/LLM Play.app" ]]; then
+			open "$PD_KIT_REPO_ROOT/LLM Play.app"
+		elif [[ -d "$PD_KIT_REPO_ROOT/../llm-play/LLM Play.app" ]]; then
+			open "$PD_KIT_REPO_ROOT/../llm-play/LLM Play.app"
+		else
+			echo "LLM Play.app not built. Run: ./scripts/build-llm-play-electron.sh" >&2
+			exit 1
+		fi
+		;;
 	*)
 		echo "Unknown app: $app" >&2
-		echo "Choose: map-editor, anim-lab, asset-upgrader" >&2
+		echo "Choose: kit, map-editor, anim-lab, asset-upgrader, play-last-test-map, llm-play" >&2
 		exit 2
 		;;
 	esac

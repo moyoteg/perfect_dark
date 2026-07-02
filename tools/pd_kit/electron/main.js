@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * Perfect Dark Kit hub — wraps and launches Map Editor, Animation Lab,
- * Asset Upgrader, and the PC port from one entry-point .app.
+ * Perfect Dark Kit hub — launches every kit app, pipeline action, and doc
+ * from one entry-point .app (manifest: tools/pd_kit/kit.json).
  */
 
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
@@ -26,7 +26,8 @@ function requireKitPaths() {
 const kitPaths = requireKitPaths();
 const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instance.js');
 
-const APP_TITLE = kitPaths.loadManifest().name || 'Perfect Dark Kit';
+const kitManifest = kitPaths.loadManifest();
+const APP_TITLE = kitManifest.name || 'Perfect Dark Kit';
 const LOG_FILE = kitPaths.kitLogFile(app.getPath('home'), 'kitHub');
 const WRAPPED_APPS_DIR = 'Apps';
 const MANIFEST_NAME = 'kit-manifest.json';
@@ -108,7 +109,7 @@ function releaseDir() {
   return path.join(repoRoot, 'scripts', 'release');
 }
 
-function readManifest() {
+function readReleaseManifest() {
   const candidates = [
     path.join(process.resourcesPath || '', MANIFEST_NAME),
     path.join(releaseDir(), MANIFEST_NAME),
@@ -125,6 +126,12 @@ function readManifest() {
   return null;
 }
 
+function hubAppKeys() {
+  const apps = kitManifest.apps || {};
+  const wraps = apps.kitHub && Array.isArray(apps.kitHub.wraps) ? apps.kitHub.wraps : [];
+  return wraps.filter((key) => key !== 'kitHub' && apps[key]);
+}
+
 function appBundlePath(appKey) {
   const cfg = kitPaths.appConfig(appKey);
   const bundleName = cfg.bundleFileName;
@@ -133,6 +140,9 @@ function appBundlePath(appKey) {
     path.join(releaseDir(), bundleName),
     path.join(repoRoot, bundleName),
   ];
+  if (cfg.siblingPath) {
+    candidates.push(path.resolve(repoRoot, cfg.siblingPath));
+  }
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) {
       return candidate;
@@ -142,44 +152,92 @@ function appBundlePath(appKey) {
 }
 
 function toolCards() {
-  const manifest = readManifest();
-  const keys = ['mapEditor', 'animLab', 'assetUpgrader'];
-  return keys.map((key) => {
+  return hubAppKeys().map((key) => {
     const cfg = kitPaths.appConfig(key);
     const appPath = appBundlePath(key);
     const wrappedPath = path.join(wrappedAppsDir(), cfg.bundleFileName);
-    const manifestApp = manifest && manifest.apps ? manifest.apps[key] : null;
     return {
       key,
       title: cfg.productName,
       shortTitle: cfg.shortTitle || cfg.productName,
-      description: describeApp(key),
+      description: cfg.description || '',
+      category: cfg.category || 'authoring',
+      optional: Boolean(cfg.optional),
       built: Boolean(appPath),
       wrapped: fs.existsSync(wrappedPath),
       path: appPath,
+      buildScript: cfg.buildScript || null,
     };
   });
 }
 
-function describeApp(key) {
-  switch (key) {
-    case 'mapEditor':
-      return 'Design Combat Sim arenas, deploy assets, and Test/Play in one flow.';
-    case 'animLab':
-      return 'Browse the animation catalog and run the guard parade test map.';
-    case 'assetUpgrader':
-      return 'Batch-upgrade mod textures for the PC port loader.';
-    default:
-      return '';
+function actionGroups() {
+  const groups = kitManifest.actionGroups || [];
+  return groups.map((group) => ({
+    id: group.id,
+    title: group.title,
+    actions: (group.actions || []).map((action) => ({
+      key: action.key,
+      shortTitle: action.shortTitle,
+      description: action.description || '',
+      script: action.script,
+      args: action.args || [],
+      requiresGame: Boolean(action.requiresGame),
+      longRunning: Boolean(action.longRunning),
+    })),
+  }));
+}
+
+function docLinks() {
+  return (kitManifest.docs || []).map((doc) => ({
+    key: doc.key,
+    title: doc.title,
+    path: doc.path,
+    exists: fs.existsSync(path.join(repoRoot, doc.path)),
+  }));
+}
+
+function gameBinaryPath() {
+  const manifest = readReleaseManifest();
+  return manifest?.gameBinary?.path || path.join(repoRoot, 'build', 'pd.arm64');
+}
+
+function runScript(scriptRel, args, options) {
+  const scriptPath = path.join(repoRoot, scriptRel);
+  if (!fs.existsSync(scriptPath)) {
+    return Promise.resolve({ ok: false, error: `Script not found: ${scriptPath}` });
   }
+  return new Promise((resolve) => {
+    const child = spawn('/bin/bash', [scriptPath, ...(args || [])], {
+      cwd: repoRoot,
+      env: { ...process.env, PD_REPO_ROOT: repoRoot },
+      detached: Boolean(options && options.detached),
+      stdio: options && options.detached ? 'ignore' : ['ignore', 'pipe', 'pipe'],
+    });
+    if (options && options.detached) {
+      child.unref();
+      resolve({ ok: true, pid: child.pid, detached: true });
+      return;
+    }
+    let output = '';
+    child.stdout.on('data', (chunk) => {
+      output += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      output += String(chunk);
+    });
+    child.on('close', (code) => {
+      resolve({ ok: code === 0, code, output: output.slice(-4000) });
+    });
+  });
 }
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 980,
-    height: 720,
-    minWidth: 820,
-    minHeight: 620,
+    width: 1120,
+    height: 920,
+    minWidth: 900,
+    minHeight: 700,
     title: APP_TITLE,
     backgroundColor: '#0b0d12',
     webPreferences: {
@@ -194,8 +252,7 @@ function createWindow() {
 
 function registerIpc() {
   ipcMain.handle('kit:get-info', () => {
-    const manifest = readManifest();
-    const gamePath = manifest?.gameBinary?.path || path.join(repoRoot, 'build', 'pd.arm64');
+    const gamePath = gameBinaryPath();
     return {
       name: APP_TITLE,
       kitVersion: kitPaths.kitVersion(repoRoot),
@@ -208,14 +265,18 @@ function registerIpc() {
         built: fs.existsSync(gamePath),
       },
       tools: toolCards(),
-      manifestBuiltAt: manifest?.builtAt || null,
+      actionGroups: actionGroups(),
+      docs: docLinks(),
+      manifestBuiltAt: readReleaseManifest()?.builtAt || null,
     };
   });
 
   ipcMain.handle('kit:launch-app', async (_event, appKey) => {
     const appPath = appBundlePath(appKey);
     if (!appPath) {
-      return { ok: false, error: `App not built for ${appKey}. Run ./scripts/build-pd-kit.sh --apps-only` };
+      const cfg = kitPaths.appConfig(appKey);
+      const hint = cfg.buildScript ? ` Run: ./${cfg.buildScript}` : ' Run: ./scripts/build-pd-kit.sh --apps-only';
+      return { ok: false, error: `${cfg.shortTitle || appKey} is not built.${hint}` };
     }
     log(`Launch ${appKey}: ${appPath}`);
     await new Promise((resolve, reject) => {
@@ -227,11 +288,11 @@ function registerIpc() {
   ipcMain.handle('kit:launch-game', async (_event, options) => {
     const mod = (options && options.mod) || 'mod_allinone';
     const testMap = Boolean(options && options.testMap);
-    const binary = path.join(repoRoot, 'build', 'pd.arm64');
+    const binary = gameBinaryPath();
     if (!fs.existsSync(binary)) {
       return { ok: false, error: `Game binary missing: ${binary}` };
     }
-    const args = [`--moddir`, path.join(repoRoot, 'mods', mod)];
+    const args = ['--moddir', path.join(repoRoot, 'mods', mod)];
     if (testMap) args.push('--test-map');
     log(`Launch game: ${binary} ${args.join(' ')}`);
     const child = spawn(binary, args, {
@@ -243,6 +304,42 @@ function registerIpc() {
     return { ok: true, pid: child.pid, command: `${binary} ${args.join(' ')}` };
   });
 
+  ipcMain.handle('kit:run-action', async (_event, actionKey) => {
+    const groups = kitManifest.actionGroups || [];
+    let action = null;
+    for (const group of groups) {
+      action = (group.actions || []).find((entry) => entry.key === actionKey);
+      if (action) break;
+    }
+    if (!action) {
+      return { ok: false, error: `Unknown action: ${actionKey}` };
+    }
+    if (action.requiresGame && !fs.existsSync(gameBinaryPath())) {
+      return { ok: false, error: 'Game binary not built. Use Build Game first.' };
+    }
+    log(`Run action ${actionKey}: ${action.script} ${(action.args || []).join(' ')}`);
+    if (action.longRunning && actionKey !== 'buildApps' && actionKey !== 'buildFullKit') {
+      return runScript(action.script, action.args, { detached: true });
+    }
+    return runScript(action.script, action.args);
+  });
+
+  ipcMain.handle('kit:open-doc', async (_event, docKey) => {
+    const doc = (kitManifest.docs || []).find((entry) => entry.key === docKey);
+    if (!doc) {
+      return { ok: false, error: `Unknown doc: ${docKey}` };
+    }
+    const docPath = path.join(repoRoot, doc.path);
+    if (!fs.existsSync(docPath)) {
+      return { ok: false, error: `Doc not found: ${doc.path}` };
+    }
+    const err = await shell.openPath(docPath);
+    if (err) {
+      return { ok: false, error: err };
+    }
+    return { ok: true, path: docPath };
+  });
+
   ipcMain.handle('kit:reveal-path', async (_event, targetPath) => {
     if (!targetPath || !fs.existsSync(targetPath)) {
       return { ok: false, error: 'Path not found' };
@@ -252,26 +349,7 @@ function registerIpc() {
   });
 
   ipcMain.handle('kit:build-kit', async () => {
-    const script = path.join(repoRoot, 'scripts', 'build-pd-kit.sh');
-    if (!fs.existsSync(script)) {
-      return { ok: false, error: 'build-pd-kit.sh not found' };
-    }
-    return new Promise((resolve) => {
-      const child = spawn('/bin/bash', [script, '--apps-only'], {
-        cwd: repoRoot,
-        env: { ...process.env, PD_REPO_ROOT: repoRoot },
-      });
-      let output = '';
-      child.stdout.on('data', (chunk) => {
-        output += String(chunk);
-      });
-      child.stderr.on('data', (chunk) => {
-        output += String(chunk);
-      });
-      child.on('close', (code) => {
-        resolve({ ok: code === 0, code, output });
-      });
-    });
+    return runScript('scripts/build-pd-kit.sh', ['--skip-game', '--apps-only']);
   });
 }
 

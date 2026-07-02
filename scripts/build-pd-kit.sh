@@ -87,6 +87,22 @@ build_apps() {
 
 	echo "==> Building Asset Upgrader"
 	"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build --no-symlink
+
+	echo "==> Building Play Last Test Map"
+	"$SCRIPT_DIR/build-map-editor-app.sh"
+
+	echo "==> Building LLM Play (optional sibling project)"
+	if [[ -f "$SCRIPT_DIR/build-llm-play-electron.sh" ]]; then
+		if "$SCRIPT_DIR/build-llm-play-electron.sh" 2>/dev/null; then
+			echo "    LLM Play.app built"
+			local llm_src="$PD_KIT_REPO_ROOT/../llm-play/LLM Play.app"
+			if [[ -d "$llm_src" ]]; then
+				ln -sfn "$llm_src" "$PD_KIT_RELEASE_DIR/LLM Play.app"
+			fi
+		else
+			echo "    WARNING: LLM Play build skipped or failed (sibling llm-play project)" >&2
+		fi
+	fi
 }
 
 build_kit_hub() {

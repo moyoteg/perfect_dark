@@ -121,6 +121,23 @@ kit_symlink_app() {
 	fi
 }
 
+# Bundle file names listed in kitHub.wraps (for hub copy step).
+kit_json_wrap_bundles() {
+	python3 - "$PD_KIT_MANIFEST" <<'PY'
+import json, sys
+manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+apps = manifest.get("apps", {})
+wraps = apps.get("kitHub", {}).get("wraps", [])
+for key in wraps:
+    cfg = apps.get(key)
+    if not cfg:
+        continue
+    bundle = cfg.get("bundleFileName")
+    if bundle:
+        print(bundle)
+PY
+}
+
 # Remove superseded .app bundles and repo-root symlinks from older naming schemes.
 kit_prune_legacy_app_bundles() {
 	local legacy=(

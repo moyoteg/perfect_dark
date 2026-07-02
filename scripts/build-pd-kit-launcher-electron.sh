@@ -25,11 +25,10 @@ WRAPPED_DIR_NAME="Apps"
 SYMLINK_AT_ROOT=1
 DEV_ONLY=0
 
-CHILD_APPS=(
-	"$PD_KIT_APP_MAP_EDITOR"
-	"$PD_KIT_APP_ANIM_LAB"
-	"$PD_KIT_APP_ASSET_UPGRADER"
-)
+CHILD_APPS=()
+while IFS= read -r bundle; do
+	[[ -n "$bundle" ]] && CHILD_APPS+=("$bundle")
+done < <(kit_json_wrap_bundles)
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in

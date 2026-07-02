@@ -27,7 +27,7 @@ body {
 }
 
 .shell {
-  max-width: 920px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 28px 24px 20px;
 }
@@ -113,8 +113,76 @@ button.ghost {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
+}
+
+.grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section.nested {
+  margin-bottom: 18px;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.section-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.doc-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.doc-link {
+  text-align: left;
+}
+
+.card.compact-card {
+  min-height: 160px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.output {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  max-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.output.hidden {
+  display: none;
 }
 
 .card {

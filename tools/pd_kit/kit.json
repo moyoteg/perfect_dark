@@ -11,7 +11,13 @@
       "logFile": "kit-hub.log",
       "legacySupportDir": null,
       "legacyLogFile": null,
-      "wraps": ["mapEditor", "animLab", "assetUpgrader"]
+      "wraps": [
+        "mapEditor",
+        "animLab",
+        "assetUpgrader",
+        "playLastTestMap",
+        "llmPlay"
+      ]
     },
     "mapEditor": {
       "id": "map-editor",
@@ -19,6 +25,8 @@
       "shortTitle": "Map Editor",
       "bundleFileName": "PD Map Editor.app",
       "logFile": "map-editor.log",
+      "description": "Design Combat Sim arenas, deploy assets, and Test/Play in one flow.",
+      "category": "authoring",
       "legacySupportDir": "PerfectDarkMapEditor",
       "legacyLogFile": "PerfectDarkMapEditor.log"
     },
@@ -28,6 +36,8 @@
       "shortTitle": "Anim Lab",
       "bundleFileName": "PD Anim Lab.app",
       "logFile": "anim-lab.log",
+      "description": "Browse the animation catalog and run the guard parade test map.",
+      "category": "authoring",
       "legacySupportDir": "PerfectDarkAnimLab",
       "legacyLogFile": "PerfectDarkAnimLab.log"
     },
@@ -37,10 +47,215 @@
       "shortTitle": "Asset Upgrader",
       "bundleFileName": "PD Asset Upgrader.app",
       "logFile": "asset-upgrader.log",
+      "description": "Batch-upgrade mod textures for the PC port loader.",
+      "category": "authoring",
       "legacySupportDir": null,
       "legacyLogFile": null
+    },
+    "playLastTestMap": {
+      "id": "play-last-test-map",
+      "productName": "Play Last Test Map",
+      "shortTitle": "Replay Test",
+      "bundleFileName": "Play Last Test Map.app",
+      "logFile": "play-last-test-map.log",
+      "description": "Re-run the last editor Test/Play launch without reopening the map editor.",
+      "category": "companion",
+      "optional": true,
+      "buildScript": "scripts/build-map-editor-app.sh"
+    },
+    "llmPlay": {
+      "id": "llm-play",
+      "productName": "LLM Play",
+      "shortTitle": "LLM Play",
+      "bundleFileName": "LLM Play.app",
+      "logFile": "llm-play.log",
+      "description": "AI-driven play adapter and orchestration UI (sibling llm-play project).",
+      "category": "companion",
+      "optional": true,
+      "siblingPath": "../llm-play/LLM Play.app",
+      "buildScript": "scripts/build-llm-play-electron.sh"
     }
   },
+  "actionGroups": [
+    {
+      "id": "build",
+      "title": "Build",
+      "actions": [
+        {
+          "key": "buildApps",
+          "shortTitle": "Build Apps",
+          "description": "Rebuild all Electron kit apps and refresh the hub wrapper.",
+          "script": "scripts/build-pd-kit.sh",
+          "args": ["--skip-game", "--apps-only"],
+          "longRunning": true
+        },
+        {
+          "key": "buildGame",
+          "shortTitle": "Build Game",
+          "description": "Compile the PC port binary (build/pd.arm64).",
+          "script": "scripts/build-pd-kit.sh",
+          "args": ["--game-only"],
+          "longRunning": true
+        },
+        {
+          "key": "buildFullKit",
+          "shortTitle": "Build Full Kit",
+          "description": "Build game binary plus all apps and the hub manifest.",
+          "script": "scripts/build-pd-kit.sh",
+          "args": ["--skip-game"],
+          "longRunning": true
+        }
+      ]
+    },
+    {
+      "id": "validate",
+      "title": "Validate & Learn",
+      "actions": [
+        {
+          "key": "validateMaps",
+          "shortTitle": "Validate Maps",
+          "description": "Run pdmap validate on my_arena and testarena.",
+          "script": "scripts/pd-kit.sh",
+          "args": ["validate"]
+        },
+        {
+          "key": "validateNext",
+          "shortTitle": "Validate Next Step",
+          "description": "Advance the curriculum validation launcher and play the next map.",
+          "script": "scripts/validate-maps.sh",
+          "args": ["next"],
+          "requiresGame": true
+        },
+        {
+          "key": "validateStatus",
+          "shortTitle": "Validation Status",
+          "description": "Show current curriculum validation step and checklist.",
+          "script": "scripts/validate-maps.sh",
+          "args": ["status"]
+        },
+        {
+          "key": "playLearnStep",
+          "shortTitle": "Play Learn Step",
+          "description": "Deploy and launch the current map-learn curriculum step.",
+          "script": "scripts/play-learn-step.sh",
+          "args": [],
+          "requiresGame": true
+        }
+      ]
+    },
+    {
+      "id": "scenarios",
+      "title": "Scenarios & Launch",
+      "actions": [
+        {
+          "key": "launchAioMod",
+          "shortTitle": "Launch AIO Mod",
+          "description": "Launch with the full all-in-one mod stack (legacy multi-mod flags).",
+          "script": "scripts/launch-perfect-dark-aio.sh",
+          "args": [],
+          "requiresGame": true
+        },
+        {
+          "key": "matrixBattle",
+          "shortTitle": "Matrix Battle",
+          "description": "Deploy matrix_battle_64 to the uff slot and launch team combat.",
+          "script": "scripts/play-matrix-battle.sh",
+          "args": [],
+          "requiresGame": true
+        },
+        {
+          "key": "resetUffTestMap",
+          "shortTitle": "Reset UFF Test Map",
+          "description": "Purge and rebuild the empty-seg Matrix Test Room in the uff slot.",
+          "script": "scripts/reset-uff-test-map.sh",
+          "args": []
+        },
+        {
+          "key": "rebuildMapEditor",
+          "shortTitle": "Rebuild Map Editor",
+          "description": "Kill stale editor server, rebuild PD Map Editor.app, and reopen.",
+          "script": "scripts/rebuild-relaunch-map-editor.sh",
+          "args": [],
+          "longRunning": true
+        },
+        {
+          "key": "rebuildLlmPlay",
+          "shortTitle": "Rebuild LLM Play",
+          "description": "Rebuild and relaunch the sibling LLM Play.app project.",
+          "script": "scripts/rebuild-relaunch-llm-play.sh",
+          "args": [],
+          "longRunning": true
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "title": "Setup & Utilities",
+      "actions": [
+        {
+          "key": "linkRom",
+          "shortTitle": "Link ROM",
+          "description": "Symlink pd.ntsc-final.z64 into data/ (BYO ROM required).",
+          "script": "scripts/link-rom.sh",
+          "args": []
+        },
+        {
+          "key": "setupAssetUpgrader",
+          "shortTitle": "Setup Upgrader",
+          "description": "Create the asset upgrader Python venv and install dependencies.",
+          "script": "scripts/setup-asset-upgrader.sh",
+          "args": []
+        },
+        {
+          "key": "runAssetUpgrader",
+          "shortTitle": "Run Upgrader CLI",
+          "description": "Batch-upgrade textures for all mods via the CLI pipeline.",
+          "script": "scripts/run-asset-upgrader.sh",
+          "args": ["mods"],
+          "longRunning": true
+        },
+        {
+          "key": "setupOllama",
+          "shortTitle": "Setup Ollama",
+          "description": "Point Ollama model storage at an external drive (for LLM Play).",
+          "script": "scripts/ensure-ollama-external-drive.sh",
+          "args": []
+        }
+      ]
+    }
+  ],
+  "docs": [
+    {
+      "key": "kitReadme",
+      "title": "Kit Guide",
+      "path": "PERFECT_DARK_KIT.md"
+    },
+    {
+      "key": "mapWiki",
+      "title": "Map Making Wiki",
+      "path": "docs/MAP_MAKING_WIKI.md"
+    },
+    {
+      "key": "mapSpec",
+      "title": "Deterministic Spec",
+      "path": "docs/MAP_DETERMINISTIC_SPEC.md"
+    },
+    {
+      "key": "animations",
+      "title": "Character Animations",
+      "path": "docs/CHARACTER_ANIMATIONS.md"
+    },
+    {
+      "key": "assetUpgraderReadme",
+      "title": "Asset Upgrader",
+      "path": "tools/asset_upgrader/README.md"
+    },
+    {
+      "key": "learnCurriculum",
+      "title": "Map Learn Curriculum",
+      "path": "journal/map_learn/CURRICULUM.md"
+    }
+  ],
   "release": {
     "manifestFile": "kit-manifest.json"
   }
