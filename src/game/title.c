@@ -157,54 +157,60 @@ void titleSetLight(Lights1 *light, u8 r, u8 g, u8 b, f32 luminosity, struct coor
 }
 
 extern s32 sysArgCheck(const char *arg);
+#ifndef PLATFORM_N64
+#include "bootmp.h"
+#include "game/mplayer/mplayer.h"
+#endif
 
 void titleInitLegal(void)
 {
-	musicQueueStopAllEvent();
+	// PC port: titleInit() may call this from mainInit before sndInit(), so
+	// musicQueueStopAllEvent -> musicTickEvents would dereference null seq players.
+#ifndef PLATFORM_N64
+	if (!sysArgCheck("--test-map") && !sysArgCheck("--test-animlab")
+			&& !bootMpShouldApplyBootStageQuickStart(mainGetStageNum())) {
+		musicQueueStopAllEvent();
+	}
+#else
+	if (!sysArgCheck("--test-map") && !sysArgCheck("--test-animlab")) {
+		musicQueueStopAllEvent();
+	}
+#endif
+
 	var800624f4 = 1;
 	g_TitleTimer = 0;
 	g_TitleButtonPressed = false;
 	g_TitleFastForward = false;
 
-	if (sysArgCheck("--test-map")) {
+#ifndef PLATFORM_N64
+	if (sysArgCheck("--test-map") || sysArgCheck("--test-animlab")
+			|| bootMpShouldApplyBootStageQuickStart(mainGetStageNum())) {
+#else
+	if (sysArgCheck("--test-map") || sysArgCheck("--test-animlab")) {
+#endif
 		// FAST BOOT HACK: Boot into MP match instantly with bots and weapons.
-		//
-		// IMPORTANT: only claim the human player slot here (bit 0). The 8 simulant
-		// slots are populated by the quick-team system below (mpStartMatch ->
-		// mpConfigureQuickTeamSimulants), which calls mpGetSlotForNewBot() to find
-		// the first FREE bot slot and mpCreateBotFromProfile() to fill in its
-		// config. If we pre-set the simulant chrslot bits (e.g. 0x0ff0) here, every
-		// bot slot looks "occupied", so mpGetSlotForNewBot() keeps returning the
-		// capped fallback slot (7) and all 8 creations overwrite the same config
-		// while slots 0-6 stay configless -> no bots actually spawn (chr=0).
-		g_MpSetup.chrslots = 0x01; // Player 1 only; simulants added via quick-team
-		g_MpSetup.stagenum = STAGE_TEST_UFF;
-		g_MpSetup.options = 0;
-		g_MpSetup.scenario = 0;
-		
-		if (sysArgCheck("--scenario-0")) g_MpSetup.scenario = 0;
-		if (sysArgCheck("--scenario-1")) g_MpSetup.scenario = 1;
-		if (sysArgCheck("--scenario-2")) g_MpSetup.scenario = 2;
-		if (sysArgCheck("--scenario-3")) g_MpSetup.scenario = 3;
-		if (sysArgCheck("--scenario-4")) g_MpSetup.scenario = 4;
-		if (sysArgCheck("--scenario-5")) g_MpSetup.scenario = 5;
-		
-		// Default weapons
-		g_MpSetup.weapons[0] = MPWEAPON_FALCON2;
-		g_MpSetup.weapons[1] = MPWEAPON_CMP150;
-		g_MpSetup.weapons[2] = MPWEAPON_AR34;
-		g_MpSetup.weapons[3] = MPWEAPON_MAGSEC4;
-		g_MpSetup.weapons[4] = MPWEAPON_NONE;
-		g_MpSetup.weapons[5] = MPWEAPON_SHIELD;
+		s32 teststagenum;
 
-		// Simulants (use quick-team system so bots actually get created)
-		g_Vars.mpquickteam = MPQUICKTEAM_PLAYERSANDSIMS;
-		g_Vars.mpquickteamnumsims = 8;
-		g_Vars.mpsimdifficulty = BOTDIFF_NORMAL;
+		if (sysArgCheck("--test-animlab")) {
+			teststagenum = STAGE_ANIMLAB;
+		} else if (sysArgCheck("--test-map")) {
+			teststagenum = STAGE_TEST_UFF;
+		} else {
+			teststagenum = mainGetStageNum();
+		}
+
+#ifndef PLATFORM_N64
+		bootMpApplyQuickStartSetup(teststagenum);
+#endif
 
 		setNumPlayers(1);
 		mpStartMatch();
-		mainChangeToStage(STAGE_TEST_UFF);
+#ifndef PLATFORM_N64
+		if (sysArgCheck("--teams-battle")) {
+			mpApplyTeamsBattleSplit();
+		}
+#endif
+		mainChangeToStage(teststagenum);
 		return;
 	}
 	
