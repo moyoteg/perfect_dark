@@ -184,6 +184,59 @@ void kohInit(void)
 	}
 }
 
+bool kohPropInHill(struct prop *prop)
+{
+	f32 dx;
+	f32 dz;
+
+	if (prop == NULL || g_ScenarioData.koh.hillindex == -1) {
+		return false;
+	}
+
+	// pdmap box arenas keep players in seg room 1; hill pads/tiles use room 2.
+	if (STAGE_IS_PDMAP_BOX_ARENA(g_Vars.stagenum)) {
+		dx = prop->pos.x - g_ScenarioData.koh.hillpos.x;
+		dz = prop->pos.z - g_ScenarioData.koh.hillpos.z;
+
+		if (dx < 0.0f) {
+			dx = -dx;
+		}
+
+		if (dz < 0.0f) {
+			dz = -dz;
+		}
+
+		return dx <= PDMAP_KOTH_HILL_HALF && dz <= PDMAP_KOTH_HILL_HALF;
+	}
+
+	return prop->rooms[0] == g_ScenarioData.koh.hillrooms[0];
+}
+
+/**
+ * Chr must be alive and fully spawned to contest hill occupancy.
+ * Dying-but-not-ACT_DIE bots otherwise keep dual occupancy paused.
+ */
+static bool kohChrEligibleForHill(struct chrdata *chr)
+{
+	if (!chr || !chr->prop) {
+		return false;
+	}
+
+	if (chrIsDead(chr)) {
+		return false;
+	}
+
+	if (chr->aibot && chr->aibot->respawning) {
+		return false;
+	}
+
+	if (chr->maxdamage > 0.0f && chr->damage >= chr->maxdamage) {
+		return false;
+	}
+
+	return true;
+}
+
 void kohInitProps(void)
 {
 	s16 pad_id = 0;
@@ -192,10 +245,12 @@ void kohInitProps(void)
 	if (g_ScenarioData.koh.hillcount > 1) {
 		g_ScenarioData.koh.hillindex = rngRandom() % g_ScenarioData.koh.hillcount;
 		pad_id = g_ScenarioData.koh.hillpads[g_ScenarioData.koh.hillindex];
-	} else {
-		// @bug: If a stage setup file only has one hill, pad_id is not assigned
-		// so it will always use the room that contains pad zero.
+	} else if (g_ScenarioData.koh.hillcount == 1) {
 		g_ScenarioData.koh.hillindex = 0;
+		pad_id = g_ScenarioData.koh.hillpads[0];
+	} else {
+		g_ScenarioData.koh.hillindex = -1;
+		return;
 	}
 
 	padUnpack(pad_id, PADFIELD_POS | PADFIELD_ROOM, &pad);
@@ -284,6 +339,9 @@ void kohTick(void)
 				} while (g_ScenarioData.koh.hillindex == previndex);
 
 				padnum = g_ScenarioData.koh.hillpads[g_ScenarioData.koh.hillindex];
+			} else if (g_ScenarioData.koh.hillcount == 1) {
+				g_ScenarioData.koh.hillindex = 0;
+				padnum = g_ScenarioData.koh.hillpads[0];
 			} else {
 				g_ScenarioData.koh.hillindex = 0;
 			}
@@ -303,33 +361,21 @@ void kohTick(void)
 
 			g_ScenarioData.koh.occupiedteam = -1;
 			g_ScenarioData.koh.elapsed240 = 0;
+			g_ScenarioData.koh.unk00 = 0;
 			g_ScenarioData.koh.movehill = false;
 		}
 	} else {
 		// The hill is not moving on this frame
-		// Build an array of chr props who are in the hill
+		// Build an array of chr props who are in the hill (MP roster, not activeprops).
 		numchrsinhill = 0;
-		prop = g_Vars.activeprops;
 
-		while (prop) {
-			if (prop->type == PROPTYPE_PLAYER || prop->type == PROPTYPE_CHR) {
-				inhill = false;
+		for (playernum1 = 0; playernum1 < g_MpNumChrs; playernum1++) {
+			chr = g_MpAllChrPtrs[playernum1];
 
-				if (prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
-					inhill = true;
-				}
-
-				if (inhill) {
-					chr = prop->chr;
-
-					if (!chrIsDead(chr)) {
-						chrsinhill[numchrsinhill] = prop;
-						numchrsinhill++;
-					}
-				}
+			if (kohChrEligibleForHill(chr) && kohPropInHill(chr->prop)) {
+				chrsinhill[numchrsinhill] = chr->prop;
+				numchrsinhill++;
 			}
-
-			prop = prop->next;
 		}
 
 		// Use the chrshillhill array to build an array of all teams who have
@@ -353,6 +399,7 @@ void kohTick(void)
 		if (numteamsinhill == 0) {
 			g_ScenarioData.koh.occupiedteam = -1;
 			g_ScenarioData.koh.elapsed240 = 0;
+			g_ScenarioData.koh.unk00 = 0;
 		} else {
 			if (numteamsinhill == 1) {
 				// Set hillteam for later
@@ -412,7 +459,13 @@ void kohTick(void)
 			// At this point we know there is a team in the hill on this frame.
 			// So if these don't match then the hill is turning into a team
 			// colour rather than going green.
-			if (hillteam != g_ScenarioData.koh.occupiedteam) {
+			// After a vacant hill (unk00 == 0), always re-capture so
+			// elapsed240 restarts even if occupiedteam was not cleared.
+			if (hillteam != g_ScenarioData.koh.occupiedteam
+					|| (numteamsinhill == 1
+						&& numchrsinhill > 0
+						&& g_ScenarioData.koh.unk00 == 0
+						&& hillteam < MAX_TEAMS)) {
 				sndStart(var80095200, SFX_MP_HILLENTERED, 0, -1, -1, -1, -1, -1);
 
 				g_ScenarioData.koh.occupiedteam = hillteam;
@@ -468,7 +521,7 @@ void kohTick(void)
 							if (radarGetTeamIndex(g_MpAllChrPtrs[playernum2]->team) == g_ScenarioData.koh.occupiedteam) {
 								prop = g_MpAllChrPtrs[playernum2]->prop;
 
-								if (prop->rooms[0] == g_ScenarioData.koh.hillrooms[0]) {
+								if (kohPropInHill(prop)) {
 									g_MpAllChrConfigPtrs[playernum2]->numpoints++;
 								}
 							}
@@ -502,6 +555,8 @@ void kohTick(void)
 				}
 			}
 		}
+
+		g_ScenarioData.koh.unk00 = numchrsinhill;
 
 		// Calculate what colour the hill should tween towards
 		if (g_ScenarioData.koh.occupiedteam == -1) {
