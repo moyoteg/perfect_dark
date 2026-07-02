@@ -37,8 +37,9 @@ def mkword(a: int, b: int) -> int:
 
 class Pad:
     def __init__(self, index: int, x: float, y: float, z: float,
-                 dir_x: float = 0.0, dir_y: float = 1.0, dir_z: float = 0.0,
-                 up_x: float = 0.0, up_y: float = 0.0, up_z: float = -1.0,
+                 # Floor pads: look horizontal (+Z default), up = +Y (matches retail MP maps).
+                 dir_x: float = 0.0, dir_y: float = 0.0, dir_z: float = 1.0,
+                 up_x: float = 0.0, up_y: float = 1.0, up_z: float = 0.0,
                  room: int = 0, liftnum: int = 0,
                  xmin: float = -100.0, xmax: float = 100.0,
                  ymin: float = -100.0, ymax: float = 100.0,

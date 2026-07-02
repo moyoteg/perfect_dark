@@ -1,0 +1,39 @@
+{
+  "box_half": 5000,
+  "box_height": 3000,
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": -2000,
+      "y": 10,
+      "z": -2000,
+      "room": 1
+    },
+    {
+      "index": 1,
+      "type": "spawn",
+      "x": 2000,
+      "y": 10,
+      "z": -2000,
+      "room": 1
+    },
+    {
+      "index": 2,
+      "type": "spawn",
+      "x": -2000,
+      "y": 10,
+      "z": 2000,
+      "room": 1
+    },
+    {
+      "index": 3,
+      "type": "spawn",
+      "x": 2000,
+      "y": 10,
+      "z": 2000,
+      "room": 1
+    }
+  ],
+  "name": "learn_23_bot_four_cap"
+}

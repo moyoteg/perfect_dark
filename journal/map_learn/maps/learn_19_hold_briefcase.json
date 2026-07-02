@@ -1,0 +1,23 @@
+{
+  "box_half": 2500,
+  "box_height": 2000,
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    },
+    {
+      "index": 1,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    }
+  ],
+  "name": "learn_19_hold_briefcase"
+}

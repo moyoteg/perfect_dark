@@ -1,0 +1,35 @@
+{
+  "box_half": 2500,
+  "box_height": 2000,
+  "center_marker": true,
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    },
+    {
+      "index": 1,
+      "type": "weapon",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1,
+      "weapon": 17
+    },
+    {
+      "index": 2,
+      "type": "ammo",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1,
+      "ammoType": 4,
+      "quantity": 200
+    }
+  ],
+  "name": "learn_20_overlap_pads"
+}

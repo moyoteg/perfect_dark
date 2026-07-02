@@ -1,0 +1,35 @@
+{
+  "box_half": 2500,
+  "box_height": 2000,
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    },
+    {
+      "index": 1,
+      "type": "scenario",
+      "x": 0,
+      "y": 10,
+      "z": -500,
+      "room": 1,
+      "scenario": "case",
+      "team": 0
+    },
+    {
+      "index": 2,
+      "type": "scenario",
+      "x": 0,
+      "y": 10,
+      "z": 500,
+      "room": 1,
+      "scenario": "case_respawn",
+      "team": 0
+    }
+  ],
+  "name": "learn_08_ctf_case"
+}

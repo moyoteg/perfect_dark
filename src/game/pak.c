@@ -1640,7 +1640,12 @@ void paksInit(void)
 	gamefileApplyOptions(&g_GameFile);
 
 	g_GameFileGuid.deviceserial = 0;
+#ifndef PLATFORM_N64
+	// PC port uses eeprom.bin only; no hardware controller paks to probe.
+	g_Vars.pakstocheck = 0;
+#else
 	g_Vars.pakstocheck = 0xf5;
+#endif
 	g_Vars.paksneededformenu = prevvalue;
 #else
 	s8 i;

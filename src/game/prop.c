@@ -25,6 +25,7 @@
 #include "game/training.h"
 #include "game/pad.h"
 #include "game/propobj.h"
+#include "game/gfxmemory.h"
 #include "game/splat.h"
 #include "game/wallhit.h"
 #include "game/mpstats.h"
@@ -66,14 +67,15 @@ void propsSort(void)
 	f32 depth;
 	s32 i;
 	s32 j;
-	f32 depths[201];
+	const s32 maxonscreen = g_Vars.maxprops;
 
 	// Populate onscreenprops with the list of props
 	while (prop != g_Vars.pausedprops) {
 		if ((prop->flags & (PROPFLAG_ONTHISSCREENTHISTICK | PROPFLAG_ENABLED)) == (PROPFLAG_ONTHISSCREENTHISTICK | PROPFLAG_ENABLED)) {
-			depths[count] = prop->z;
-			g_Vars.onscreenprops[count] = prop;
-			count++;
+			if (count < maxonscreen) {
+				g_Vars.onscreenprops[count] = prop;
+				count++;
+			}
 		}
 
 		prop = prop->next;
@@ -83,27 +85,22 @@ void propsSort(void)
 	g_Vars.onscreenprops[count] = NULL;
 	g_Vars.endonscreenprops = &g_Vars.onscreenprops[count];
 
-	// Sort the onscreenprops list
+	// Sort the onscreenprops list (by prop->z — no fixed-size stack buffer)
 	for (i = 0; i < count; i++) {
 		swapindex = -1;
 		depth = -4294967296;
 
 		for (j = i; j < count; j++) {
-			if (depths[j] > depth) {
-				depth = depths[j];
+			if (g_Vars.onscreenprops[j]->z > depth) {
+				depth = g_Vars.onscreenprops[j]->z;
 				swapindex = j;
 			}
 		}
 
 		if (swapindex >= 0) {
 			prop = g_Vars.onscreenprops[i];
-			depth = depths[i];
-
 			g_Vars.onscreenprops[i] = g_Vars.onscreenprops[swapindex];
-			depths[i] = depths[swapindex];
-
 			g_Vars.onscreenprops[swapindex] = prop;
-			depths[swapindex] = depth;
 		}
 	}
 }
@@ -396,6 +393,9 @@ Gfx *propsRender(Gfx *gdl, RoomNum renderroomnum, s32 renderpass, RoomNum *roomn
 	struct prop **ptr;
 	struct prop *prop;
 	RoomNum *proprooms;
+#ifndef PLATFORM_N64
+	const s32 gfxreserve = (g_Vars.stagenum == STAGE_ANIMLAB) ? (16 * 1024) : (4 * 1024);
+#endif
 
 	if (renderpass == RENDERPASS_OPA_PREBG || renderpass == RENDERPASS_OPA_POSTBG) {
 		// Iterate onscreen props near to far
@@ -409,6 +409,18 @@ Gfx *propsRender(Gfx *gdl, RoomNum renderroomnum, s32 renderpass, RoomNum *roomn
 				prop = *ptr;
 
 				if (prop) {
+#ifndef PLATFORM_N64
+					/* Animation Lab: 500+ chr props can exhaust the GDL buffer before
+					 * nearby StdObject scenery is reached (sorted far-to-near here).
+					 * Skip chr draws when low but keep iterating for PROPTYPE_OBJ. */
+					if (gfxGetFreeGfx(gdl) < gfxreserve) {
+						if (g_Vars.stagenum != STAGE_ANIMLAB || prop->type != PROPTYPE_OBJ) {
+							ptr--;
+							proprooms--;
+							continue;
+						}
+					}
+#endif
 					if ((renderpass == RENDERPASS_OPA_PREBG && (prop->flags & (PROPFLAG_DRAWONTOP | PROPFLAG_RENDERPOSTBG)) == 0)
 							|| (renderpass == RENDERPASS_OPA_POSTBG && (prop->flags & (PROPFLAG_DRAWONTOP | PROPFLAG_RENDERPOSTBG)) == PROPFLAG_RENDERPOSTBG)) {
 						gdl = propRender(gdl, prop, false);
@@ -429,6 +441,15 @@ Gfx *propsRender(Gfx *gdl, RoomNum renderroomnum, s32 renderpass, RoomNum *roomn
 				prop = *ptr;
 
 				if (prop) {
+#ifndef PLATFORM_N64
+					if (gfxGetFreeGfx(gdl) < gfxreserve) {
+						if (g_Vars.stagenum != STAGE_ANIMLAB || prop->type != PROPTYPE_OBJ) {
+							ptr++;
+							proprooms++;
+							continue;
+						}
+					}
+#endif
 					if (prop->flags & PROPFLAG_DRAWONTOP) {
 						gdl = propRender(gdl, prop, false);
 					}
@@ -1967,6 +1988,17 @@ void propsTickPlayer(bool islastplayer)
 			rooms++;
 		}
 
+#ifndef PLATFORM_N64
+		/* Animation Lab: tick/render chr and scenery props by distance, not tile-room
+		 * onscreen flags (player room 1 vs guard rooms 2+). */
+		if (i == 0 && g_Vars.stagenum == STAGE_ANIMLAB
+				&& (prop->type == PROPTYPE_CHR || prop->type == PROPTYPE_OBJ)) {
+			if (posIsInDrawDistance(&prop->pos)) {
+				i++;
+			}
+		}
+#endif
+
 		if (i == 0) {
 			// The player and projectiles must always be in the foreground
 			if (prop->type == PROPTYPE_PLAYER) {
@@ -3319,6 +3351,13 @@ void roomGetProps(RoomNum *rooms, s16 *propnums, s32 len)
 					}
 
 					if (ptr == writeptr) {
+#ifndef PLATFORM_N64
+						/* PC port: stock code ignores *len*; animlab can exceed 256 props
+						 * across overlapping rooms during chr push queries. */
+						if (writeptr - propnums >= len - 1) {
+							goto terminate;
+						}
+#endif
 						// Prop is not in the list, so insert it
 						writeptr++;
 						writeptr[-1] = propnum;
@@ -3333,6 +3372,7 @@ void roomGetProps(RoomNum *rooms, s16 *propnums, s32 len)
 		room = *rooms;
 	}
 
+terminate:
 	*writeptr = -1;
 }
 

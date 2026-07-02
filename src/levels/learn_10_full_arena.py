@@ -3,7 +3,6 @@
 from tools.pdmap.builders import (
     add_loadout_intro,
     add_floor_weapons,
-    add_ammo_row,
     ctf_zones_from_mapdef,
     floor_box_with_hill_and_ctf_zones,
 )
@@ -26,7 +25,7 @@ def build() -> MapDef:
     g.add_pad(index=3, x=2000.0, y=10, z=2000.0, room=1)  # spawn
     g.add_pad(index=4, x=0.0, y=10, z=-1500.0, room=1)  # weapon
     g.add_pad(index=5, x=0.0, y=10, z=1500.0, room=1)  # weapon
-    g.add_pad(index=6, x=0.0, y=10, z=0.0, room=1)  # ammo
+    g.add_pad(index=6, x=0.0, y=10, z=0.0, room=1)  # other
     g.add_pad(index=7, x=0.0, y=10, z=-500, room=1)  # scenario/case
     g.add_pad(index=8, x=0.0, y=10, z=500, room=1)  # scenario/case
     g.add_pad(index=9, x=500, y=10, z=0.0, room=2)  # scenario/hill
@@ -41,9 +40,6 @@ def build() -> MapDef:
 
     # --- Weapon pickups (floor props) ---
     add_floor_weapons(g, [(4, 0x11), (5, 0x13)])
-
-    # --- Ammo crates (floor props) ---
-    add_ammo_row(g, [6], ammotype=W.AMMOTYPE_SHOTGUN)
 
     # --- Scenario anchors ---
     g.add_intro(Case(team=1, pad=7))

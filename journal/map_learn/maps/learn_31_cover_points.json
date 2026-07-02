@@ -1,0 +1,34 @@
+{
+  "box_half": 5000,
+  "box_height": 3000,
+  "cover_markers": true,
+  "covers": [
+    {
+      "x": -800,
+      "z": 0
+    },
+    {
+      "x": 800,
+      "z": 0
+    }
+  ],
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": -2000,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    },
+    {
+      "index": 1,
+      "type": "spawn",
+      "x": 2000,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    }
+  ],
+  "name": "learn_31_cover_points"
+}

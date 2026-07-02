@@ -20024,6 +20024,18 @@ bool func0f08e8ac(struct prop *prop, struct coord *pos, f32 arg2, bool arg3)
 	bool result = false;
 	u32 stack;
 
+#ifndef PLATFORM_N64
+	/* Animation Lab: guards/props use tile rooms 2+ for collision (≤30 chr/room)
+	 * but the player stays in room 1. Skip per-room ONSCREEN — use draw distance
+	 * and camera FOV only so district grids and the props yard render. */
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		if (!posIsInDrawDistance(pos)) {
+			return false;
+		}
+		return camIsPosInFovAndVisibleRoom(prop->rooms, pos, arg2);
+	}
+#endif
+
 	rooms = prop->rooms;
 	roomnum = *rooms;
 
@@ -20066,9 +20078,16 @@ bool posIsInDrawDistance(struct coord *pos)
 	f32 y = pos->y - campos->y;
 	f32 z = pos->z - campos->z;
 	f32 aggregate = x * x + y * y + z * z;
+	f32 maxdist = 32000.0f;
 	bool result = true;
 
-	if (aggregate > 32000 * 32000) {
+#ifndef PLATFORM_N64
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		maxdist = ANIMLAB_DRAW_DIST;
+	}
+#endif
+
+	if (aggregate > maxdist * maxdist) {
 		result = false;
 	}
 

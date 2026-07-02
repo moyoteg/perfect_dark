@@ -224,6 +224,8 @@ def _build_gdl(setup_gdl, *, floor_quad_count: int | None = None):
       empty  (default) setup GDL only — safe for in-box --test-map camera
       hill   KOTH floor quads only (room 1 arena+ring, room 2 capture square)
       ctf    CTF floor quads only (arena + ring + team squares per Case/CaseRespawn)
+      marker overlap-pad lesson — grey arena + green centre square (no walls)
+      parade Animation lab — arena + category-coloured slot squares
       walls  ceiling + four walls (no floor); editor preview only — clips in-box
       full   all six faces of the box; editor preview only — clips in-box
       debug  same faces as full, high-contrast solid colour per face (diagnosis)
@@ -243,7 +245,7 @@ def _build_gdl(setup_gdl, *, floor_quad_count: int | None = None):
     if mode == "floor":
         return setup_gdl + _face_gdl(0) + _enddl()
 
-    if mode == "hill" or mode == "ctf":
+    if mode == "hill" or mode == "ctf" or mode == "parade" or mode == "parade_districts" or mode == "marker":
         count = floor_quad_count or 1
         gdl = setup_gdl
         for fi in range(count):
@@ -679,6 +681,423 @@ def write_ctf_box_seg(
         zones=zones,
         zone_half=zone_half,
         ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_parade_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    slots: list[dict],
+    zone_half=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for Animation Lab: arena + category-coloured slot squares.
+
+    Requires ``PDMAP_SEG_MODE=parade``. Tile room 1 carries matching collision
+    quads via ``floor_box_with_parade_slots``.
+    """
+    from .builders import (
+        PARADE_ZONE_HALF,
+        parade_slot_all_floor_faces,
+        parade_slot_face_colours,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "parade"
+    try:
+        if zone_half is None:
+            zone_half = PARADE_ZONE_HALF
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = parade_slot_all_floor_faces(half, slots, zone_half=zone_half)
+        face_colours = parade_slot_face_colours(slots)
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit parade box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def build_parade_districts_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    districts: list[dict],
+    props_district: dict | None = None,
+    museum_district: dict | None = None,
+    special: dict | None = None,
+    zone_half=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for Animation Lab: arena + district/props/tour markers only.
+
+    Requires ``PDMAP_SEG_MODE=parade_districts``. Safe (~12 faces) vs full parade
+    mode which embeds one quad per guard (~570).
+    """
+    from .builders import PARADE_ZONE_HALF, parade_district_seg_faces
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "parade_districts"
+    try:
+        if zone_half is None:
+            zone_half = PARADE_ZONE_HALF
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces, face_colours = parade_district_seg_faces(
+            half,
+            districts,
+            props_district=props_district,
+            museum_district=museum_district,
+            special=special,
+            zone_half=zone_half,
+        )
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit parade-districts box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_parade_districts_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    districts: list[dict],
+    props_district: dict | None = None,
+    museum_district: dict | None = None,
+    special: dict | None = None,
+    zone_half=None,
+    template_seg=None,
+) -> str:
+    data = build_parade_districts_box_seg(
+        half=half,
+        height=height,
+        districts=districts,
+        props_district=props_district,
+        museum_district=museum_district,
+        special=special,
+        zone_half=zone_half,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_center_marker_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    center_x: float = 0.0,
+    center_z: float = 0.0,
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for overlap-pad lessons: grey arena + green centre square.
+
+    Requires ``PDMAP_SEG_MODE=marker``. Tile room 1 carries matching collision
+    quads via ``floor_box_with_center_marker``.
+    """
+    from .builders import (
+        CENTER_MARKER_HALF,
+        CENTER_MARKER_RING_WIDTH,
+        center_marker_all_floor_faces,
+        center_marker_face_colours,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "marker"
+    try:
+        if marker_half is None:
+            marker_half = CENTER_MARKER_HALF
+        if ring_width is None:
+            ring_width = CENTER_MARKER_RING_WIDTH
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = center_marker_all_floor_faces(
+            half,
+            center_x=center_x,
+            center_z=center_z,
+            marker_half=marker_half,
+            ring_width=ring_width,
+        )
+        face_colours = center_marker_face_colours()
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit center-marker box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_center_marker_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    center_x: float = 0.0,
+    center_z: float = 0.0,
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> str:
+    data = build_center_marker_box_seg(
+        half=half,
+        height=height,
+        center_x=center_x,
+        center_z=center_z,
+        marker_half=marker_half,
+        ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def build_cover_markers_box_seg(
+    *,
+    half=5000,
+    height=3000,
+    markers: list[tuple[float, float]],
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> bytes:
+    """Single-room seg for cover-point lessons: grey arena + green squares at cover XZ.
+
+    Requires ``PDMAP_SEG_MODE=marker``. Tile room 1 carries matching collision
+    quads via ``floor_box_with_cover_markers``.
+    """
+    from .builders import (
+        CENTER_MARKER_HALF,
+        CENTER_MARKER_RING_WIDTH,
+        center_marker_face_colours,
+        marker_positions_all_floor_faces,
+    )
+
+    import os as _os
+    prev_mode = _os.environ.get("PDMAP_SEG_MODE")
+    _os.environ["PDMAP_SEG_MODE"] = "marker"
+    try:
+        if marker_half is None:
+            marker_half = CENTER_MARKER_HALF
+        if ring_width is None:
+            ring_width = CENTER_MARKER_RING_WIDTH
+        if template_seg is None:
+            template_seg = DEFAULT_TEMPLATE_SEG
+
+        all_faces = marker_positions_all_floor_faces(
+            half,
+            markers,
+            marker_half=marker_half,
+            ring_width=ring_width,
+        )
+        face_colours = center_marker_face_colours()
+
+        new_room = _build_room_block(
+            template_seg,
+            all_faces,
+            face_colours,
+            floor_quad_count=len(all_faces),
+        )
+        new_room_blob = zip1172(new_room)
+
+        seg = open(template_seg, "rb").read()
+        _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
+        rest = seg[12 + sec1_cmp:]
+
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_blob = zip1172(primary_n64)
+        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+
+        result = (
+            struct.pack(
+                ">III",
+                PRIMARY_SIZE,
+                len(primary_blob) + len(new_room_blob),
+                len(primary_blob),
+            )
+            + primary_blob
+            + new_room_blob
+            + rest
+        )
+
+        g_vtx_errors = validate_seg_g_vtx(result)
+        if g_vtx_errors:
+            raise ValueError(
+                "Refusing to emit cover-marker box seg with invalid G_VTX loads:\n  "
+                + "\n  ".join(g_vtx_errors)
+            )
+        return result
+    finally:
+        if prev_mode is None:
+            _os.environ.pop("PDMAP_SEG_MODE", None)
+        else:
+            _os.environ["PDMAP_SEG_MODE"] = prev_mode
+
+
+def write_cover_markers_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    markers: list[tuple[float, float]],
+    marker_half=None,
+    ring_width=None,
+    template_seg=None,
+) -> str:
+    data = build_cover_markers_box_seg(
+        half=half,
+        height=height,
+        markers=markers,
+        marker_half=marker_half,
+        ring_width=ring_width,
+        template_seg=template_seg,
+    )
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(data)
+    return out_path
+
+
+def write_parade_box_seg(
+    out_path,
+    *,
+    half=5000,
+    height=3000,
+    slots: list[dict],
+    zone_half=None,
+    template_seg=None,
+) -> str:
+    data = build_parade_box_seg(
+        half=half,
+        height=height,
+        slots=slots,
+        zone_half=zone_half,
         template_seg=template_seg,
     )
     os.makedirs(os.path.dirname(out_path), exist_ok=True)

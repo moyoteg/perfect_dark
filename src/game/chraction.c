@@ -2706,6 +2706,13 @@ void chrStartAnim(struct chrdata *chr, s32 animnum, f32 startframe, f32 endframe
 		chr->act_anim.completed = (chranimflags & CHRANIMFLAG_COMPLETED) != 0;
 		chr->act_anim.slowupdate = (chranimflags & CHRANIMFLAG_SLOWUPDATE) != 0;
 		chr->act_anim.lockpos = (chranimflags & CHRANIMFLAG_LOCKPOS) != 0;
+#ifndef PLATFORM_N64
+		/* Anim Lab parade: never apply abs-trans root motion (cutscene clips excluded at build). */
+		if (g_Vars.stagenum == STAGE_ANIMLAB
+				&& (g_Anims[animnum].flags & ANIMFLAG_ABSOLUTETRANSLATION)) {
+			chr->act_anim.lockpos = true;
+		}
+#endif
 		chr->act_anim.ishitanim = false;
 		chr->act_anim.animnum = animnum;
 		chr->act_anim.flip = (chranimflags & CHRANIMFLAG_FLIP) != 0;
@@ -13338,13 +13345,46 @@ void chraTick(struct chrdata *chr)
 
 	chr->sleep -= g_Vars.lvupdate60;
 
-	if (chr->sleep < 0
-			|| (chr->chrflags & CHRCFLAG_NEVERSLEEP)
-			|| chr->alertness >= 65
-			|| (chr->aibot && (chr->actiontype == ACT_DIE || chr->actiontype == ACT_DEAD))) {
+	{
+		bool chraiActive = chr->sleep < 0
+				|| (chr->chrflags & CHRCFLAG_NEVERSLEEP)
+				|| chr->alertness >= 65
+				|| (chr->aibot && (chr->actiontype == ACT_DIE || chr->actiontype == ACT_DEAD));
+#ifndef PLATFORM_N64
+		// Animation Lab parade: 500+ guards polling if_chr_stopped pegs CPU when
+		// the player walks north (many guards within the old 900-unit "nearby" disc).
+		// Tiered distance throttle; phase stagger spreads work across frames.
+		bool animlabThrottleChrai = false;
+
+		if (g_Vars.stagenum == STAGE_ANIMLAB
+				&& chraiActive
+				&& chr->prop
+				&& g_Vars.currentplayer
+				&& g_Vars.currentplayer->prop) {
+			f32 dx = chr->prop->pos.x - g_Vars.currentplayer->prop->pos.x;
+			f32 dz = chr->prop->pos.z - g_Vars.currentplayer->prop->pos.z;
+			f32 dist2 = dx * dx + dz * dz;
+			u32 phase = g_Vars.lvframenum + (u32)(chr - g_ChrSlots);
+
+			if (dist2 >= (1000.0f * 1000.0f)) {
+				// Far: ~1 Hz — enough to restart looped parade anims when stopped.
+				if ((phase % 60) != 0) {
+					animlabThrottleChrai = true;
+				}
+			} else if ((phase & 3) != 0) {
+				// Near (~one zone): ~15 Hz instead of every frame.
+				animlabThrottleChrai = true;
+			}
+		}
+#endif
+
+	if (chraiActive) {
 		u8 pass = race == RACE_HUMAN || race == RACE_SKEDAR;
 		chr->sleep = 0;
 
+#ifndef PLATFORM_N64
+		if (!animlabThrottleChrai)
+#endif
 		chraiExecute(chr, PROPTYPE_CHR);
 
 		// Consider setting shootingatmelist
@@ -13452,6 +13492,7 @@ void chraTick(struct chrdata *chr)
 		}
 	} else {
 		footstepCheckMagic(chr);
+	}
 	}
 }
 

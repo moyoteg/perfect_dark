@@ -1,0 +1,15 @@
+{
+  "box_half": 2500,
+  "box_height": 2000,
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": 0,
+      "y": 10,
+      "z": 0,
+      "room": 1
+    }
+  ],
+  "name": "learn_30_mod_hygiene"
+}
