@@ -90,6 +90,9 @@ s32 mpGetChrIndexBySlotNum(s32 slot);
 s32 mpGetNumChrs(void);
 u8 mpFindUnusedTeamNum(void);
 void mpCreateBotFromProfile(s32 botnum, u8 difficulty);
+#ifndef PLATFORM_N64
+void mpApplyTeamsBattleSplit(void);
+#endif
 void mpSetBotDifficulty(s32 botnum, s32 difficulty);
 s32 mpGetSlotForNewBot(void);
 void mpRemoveSimulant(s32 index);

@@ -11319,6 +11319,17 @@ s32 objTickPlayer(struct prop *prop)
 		pass2 = false;
 	}
 
+#ifndef PLATFORM_N64
+	/* Animation Lab: StdObject scenery in room 1 can fail FOV/room culling while
+	 * parade chr in tile rooms 2+ still render. Fall back to draw distance only. */
+	if (!pass2 && g_Vars.stagenum == STAGE_ANIMLAB
+			&& (obj->hidden & OBJHFLAG_GONE) == 0
+			&& (obj->flags2 & OBJFLAG2_INVISIBLE) == 0
+			&& posIsInDrawDistance(&prop->pos)) {
+		pass2 = true;
+	}
+#endif
+
 	if (pass2) {
 		if (sp592 == false) {
 			propCalculateShadeInfo(prop, obj->nextcol, obj->floorcol);

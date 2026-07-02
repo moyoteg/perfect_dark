@@ -20,6 +20,10 @@
 #include "game/lv.h"
 #include "game/mplayer/scenarios.h"
 #include "game/challenge.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#endif
+#include "system.h"
 #include "game/lang.h"
 #include "game/mplayer/mplayer.h"
 #include "game/pad.h"
@@ -2133,6 +2137,11 @@ void setupCreateProps(s32 stagenum)
 
 					slotsdone[slotnum] = true;
 				}
+
+#ifndef PLATFORM_N64
+				sysLogPrintf(LOG_WARNING, "Battle64 spawn: allocated_bots=%d maxsimulants=%d MPFEATURE_8BOTS=%d",
+						chrnum, maxsimulants, challengeIsFeatureUnlocked(MPFEATURE_8BOTS));
+#endif
 			}
 
 			if (g_Vars.normmplayerisrunning) {

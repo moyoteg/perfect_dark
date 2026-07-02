@@ -1,0 +1,6233 @@
+{
+	"pads": [
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0000",
+			"pos": [
+				-3500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0001",
+			"pos": [
+				-2500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0002",
+			"pos": [
+				-1500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0003",
+			"pos": [
+				-500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0004",
+			"pos": [
+				500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0005",
+			"pos": [
+				1500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0006",
+			"pos": [
+				2500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0007",
+			"pos": [
+				3500.0,
+				10.0,
+				-3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0008",
+			"pos": [
+				-3500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0009",
+			"pos": [
+				-2500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_000A",
+			"pos": [
+				-1500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_000B",
+			"pos": [
+				-500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_000C",
+			"pos": [
+				500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_000D",
+			"pos": [
+				1500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_000E",
+			"pos": [
+				2500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_000F",
+			"pos": [
+				3500.0,
+				10.0,
+				-3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0010",
+			"pos": [
+				-3500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0011",
+			"pos": [
+				-2500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0012",
+			"pos": [
+				-1500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0013",
+			"pos": [
+				-500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0014",
+			"pos": [
+				500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0015",
+			"pos": [
+				1500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0016",
+			"pos": [
+				2500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0017",
+			"pos": [
+				3500.0,
+				10.0,
+				-4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0018",
+			"pos": [
+				-3500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0019",
+			"pos": [
+				-2500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_001A",
+			"pos": [
+				-1500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_001B",
+			"pos": [
+				-500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_001C",
+			"pos": [
+				500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_001D",
+			"pos": [
+				1500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_001E",
+			"pos": [
+				2500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_001F",
+			"pos": [
+				3500.0,
+				10.0,
+				-4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0020",
+			"pos": [
+				-3500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0021",
+			"pos": [
+				-2500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0022",
+			"pos": [
+				-1500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0023",
+			"pos": [
+				-500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0024",
+			"pos": [
+				500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0025",
+			"pos": [
+				1500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0026",
+			"pos": [
+				2500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0027",
+			"pos": [
+				3500.0,
+				10.0,
+				3600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0028",
+			"pos": [
+				-3500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0029",
+			"pos": [
+				-2500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_002A",
+			"pos": [
+				-1500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_002B",
+			"pos": [
+				-500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_002C",
+			"pos": [
+				500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_002D",
+			"pos": [
+				1500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_002E",
+			"pos": [
+				2500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_002F",
+			"pos": [
+				3500.0,
+				10.0,
+				3800.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0030",
+			"pos": [
+				-3500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0031",
+			"pos": [
+				-2500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0032",
+			"pos": [
+				-1500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0033",
+			"pos": [
+				-500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0034",
+			"pos": [
+				500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0035",
+			"pos": [
+				1500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0036",
+			"pos": [
+				2500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0037",
+			"pos": [
+				3500.0,
+				10.0,
+				4000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0038",
+			"pos": [
+				-3500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0039",
+			"pos": [
+				-2500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_003A",
+			"pos": [
+				-1500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_003B",
+			"pos": [
+				-500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_003C",
+			"pos": [
+				500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_003D",
+			"pos": [
+				1500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_003E",
+			"pos": [
+				2500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_003F",
+			"pos": [
+				3500.0,
+				10.0,
+				4200.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				-1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0040",
+			"pos": [
+				-2800.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0041",
+			"pos": [
+				-1400.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0042",
+			"pos": [
+				0.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0043",
+			"pos": [
+				1400.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0044",
+			"pos": [
+				2800.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0045",
+			"pos": [
+				-2000.0,
+				10.0,
+				-1000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0046",
+			"pos": [
+				2000.0,
+				10.0,
+				-1000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0047",
+			"pos": [
+				-2000.0,
+				10.0,
+				1000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0048",
+			"pos": [
+				2000.0,
+				10.0,
+				1000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0049",
+			"pos": [
+				-1000.0,
+				10.0,
+				-1600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_004A",
+			"pos": [
+				1000.0,
+				10.0,
+				-1600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_004B",
+			"pos": [
+				-1000.0,
+				10.0,
+				1600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_004C",
+			"pos": [
+				0.0,
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_004D",
+			"pos": [
+				-1800.0,
+				10.0,
+				-600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_004E",
+			"pos": [
+				1800.0,
+				10.0,
+				-600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_004F",
+			"pos": [
+				-1800.0,
+				10.0,
+				600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0050",
+			"pos": [
+				1800.0,
+				10.0,
+				600.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0051",
+			"pos": [
+				0.0,
+				10.0,
+				-2000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_MATRIX_BATTLE_64_0052",
+			"pos": [
+				0.0,
+				10.0,
+				2000.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		}
+	],
+	"waypoints": [
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0000",
+			"pad": "PAD_MATRIX_BATTLE_64_0000",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0008",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0010",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0018",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0001",
+			"pad": "PAD_MATRIX_BATTLE_64_0001",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0008",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0002",
+			"pad": "PAD_MATRIX_BATTLE_64_0002",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0003",
+			"pad": "PAD_MATRIX_BATTLE_64_0003",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0004",
+			"pad": "PAD_MATRIX_BATTLE_64_0004",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0005",
+			"pad": "PAD_MATRIX_BATTLE_64_0005",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0006",
+			"pad": "PAD_MATRIX_BATTLE_64_0006",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0007",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0007",
+			"pad": "PAD_MATRIX_BATTLE_64_0007",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0008",
+			"pad": "PAD_MATRIX_BATTLE_64_0008",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0010",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0018",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0009",
+			"pad": "PAD_MATRIX_BATTLE_64_0009",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0008",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0010",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0018",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_000A",
+			"pad": "PAD_MATRIX_BATTLE_64_000A",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_000B",
+			"pad": "PAD_MATRIX_BATTLE_64_000B",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_000C",
+			"pad": "PAD_MATRIX_BATTLE_64_000C",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_000D",
+			"pad": "PAD_MATRIX_BATTLE_64_000D",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_000E",
+			"pad": "PAD_MATRIX_BATTLE_64_000E",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0007",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_000F",
+			"pad": "PAD_MATRIX_BATTLE_64_000F",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0007",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0010",
+			"pad": "PAD_MATRIX_BATTLE_64_0010",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0008",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0018",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0011",
+			"pad": "PAD_MATRIX_BATTLE_64_0011",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0008",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0010",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0018",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0012",
+			"pad": "PAD_MATRIX_BATTLE_64_0012",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0013",
+			"pad": "PAD_MATRIX_BATTLE_64_0013",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0014",
+			"pad": "PAD_MATRIX_BATTLE_64_0014",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0015",
+			"pad": "PAD_MATRIX_BATTLE_64_0015",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0016",
+			"pad": "PAD_MATRIX_BATTLE_64_0016",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0007",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0017",
+			"pad": "PAD_MATRIX_BATTLE_64_0017",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0007",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0018",
+			"pad": "PAD_MATRIX_BATTLE_64_0018",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0008",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0010",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0019",
+			"pad": "PAD_MATRIX_BATTLE_64_0019",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0009",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0010",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0018",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_001A",
+			"pad": "PAD_MATRIX_BATTLE_64_001A",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0011",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0019",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_001B",
+			"pad": "PAD_MATRIX_BATTLE_64_001B",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0012",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_001C",
+			"pad": "PAD_MATRIX_BATTLE_64_001C",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0013",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_001D",
+			"pad": "PAD_MATRIX_BATTLE_64_001D",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0005",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0014",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_001E",
+			"pad": "PAD_MATRIX_BATTLE_64_001E",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0006",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0015",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_001F",
+			"pad": "PAD_MATRIX_BATTLE_64_001F",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0007",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0016",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0017",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_001E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0020",
+			"pad": "PAD_MATRIX_BATTLE_64_0020",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0028",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0030",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0038",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0021",
+			"pad": "PAD_MATRIX_BATTLE_64_0021",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0020",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0028",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0022",
+			"pad": "PAD_MATRIX_BATTLE_64_0022",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0023",
+			"pad": "PAD_MATRIX_BATTLE_64_0023",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0024",
+			"pad": "PAD_MATRIX_BATTLE_64_0024",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0025",
+			"pad": "PAD_MATRIX_BATTLE_64_0025",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0026",
+			"pad": "PAD_MATRIX_BATTLE_64_0026",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0027",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0027",
+			"pad": "PAD_MATRIX_BATTLE_64_0027",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0028",
+			"pad": "PAD_MATRIX_BATTLE_64_0028",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0020",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0030",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0038",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0029",
+			"pad": "PAD_MATRIX_BATTLE_64_0029",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0020",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0028",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0030",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0038",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_002A",
+			"pad": "PAD_MATRIX_BATTLE_64_002A",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_002B",
+			"pad": "PAD_MATRIX_BATTLE_64_002B",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_002C",
+			"pad": "PAD_MATRIX_BATTLE_64_002C",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_002D",
+			"pad": "PAD_MATRIX_BATTLE_64_002D",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_002E",
+			"pad": "PAD_MATRIX_BATTLE_64_002E",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0027",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_002F",
+			"pad": "PAD_MATRIX_BATTLE_64_002F",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0027",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0030",
+			"pad": "PAD_MATRIX_BATTLE_64_0030",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0020",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0028",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0038",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0031",
+			"pad": "PAD_MATRIX_BATTLE_64_0031",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0020",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0028",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0030",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0038",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0032",
+			"pad": "PAD_MATRIX_BATTLE_64_0032",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0033",
+			"pad": "PAD_MATRIX_BATTLE_64_0033",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0034",
+			"pad": "PAD_MATRIX_BATTLE_64_0034",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0035",
+			"pad": "PAD_MATRIX_BATTLE_64_0035",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0036",
+			"pad": "PAD_MATRIX_BATTLE_64_0036",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0027",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0037",
+			"pad": "PAD_MATRIX_BATTLE_64_0037",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0027",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0038",
+			"pad": "PAD_MATRIX_BATTLE_64_0038",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0020",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0028",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0030",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0039",
+			"pad": "PAD_MATRIX_BATTLE_64_0039",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0021",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0029",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0030",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0038",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_003A",
+			"pad": "PAD_MATRIX_BATTLE_64_003A",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0022",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0031",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0039",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_003B",
+			"pad": "PAD_MATRIX_BATTLE_64_003B",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0032",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_003C",
+			"pad": "PAD_MATRIX_BATTLE_64_003C",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0033",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_003D",
+			"pad": "PAD_MATRIX_BATTLE_64_003D",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0025",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0034",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_003E",
+			"pad": "PAD_MATRIX_BATTLE_64_003E",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0026",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0035",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_003F",
+			"pad": "PAD_MATRIX_BATTLE_64_003F",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0027",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0036",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0037",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_003E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0040",
+			"pad": "PAD_MATRIX_BATTLE_64_0040",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0041",
+			"pad": "PAD_MATRIX_BATTLE_64_0041",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0042",
+			"pad": "PAD_MATRIX_BATTLE_64_0042",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0043",
+			"pad": "PAD_MATRIX_BATTLE_64_0043",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0044",
+			"pad": "PAD_MATRIX_BATTLE_64_0044",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0045",
+			"pad": "PAD_MATRIX_BATTLE_64_0045",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0046",
+			"pad": "PAD_MATRIX_BATTLE_64_0046",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0047",
+			"pad": "PAD_MATRIX_BATTLE_64_0047",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0048",
+			"pad": "PAD_MATRIX_BATTLE_64_0048",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0049",
+			"pad": "PAD_MATRIX_BATTLE_64_0049",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_004A",
+			"pad": "PAD_MATRIX_BATTLE_64_004A",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0051",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_004B",
+			"pad": "PAD_MATRIX_BATTLE_64_004B",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0052",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_004C",
+			"pad": "PAD_MATRIX_BATTLE_64_004C",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_004D",
+			"pad": "PAD_MATRIX_BATTLE_64_004D",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004F",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_004E",
+			"pad": "PAD_MATRIX_BATTLE_64_004E",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0050",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_004F",
+			"pad": "PAD_MATRIX_BATTLE_64_004F",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0040",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0041",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0045",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0047",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004D",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0050",
+			"pad": "PAD_MATRIX_BATTLE_64_0050",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0043",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0044",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0046",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0048",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004E",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0051",
+			"pad": "PAD_MATRIX_BATTLE_64_0051",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0003",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0004",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_000C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0049",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004A",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		},
+		{
+			"id": "WAYPOINT_MATRIX_BATTLE_64_0052",
+			"pad": "PAD_MATRIX_BATTLE_64_0052",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0023",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0024",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002B",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_002C",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_0042",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_MATRIX_BATTLE_64_004B",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_MATRIX_BATTLE_64_0001"
+		}
+	],
+	"waygroups": [
+		{
+			"id": "WAYGROUP_MATRIX_BATTLE_64_0001",
+			"neighbours": []
+		}
+	],
+	"cover": []
+}

@@ -12,12 +12,12 @@ _Comprehensive checklist of every map-making topic to master. One dedicated lear
 | Metric | Count |
 |--------|------:|
 | **Total plan items** | 42 |
-| **Done (manual validated)** | 13 |
+| **Done (manual validated)** | 33 |
 | **Done (auto / probe only)** | 5 |
-| **Pending (map exists, needs manual play)** | 20 |
+| **Pending (map exists, needs manual play)** | 0 |
 | **Pending (map to create / extend)** | 4 |
 
-Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
+Manual curriculum validation **complete** (2026-07-01): play-learn-step **0–31** (includes **my_arena**, **testarena**, **learn_01–31**). `.validation_step` = **31**.
 
 ---
 
@@ -33,8 +33,8 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | 1.6 | `learn_07_hill` | 4 KOTH | Green hill square + dark ring at +Z; score only in hill room | **done** |
 | 1.7 | `learn_08_ctf_case` | 5 CTF | Case + CaseRespawn pair; steal + touch home to score | **done** |
 | 1.8 | `learn_11_y_autocorrect` | 0 | Spawn safe despite JSON Y=0 (pipeline autocorrect) | **done** |
-| 1.9 | `learn_20_overlap_pads` | 0 | Spawn + weapon + ammo at same XZ; all three work (cross-type overlap) | **pending** (auto validate OK) |
-| 1.10 | `learn_27_multi_weapon` | 0 | AR34 + shotgun + CMP150 at distinct pads; each pickup correct weaponnum | **pending** (auto validate OK) |
+| 1.9 | `learn_20_overlap_pads` | 0 | Spawn + weapon + ammo at same XZ; all three work (cross-type overlap) | **done** |
+| 1.10 | `learn_27_multi_weapon` | 0 | AR34 + shotgun + CMP150 at distinct pads; each pickup correct weaponnum | **done** |
 | 1.11 | — (probe) | — | Pad indices contiguous 0..N-1; validate rejects gaps | **auto** |
 | 1.12 | — (probe) | — | Room 0 empty in tiles JSON (engine void room) | **auto** |
 
@@ -44,12 +44,12 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 
 | # | Learn map | Scenario | Expected in-game test | Status |
 |---|-----------|----------|----------------------|--------|
-| 2.1 | `learn_14_procedural_seg` | 0 | `--seg-mode full`: visible box walls; collision from tiles | **pending** (auto validate OK) |
-| 2.2 | `learn_15_seg_empty` | 0 | `--seg-mode empty`: grey floor only; no viewport sheet | **pending** (auto validate OK) |
-| 2.3 | `learn_13_fixture_compact` | 4 | Hill seg mode; room-2 hill tiles + room-1 collision quad | **pending** (auto validate OK) |
+| 2.1 | `learn_14_procedural_seg` | 0 | `--seg-mode full`: visible box walls; collision from tiles | **done** |
+| 2.2 | `learn_15_seg_empty` | 0 | `--seg-mode empty`: grey floor only; no viewport sheet | **done** |
+| 2.3 | `learn_13_fixture_compact` | 4 | Hill seg mode; room-2 hill tiles + room-1 collision quad | **done** |
 | 2.4 | `learn_10_full_arena` | 5 | Composite: CTF seg markers + hill zone in one map | **done** |
-| 2.5 | `learn_28_hill_collision` | 4 | Walk hill boundary: no fall-through at room-1 collision mirror | **pending** (auto validate OK) |
-| 2.6 | `learn_29_custom_seg_script` | 0 | Custom SEG_SCRIPT seg builds; no relinkPtr crash | **pending** (auto validate OK) |
+| 2.5 | `learn_28_hill_collision` | 4 | Walk hill boundary: no fall-through at room-1 collision mirror | **done** |
+| 2.6 | `learn_29_custom_seg_script` | 0 | Custom SEG_SCRIPT seg builds; no relinkPtr crash | **done** |
 | 2.7 | — (probe) | — | G_VTX max 16; box seg uses G_VTX(4) per face | **auto** |
 
 ---
@@ -59,12 +59,12 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | # | Learn map | Scenario | Expected in-game test | Status |
 |---|-----------|----------|----------------------|--------|
 | 3.1 | `learn_05_loadout` | 0 | Default loadout (Falcon2, CMP150, …) at combat start | **done** |
-| 3.2 | `learn_19_hold_briefcase` | 1 Hold | Green 30s countdown while holding briefcase | **pending** (auto validate OK) |
-| 3.3 | `learn_21_hacker_central` | 2 Hacker | Download timer while hacking (stock scenario) | **pending** (auto validate OK) |
-| 3.4 | `learn_22_pop_a_cap` | 3 Pop a Cap | Solo: green 1:00 victim survival timer at top (+1 pt/min alive); spawns-only map loads | **pending** (auto validate OK) |
-| 3.5 | `learn_24_mpweapon_loadout` | 0 | `--loadout 1,9,16,4,0,37` gives Falcon2/CMP150/AR34/MagSec (MPWEAPON space) | **pending** (auto validate OK) |
+| 3.2 | `learn_19_hold_briefcase` | 1 Hold | Green 30s countdown while holding briefcase | **done** |
+| 3.3 | `learn_21_hacker_central` | 2 Hacker | Download timer while hacking (stock scenario) | **done** |
+| 3.4 | `learn_22_pop_a_cap` | 3 Pop a Cap | Solo: green 1:00 victim survival timer at top (+1 pt/min alive); spawns-only map loads | **done** |
+| 3.5 | `learn_24_mpweapon_loadout` | 0 | `--loadout 1,9,16,4,0,37` gives Falcon2/CMP150/AR34/MagSec (MPWEAPON space) | **done** |
 | 3.6 | `learn_08_ctf_case` | 5 | Instant capture at home CaseRespawn (no hold timer) | **done** |
-| 3.7 | — (wiki) | — | Two weapon ID namespaces: weaponnum (props) vs MPWEAPON (CLI loadout) | **pending** (3.5 + 3.1) |
+| 3.7 | — (wiki) | — | Two weapon ID namespaces: weaponnum (props) vs MPWEAPON (CLI loadout) | **done** |
 
 ---
 
@@ -73,12 +73,12 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | # | Learn map | Scenario | Expected in-game test | Status |
 |---|-----------|----------|----------------------|--------|
 | 4.1 | `learn_09_deploy_uff` | 0 | `--test-map` loads bg_uff.* from mod_allinone | **done** |
-| 4.2 | `learn_17_from_json_cli` | 0 | from-json → build_from_spec without level-module edit | **pending** (auto validate OK) |
+| 4.2 | `learn_17_from_json_cli` | 0 | from-json → build_from_spec without level-module edit | **done** |
 | 4.3 | `my_arena` (registered) | 5 | Combat Sim menu “My Arena”; assets from mod | **done** |
 | 4.4 | `testarena` (registered) | 5 | Combat Sim menu “Test Arena” | **done** |
-| 4.5 | `learn_25_boot_stage` | 5 | `./build/pd.arm64 --boot-stage STAGE_MY_ARENA --skip-intro --moddir …` loads registered map | **pending** (auto validate OK; manual boot) |
+| 4.5 | `learn_25_boot_stage` | 5 | `./build/pd.arm64 --boot-stage STAGE_MY_ARENA --skip-intro --moddir …` loads registered map | **done** |
 | 4.6 | — (wiki §10) | — | Always `--moddir mods/mod_allinone`; log shows “loaded externally” | **auto** (probe) |
-| 4.7 | `learn_30_mod_hygiene` | 0 | Rebuild+deploy; confirm external asset mtime changes | **pending** (auto validate OK) |
+| 4.7 | `learn_30_mod_hygiene` | 0 | Rebuild+deploy; confirm external asset mtime changes | **done** |
 
 ---
 
@@ -87,10 +87,10 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | # | Learn map | Scenario | Expected in-game test | Status |
 |---|-----------|----------|----------------------|--------|
 | 5.1 | `learn_11_y_autocorrect` | 0 | Y=0 pads corrected to 10 | **done** |
-| 5.2 | `learn_16_my_arena_registered` | 5 | textid 0x7FFD; high custom stage id wired | **pending** (auto validate OK) |
-| 5.3 | `learn_12_testarena_fixture` | 5 | textid 0x7FFC; 4-team CTF fixture | **pending** (auto validate OK) |
-| 5.4 | `learn_23_bot_four_cap` | 0 | `--num-sims 8` → only 4 bots (stock cap) | **pending** (auto validate OK) |
-| 5.5 | `learn_26_solo_ctf` | 5 | `--num-sims 0`; human-only CTF capture still scores | **pending** (auto validate OK) |
+| 5.2 | `learn_16_my_arena_registered` | 5 | textid 0x7FFD; high custom stage id wired | **done** |
+| 5.3 | `learn_12_testarena_fixture` | 5 | textid 0x7FFC; 4-team CTF fixture | **done** |
+| 5.4 | `learn_23_bot_four_cap` | 0 | `--num-sims 8` → only 4 bots (stock cap) | **done** |
+| 5.5 | `learn_26_solo_ctf` | 5 | `--num-sims 0`; human-only CTF capture still scores | **done** |
 | 5.6 | `learn_18_register_scratch` | 0 | register --apply dry-run passes (live needs make) | **auto** |
 | 5.7 | — (probe) | — | chrslots=0x01 under --test-map before bot alloc | **auto** |
 | 5.8 | — (probe) | — | ailist 0x1000 required or bots fall to Y≈−99900 | **auto** |
@@ -113,8 +113,8 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | # | Learn map | Scenario | Expected in-game test | Status |
 |---|-----------|----------|----------------------|--------|
 | 7.1 | `learn_07_hill` | 4 | Hill pad room=2; spawn room=1 (minimal multi-room) | **done** |
-| 7.2 | `learn_28_hill_collision` | 4 | Room-1 floor quad mirrors hill cut-out (no void fall) | **pending** |
-| 7.3 | `learn_31_cover_points` | 0 | AI cover points emitted; bots use cover (visual N/A) | **pending** (auto validate OK) |
+| 7.2 | `learn_28_hill_collision` | 4 | Room-1 floor quad mirrors hill cut-out (no void fall) | **done** |
+| 7.3 | `learn_31_cover_points` | 0 | AI cover points emitted; bots use cover (visual N/A) | **done** |
 | 7.4 | — (wiki) | — | Door props / multi-room custom seg (relinkPtr limits) | **pending** (not in pdmap JSON yet) |
 
 ---
@@ -124,9 +124,9 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | # | Learn map | Scenario | Expected in-game test | Status |
 |---|-----------|----------|----------------------|--------|
 | 8.1 | `learn_10_full_arena` | 5 | my_arena-like composite | **done** |
-| 8.2 | `learn_12_testarena_fixture` | 5 | Matches minimal_map.json fixture | **pending** |
-| 8.3 | `learn_13_fixture_compact` | 4 | Matches minimal_map 2.json compact fixture | **pending** |
-| 8.4 | `learn_16_my_arena_registered` | 5 | Matches registered my_arena module layout | **pending** |
+| 8.2 | `learn_12_testarena_fixture` | 5 | Matches minimal_map.json fixture | **done** |
+| 8.3 | `learn_13_fixture_compact` | 4 | Matches minimal_map 2.json compact fixture | **done** |
+| 8.4 | `learn_16_my_arena_registered` | 5 | Matches registered my_arena module layout | **done** |
 
 ---
 
@@ -137,27 +137,17 @@ Manual batch confirmed by user: **my_arena**, **testarena**, **learn_01–11**.
 | 9.1 | `pdmap learn run` probes → knowledge.json | **auto** (iteration 22) |
 | 9.2 | MAP_DETERMINISTIC_SPEC.md emission | **auto** |
 | 9.3 | gaps.md doc coverage 100% | **auto** |
-| 9.4 | Curriculum 31/31 validate OK | **auto** |
+| 9.4 | Curriculum 31/31 validate OK | **auto** (pipeline); **manual play 0–31 complete 2026-07-01** |
 | 9.5 | Runtime smoke STAGE_TEST_UFF log hints | **pending** (CI hardening) |
 | 9.6 | Live register --apply + make rebuild smoke | **pending** |
 
 ---
 
-## Next implementation queue (after learn_11)
+## Curriculum validation status
 
-Priority order for new/unfinished maps:
+All **32 play steps (0–31)** manually confirmed in-game this session. No further curriculum play queue.
 
-1. `learn_12_testarena_fixture` — manual play (step 12)  
-2. `learn_19_hold_briefcase` — scenario 1  
-3. `learn_20_overlap_pads` — cross-type pad overlap  
-4. `learn_21_hacker_central` — scenario 2  
-5. `learn_22_pop_a_cap` — scenario 3  
-6. `learn_23_bot_four_cap` — 8 sim request → 4 bot cap  
-7. `learn_24_mpweapon_loadout` — MPWEAPON CLI loadout  
-
-Then: `learn_25_boot_stage`, `learn_26_solo_ctf`, `learn_27_multi_weapon`, `learn_28_hill_collision`, `learn_29_custom_seg_script`, `learn_30_mod_hygiene`, `learn_31_cover_points`.
-
-Manual validation queue (maps exist, play next): **learn_12–31**.
+**Still open (outside curriculum maps):** §6.4 radar/KOTH pulse observation, §7.4 door props / custom multi-room seg in pdmap JSON, §9.5 runtime smoke CI, §9.6 live `register --apply` smoke.
 
 ---
 
@@ -170,8 +160,8 @@ python3 tools/pdmap.py learn curriculum generate
 # Validate all steps (0 errors)
 python3 tools/pdmap.py learn curriculum validate
 
-# Play next pending step (example: 12)
-./scripts/play-learn-step.sh 12
+# Re-play any step (example: 31 cover points)
+./scripts/play-learn-step.sh 31
 
 # Learning engine iteration (writes runs/<timestamp>.json)
 python3 tools/pdmap.py learn run

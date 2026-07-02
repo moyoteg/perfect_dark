@@ -158,6 +158,9 @@ void titleSetLight(Lights1 *light, u8 r, u8 g, u8 b, f32 luminosity, struct coor
 
 extern s32 sysArgCheck(const char *arg);
 extern s32 sysArgGetInt(const char *arg, s32 defval);
+#ifndef PLATFORM_N64
+extern u8 g_MpFeaturesUnlocked[80];
+#endif
 
 void titleInitLegal(void)
 {
@@ -210,13 +213,29 @@ void titleInitLegal(void)
 		if (g_Vars.mpquickteamnumsims < 0) {
 			g_Vars.mpquickteamnumsims = 0;
 		}
+		if (g_Vars.mpquickteamnumsims > MAX_BOTS) {
+			g_Vars.mpquickteamnumsims = MAX_BOTS;
+		}
 		if (sysArgCheck("--solo")) {
 			g_Vars.mpquickteamnumsims = 0;
 		}
 		g_Vars.mpsimdifficulty = BOTDIFF_NORMAL;
 
+#ifndef PLATFORM_N64
+		// Unlock full simulant count for --test-map (stock profile caps at 4).
+		g_MpFeaturesUnlocked[MPFEATURE_8BOTS] |= 1;
+		if (sysArgCheck("--teams-battle")) {
+			g_MpSetup.options |= MPOPTION_TEAMSENABLED;
+		}
+#endif
+
 		setNumPlayers(1);
 		mpStartMatch();
+#ifndef PLATFORM_N64
+		if (sysArgCheck("--teams-battle")) {
+			mpApplyTeamsBattleSplit();
+		}
+#endif
 		mainChangeToStage(teststagenum);
 		return;
 	}

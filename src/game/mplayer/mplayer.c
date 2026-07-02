@@ -18,6 +18,7 @@
 #include "game/challenge.h"
 #include "game/lang.h"
 #include "game/mplayer/mplayer.h"
+#include "game/mplayer/chrslots.h"
 #include "game/pak.h"
 #include "bss.h"
 #include "lib/args.h"
@@ -844,6 +845,9 @@ void mpInit(bool resetplayers)
 	}
 
 	g_MpSetup.chrslots = 0;
+#ifndef PLATFORM_N64
+	g_MpSetup.chrslots_hi = 0;
+#endif
 
 	for (i = 0; i < ARRAYCOUNT(g_Menus); i++) {
 		g_Menus[i].mpsetup.showpresets = 1;
@@ -3408,7 +3412,7 @@ void mpCreateBotFromProfile(s32 botnum, u8 profilenum)
 		g_MpSimulantDifficultiesPerNumPlayers[botnum][i] = g_BotConfigsArray[botnum].difficulty;
 	}
 
-	g_MpSetup.chrslots |= 1 << (botnum + 4);
+	mpChrSlotEnable(botnum + MAX_PLAYERS);
 	strcpy(g_BotConfigsArray[botnum].base.name, "Sim\n");
 	g_BotConfigsArray[botnum].base.team = team;
 
@@ -3417,7 +3421,7 @@ void mpCreateBotFromProfile(s32 botnum, u8 profilenum)
 		available = true;
 
 		for (i = 0; i < MAX_MPCHRS; i++) {
-			if (g_MpSetup.chrslots & (1 << i)) {
+			if (mpChrSlotIsSet(i)) {
 				struct mpchrconfig *mpchr = MPCHR(i);
 
 				if (mpchr->mpheadnum == headnum) {
@@ -3449,18 +3453,20 @@ void mpSetBotDifficulty(s32 botnum, s32 difficulty)
  */
 s32 mpGetSlotForNewBot(void)
 {
-	s32 i = 0;
+	s32 i;
 
-	while (i < MAX_BOTS - 1 && g_MpSetup.chrslots & (1 << (i + 4))) {
-		i++;
+	for (i = 0; i < MAX_BOTS; i++) {
+		if (!mpChrSlotIsSet(i + MAX_PLAYERS)) {
+			return i;
+		}
 	}
 
-	return i;
+	return -1;
 }
 
 void mpRemoveSimulant(s32 index)
 {
-	g_MpSetup.chrslots &= ~(1 << (index + 4));
+	mpChrSlotDisable(index + MAX_PLAYERS);
 	g_BotConfigsArray[index].base.name[0] = '\0';
 	func0f1881d4(index);
 	mpGenerateBotNames();
@@ -3471,7 +3477,7 @@ void mpCopySimulant(s32 index)
 {
 	s32 dest = mpGetSlotForNewBot();
 
-	g_MpSetup.chrslots |= 1 << (dest + 4);
+	mpChrSlotEnable(dest + MAX_PLAYERS);
 	g_BotConfigsArray[dest].base.name[0] = g_BotConfigsArray[index].base.name[0];
 	g_BotConfigsArray[dest].base.mpheadnum = g_BotConfigsArray[index].base.mpheadnum;
 	g_BotConfigsArray[dest].base.mpbodynum = g_BotConfigsArray[index].base.mpbodynum;
@@ -3481,13 +3487,45 @@ void mpCopySimulant(s32 index)
 }
 #endif
 
-bool mpHasSimulants(void)
+#ifndef PLATFORM_N64
+#include "system.h"
+
+/**
+ * Split active simulants evenly across team 0 (north) and team 1 (south).
+ * Used by --test-map --teams-battle on matrix_battle_64.
+ */
+void mpApplyTeamsBattleSplit(void)
 {
-	if ((g_MpSetup.chrslots & ~0xf) != 0) {
-		return true;
+	s32 i;
+	s32 simindex = 0;
+	s32 team0 = 0;
+	s32 team1 = 0;
+
+	g_MpSetup.options |= MPOPTION_TEAMSENABLED;
+	g_PlayerConfigsArray[0].base.team = 0;
+
+	for (i = 0; i < MAX_BOTS; i++) {
+		if (g_BotConfigsArray[i].difficulty == BOTDIFF_DISABLED) {
+			continue;
+		}
+
+		g_BotConfigsArray[i].base.team = simindex % 2;
+		if (g_BotConfigsArray[i].base.team == 0) {
+			team0++;
+		} else {
+			team1++;
+		}
+		simindex++;
 	}
 
-	return false;
+	sysLogPrintf(LOG_WARNING, "Battle64 teams: requested_sims=%d configured=%d team0=%d team1=%d (+1 human on team0)",
+			g_Vars.mpquickteamnumsims, simindex, team0 + 1, team1);
+}
+#endif
+
+bool mpHasSimulants(void)
+{
+	return mpHasAnySimulantSlots();
 }
 
 bool mpHasUnusedBotSlots(void)
@@ -3533,7 +3571,7 @@ bool mpIsSimSlotEnabled(s32 slot)
 bool mpIsChrParticipating(s32 index)
 {
 	if (index < MAX_PLAYERS) {
-		return (g_MpSetup.chrslots & (1 << index)) != 0;
+		return mpChrSlotIsSet(index);
 	}
 	s32 botnum = index - MAX_PLAYERS;
 	if (botnum < MAX_BOTS) {
@@ -4173,10 +4211,13 @@ void mp0f18dec4(s32 slot)
 
 #if VERSION >= VERSION_JPN_FINAL
 	g_MpSetup.chrslots &= 0x0f;
+#ifndef PLATFORM_N64
+	g_MpSetup.chrslots_hi = 0;
+#endif
 
 	for (i = 0; i < MAX_BOTS; i++) {
 		if (g_BotConfigsArray[i].difficulty != BOTDIFF_DISABLED) {
-			g_MpSetup.chrslots |= 1 << (i + 4);
+			mpChrSlotEnable(i + MAX_PLAYERS);
 		}
 	}
 #endif
@@ -4231,6 +4272,9 @@ void mpsetupfileLoadWad(struct savebuffer *buffer, u8 version)
 	}
 
 	g_MpSetup.chrslots &= 0x000f;
+#ifndef PLATFORM_N64
+	g_MpSetup.chrslots_hi = 0;
+#endif
 
 	s32 num_file_bots = MAX_BOTS;
 	if (version == 0 || version == 1) {
@@ -4256,7 +4300,7 @@ void mpsetupfileLoadWad(struct savebuffer *buffer, u8 version)
 			}
 
 			if (g_BotConfigsArray[i].difficulty != BOTDIFF_DISABLED) {
-				g_MpSetup.chrslots |= 1 << (i + 4);
+				mpChrSlotEnable(i + MAX_PLAYERS);
 			}
 
 			if (version > 1) {

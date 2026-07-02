@@ -14,7 +14,11 @@
 #define true  1
 
 #define MAX_ARTIFACTS          120
+#ifndef PLATFORM_N64
+#define MAX_BOTS               60
+#else
 #define MAX_BOTS               24
+#endif
 #define MAX_CHRSPERSQUADRON    16
 #define MAX_CHRSPERTEAM        32
 #define MAX_CHRWAYPOINTS       6
