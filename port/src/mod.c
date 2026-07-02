@@ -285,10 +285,10 @@ static char *modConfigParseStageWeather(char *p, char *token, s32 stagenum)
 
 static char *modConfigParseStage(char *p, char *token)
 {
-	// stage number
+	// stage number (allow EXTRA stages such as War Colors 0x5b — was capped at 0x50)
 	p = strParseToken(p, token, NULL);
 	const s32 stagenum = strtol(token, NULL, 0);
-	if (stagenum <= 0x01 || stagenum > 0x50) {
+	if (stagenum <= 0x01 || stagenum > 0xff) {
 		return NULL;
 	}
 

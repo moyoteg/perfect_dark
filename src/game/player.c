@@ -24,6 +24,11 @@
 #include "game/tex.h"
 #include "game/camera.h"
 #include "game/player.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#endif
+#include "game/mplayer/mplayer.h"
+#include "data.h"
 #include "game/modeldef.h"
 #include "game/healthbar.h"
 #include "game/hudmsg.h"
@@ -203,6 +208,124 @@ s16 g_DeathAnimations[] = {
 
 s32 g_NumDeathAnimations = 0;
 
+#if VERSION >= VERSION_NTSC_1_0
+static bool playerTryAdjustSpawnPos(f32 chrradius, struct coord *pos, RoomNum *rooms, f32 angle)
+{
+	return chrAdjustPosForSpawn(chrradius, pos, rooms, angle, true, false, false);
+}
+#endif
+
+f32 playerSnapSpawnGroundY(f32 spawny, f32 groundy)
+{
+#ifndef PLATFORM_N64
+	/* Conker geometry: Villa-era pad Y can differ 200+ units from floor at same XY. */
+	if (g_Vars.stagenum == STAGE_EXTRA26 && groundy > -100000.0f) {
+		return groundy;
+	}
+
+	if (groundy < -100000.0f || fabsf(groundy - spawny) > 80.0f) {
+		return spawny;
+	}
+#endif
+
+	return groundy;
+}
+
+void playerResolveSpawnRooms(struct chrdata *chr, struct coord *groundpos, RoomNum *rooms)
+{
+#ifndef PLATFORM_N64
+	RoomNum nearrooms[8];
+	s32 floorroom;
+
+	if (rooms[0] > 0) {
+		return;
+	}
+
+	chr0f021fa8(chr, groundpos, rooms);
+	if (rooms[0] > 0) {
+		return;
+	}
+
+	nearrooms[0] = -1;
+	floorroom = cdFindFloorRoomAtPos(groundpos, nearrooms);
+	if (floorroom > 0) {
+		rooms[0] = floorroom;
+		rooms[1] = -1;
+	}
+#endif
+}
+
+#if VERSION >= VERSION_NTSC_1_0
+/* Skip spawn pads with no Conker floor at retail XY (Tediz tunnel gaps on Conker seg). */
+static bool playerWarColorsSpawnPadIsUsable(struct coord *pos, RoomNum *rooms)
+{
+#ifndef PLATFORM_N64
+	struct coord probepos;
+	f32 groundy;
+	RoomNum scratchrooms[8];
+
+	if (g_Vars.stagenum != STAGE_EXTRA26) {
+		return true;
+	}
+
+	probepos.x = pos->x;
+	probepos.z = pos->z;
+	probepos.y = pos->y + 2000.0f;
+	if (probepos.y < 500.0f) {
+		probepos.y = 500.0f;
+	}
+
+	scratchrooms[0] = rooms[0];
+	scratchrooms[1] = -1;
+
+	groundy = cdFindGroundInfoAtCyl(&probepos, 30, scratchrooms,
+			NULL, NULL, NULL, NULL, NULL, NULL);
+
+	if (groundy < -100000.0f) {
+		return false;
+	}
+
+	if (rooms[0] <= 0 && scratchrooms[0] > 0) {
+		rooms[0] = scratchrooms[0];
+	}
+#endif
+
+	return true;
+}
+
+#ifndef PLATFORM_N64
+/* War Colors teams: spawns/weapons must be inside each base, not bridge/contested. */
+#define WAR_COLORS_SHC_Z_MIN    1200.0f
+#define WAR_COLORS_TEDIZ_Z_MAX -1200.0f
+
+static s32 playerGetMpSpawnTeam(struct prop *prop)
+{
+	if (g_Vars.currentplayer && g_Vars.currentplayer->prop == prop) {
+		return g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].base.team;
+	}
+
+	if (prop && prop->chr && prop->chr->aibot) {
+		return g_BotConfigsArray[prop->chr->aibot->aibotnum].base.team;
+	}
+
+	return 0;
+}
+
+static bool playerWarColorsTeamsPadAllowed(s32 spawnteam, f32 padz)
+{
+	if (spawnteam == 0) {
+		return padz > WAR_COLORS_SHC_Z_MIN;
+	}
+
+	if (spawnteam == 1) {
+		return padz < WAR_COLORS_TEDIZ_Z_MAX;
+	}
+
+	return true;
+}
+#endif
+#endif
+
 /**
  * Choose which location to spawn into from the given pads. Write the position
  * and rooms to the dstpos and dstrooms pointers and return the angle that the
@@ -254,10 +377,67 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 	RoomNum neighbours[20];
 #endif
 
+#ifndef PLATFORM_N64
+	s32 wc_spawnteam = 0;
+	bool wc_teams = false;
+
+	if (g_Vars.normmplayerisrunning
+			&& (g_MpSetup.options & MPOPTION_TEAMSENABLED)
+			&& g_Vars.stagenum == STAGE_EXTRA26) {
+		wc_teams = true;
+		wc_spawnteam = playerGetMpSpawnTeam(prop);
+	}
+#endif
+
 	// Iterate all spawn pads and populate the category arrays
 	for (p = 0; p < numpads; p++) {
 		bestsqdist = U32_MAX;
 		padUnpack(pads[p], PADFIELD_POS | PADFIELD_ROOM, &pad);
+
+		tmppadrooms[0] = pad.room;
+		tmppadrooms[1] = -1;
+
+#ifndef PLATFORM_N64
+		if (!playerWarColorsSpawnPadIsUsable(&pad.pos, tmppadrooms)) {
+			verybadpads[p] = true;
+			badpads[p] = true;
+			padsqdists[p] = -1.0f;
+			continue;
+		}
+		pad.room = tmppadrooms[0];
+#endif
+
+#ifndef PLATFORM_N64
+		// matrix_battle_64: team 0 spawns north (-Z), team 1 south (+Z).
+		if (g_Vars.normmplayerisrunning
+				&& (g_MpSetup.options & MPOPTION_TEAMSENABLED)
+				&& g_MpSetup.stagenum == STAGE_TEST_UFF
+				&& sysArgCheck("--teams-battle")) {
+			s32 spawnteam = 0;
+
+			if (g_Vars.currentplayer && g_Vars.currentplayer->prop == prop) {
+				spawnteam = g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].base.team;
+			} else if (prop && prop->chr && prop->chr->aibot) {
+				spawnteam = g_BotConfigsArray[prop->chr->aibot->aibotnum].base.team;
+			}
+
+			if ((spawnteam == 0 && pad.pos.z > 0.0f) || (spawnteam == 1 && pad.pos.z < 0.0f)) {
+				verybadpads[p] = true;
+				badpads[p] = true;
+				padsqdists[p] = -1.0f;
+				continue;
+			}
+		}
+
+		// War Colors: team 0 SHC (+Z), team 1 Tediz (-Z); bridge only if no primary pads.
+		if (wc_teams && !playerWarColorsTeamsPadAllowed(wc_spawnteam, pad.pos.z)) {
+			verybadpads[p] = true;
+			badpads[p] = true;
+			padsqdists[p] = -1.0f;
+			continue;
+		}
+#endif
+
 		verybadpads[p] = false;
 		badpads[p] = false;
 
@@ -343,7 +523,7 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 			slangles[sllen] = atan2f(pad.look.x, pad.look.z);
 
 #if VERSION >= VERSION_NTSC_1_0
-			if (chrAdjustPosForSpawn(chrradius, &slpositions[sllen], slrooms[sllen], slangles[sllen], true, false, false)) {
+			if (playerTryAdjustSpawnPos(chrradius, &slpositions[sllen], slrooms[sllen], slangles[sllen])) {
 				slpadindexes[sllen] = p;
 				sllen++;
 			}
@@ -382,7 +562,7 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 			slangles[sllen] = atan2f(pad.look.x, pad.look.z);
 
 #if VERSION >= VERSION_NTSC_1_0
-			if (chrAdjustPosForSpawn(chrradius, &slpositions[sllen], slrooms[sllen], slangles[sllen], true, false, false)) {
+			if (playerTryAdjustSpawnPos(chrradius, &slpositions[sllen], slrooms[sllen], slangles[sllen])) {
 				slpadindexes[sllen] = p;
 				sllen++;
 			}
@@ -443,7 +623,7 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 		slangles[sllen] = atan2f(pad.look.x, pad.look.z);
 
 #if VERSION >= VERSION_NTSC_1_0
-		if (chrAdjustPosForSpawn(chrradius, &slpositions[sllen], slrooms[sllen], slangles[sllen], true, false, false)) {
+		if (playerTryAdjustSpawnPos(chrradius, &slpositions[sllen], slrooms[sllen], slangles[sllen])) {
 			slpadindexes[sllen] = i;
 			sllen++;
 		}
@@ -469,8 +649,40 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 
 		dstangle = slangles[p];
 	} else {
-		// No shortlisted pads, so pick a random one from the full selection
-		padUnpack(pads[rngRandom() % numpads], PADFIELD_POS | PADFIELD_LOOK | PADFIELD_ROOM, &pad);
+#ifndef PLATFORM_N64
+		// No shortlisted pads — respect War Colors team zones when picking a fallback pad.
+		if (wc_teams) {
+			s16 candidates[MAX_SPAWN_POINTS];
+			s32 numcandidates = 0;
+
+			for (p = 0; p < numpads; p++) {
+				padUnpack(pads[p], PADFIELD_POS | PADFIELD_ROOM, &pad);
+				tmppadrooms[0] = pad.room;
+				tmppadrooms[1] = -1;
+
+				if (!playerWarColorsSpawnPadIsUsable(&pad.pos, tmppadrooms)) {
+					continue;
+				}
+
+				if (!playerWarColorsTeamsPadAllowed(wc_spawnteam, pad.pos.z)) {
+					continue;
+				}
+
+				candidates[numcandidates++] = pads[p];
+			}
+
+			if (numcandidates > 0) {
+				padUnpack(candidates[rngRandom() % numcandidates],
+						PADFIELD_POS | PADFIELD_LOOK | PADFIELD_ROOM, &pad);
+			} else {
+				padUnpack(pads[rngRandom() % numpads], PADFIELD_POS | PADFIELD_LOOK | PADFIELD_ROOM, &pad);
+			}
+		} else
+#endif
+		{
+			// No shortlisted pads, so pick a random one from the full selection
+			padUnpack(pads[rngRandom() % numpads], PADFIELD_POS | PADFIELD_LOOK | PADFIELD_ROOM, &pad);
+		}
 
 		dstrooms[0] = pad.room;
 		dstrooms[1] = -1;
@@ -481,6 +693,23 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 
 		dstangle = atan2f(pad.look.x, pad.look.z);
 	}
+
+#ifndef PLATFORM_N64
+	if (wc_teams) {
+		const char *side = "invalid";
+
+		if (dstpos->z > WAR_COLORS_SHC_Z_MIN) {
+			side = "SHC";
+		} else if (dstpos->z < WAR_COLORS_TEDIZ_Z_MAX) {
+			side = "Tediz";
+		}
+
+		sysLogPrintf(LOG_WARNING,
+				"war_colors_spawn: team=%d side=%s pos=(%.0f,%.0f,%.0f) bot=%d",
+				wc_spawnteam, side, dstpos->x, dstpos->y, dstpos->z,
+				(prop && prop->chr && prop->chr->aibot) ? 1 : 0);
+	}
+#endif
 
 	return dstangle;
 }
@@ -533,12 +762,29 @@ void playerStartNewLife(void)
 
 	angle = M_BADTAU - scenarioChooseSpawnLocation(30, &pos, rooms, g_Vars.currentplayer->prop); // var7f1ad534
 
-	groundy = cdFindGroundInfoAtCyl(&pos, 30, rooms,
-			&g_Vars.currentplayer->floorcol,
-			&g_Vars.currentplayer->floortype,
-			&g_Vars.currentplayer->floorflags,
-			&g_Vars.currentplayer->floorroom,
-			NULL, NULL);
+	{
+		f32 spawny = pos.y;
+		struct coord groundpos;
+
+		groundy = cdFindGroundInfoAtCyl(&pos, 30, rooms,
+				&g_Vars.currentplayer->floorcol,
+				&g_Vars.currentplayer->floortype,
+				&g_Vars.currentplayer->floorflags,
+				&g_Vars.currentplayer->floorroom,
+				NULL, NULL);
+
+		groundy = playerSnapSpawnGroundY(spawny, groundy);
+
+		if (rooms[0] <= 0 && g_Vars.currentplayer->floorroom > 0) {
+			rooms[0] = g_Vars.currentplayer->floorroom;
+			rooms[1] = -1;
+		}
+
+		groundpos.x = pos.x;
+		groundpos.y = groundy;
+		groundpos.z = pos.z;
+		playerResolveSpawnRooms(g_Vars.currentplayer->prop->chr, &groundpos, rooms);
+	}
 
 	pos.y = groundy + g_Vars.currentplayer->vv_eyeheight;
 

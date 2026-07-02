@@ -23,6 +23,9 @@
 #include "lib/anim.h"
 #include "data.h"
 #include "types.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#endif
 
 void playerInitEyespy(void)
 {
@@ -415,12 +418,29 @@ void playerReset(void)
 		}
 	}
 
-	groundy = cdFindGroundInfoAtCyl(&pos, 30, rooms,
-			&g_Vars.currentplayer->floorcol,
-			&g_Vars.currentplayer->floortype,
-			&g_Vars.currentplayer->floorflags,
-			&g_Vars.currentplayer->floorroom,
-			0, 0);
+	{
+		f32 spawny = pos.y;
+		struct coord groundpos;
+
+		groundy = cdFindGroundInfoAtCyl(&pos, 30, rooms,
+				&g_Vars.currentplayer->floorcol,
+				&g_Vars.currentplayer->floortype,
+				&g_Vars.currentplayer->floorflags,
+				&g_Vars.currentplayer->floorroom,
+				0, 0);
+
+		groundy = playerSnapSpawnGroundY(spawny, groundy);
+
+		if (rooms[0] <= 0 && g_Vars.currentplayer->floorroom > 0) {
+			rooms[0] = g_Vars.currentplayer->floorroom;
+			rooms[1] = -1;
+		}
+
+		groundpos.x = pos.x;
+		groundpos.y = groundy;
+		groundpos.z = pos.z;
+		playerResolveSpawnRooms(g_Vars.currentplayer->prop->chr, &groundpos, rooms);
+	}
 
 	pos.y = g_Vars.currentplayer->vv_eyeheight + groundy;
 	g_Vars.currentplayer->vv_manground = groundy;
@@ -442,6 +462,20 @@ void playerReset(void)
 
 	g_Vars.currentplayer->prop->rooms[0] = rooms[0];
 	g_Vars.currentplayer->prop->rooms[1] = -1;
+
+#ifndef PLATFORM_N64
+	{
+		s32 spawnteam = -1;
+
+		if (g_Vars.normmplayerisrunning && (g_MpSetup.options & MPOPTION_TEAMSENABLED)) {
+			spawnteam = g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].base.team;
+		}
+
+		sysLogPrintf(LOG_WARNING, "spawn: stage=%02x pos=(%.0f,%.0f,%.0f) ground=%.0f room=%d pads=%d team=%d",
+				g_Vars.stagenum, pos.f[0], groundy, pos.f[2], groundy, rooms[0], g_NumSpawnPoints,
+				spawnteam);
+	}
+#endif
 
 	playerSetCamPropertiesWithRoom(&pos,
 			&g_Vars.currentplayer->bond2.unk28,
