@@ -26,7 +26,11 @@ def cmd_build(args):
 
     mod_dirs = None
     if args.deploy:
-        mod_dirs = MOD_DIRS
+        mod_key = getattr(args, "mod", None)
+        if mod_key:
+            mod_dirs = [_mod_bgdata(mod_key)]
+        else:
+            mod_dirs = MOD_DIRS
 
     seg_script = None
     try:
@@ -402,6 +406,12 @@ def main():
     p_build = sub.add_parser("build", help="Build a level end-to-end")
     p_build.add_argument("name", help="Level name (e.g. uff)")
     p_build.add_argument("--deploy", "-d", action="store_true", help="Deploy to mod directories after build")
+    p_build.add_argument(
+        "--mod",
+        default=None,
+        choices=list(MOD_CHOICES.keys()),
+        help="Deploy only to this mod (default: mod_allinone + mod_moyoteg when --deploy)",
+    )
     p_build.add_argument("--seg", nargs="?", const="", default=None,
                          help="Build seg file (uses level SEG_SCRIPT when flag given without path)")
     p_build.add_argument("--no-validate", action="store_true",

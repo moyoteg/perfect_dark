@@ -4098,10 +4098,13 @@ struct mpsetup {
 	 * Each bit signifies that a player or sim is participating.
 	 *
 	 * Bits 0x000f are for players
-	 * Bits 0x0ff0 are for sims
-	 * Bits 0xf000 are probably not used
+	 * Bits 0xfffffff0 are for sims (indices 4-31 in chrslots; 32-63 in chrslots_hi on PC)
 	 */
 	/*0x800acb9e*/ u32 chrslots;
+#ifndef PLATFORM_N64
+	/* Simulant chr indices 32-63 (sim slots 28-59). Zero on N64 builds. */
+	u32 chrslots_hi;
+#endif
 	/*0x800acba0*/ u8 weapons[NUM_MPWEAPONSLOTS];
 	/*0x800acba6*/ u8 paused;
 	/*0x800acba8*/ struct fileguid fileguid;

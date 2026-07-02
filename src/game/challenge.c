@@ -3,6 +3,7 @@
 #include "game/atan2f.h"
 #include "game/bot.h"
 #include "game/challenge.h"
+#include "game/mplayer/chrslots.h"
 #include "game/chrai.h"
 #include "game/chraicommands.h"
 #include "game/debug.h"
@@ -252,14 +253,13 @@ void challengePerformSanityChecks(void)
 		// Turn off all simulants and turn them on if enabled
 		// for this number of players
 		g_MpSetup.chrslots &= 0x000f;
+		mpChrSlotClearAllSimulants();
 
 		for (i = 0; i < MAX_BOTS; i++) {
 			g_BotConfigsArray[i].difficulty = g_MpSimulantDifficultiesPerNumPlayers[i][numplayers - 1];
 
 			if (g_BotConfigsArray[i].difficulty != BOTDIFF_DISABLED) {
-				if (i + MAX_PLAYERS < 32) {
-					g_MpSetup.chrslots |= 1 << (i + MAX_PLAYERS);
-				}
+				mpChrSlotEnable(i + MAX_PLAYERS);
 			}
 		}
 
@@ -269,6 +269,9 @@ void challengePerformSanityChecks(void)
 	} else if (!challengeIsFeatureUnlocked(MPFEATURE_8BOTS)) {
 		// Limit to 4 players and 4 simulants
 		g_MpSetup.chrslots &= 0x00ff;
+#ifndef PLATFORM_N64
+		g_MpSetup.chrslots_hi = 0;
+#endif
 	}
 }
 

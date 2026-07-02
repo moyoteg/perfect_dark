@@ -1,0 +1,762 @@
+{
+  "name": "matrix_battle_64",
+  "box_half": 5000.0,
+  "box_height": 3000.0,
+  "seg_mode": "empty",
+  "pads": [
+    {
+      "index": 0,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 1,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 2,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 3,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 4,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 5,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 6,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 7,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": -3600.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 8,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 9,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 10,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 11,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 12,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 13,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 14,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 15,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": -3800.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 16,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 17,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 18,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 19,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 20,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 21,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 22,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 23,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": -4000.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 24,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 25,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 26,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 27,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 28,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 29,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 30,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 31,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": -4200.0,
+      "room": 1,
+      "team": 0
+    },
+    {
+      "index": 32,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 33,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 34,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 35,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 36,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 37,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 38,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 39,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": 3600.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 40,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 41,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 42,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 43,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 44,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 45,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 46,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 47,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": 3800.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 48,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 49,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 50,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 51,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 52,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 53,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 54,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 55,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": 4000.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 56,
+      "type": "spawn",
+      "x": -3500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 57,
+      "type": "spawn",
+      "x": -2500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 58,
+      "type": "spawn",
+      "x": -1500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 59,
+      "type": "spawn",
+      "x": -500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 60,
+      "type": "spawn",
+      "x": 500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 61,
+      "type": "spawn",
+      "x": 1500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 62,
+      "type": "spawn",
+      "x": 2500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 63,
+      "type": "spawn",
+      "x": 3500.0,
+      "y": 10.0,
+      "z": 4200.0,
+      "room": 1,
+      "team": 1
+    },
+    {
+      "index": 64,
+      "type": "weapon",
+      "x": -2800.0,
+      "y": 10.0,
+      "z": 0.0,
+      "room": 1,
+      "weapon": 17
+    },
+    {
+      "index": 65,
+      "type": "weapon",
+      "x": -1400.0,
+      "y": 10.0,
+      "z": 0.0,
+      "room": 1,
+      "weapon": 10
+    },
+    {
+      "index": 66,
+      "type": "weapon",
+      "x": 0.0,
+      "y": 10.0,
+      "z": 0.0,
+      "room": 1,
+      "weapon": 19
+    },
+    {
+      "index": 67,
+      "type": "weapon",
+      "x": 1400.0,
+      "y": 10.0,
+      "z": 0.0,
+      "room": 1,
+      "weapon": 2
+    },
+    {
+      "index": 68,
+      "type": "weapon",
+      "x": 2800.0,
+      "y": 10.0,
+      "z": 0.0,
+      "room": 1,
+      "weapon": 5
+    },
+    {
+      "index": 69,
+      "type": "weapon",
+      "x": -2000.0,
+      "y": 10.0,
+      "z": -1000.0,
+      "room": 1,
+      "weapon": 21
+    },
+    {
+      "index": 70,
+      "type": "weapon",
+      "x": 2000.0,
+      "y": 10.0,
+      "z": -1000.0,
+      "room": 1,
+      "weapon": 18
+    },
+    {
+      "index": 71,
+      "type": "weapon",
+      "x": -2000.0,
+      "y": 10.0,
+      "z": 1000.0,
+      "room": 1,
+      "weapon": 24
+    },
+    {
+      "index": 72,
+      "type": "weapon",
+      "x": 2000.0,
+      "y": 10.0,
+      "z": 1000.0,
+      "room": 1,
+      "weapon": 27
+    },
+    {
+      "index": 73,
+      "type": "weapon",
+      "x": -1000.0,
+      "y": 10.0,
+      "z": -1600.0,
+      "room": 1,
+      "weapon": 14
+    },
+    {
+      "index": 74,
+      "type": "weapon",
+      "x": 1000.0,
+      "y": 10.0,
+      "z": -1600.0,
+      "room": 1,
+      "weapon": 6
+    },
+    {
+      "index": 75,
+      "type": "weapon",
+      "x": -1000.0,
+      "y": 10.0,
+      "z": 1600.0,
+      "room": 1,
+      "weapon": 28
+    },
+    {
+      "index": 76,
+      "type": "ammo",
+      "x": 0.0,
+      "y": 10.0,
+      "z": 0.0,
+      "room": 1,
+      "ammoType": 3,
+      "quantity": 200
+    },
+    {
+      "index": 77,
+      "type": "ammo",
+      "x": -1800.0,
+      "y": 10.0,
+      "z": -600.0,
+      "room": 1,
+      "ammoType": 3,
+      "quantity": 200
+    },
+    {
+      "index": 78,
+      "type": "ammo",
+      "x": 1800.0,
+      "y": 10.0,
+      "z": -600.0,
+      "room": 1,
+      "ammoType": 3,
+      "quantity": 200
+    },
+    {
+      "index": 79,
+      "type": "ammo",
+      "x": -1800.0,
+      "y": 10.0,
+      "z": 600.0,
+      "room": 1,
+      "ammoType": 4,
+      "quantity": 200
+    },
+    {
+      "index": 80,
+      "type": "ammo",
+      "x": 1800.0,
+      "y": 10.0,
+      "z": 600.0,
+      "room": 1,
+      "ammoType": 4,
+      "quantity": 200
+    },
+    {
+      "index": 81,
+      "type": "ammo",
+      "x": 0.0,
+      "y": 10.0,
+      "z": -2000.0,
+      "room": 1,
+      "ammoType": 3,
+      "quantity": 200
+    },
+    {
+      "index": 82,
+      "type": "ammo",
+      "x": 0.0,
+      "y": 10.0,
+      "z": 2000.0,
+      "room": 1,
+      "ammoType": 3,
+      "quantity": 200
+    }
+  ]
+}

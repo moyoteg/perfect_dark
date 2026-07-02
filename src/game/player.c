@@ -24,6 +24,11 @@
 #include "game/tex.h"
 #include "game/camera.h"
 #include "game/player.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#endif
+#include "game/mplayer/mplayer.h"
+#include "data.h"
 #include "game/modeldef.h"
 #include "game/healthbar.h"
 #include "game/hudmsg.h"
@@ -258,6 +263,30 @@ f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstr
 	for (p = 0; p < numpads; p++) {
 		bestsqdist = U32_MAX;
 		padUnpack(pads[p], PADFIELD_POS | PADFIELD_ROOM, &pad);
+
+#ifndef PLATFORM_N64
+		// matrix_battle_64: team 0 spawns north (-Z), team 1 south (+Z).
+		if (g_Vars.normmplayerisrunning
+				&& (g_MpSetup.options & MPOPTION_TEAMSENABLED)
+				&& g_MpSetup.stagenum == STAGE_TEST_UFF
+				&& sysArgCheck("--teams-battle")) {
+			s32 spawnteam = 0;
+
+			if (g_Vars.currentplayer && g_Vars.currentplayer->prop == prop) {
+				spawnteam = g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].base.team;
+			} else if (prop && prop->chr && prop->chr->aibot) {
+				spawnteam = g_BotConfigsArray[prop->chr->aibot->aibotnum].base.team;
+			}
+
+			if ((spawnteam == 0 && pad.pos.z > 0.0f) || (spawnteam == 1 && pad.pos.z < 0.0f)) {
+				verybadpads[p] = true;
+				badpads[p] = true;
+				padsqdists[p] = -1.0f;
+				continue;
+			}
+		}
+#endif
+
 		verybadpads[p] = false;
 		badpads[p] = false;
 
