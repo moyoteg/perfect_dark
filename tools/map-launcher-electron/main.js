@@ -107,10 +107,22 @@ const MAP_LAUNCHERS = [
     category: 'war',
     options: [
       { key: 'solo', flag: '--solo', type: 'checkbox', label: 'Solo (human only, spawn smoke test)' },
-      { key: 'fullBattle', flag: '--full-battle', type: 'checkbox', label: 'Full battle (50 sims)' },
-      { key: 'numSims', flag: '--num-sims', type: 'number', label: 'Simulants', default: 8, min: 1, max: 64 },
+      { key: 'fullBattle', flag: '--full-battle', type: 'checkbox', label: 'Full battle (31 sims, teams cap)' },
+      { key: 'numSims', flag: '--num-sims', type: 'number', label: 'Simulants', default: 8, min: 1, max: 31 },
       { key: 'noPlay', flag: '--no-play', type: 'checkbox', label: 'Setup only (no play)' },
       { key: 'clean', flag: '--clean', type: 'checkbox', label: 'Purge mp13 overrides only' },
+    ],
+  },
+  {
+    id: 'virtual-agent-office',
+    title: 'Virtual Agent Office',
+    description: 'STAGE_AGENT_OFFICE (0x83) — dataDyne G5 depo geometry, 8 friendly office agents.',
+    script: 'scripts/play-agent-office.sh',
+    logPath: 'journal/agent_office/.last_launch.log',
+    category: 'simulation',
+    options: [
+      { key: 'withBots', flag: '--with-bots', type: 'checkbox', label: 'With Combat Sims (4 bots)' },
+      { key: 'noPlay', flag: '--no-play', type: 'checkbox', label: 'Deploy only (no play)' },
     ],
   },
   {
@@ -483,13 +495,16 @@ function resolveWarColorsSimOptions(opts) {
     return resolved;
   }
   if (resolved.fullBattle) {
-    resolved.numSims = 50;
+    // Teams MP chr cap is 32 including the human; 32+ sims SIGBUS-crashes on War Colors.
+    resolved.numSims = 31;
     return resolved;
   }
 
   const sims = Number(resolved.numSims);
   if (!Number.isFinite(sims) || sims < 1) {
     resolved.numSims = 8;
+  } else if (sims > 31) {
+    resolved.numSims = 31;
   }
   return resolved;
 }
