@@ -4,7 +4,7 @@
 # Usage:
 #   ./scripts/pd-kit-icons.sh              # build all kit icons
 #   ./scripts/pd-kit-icons.sh all
-#   ./scripts/pd-kit-icons.sh kit-hub|map-editor|anim-lab|asset-upgrader
+#   ./scripts/pd-kit-icons.sh kit-hub|map-editor|map-launcher|anim-lab|asset-upgrader
 
 set -euo pipefail
 
@@ -52,6 +52,11 @@ build_map_editor() {
 	cp "$BUILD_DIR/MapEditorAppIcon.icns" "$BUILD_DIR/EditorAppIcon.icns"
 }
 
+build_map_launcher() {
+	build_icon map-launcher generate-map-launcher-icon.swift \
+		"$BUILD_DIR/map-launcher-1024.png" "$BUILD_DIR/MapLauncherAppIcon.icns"
+}
+
 build_anim_lab() {
 	build_icon anim-lab generate-anim-lab-icon.swift \
 		"$BUILD_DIR/anim-lab-icon-1024.png" "$BUILD_DIR/AnimLabAppIcon.icns"
@@ -62,6 +67,11 @@ build_asset_upgrader() {
 		"$BUILD_DIR/asset-upgrader-1024.png" "$BUILD_DIR/AssetUpgraderAppIcon.icns"
 }
 
+build_agent_office() {
+	build_icon agent-office generate-agent-office-icon.swift \
+		"$BUILD_DIR/agent-office-1024.png" "$BUILD_DIR/AgentOfficeAppIcon.icns"
+}
+
 TARGET="${1:-all}"
 mkdir -p "$BUILD_DIR"
 
@@ -70,15 +80,19 @@ all)
 	echo "==> Building all Perfect Dark Kit icons"
 	build_kit_hub
 	build_map_editor
+	build_map_launcher
 	build_anim_lab
 	build_asset_upgrader
+	build_agent_office
 	;;
 kit-hub) build_kit_hub ;;
 map-editor) build_map_editor ;;
+map-launcher) build_map_launcher ;;
 anim-lab) build_anim_lab ;;
 asset-upgrader) build_asset_upgrader ;;
+agent-office) build_agent_office ;;
 -h | --help)
-	echo "Usage: $0 [all|kit-hub|map-editor|anim-lab|asset-upgrader]"
+	echo "Usage: $0 [all|kit-hub|map-editor|map-launcher|anim-lab|asset-upgrader|agent-office]"
 	exit 0
 	;;
 *)

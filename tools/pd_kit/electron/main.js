@@ -36,6 +36,9 @@ const MANIFEST_NAME = 'kit-manifest.json';
 let mainWindow = null;
 /** @type {string} */
 let repoRoot = '';
+/** @type {Map<string, number>} */
+const launchCooldownUntil = new Map();
+const LAUNCH_COOLDOWN_MS = 1200;
 
 function log(...args) {
   const line = `[${new Date().toISOString().slice(0, 19).replace('T', ' ')}] [kit-hub] ${args.join(' ')}`;
@@ -151,10 +154,18 @@ function appBundlePath(appKey) {
   return '';
 }
 
+/** True when no .app exists but kit.json lists a dev launch script in the repo. */
+function devLaunchAvailable(appKey) {
+  const cfg = kitPaths.appConfig(appKey);
+  if (!cfg.devLaunchScript) return false;
+  return fs.existsSync(path.join(repoRoot, cfg.devLaunchScript));
+}
+
 function toolCards() {
   return hubAppKeys().map((key) => {
     const cfg = kitPaths.appConfig(key);
     const appPath = appBundlePath(key);
+    const devMode = !appPath && devLaunchAvailable(key);
     const wrappedPath = path.join(wrappedAppsDir(), cfg.bundleFileName);
     return {
       key,
@@ -163,10 +174,11 @@ function toolCards() {
       description: cfg.description || '',
       category: cfg.category || 'authoring',
       optional: Boolean(cfg.optional),
-      built: Boolean(appPath),
+      built: Boolean(appPath) || devMode,
+      devMode,
       wrapped: fs.existsSync(wrappedPath),
-      path: appPath,
-      buildScript: cfg.buildScript || null,
+      path: appPath || (devMode ? path.join(repoRoot, cfg.devLaunchScript) : ''),
+      buildScript: cfg.buildScript || cfg.devLaunchScript || null,
     };
   });
 }
@@ -232,7 +244,27 @@ function runScript(scriptRel, args, options) {
   });
 }
 
+function openAppBundle(appPath) {
+  return new Promise((resolve, reject) => {
+    execFile('open', [appPath], (err) => (err ? reject(err) : resolve()));
+  });
+}
+
+function launchAllowed(appKey) {
+  const now = Date.now();
+  const until = launchCooldownUntil.get(appKey) || 0;
+  if (now < until) return false;
+  launchCooldownUntil.set(appKey, now + LAUNCH_COOLDOWN_MS);
+  return true;
+}
+
 function createWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    return;
+  }
   mainWindow = new BrowserWindow({
     width: 1120,
     height: 920,
@@ -248,96 +280,148 @@ function createWindow() {
     },
   });
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 function registerIpc() {
   ipcMain.handle('kit:get-info', () => {
-    const gamePath = gameBinaryPath();
-    return {
-      name: APP_TITLE,
-      kitVersion: kitPaths.kitVersion(repoRoot),
-      portVersion: kitPaths.portVersion(repoRoot),
-      repoRoot,
-      releaseDir: releaseDir(),
-      wrappedAppsDir: wrappedAppsDir(),
-      gameBinary: {
-        path: gamePath,
-        built: fs.existsSync(gamePath),
-      },
-      tools: toolCards(),
-      actionGroups: actionGroups(),
-      docs: docLinks(),
-      manifestBuiltAt: readReleaseManifest()?.builtAt || null,
-    };
+    try {
+      const gamePath = gameBinaryPath();
+      return {
+        name: APP_TITLE,
+        kitVersion: kitPaths.kitVersion(repoRoot),
+        portVersion: kitPaths.portVersion(repoRoot),
+        repoRoot,
+        releaseDir: releaseDir(),
+        wrappedAppsDir: wrappedAppsDir(),
+        gameBinary: {
+          path: gamePath,
+          built: fs.existsSync(gamePath),
+        },
+        tools: toolCards(),
+        actionGroups: actionGroups(),
+        docs: docLinks(),
+        manifestBuiltAt: readReleaseManifest()?.builtAt || null,
+      };
+    } catch (err) {
+      log(`get-info failed: ${err?.message || err}`);
+      return {
+        name: APP_TITLE,
+        kitVersion: kitPaths.kitVersion(repoRoot),
+        portVersion: kitPaths.portVersion(repoRoot),
+        repoRoot,
+        releaseDir: releaseDir(),
+        wrappedAppsDir: wrappedAppsDir(),
+        gameBinary: { path: '', built: false },
+        tools: [],
+        actionGroups: [],
+        docs: [],
+        manifestBuiltAt: null,
+        error: err?.message || String(err),
+      };
+    }
   });
 
   ipcMain.handle('kit:launch-app', async (_event, appKey) => {
-    const appPath = appBundlePath(appKey);
-    if (!appPath) {
+    try {
+      if (!launchAllowed(appKey)) {
+        return { ok: true, skipped: true, reason: 'cooldown' };
+      }
       const cfg = kitPaths.appConfig(appKey);
-      const hint = cfg.buildScript ? ` Run: ./${cfg.buildScript}` : ' Run: ./scripts/build-pd-kit.sh --apps-only';
+      const appPath = appBundlePath(appKey);
+      if (appPath) {
+        log(`Launch ${appKey}: ${appPath}`);
+        await openAppBundle(appPath);
+        return { ok: true, path: appPath };
+      }
+      if (cfg.devLaunchScript) {
+        const scriptPath = path.join(repoRoot, cfg.devLaunchScript);
+        if (fs.existsSync(scriptPath)) {
+          log(`Launch ${appKey} (dev): ${scriptPath}`);
+          const result = await runScript(cfg.devLaunchScript, [], { detached: true });
+          return { ok: result.ok, path: scriptPath, devMode: true };
+        }
+      }
+      const hint = cfg.buildScript
+        ? ` Run: ./${cfg.buildScript}`
+        : cfg.devLaunchScript
+          ? ` Run: ./${cfg.devLaunchScript}`
+          : ' Run: ./scripts/build-pd-kit.sh --apps-only';
       return { ok: false, error: `${cfg.shortTitle || appKey} is not built.${hint}` };
+    } catch (err) {
+      log(`Launch ${appKey} failed: ${err?.message || err}`);
+      return { ok: false, error: err?.message || String(err) };
     }
-    log(`Launch ${appKey}: ${appPath}`);
-    await new Promise((resolve, reject) => {
-      execFile('open', [appPath], (err) => (err ? reject(err) : resolve()));
-    });
-    return { ok: true, path: appPath };
   });
 
   ipcMain.handle('kit:launch-game', async (_event, options) => {
-    const mod = (options && options.mod) || 'mod_allinone';
-    const testMap = Boolean(options && options.testMap);
-    const binary = gameBinaryPath();
-    if (!fs.existsSync(binary)) {
-      return { ok: false, error: `Game binary missing: ${binary}` };
+    try {
+      const mod = (options && options.mod) || 'mod_allinone';
+      const testMap = Boolean(options && options.testMap);
+      const binary = gameBinaryPath();
+      if (!fs.existsSync(binary)) {
+        return { ok: false, error: `Game binary missing: ${binary}` };
+      }
+      const args = ['--moddir', path.join(repoRoot, 'mods', mod)];
+      if (testMap) args.push('--test-map');
+      log(`Launch game: ${binary} ${args.join(' ')}`);
+      const child = spawn(binary, args, {
+        cwd: repoRoot,
+        detached: true,
+        stdio: 'ignore',
+      });
+      child.unref();
+      return { ok: true, pid: child.pid, command: `${binary} ${args.join(' ')}` };
+    } catch (err) {
+      log(`Launch game failed: ${err?.message || err}`);
+      return { ok: false, error: err?.message || String(err) };
     }
-    const args = ['--moddir', path.join(repoRoot, 'mods', mod)];
-    if (testMap) args.push('--test-map');
-    log(`Launch game: ${binary} ${args.join(' ')}`);
-    const child = spawn(binary, args, {
-      cwd: repoRoot,
-      detached: true,
-      stdio: 'ignore',
-    });
-    child.unref();
-    return { ok: true, pid: child.pid, command: `${binary} ${args.join(' ')}` };
   });
 
   ipcMain.handle('kit:run-action', async (_event, actionKey) => {
-    const groups = kitManifest.actionGroups || [];
-    let action = null;
-    for (const group of groups) {
-      action = (group.actions || []).find((entry) => entry.key === actionKey);
-      if (action) break;
+    try {
+      const groups = kitManifest.actionGroups || [];
+      let action = null;
+      for (const group of groups) {
+        action = (group.actions || []).find((entry) => entry.key === actionKey);
+        if (action) break;
+      }
+      if (!action) {
+        return { ok: false, error: `Unknown action: ${actionKey}` };
+      }
+      if (action.requiresGame && !fs.existsSync(gameBinaryPath())) {
+        return { ok: false, error: 'Game binary not built. Use Build Game first.' };
+      }
+      log(`Run action ${actionKey}: ${action.script} ${(action.args || []).join(' ')}`);
+      if (action.longRunning && actionKey !== 'buildApps' && actionKey !== 'buildFullKit') {
+        return runScript(action.script, action.args, { detached: true });
+      }
+      return runScript(action.script, action.args);
+    } catch (err) {
+      log(`Run action ${actionKey} failed: ${err?.message || err}`);
+      return { ok: false, error: err?.message || String(err) };
     }
-    if (!action) {
-      return { ok: false, error: `Unknown action: ${actionKey}` };
-    }
-    if (action.requiresGame && !fs.existsSync(gameBinaryPath())) {
-      return { ok: false, error: 'Game binary not built. Use Build Game first.' };
-    }
-    log(`Run action ${actionKey}: ${action.script} ${(action.args || []).join(' ')}`);
-    if (action.longRunning && actionKey !== 'buildApps' && actionKey !== 'buildFullKit') {
-      return runScript(action.script, action.args, { detached: true });
-    }
-    return runScript(action.script, action.args);
   });
 
   ipcMain.handle('kit:open-doc', async (_event, docKey) => {
-    const doc = (kitManifest.docs || []).find((entry) => entry.key === docKey);
-    if (!doc) {
-      return { ok: false, error: `Unknown doc: ${docKey}` };
+    try {
+      const doc = (kitManifest.docs || []).find((entry) => entry.key === docKey);
+      if (!doc) {
+        return { ok: false, error: `Unknown doc: ${docKey}` };
+      }
+      const docPath = path.join(repoRoot, doc.path);
+      if (!fs.existsSync(docPath)) {
+        return { ok: false, error: `Doc not found: ${doc.path}` };
+      }
+      const err = await shell.openPath(docPath);
+      if (err) {
+        return { ok: false, error: err };
+      }
+      return { ok: true, path: docPath };
+    } catch (err) {
+      log(`Open doc ${docKey} failed: ${err?.message || err}`);
+      return { ok: false, error: err?.message || String(err) };
     }
-    const docPath = path.join(repoRoot, doc.path);
-    if (!fs.existsSync(docPath)) {
-      return { ok: false, error: `Doc not found: ${doc.path}` };
-    }
-    const err = await shell.openPath(docPath);
-    if (err) {
-      return { ok: false, error: err };
-    }
-    return { ok: true, path: docPath };
   });
 
   ipcMain.handle('kit:reveal-path', async (_event, targetPath) => {
@@ -374,8 +458,24 @@ app.whenReady().then(() => {
   }
   registerIpc();
   createWindow();
+}).catch((err) => {
+  log(`Startup failed: ${err?.message || err}`);
 });
 
 app.on('window-all-closed', () => {
-  app.quit();
+  if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+
+process.on('unhandledRejection', (reason) => {
+  log(`Unhandled rejection: ${reason?.message || reason}`);
+});
+
+process.on('uncaughtException', (err) => {
+  log(`Uncaught exception: ${err?.message || err}`);
 });

@@ -157,6 +157,36 @@ kit_prune_legacy_app_bundles() {
 	done
 }
 
+# electron-builder writes mac-arm64/*.app under *-dist/; those duplicate the
+# canonical scripts/release/*.app bundles and confuse Finder/Spotlight.
+kit_prune_electron_staging_dirs() {
+	local dir
+	for dir in \
+		"$PD_KIT_RELEASE_DIR/kit-hub-dist" \
+		"$PD_KIT_RELEASE_DIR/electron-dist" \
+		"$PD_KIT_RELEASE_DIR/anim-lab-dist" \
+		"$PD_KIT_RELEASE_DIR/asset-upgrader-electron-dist"; do
+		rm -rf "$dir" 2>/dev/null || true
+	done
+}
+
+# Keep a single repo-root shortcut to the hub; remove stray child-app symlinks.
+kit_prune_repo_root_app_clutter() {
+	local hub="${PD_KIT_APP_HUB:-Perfect Dark Kit.app}"
+	local entry name
+	shopt -s nullglob
+	for entry in "$PD_KIT_REPO_ROOT"/*.app; do
+		name="$(basename "$entry")"
+		if [[ "$name" == "$hub" ]]; then
+			continue
+		fi
+		if [[ -L "$entry" ]]; then
+			rm -f "$entry"
+		fi
+	done
+	shopt -u nullglob
+}
+
 kit_open_app() {
 	local bundle_name="$1"
 	local bundle_path="$PD_KIT_RELEASE_DIR/$bundle_name"

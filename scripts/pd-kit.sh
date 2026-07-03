@@ -4,7 +4,7 @@
 # Usage:
 #   ./scripts/pd-kit.sh version
 #   ./scripts/pd-kit.sh build [--game-only|--apps-only]
-#   ./scripts/pd-kit.sh open [kit|map-editor|anim-lab|asset-upgrader]
+#   ./scripts/pd-kit.sh open [kit|map-editor|map-launcher|anim-lab|asset-upgrader]
 #   ./scripts/pd-kit.sh validate [level ...]
 #   ./scripts/pd-kit.sh play [--test-map] [--mod mod_allinone]
 
@@ -24,7 +24,7 @@ ${PD_KIT_NAME} v${PD_KIT_VERSION} (port v${PD_PORT_VERSION})
 Usage:
   pd-kit.sh version
   pd-kit.sh build [--game-only|--apps-only|--no-symlink|--skip-game]
-  pd-kit.sh open [kit|map-editor|anim-lab|asset-upgrader]
+  pd-kit.sh open [kit|map-editor|map-launcher|anim-lab|asset-upgrader]
   pd-kit.sh validate [level ...]
   pd-kit.sh play [--test-map] [--mod MOD]
 
@@ -56,6 +56,13 @@ open)
 	map-editor | editor)
 		kit_open_app "$PD_KIT_APP_MAP_EDITOR"
 		;;
+	map-launcher | launcher | maps)
+		if [[ -d "$PD_KIT_RELEASE_DIR/PD Map Launcher.app" ]]; then
+			kit_open_app "PD Map Launcher.app"
+		else
+			exec "$SCRIPT_DIR/launch-map-launcher.sh"
+		fi
+		;;
 	anim-lab | anim | animation)
 		kit_open_app "$PD_KIT_APP_ANIM_LAB"
 		;;
@@ -79,7 +86,7 @@ open)
 		;;
 	*)
 		echo "Unknown app: $app" >&2
-		echo "Choose: kit, map-editor, anim-lab, asset-upgrader, play-last-test-map, llm-play" >&2
+		echo "Choose: kit, map-editor, map-launcher, anim-lab, asset-upgrader, play-last-test-map, llm-play" >&2
 		exit 2
 		;;
 	esac

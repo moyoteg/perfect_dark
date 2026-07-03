@@ -52,6 +52,15 @@ function loadManifest() {
         shortTitle: 'Kit',
         bundleFileName: 'Perfect Dark Kit.app',
         logFile: 'kit-hub.log',
+        wraps: [
+          'mapEditor',
+          'mapLauncher',
+          'animLab',
+          'agentOffice',
+          'assetUpgrader',
+          'playLastTestMap',
+          'llmPlay',
+        ],
       },
       mapEditor: {
         id: 'map-editor',
@@ -61,6 +70,15 @@ function loadManifest() {
         logFile: 'map-editor.log',
         legacySupportDir: 'PerfectDarkMapEditor',
       },
+      mapLauncher: {
+        id: 'map-launcher',
+        productName: 'PD Map Launcher',
+        shortTitle: 'Map Launcher',
+        bundleFileName: 'PD Map Launcher.app',
+        logFile: 'map-launcher.log',
+        optional: true,
+        devLaunchScript: 'scripts/launch-map-launcher.sh',
+      },
       animLab: {
         id: 'anim-lab',
         productName: 'PD Anim Lab',
@@ -68,6 +86,16 @@ function loadManifest() {
         bundleFileName: 'PD Anim Lab.app',
         logFile: 'anim-lab.log',
         legacySupportDir: 'PerfectDarkAnimLab',
+      },
+      agentOffice: {
+        id: 'agent-office',
+        productName: 'Virtual Agent Office',
+        shortTitle: 'Agent Office',
+        bundleFileName: 'Virtual Agent Office.app',
+        logFile: 'virtual-agent-office.log',
+        optional: true,
+        devLaunchScript: 'scripts/launch-agent-office-app.sh',
+        buildScript: 'scripts/build-agent-office-electron.sh',
       },
       assetUpgrader: {
         id: 'asset-upgrader',

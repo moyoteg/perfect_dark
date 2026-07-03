@@ -5,7 +5,9 @@ description: Essential commands, build steps, and coordinate system rules for mo
 
 # Perfect Dark Modding Workflow
 
-**Perfect Dark Kit:** [`PERFECT_DARK_KIT.md`](../../PERFECT_DARK_KIT.md) — unified build, apps, versioning, support paths.  
+**Perfect Dark Kit:** [`SPEC.md`](../../SPEC.md) — spec-driven contracts (start here).  
+**API/IPC detail:** [`API_CONTRACTS.md`](../../API_CONTRACTS.md) · [`STORIES.md`](../../STORIES.md) (verification procedures).  
+**Operator guide:** [`PERFECT_DARK_KIT.md`](../../PERFECT_DARK_KIT.md) — build, paths, quick start.  
 **Master map-making guide:** [`docs/MAP_MAKING_WIKI.md`](../../docs/MAP_MAKING_WIKI.md)
 (deploy, seg modes, viewport artifacts, Test/Play). Deep binary reference:
 [`docs/MAP_CREATION.md`](../../docs/MAP_CREATION.md).

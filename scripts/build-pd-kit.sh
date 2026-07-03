@@ -85,6 +85,9 @@ build_apps() {
 	echo "==> Building Animation Lab"
 	"$SCRIPT_DIR/build-anim-lab-electron.sh" --no-symlink
 
+	echo "==> Building Virtual Agent Office"
+	"$SCRIPT_DIR/build-agent-office-electron.sh" --no-symlink
+
 	echo "==> Building Asset Upgrader"
 	"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build --no-symlink
 
@@ -127,6 +130,11 @@ main() {
 		write_kit_release_manifest "$PD_BINARY" >/dev/null
 		build_kit_hub
 		kit_prune_legacy_app_bundles
+		kit_prune_electron_staging_dirs
+		if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
+			kit_symlink_app "$PD_KIT_APP_HUB"
+			kit_prune_repo_root_app_clutter
+		fi
 	fi
 
 	manifest_path="$(write_kit_release_manifest "$PD_BINARY")"

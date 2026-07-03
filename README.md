@@ -205,7 +205,7 @@ It might be possible to build and run the game on platforms that are not specifi
 
 ## Custom multiplayer maps
 
-This fork ships the **Perfect Dark Kit** — map pipeline (`tools/pdmap`), custom Combat Sim arenas (`my_arena`, `testarena`), and desktop authoring apps. See **[`PERFECT_DARK_KIT.md`](PERFECT_DARK_KIT.md)** for the full manifest, build order, and CLI.
+This fork ships the **Perfect Dark Kit** — map pipeline (`tools/pdmap`), custom Combat Sim arenas (`my_arena`, `testarena`), and desktop authoring apps. **Spec-driven contracts:** [`SPEC.md`](SPEC.md) · operator guide: [`PERFECT_DARK_KIT.md`](PERFECT_DARK_KIT.md).
 
 ### QUICKSTART (new mappers, macOS arm64)
 

@@ -17,6 +17,8 @@ const revealReleaseBtn = document.getElementById('revealReleaseBtn');
 
 /** @type {ReturnType<typeof window.pdKit.getInfo> extends Promise<infer T> ? T : never} | null */
 let latestInfo = null;
+/** @type {Set<string>} */
+const launchInFlight = new Set();
 
 function setStatus(message, kind) {
   statusLine.textContent = message;
@@ -35,7 +37,9 @@ function showOutput(text) {
 
 function badgeForTool(tool) {
   if (tool.built) {
-    return tool.wrapped ? ['Wrapped in kit', 'ok'] : ['Available', 'ok'];
+    if (tool.wrapped) return ['Wrapped in kit', 'ok'];
+    if (tool.devMode) return ['Dev mode', 'ok'];
+    return ['Available', 'ok'];
   }
   return tool.optional ? ['Optional — not built', 'warn'] : ['Not built', 'warn'];
 }
@@ -62,14 +66,24 @@ function renderTools(tools) {
   toolGrid.querySelectorAll('button[data-app-key]').forEach((button) => {
     button.addEventListener('click', async () => {
       const appKey = button.getAttribute('data-app-key');
+      if (!appKey || launchInFlight.has(appKey)) return;
+      launchInFlight.add(appKey);
+      button.disabled = true;
       setStatus(`Opening ${appKey}…`, '');
       showOutput('');
-      const result = await window.pdKit.launchApp(appKey);
-      if (!result.ok) {
-        setStatus(result.error || 'Launch failed', 'error');
-        return;
+      try {
+        const result = await window.pdKit.launchApp(appKey);
+        if (!result.ok) {
+          setStatus(result.error || 'Launch failed', 'error');
+          return;
+        }
+        setStatus(result.skipped ? `Already opening ${appKey}` : `Launched ${appKey}`, 'ok');
+      } catch (err) {
+        setStatus(String(err?.message || err), 'error');
+      } finally {
+        launchInFlight.delete(appKey);
+        button.disabled = false;
       }
-      setStatus(`Launched ${appKey}`, 'ok');
     });
   });
 }

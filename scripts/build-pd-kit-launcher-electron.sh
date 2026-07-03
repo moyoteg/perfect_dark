@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build the Perfect Dark Kit hub .app — wraps Map Editor, Animation Lab,
-# and Asset Upgrader inside Contents/Resources/Apps/.
+# Virtual Agent Office, and Asset Upgrader inside Contents/Resources/Apps/.
 #
 # Outputs:
 #   scripts/release/Perfect Dark Kit.app
@@ -144,6 +144,7 @@ main() {
 	echo "Building ${APP_NAME}.app with electron-builder ..."
 	npm run build
 	install_built_app
+	kit_prune_electron_staging_dirs
 	echo "Wrapping child apps into Contents/Resources/${WRAPPED_DIR_NAME}/ ..."
 	wrap_child_apps
 	copy_manifest
@@ -151,6 +152,7 @@ main() {
 
 	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
 		kit_symlink_app "${APP_NAME}.app"
+		kit_prune_repo_root_app_clutter
 	fi
 
 	printf '\nBuilt kit hub app:\n  %s\n' "$APP_BUNDLE"

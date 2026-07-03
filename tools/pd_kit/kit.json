@@ -13,7 +13,9 @@
       "legacyLogFile": null,
       "wraps": [
         "mapEditor",
+        "mapLauncher",
         "animLab",
+        "agentOffice",
         "assetUpgrader",
         "playLastTestMap",
         "llmPlay"
@@ -30,6 +32,17 @@
       "legacySupportDir": "PerfectDarkMapEditor",
       "legacyLogFile": "PerfectDarkMapEditor.log"
     },
+    "mapLauncher": {
+      "id": "map-launcher",
+      "productName": "PD Map Launcher",
+      "shortTitle": "Map Launcher",
+      "bundleFileName": "PD Map Launcher.app",
+      "logFile": "map-launcher.log",
+      "description": "Launch test maps and all 31 progressive curriculum steps from one UI.",
+      "category": "companion",
+      "optional": true,
+      "devLaunchScript": "scripts/launch-map-launcher.sh"
+    },
     "animLab": {
       "id": "anim-lab",
       "productName": "PD Anim Lab",
@@ -40,6 +53,18 @@
       "category": "authoring",
       "legacySupportDir": "PerfectDarkAnimLab",
       "legacyLogFile": "PerfectDarkAnimLab.log"
+    },
+    "agentOffice": {
+      "id": "agent-office",
+      "productName": "Virtual Agent Office",
+      "shortTitle": "Agent Office",
+      "bundleFileName": "Virtual Agent Office.app",
+      "logFile": "virtual-agent-office.log",
+      "description": "Deploy and explore the virtual agent office simulation — dataDyne G5 and Carrington Institute variants.",
+      "category": "companion",
+      "optional": true,
+      "devLaunchScript": "scripts/launch-agent-office-app.sh",
+      "buildScript": "scripts/build-agent-office-electron.sh"
     },
     "assetUpgrader": {
       "id": "asset-upgrader",
@@ -164,6 +189,22 @@
           "requiresGame": true
         },
         {
+          "key": "playAgentOffice",
+          "shortTitle": "Agent Office: dataDyne G5",
+          "description": "Deploy and launch the dataDyne G5 virtual agent office map (STAGE_AGENT_OFFICE).",
+          "script": "scripts/play-agent-office.sh",
+          "args": [],
+          "requiresGame": true
+        },
+        {
+          "key": "playAgentOfficeCi",
+          "shortTitle": "Agent Office: Carrington",
+          "description": "Deploy and launch the Carrington Institute virtual agent office map (STAGE_AGENT_OFFICE_CI).",
+          "script": "scripts/play-agent-office-ci.sh",
+          "args": [],
+          "requiresGame": true
+        },
+        {
           "key": "resetUffTestMap",
           "shortTitle": "Reset UFF Test Map",
           "description": "Purge and rebuild the empty-seg Matrix Test Room in the uff slot.",
@@ -225,6 +266,31 @@
     }
   ],
   "docs": [
+    {
+      "key": "spec",
+      "title": "Product Spec (SDD)",
+      "path": "SPEC.md"
+    },
+    {
+      "key": "stories",
+      "title": "User Stories",
+      "path": "STORIES.md"
+    },
+    {
+      "key": "architecture",
+      "title": "Architecture",
+      "path": "ARCHITECTURE.md"
+    },
+    {
+      "key": "environments",
+      "title": "Environments",
+      "path": "ENVIRONMENTS.md"
+    },
+    {
+      "key": "apiContracts",
+      "title": "API & IPC Contracts",
+      "path": "API_CONTRACTS.md"
+    },
     {
       "key": "kitReadme",
       "title": "Kit Guide",
