@@ -1,0 +1,19 @@
+{
+  "ts": "2026-07-01T05:46:21.027202+00:00",
+  "checks": {
+    "structure": {
+      "ok": true,
+      "errors": []
+    },
+    "screenshot": {
+      "ok": true,
+      "detail": "skipped (--static-only)"
+    },
+    "bridge_live": {
+      "ok": true,
+      "detail": "skipped (--static-only)",
+      "required": false
+    }
+  },
+  "passed": true
+}

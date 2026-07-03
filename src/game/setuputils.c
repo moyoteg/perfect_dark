@@ -12,6 +12,9 @@
 #include "data.h"
 #include "types.h"
 #include "platform.h"
+#ifndef PLATFORM_N64
+#include "system.h"
+#endif
 
 struct stagesetup g_StageSetup;
 u8 *g_GeCreditsData;
@@ -156,6 +159,14 @@ bool setupLoadModeldef(s32 modelnum)
 {
 	if (g_ModelStates[modelnum].modeldef == NULL) {
 		g_ModelStates[modelnum].modeldef = modeldefLoadToNew(g_ModelStates[modelnum].fileid);
+		if (g_ModelStates[modelnum].modeldef == NULL) {
+#ifndef PLATFORM_N64
+			sysLogPrintf(LOG_WARNING,
+					"setupLoadModeldef: failed modelnum=%d fileid=%d",
+					modelnum, g_ModelStates[modelnum].fileid);
+#endif
+			return false;
+		}
 		modelAllocateRwData(g_ModelStates[modelnum].modeldef);
 		return true;
 	}

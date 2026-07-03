@@ -40,3 +40,57 @@ work/asset_upgrader/.env
 tools/asset_upgrader/electron/node_modules/
 scripts/release/asset-upgrader-electron-dist/
 .venv-asset-upgrader/
+# Runtime logs, ports, and local state
+*.log
+*.pid
+.DS_Store
+eeprom.bin
+pd.log
+pd.ini
+pd.ini.*
+claude_summary.md
+debug_pos_file.log
+.tmp-map-editor-app-build/
+.tmp-pr-split/
+**/node_modules/
+journal/anim_lab/.anim_lab_server.port
+journal/anim_lab/.last_play.*
+journal/anim_lab/.npm_start.log
+journal/anim_lab/.serve_animlab.log
+journal/uff_viewer/.editor_server*
+journal/uff_viewer/.last_*
+journal/uff_viewer/.map-creator-loop.pid
+journal/agent_office/.boot_test*.log
+journal/agent_office/.last_*
+journal/map_learn/.last_*
+journal/map_learn/.learn-loop.*
+journal/map_learn/.loop-internal.log
+journal/map_learn/.matrix_*
+journal/map_learn/.validate_*
+journal/map_learn/.war_colors*
+journal/map_learn/loop.log
+journal/map_learn/validate_launch_*.log
+journal/map_learn/runs/
+/Perfect Dark Kit.app
+scripts/release/*-dist/
+scripts/release/agent-office-dist/
+scripts/release/anim-lab-dist/
+work/
+work/asset_upgrader/upgraded/
+mods/mod_upgraded/
+# iCloud / Finder duplicate copies (space before 2.)
+* 2.md
+* 2.sh
+* 2.py
+* 2.json
+* 2.html
+* 2.txt
+* 2.command
+* 2.c
+* 2.port
+* 2.png
+* 2.seg
+* 2.bin
+* 2.obj
+* 2.log
+* 2.pid

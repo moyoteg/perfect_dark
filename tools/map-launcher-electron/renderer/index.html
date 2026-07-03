@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+    <title>PD Map Launcher</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Perfect Dark AIO</p>
+          <h1 id="appTitle">PD Map Launcher</h1>
+          <p id="appSubtitle" class="subtitle">Launch test maps and manage the map learn curriculum.</p>
+        </div>
+        <div class="meta">
+          <div class="pill" id="kitVersionPill">Kit v0.0.0</div>
+          <div class="pill muted" id="portVersionPill">Port v0.0.0</div>
+        </div>
+      </header>
+
+      <section class="game-bar">
+        <div class="game-status" id="gameStatus">
+          <span class="status-dot idle"></span>
+          <span id="gameStatusText">Checking game status…</span>
+        </div>
+        <div class="game-actions">
+          <button id="killGameBtn" type="button" class="danger" disabled>Kill Game</button>
+          <button id="refreshBtn" type="button" class="ghost">Refresh</button>
+        </div>
+      </section>
+
+      <nav class="tabs" role="tablist">
+        <button type="button" class="tab active" data-tab="launcher" role="tab" aria-selected="true">
+          Map Launcher
+          <span id="launcherTabBadge" class="tab-badge hidden" aria-label="curriculum map count">31</span>
+        </button>
+        <button type="button" class="tab" data-tab="learning" role="tab" aria-selected="false">
+          Map Learning
+          <span id="learningTabBadge" class="tab-badge hidden" aria-label="curriculum map count">31</span>
+        </button>
+      </nav>
+
+      <section id="tab-launcher" class="tab-panel active" role="tabpanel">
+        <div class="section-head">
+          <h2>Test Maps</h2>
+          <p class="section-note">One-click launch via whitelisted scripts in scripts/</p>
+        </div>
+        <div class="grid" id="mapGrid"></div>
+
+        <div class="section-head curriculum-section-head">
+          <h2>
+            Progressive Learning Maps
+            <span id="launcherCurriculumBadge" class="count-badge hidden">31 maps</span>
+          </h2>
+          <p id="launcherCurriculumCountNote" class="section-note">Loading curriculum steps…</p>
+        </div>
+        <div id="launcherCurriculumPhases" class="curriculum-phases"></div>
+
+        <div class="log-panel">
+          <div class="log-head">
+            <h3>Launch Log</h3>
+            <span id="logPathLabel" class="muted small">No log selected</span>
+            <button id="revealLogBtn" type="button" class="ghost small-btn" disabled>Reveal in Finder</button>
+          </div>
+          <pre id="logOutput" class="output">Launch a map to see log output here.</pre>
+        </div>
+      </section>
+
+      <section id="tab-learning" class="tab-panel" role="tabpanel" hidden>
+        <div class="learn-grid">
+          <article class="panel">
+            <h3>Learn Loop</h3>
+            <p id="loopStatusText" class="muted">Checking loop status…</p>
+            <div class="actions-row compact">
+              <button id="startLoopBtn" type="button" class="primary">Start Loop</button>
+              <button id="stopLoopBtn" type="button">Stop Loop</button>
+            </div>
+            <pre id="loopLogOutput" class="output mini"></pre>
+          </article>
+
+          <article class="panel">
+            <h3>Validation & Curriculum</h3>
+            <p id="validationStepText" class="muted">Step —</p>
+            <div class="actions-row compact">
+              <button id="validateStatusBtn" type="button">Status</button>
+              <button id="validateListBtn" type="button">List Steps</button>
+              <button id="pdmapValidateBtn" type="button">pdmap validate</button>
+              <button id="curriculumGenBtn" type="button">Generate Curriculum</button>
+              <button id="learnRunBtn" type="button">pdmap learn run</button>
+            </div>
+            <div class="doc-links">
+              <button type="button" class="doc-link" data-doc="journal/map_learn/CURRICULUM.md">Curriculum</button>
+              <button type="button" class="doc-link" data-doc="journal/map_learn/LEARN_PLAN.md">Learn Plan</button>
+            </div>
+          </article>
+        </div>
+
+        <div class="section-head">
+          <h2>
+            Progressive Learning Maps
+            <span id="learningCurriculumBadge" class="count-badge hidden">31 maps</span>
+          </h2>
+          <p id="curriculumCountNote" class="section-note">Loading curriculum steps…</p>
+        </div>
+        <div id="curriculumPhases" class="curriculum-phases"></div>
+
+        <div class="section-head">
+          <h2>Recent Learn Runs</h2>
+          <p class="section-note">JSON summaries from journal/map_learn/runs/</p>
+        </div>
+        <div id="runsList" class="runs-list"></div>
+      </section>
+
+      <footer class="footer">
+        <p id="repoLine" class="muted"></p>
+        <p id="statusLine" class="status"></p>
+        <pre id="actionOutput" class="output hidden"></pre>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -243,6 +243,8 @@ u32 langGetLangBankIndexFromStagenum(s32 stagenum)
 	case STAGE_MY_ARENA:      bank = LANGBANK_UFF; break;
 	case STAGE_TESTARENA:     bank = LANGBANK_UFF; break;
 	case STAGE_ANIMLAB:       bank = LANGBANK_UFF; break;
+	case STAGE_AGENT_OFFICE:  bank = LANGBANK_DEPO; break;
+	case STAGE_AGENT_OFFICE_CI: bank = LANGBANK_DISH; break;
 #endif
 	default:
 		while (true) {
@@ -465,6 +467,9 @@ char *langGet(s32 textid)
 	if (textid == 0x7FFD) return "My Arena";
 	if (textid == 0x7FFC) return "Test Arena";
 	if (textid == 0x7FFE) return "Custom Maps";
+	if (textid == 0x7FFB) return "Animation Lab";
+	if (textid == 0x7FFA) return "Virtual Agent Office";
+	if (textid == 0x7FF9) return "Agent Office: Carrington";
 #endif
 	s32 bankindex = textid >> 9;
 	s32 textindex = textid & 0x1ff;

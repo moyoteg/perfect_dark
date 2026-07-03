@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import struct
 
 def mkword(a, b):
     return ((a << 16) | (b & 0xffff))
+
+def _u32(value: int) -> int:
+    """Coerce signed setup offsets to unsigned 32-bit (N64 prop layout)."""
+    return value & 0xFFFFFFFF
 
 def mkshort(a, b):
     return ((a << 8) | (b & 0xff))
@@ -62,7 +68,7 @@ class Door(GenericObject):
         b += struct.pack(">I", self.keyflags)
         b += struct.pack(">I", self.autoclosetime)
         b += struct.pack(">13I", 0, 0, 0, self.unk88, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        b += struct.pack(">4I", 0, 0, 0, self.sibling)
+        b += struct.pack(">4I", 0, 0, 0, _u32(self.sibling))
         b += struct.pack(">I", 0)
         b += struct.pack(">I", self.unkc4)
         b += struct.pack(">I", 0)
@@ -211,7 +217,14 @@ class LiftDoor(Prop):
         self.liftoffset = liftoffset
         self.stopnum = stopnum
     def pack(self) -> bytes:
-        return struct.pack(">5I", 0x13, self.dooroffset, self.liftoffset, 0, self.stopnum)
+        return struct.pack(
+            ">5I",
+            0x13,
+            _u32(self.dooroffset),
+            _u32(self.liftoffset),
+            0,
+            _u32(self.stopnum),
+        )
 
 class Shield(GenericObject):
     def __init__(self, scale=0x0100, model=0, pad=0, flags=0, flags2=0, flags3=0, maxdamage=1000):
@@ -371,12 +384,18 @@ class Lift(GenericObject):
     def pack(self) -> bytes:
         b = super().pack()
         b += struct.pack(">I", mkword(self.pad1, self.pad2))
-        b += struct.pack(">I", mkword(self.pad3, self.pad4))
-        b += struct.pack(">4I", self.door1, self.door2, self.door3, self.door4)
+        b += struct.pack(">I", _u32(mkword(self.pad3, self.pad4)))
+        b += struct.pack(
+            ">4I",
+            _u32(self.door1),
+            _u32(self.door2),
+            _u32(self.door3),
+            _u32(self.door4),
+        )
         b += struct.pack(">2I", 0, 0)
-        b += struct.pack(">I", self.accel)
-        b += struct.pack(">I", self.maxspeed)
-        b += struct.pack(">I", self.unk84)
+        b += struct.pack(">I", _u32(self.accel))
+        b += struct.pack(">I", _u32(self.maxspeed))
+        b += struct.pack(">I", _u32(self.unk84))
         b += struct.pack(">3I", 0, 0, 0)
         return b
 
@@ -476,9 +495,34 @@ class Weapon(GenericObject):
         return super().pack() + struct.pack(">3I", mkword(mkshort(self.weapon, 0), 0), 0x00ffffff, 0)
 
 class AmmoCrateMulti(GenericObject):
-    def __init__(self, scale=0x0100, model=0, pad=0, flags=0, flags2=0, flags3=0, maxdamage=1000):
+    def __init__(
+        self,
+        scale=0x0100,
+        model=0,
+        pad=0,
+        flags=0,
+        flags2=0,
+        flags3=0,
+        maxdamage=1000,
+        *,
+        slots: dict[int, int] | None = None,
+    ):
         super().__init__(type_=0x14, scale=scale, model=model, pad=pad, flags=flags, flags2=flags2, flags3=flags3, maxdamage=maxdamage)
+        # slots: ammotype (1..19) -> quantity; empty slots stay 0xffff0000 like retail.
+        self.slots = slots or {}
+
+    @staticmethod
+    def _pack_slot(modelnum: int = 0xFFFF, quantity: int = 0) -> int:
+        return ((modelnum & 0xFFFF) << 16) | (quantity & 0xFFFF)
+
     def pack(self) -> bytes:
         b = super().pack()
-        b += struct.pack(">19I", *[0xffff0000]*19)
+        packed = []
+        for ammotype in range(1, 20):
+            qty = self.slots.get(ammotype, 0)
+            if qty > 0:
+                packed.append(self._pack_slot(0xFFFF, qty))
+            else:
+                packed.append(0xFFFF0000)
+        b += struct.pack(">19I", *packed)
         return b

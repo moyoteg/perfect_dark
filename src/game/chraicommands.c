@@ -4353,6 +4353,13 @@ bool aiShowHudmsg(void)
 	char *text = langGet(cmd[4] | (cmd[3] << 8));
 	struct chrdata *chr = chrFindById(g_Vars.chrdata, cmd[2]);
 
+	g_Vars.aioffset += 5;
+
+	/* Missing lang bank/string — skip quietly (agent office before LdepoE deploy). */
+	if (text == NULL || text[0] == '\0') {
+		return false;
+	}
+
 	u32 prevplayernum = g_Vars.currentplayernum;
 	u32 playernum = g_Vars.currentplayernum;
 
@@ -4363,8 +4370,6 @@ bool aiShowHudmsg(void)
 	setCurrentPlayerNum(playernum);
 	hudmsgCreate(text, HUDMSGTYPE_DEFAULT);
 	setCurrentPlayerNum(prevplayernum);
-
-	g_Vars.aioffset += 5;
 
 	return false;
 }

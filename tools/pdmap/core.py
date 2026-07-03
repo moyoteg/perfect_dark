@@ -15,6 +15,7 @@ SEG_SRC = os.path.join(ROOT, "build", ROMID, "assets", "files", "seg")
 
 MOD_DIRS = [
     os.path.join(ROOT, "mods", "mod_allinone", "files", "bgdata"),
+    os.path.join(ROOT, "mods", "mod_kakariko", "files", "bgdata"),
     os.path.join(ROOT, "mods", "mod_moyoteg", "files", "bgdata"),
 ]
 
@@ -211,6 +212,16 @@ class MapDef:
             from .anim_parade import pack_anim_parade_setup
 
             return pack_anim_parade_setup(self)
+
+        if getattr(self, "agent_office", False):
+            from .agent_office import pack_agent_office_setup
+
+            return pack_agent_office_setup(self)
+
+        if getattr(self, "agent_office_ci", False):
+            from .agent_office_ci import pack_agent_office_ci_setup
+
+            return pack_agent_office_ci_setup(self)
 
         props_bin = b"".join(p.pack() for p in self.props) + struct.pack(">I", 0x34)
         intro_bin = b"".join(cmd.pack() for cmd in self.intro) + struct.pack(">I", 12)

@@ -2036,6 +2036,10 @@ char *filenames[] = {
 	/*0x7ee*/ "bgdata/bg_animlab_padsZ",
 	/*0x7ef*/ "UsetupanimlabZ",
 	/*0x7f0*/ "Ump_setupanimlabZ",
+	/*0x7f1*/ "Usetupagent_officeZ",
+	/*0x7f2*/ "Ump_setupagent_officeZ",
+	/*0x7f3*/ "Usetupagent_office_ciZ",
+	/*0x7f4*/ "Ump_setupagent_office_ciZ",
 #endif
 
 };

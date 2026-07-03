@@ -6,6 +6,8 @@
 
 f32 playerChooseSpawnLocation(f32 chrradius, struct coord *dstpos, RoomNum *dstrooms, struct prop *prop, s16 *spawnpads, s32 numspawnpads);
 f32 playerChooseGeneralSpawnLocation(f32 chrradius, struct coord *pos, RoomNum *rooms, struct prop *prop);
+f32 playerSnapSpawnGroundY(f32 spawny, f32 groundy);
+void playerResolveSpawnRooms(struct chrdata *chr, struct coord *groundpos, RoomNum *rooms);
 void playerStartNewLife(void);
 void playerLoadDefaults(void);
 bool playerSpawnAnti(struct chrdata *chr, s32 param_2);

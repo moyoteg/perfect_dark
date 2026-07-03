@@ -115,6 +115,10 @@ struct model *modelmgrInstantiateModel(struct modeldef *modeldef, bool withanim)
 #endif
 	s32 i;
 
+	if (modeldef == NULL) {
+		return NULL;
+	}
+
 	if (!g_ModelIsLvResetting) {
 		// If it's being allocated mid-gameplay, look through all slots
 		// and find any slot that's big enough.
@@ -142,12 +146,28 @@ struct model *modelmgrInstantiateModel(struct modeldef *modeldef, bool withanim)
 		if (model == NULL) {
 			osSyncPrintf("Allocating %d bytes for objinst structure\n", ALIGN16(sizeof(struct model)));
 			model = mempAlloc(ALIGN16(sizeof(struct model)), MEMPOOL_STAGE);
+			if (model == NULL) {
+#ifndef PLATFORM_N64
+				sysLogPrintf(LOG_WARNING,
+						"modelmgrInstantiateModel: model alloc failed (modeldef rwdatalen=%d)",
+						modeldef->rwdatalen);
+#endif
+				return NULL;
+			}
 		}
 
 		if (g_ModelIsLvResetting) {
 			if (modeldef->rwdatalen > 0) {
 				datalen = modeldef->rwdatalen;
 				rwdatas = mempAlloc(ALIGN16(datalen * 4), MEMPOOL_STAGE);
+				if (rwdatas == NULL) {
+#ifndef PLATFORM_N64
+					sysLogPrintf(LOG_WARNING,
+							"modelmgrInstantiateModel: rwdata alloc failed (rwdatalen=%d)",
+							modeldef->rwdatalen);
+#endif
+					return NULL;
+				}
 			}
 		} else {
 			// At this point, it's during gameplay. A model instance slot has
@@ -227,6 +247,14 @@ struct model *modelmgrInstantiateModel(struct modeldef *modeldef, bool withanim)
 
 			if (rwdatas == NULL) {
 				rwdatas = mempAlloc(ALIGN16(datalen * 4), MEMPOOL_STAGE);
+				if (rwdatas == NULL) {
+#ifndef PLATFORM_N64
+					sysLogPrintf(LOG_WARNING,
+							"modelmgrInstantiateModel: rwdata alloc failed (datalen=%d)",
+							datalen);
+#endif
+					return NULL;
+				}
 			}
 		}
 	}

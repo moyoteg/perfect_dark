@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import json
 from typing import Optional
@@ -11,6 +13,7 @@ def validate_mapdef(
     mapdef: MapDef,
     *,
     tiles_room_count: int | None = None,
+    allow_negative_y: bool = False,
 ) -> list[str]:
     """Logical checks on a MapDef before compiling assets (no binary I/O)."""
     errors: list[str] = []
@@ -25,9 +28,10 @@ def validate_mapdef(
             )
 
     for p in mapdef.pads:
-        if p.room < 0:
-            errors.append(f"Pad {p.index}: negative room {p.room}")
-        if p.y <= 0.0:
+        # room=-1 matches retail pads (setupPreparePads auto-binds floor room).
+        if p.room < -1:
+            errors.append(f"Pad {p.index}: invalid room {p.room}")
+        if not allow_negative_y and p.y <= 0.0:
             errors.append(
                 f"Pad {p.index}: Y={p.y} is at/below the floor; the ground "
                 f"search will reject the floor and the player will fall through "
@@ -79,6 +83,7 @@ def validate_mapdef(
 def validate_all(name: str, mapdef: Optional[MapDef] = None) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
+    mod = None
 
     if mapdef is None:
         try:
@@ -87,8 +92,17 @@ def validate_all(name: str, mapdef: Optional[MapDef] = None) -> tuple[list[str],
         except Exception as e:
             errors.append(f"Cannot load level module: {e}")
             return errors, warnings
+    else:
+        try:
+            mod = load_level_module(name)
+        except Exception:
+            mod = None
 
-    errors.extend(validate_mapdef(mapdef))
+    allow_negative_y = bool(getattr(mod, "RETAIL_GEOMETRY", False)) if mod else False
+    skip_tiles = bool(getattr(mod, "SKIP_TILES", False)) if mod else False
+    retail_tiles = getattr(mod, "RETAIL_TILES", None) if mod else None
+
+    errors.extend(validate_mapdef(mapdef, allow_negative_y=allow_negative_y))
 
     for p in mapdef.pads:
         if p.y > 200.0:
@@ -110,7 +124,9 @@ def validate_all(name: str, mapdef: Optional[MapDef] = None) -> tuple[list[str],
             )
 
     tiles_json_path = os.path.join(ROOT, "src", "assets", ROMID, "tiles", f"{name}.json")
-    if os.path.exists(tiles_json_path):
+    if skip_tiles and retail_tiles:
+        tiles_json_path = os.path.join(ROOT, "src", "assets", ROMID, "tiles", f"{retail_tiles}.json")
+    if not skip_tiles and os.path.exists(tiles_json_path):
         with open(tiles_json_path) as f:
             tiles_data = json.load(f)
         room_names = list(tiles_data.get("rooms", {}).keys())
@@ -120,9 +136,16 @@ def validate_all(name: str, mapdef: Optional[MapDef] = None) -> tuple[list[str],
                     f"Pad {p.index} spawns in room {p.room} but tiles have "
                     f"{len(room_names)} rooms"
                 )
+    elif skip_tiles:
+        warnings.append(
+            "SKIP_TILES: tile room validation skipped (retail collision from ROM/mod)"
+        )
 
+    skip_seg = bool(getattr(mod, "SKIP_SEG", False)) if mod else False
     seg_path = os.path.join(BUILD_DIR, f"bg_{name}.seg")
-    if not os.path.exists(seg_path):
+    if skip_seg:
+        warnings.append("SKIP_SEG: seg validation skipped (retail geometry from ROM/mod)")
+    elif not os.path.exists(seg_path):
         warnings.append(f"Seg not built at {seg_path} — run build with --seg if needed")
     else:
         with open(seg_path, "rb") as seg_fp:
@@ -132,5 +155,14 @@ def validate_all(name: str, mapdef: Optional[MapDef] = None) -> tuple[list[str],
     setup_path = os.path.join(ROOT, "build", ROMID, f"Ump_setup{name}Z")
     if not os.path.exists(setup_path):
         warnings.append(f"Setup binary missing at {setup_path}")
+
+    if name == "animlab":
+        try:
+            from .anim_wayfinding import audit_spawn_collision_floor, audit_spawn_walk_paths
+
+            warnings.extend(audit_spawn_walk_paths())
+            errors.extend(audit_spawn_collision_floor())
+        except Exception as exc:
+            warnings.append(f"animlab walk-path audit skipped: {exc}")
 
     return errors, warnings

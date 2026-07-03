@@ -4051,8 +4051,10 @@
 #define STAGE_MY_ARENA      0x80
 #define STAGE_TESTARENA     0x81
 #define STAGE_ANIMLAB        0x82
-/* Anim Lab: below stock 32000 (GDL overflow) but wide enough for ±9000 arena + districts. */
-#define ANIMLAB_DRAW_DIST      20000.0f
+#define STAGE_AGENT_OFFICE   0x83
+#define STAGE_AGENT_OFFICE_CI 0x84
+/* Anim Lab draw radius — mega yard ≈32k from spawn; 48k covers far wings from hub. */
+#define ANIMLAB_DRAW_DIST      48000.0f
 #define ANIMLAB_DRAW_DIST_SQ   (ANIMLAB_DRAW_DIST * ANIMLAB_DRAW_DIST)
 #define STAGE_TITLE         0x5c
 #define STAGE_BOOTPAKMENU   0x5d
@@ -4197,6 +4199,8 @@
 #define STAGEINDEX_MY_ARENA      0x57
 #define STAGEINDEX_TESTARENA     0x58
 #define STAGEINDEX_ANIMLAB       0x59
+#define STAGEINDEX_AGENT_OFFICE  0x5a
+#define STAGEINDEX_AGENT_OFFICE_CI 0x5b
 
 #define SURFACETYPE_DEFAULT      0
 #define SURFACETYPE_STONE        1

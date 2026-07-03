@@ -1,0 +1,22 @@
+{
+  "player": {
+    "stick_x": 0,
+    "stick_y": 90,
+    "look_x": 0,
+    "look_y": 0,
+    "buttons": ["Z"]
+  },
+  "bots": [
+    {
+      "slot": 0,
+      "move_fwd": 0.8,
+      "move_strafe": 0.0,
+      "aim_yaw_delta": 4.0,
+      "aim_pitch_delta": 0.0,
+      "fire": true,
+      "reload": false,
+      "target_id": 0,
+      "weapon_num": 5
+    }
+  ]
+}

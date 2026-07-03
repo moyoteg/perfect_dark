@@ -1,0 +1,1133 @@
+{
+    "constants": {
+        "STAGE_ID_CUSTOM_MP": "0x35",
+        "TOTAL_ROOMS": "0x06",
+        "OUTSIDE_WORLD_ROOM": "0x00",
+        "SKYBOX_SCALE_DEFAULT": "0x0100",
+        "MODEL_DOOR_DATADYNE": "0x0102",
+        "MODEL_DOOR_LAB": "0x0105",
+        "MODEL_LIFT_CARRIAGE": "0x0120",
+        "MODEL_GLASS_PANEL": "0x0145",
+        "MODEL_BARREL_VOLATILE": "0x0160",
+        "MODEL_SENTRY_TURRET": "0x0188",
+        "MODEL_COMPUTER_CONSOLEV2": "0x0210",
+        "MODEL_TELEPORTER_FX": "0x0240",
+        "MODEL_CARGO_CRATE": "0x0290",
+        "MODEL_CHAIR_OFFICE": "0x0312",
+        "MODEL_DESK_LABORATORY": "0x0315",
+        "MODEL_MONITOR_WALL_STATIC": "0x0340",
+        "WEAPON_FALCON2": "0x01",
+        "WEAPON_MAGSEC4": "0x02",
+        "WEAPON_CMP150": "0x05",
+        "WEAPON_SUPERDRAGON": "0x07",
+        "WEAPON_SHOTGUN": "0x0A",
+        "WEAPON_DEVASTATOR": "0x0E",
+        "WEAPON_RC_P50": "0x12",
+        "ITEM_BODYARMOR": "0x01",
+        "ITEM_BOOSTSHIELD": "0x02",
+        "ITEM_CLOAKINGDEVICE": "0x05",
+        "KEYCARD_LEVEL_3": "0x0A",
+        "AMMO_9MM": "0x01",
+        "AMMO_RIFLE": "0x03",
+        "OBJ_FLAG_NONE": "0x00000000",
+        "OBJ_FLAG_SHOOTABLE": "0x00000001",
+        "OBJ_FLAG_INTERACTIVE": "0x00000002",
+        "OBJ_FLAG_DESTRUCTIBLE": "0x00000004",
+        "OBJ_FLAG_RAYCAST_COLLISION": "0x00000008",
+        "OBJ_FLAG_EXPLOSIVE": "0x00000010",
+        "OBJ_FLAG_GRAVITY": "0x00000020",
+        "DOOR_FLAG_AUTOMATIC": "0x00000001",
+        "DOOR_FLAG_CLOSES": "0x00000002",
+        "DOOR_FLAG_DAMAGE_SHIELD": "0x00000004",
+        "DOOR_FLAG_LOCKED": "0x00000008",
+        "DOOR_FLAG_REQUIRES_KEY": "0x00000010",
+        "LIFT_FLAG_START_BOTTOM": "0x00000001",
+        "LIFT_FLAG_CAN_BE_CALLED": "0x00000002",
+        "TURRET_FLAG_TEAM_MANUAL": "0x00000001",
+        "TURRET_FLAG_ENGAGE_BOTS": "0x00000002",
+        "SCENARIO_HILL_ZONE": "0x01",
+        "SCENARIO_BRIEFCASE": "0x02",
+        "SCENARIO_HACK_NODE": "0x03",
+        "SKYBOX_REXT_SPACE": "0x0A",
+        "REVERB_ROOM_CONCRETE": "0x04",
+        "AI_SCAN_180": "0x01",
+        "AI_SCAN_360": "0x02",
+        "FLOOR_BOTTOM": "0x00",
+        "FLOOR_TOP": "0x01",
+        "MUSIC_COMBAT_SIM_04": "0x0024",
+        "SFX_DOOR_HEAVY_PNEUMATIC": "0x04A1",
+        "SFX_ELEVATOR_WHINE": "0x05B2",
+        "SFX_WINDOW_SHATTER": "0x0612",
+        "SFX_ALARM_SIREN_LOOP": "0x05C4",
+        "SFX_TERMINAL_ACCESS_DENIED": "0x031A",
+        "SFX_DATA_UPLINK_SUCCESS": "0x04C2",
+        "SFX_POWER_GRID_ONLINE": "0x071F",
+        "FX_GLASS_SHARDS": "0x02",
+        "FX_WARP_BEAM": "0x09",
+        "FX_PORTAL_ACTIVE_GLOW": "0x0B",
+        "TIMER_FLAG_CONTINUOUS": "0x00000002",
+        "TIMER_FLAG_AUTO_START": "0x00000004",
+        "DOOR_FORCE_CLOSE_AND_LOCK": "0x00000003",
+        "DOOR_RESTORE_DEFAULT_BEHAVIOR": "0x00000000",
+        "SCRIPT_STAGE_GLOBAL_INIT": "0x01",
+        "VAR_HACK_PROGRESS": "0x20",
+        "VAR_TELEPORTER_STATE": "0x21",
+        "OBJECT_HACK_TERMINAL": "0x71",
+        "OBJECT_PORTAL_GATE": "0x80",
+        "TRIGGER_ON_LEVEL_LOAD": "0x00000001",
+        "TRIGGER_MANUAL_EXECUTION": "0x00000000",
+        "TRIGGER_ON_OBJECT_COLLISION": "0x00000008",
+        "TRIGGER_ON_OBJECT_DAMAGE": "0x00000010",
+        "STATE_DEACTIVATED": "0x00000000",
+        "STATE_ACTIVATED": "0x00000001",
+        "STATE_LISTENER_AUTO_START": "0x00000001",
+        "AI_BOT_TEAM_ALL": "0xFF",
+        "AI_BEHAVIOR_OVERRIDE_SLOT": "0x03",
+        "AI_PATH_ACCURACY_STRICT": "0x01",
+        "ACTOR_CLASS_SIMULANT": "0x02",
+        "ACTOR_CURRENT_INTERACTING": "0x0A",
+        "TACTIC_SEARCH_AND_DESTROY": "0x04",
+        "TACTIC_DEFEND_AREA": "0x05",
+        "VAR_BOT_TARGET_ACQUIRED": "0x22",
+        "BOT_TACTIC_RUSH_CONSOLE": "0x0A"
+    },
+    "macros": [
+        {
+            "name": "Set_Skybox",
+            "args": [
+                "SKYBOX_REXT_SPACE"
+            ]
+        },
+        {
+            "name": "Set_Skybox_Scale",
+            "args": [
+                "SKYBOX_SCALE_DEFAULT"
+            ]
+        },
+        {
+            "name": "Set_Ambient_Light",
+            "args": [
+                "0x42",
+                "0x42",
+                "0x4A"
+            ]
+        },
+        {
+            "name": "Set_Floor_Shadow_Intensity",
+            "args": [
+                "0x60"
+            ]
+        },
+        {
+            "name": "Configure_Fog",
+            "args": [
+                "0x01",
+                "0x12",
+                "0x12",
+                "0x1A",
+                "0x03E8",
+                "0x2710"
+            ]
+        },
+        {
+            "name": "Configure_Fog",
+            "args": [
+                "0x02",
+                "0x12",
+                "0x12",
+                "0x1A",
+                "0x03E8",
+                "0x2710"
+            ]
+        },
+        {
+            "name": "Configure_Fog",
+            "args": [
+                "0x03",
+                "0x12",
+                "0x12",
+                "0x1A",
+                "0x03E8",
+                "0x2710"
+            ]
+        },
+        {
+            "name": "Configure_Fog",
+            "args": [
+                "0x04",
+                "0x12",
+                "0x12",
+                "0x1A",
+                "0x03E8",
+                "0x2710"
+            ]
+        },
+        {
+            "name": "Configure_Fog",
+            "args": [
+                "0x05",
+                "0x12",
+                "0x12",
+                "0x1A",
+                "0x03E8",
+                "0x2710"
+            ]
+        },
+        {
+            "name": "Configure_Fog",
+            "args": [
+                "0x06",
+                "0x12",
+                "0x12",
+                "0x1A",
+                "0x03E8",
+                "0x2710"
+            ]
+        },
+        {
+            "name": "Set_Level_Music",
+            "args": [
+                "MUSIC_COMBAT_SIM_04"
+            ]
+        },
+        {
+            "name": "Set_Reverb_Profile",
+            "args": [
+                "REVERB_ROOM_CONCRETE"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x00",
+                "0x01"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x01",
+                "0x01"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x02",
+                "0x02"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x03",
+                "0x02"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x04",
+                "0x03"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x05",
+                "0x03"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x06",
+                "0x04"
+            ]
+        },
+        {
+            "name": "Spawn_Pad",
+            "args": [
+                "0x07",
+                "0x04"
+            ]
+        },
+        {
+            "name": "Weapon_Tile",
+            "args": [
+                "0x08",
+                "WEAPONSLOT_AUTOMATIC",
+                "WEAPON_FALCON2"
+            ]
+        },
+        {
+            "name": "Weapon_Tile",
+            "args": [
+                "0x09",
+                "WEAPONSLOT_POWER",
+                "WEAPON_MAGSEC4"
+            ]
+        },
+        {
+            "name": "Weapon_Tile",
+            "args": [
+                "0x0A",
+                "WEAPONSLOT_EXPLOSIVE",
+                "WEAPON_DEVASTATOR"
+            ]
+        },
+        {
+            "name": "Weapon_Tile",
+            "args": [
+                "0x0B",
+                "WEAPONSLOT_AUTOMATIC",
+                "WEAPON_CMP150"
+            ]
+        },
+        {
+            "name": "Weapon_Tile",
+            "args": [
+                "0x0C",
+                "WEAPONSLOT_AUTOMATIC",
+                "WEAPON_SUPERDRAGON"
+            ]
+        },
+        {
+            "name": "Weapon_Tile",
+            "args": [
+                "0x0D",
+                "WEAPONSLOT_CLOSE",
+                "WEAPON_SHOTGUN"
+            ]
+        },
+        {
+            "name": "Ammo_Spawn",
+            "args": [
+                "0x0E",
+                "AMMO_9MM",
+                "0x001E",
+                "12"
+            ]
+        },
+        {
+            "name": "Ammo_Spawn",
+            "args": [
+                "0x0F",
+                "AMMO_RIFLE",
+                "0x001E",
+                "12"
+            ]
+        },
+        {
+            "name": "Item_Spawn",
+            "args": [
+                "0x10",
+                "ITEM_BODYARMOR",
+                "30"
+            ]
+        },
+        {
+            "name": "Item_Spawn",
+            "args": [
+                "0x11",
+                "ITEM_BOOSTSHIELD",
+                "60"
+            ]
+        },
+        {
+            "name": "Item_Spawn",
+            "args": [
+                "0x12",
+                "ITEM_CLOAKINGDEVICE",
+                "90"
+            ]
+        },
+        {
+            "name": "Scenario_Target",
+            "args": [
+                "0x20",
+                "SCENARIO_HILL_ZONE",
+                "OBJ_FLAG_NONE"
+            ]
+        },
+        {
+            "name": "Scenario_Target",
+            "args": [
+                "0x21",
+                "SCENARIO_BRIEFCASE",
+                "OBJ_FLAG_NONE"
+            ]
+        },
+        {
+            "name": "Scenario_Target",
+            "args": [
+                "0x22",
+                "SCENARIO_HACK_NODE",
+                "OBJ_FLAG_NONE"
+            ]
+        },
+        {
+            "name": "Begin_Door",
+            "args": [
+                "0x40",
+                "0x15",
+                "MODEL_DOOR_DATADYNE",
+                "DOOR_FLAG_AUTOMATIC | DOOR_FLAG_CLOSES | DOOR_FLAG_DAMAGE_SHIELD"
+            ]
+        },
+        {
+            "name": "Set_Door_Speed",
+            "args": [
+                "0x0045"
+            ]
+        },
+        {
+            "name": "Set_Door_Delay",
+            "args": [
+                "5"
+            ]
+        },
+        {
+            "name": "Set_Door_Sound",
+            "args": [
+                "SFX_DOOR_HEAVY_PNEUMATIC"
+            ]
+        },
+        {
+            "name": "Link_To_Room",
+            "args": [
+                "0x01",
+                "0x02"
+            ]
+        },
+        {
+            "name": "End_Door",
+            "args": []
+        },
+        {
+            "name": "Begin_Door",
+            "args": [
+                "0x41",
+                "0x16",
+                "MODEL_DOOR_LAB",
+                "DOOR_FLAG_LOCKED | DOOR_FLAG_REQUIRES_KEY | DOOR_FLAG_CLOSES"
+            ]
+        },
+        {
+            "name": "Set_Door_Speed",
+            "args": [
+                "0x0030"
+            ]
+        },
+        {
+            "name": "Set_Door_Delay",
+            "args": [
+                "4"
+            ]
+        },
+        {
+            "name": "Set_Door_Lock_ID",
+            "args": [
+                "KEYCARD_LEVEL_3"
+            ]
+        },
+        {
+            "name": "Set_Door_Sound",
+            "args": [
+                "SFX_DOOR_HEAVY_PNEUMATIC"
+            ]
+        },
+        {
+            "name": "Link_To_Room",
+            "args": [
+                "0x02",
+                "0x03"
+            ]
+        },
+        {
+            "name": "End_Door",
+            "args": []
+        },
+        {
+            "name": "Begin_Lift",
+            "args": [
+                "0x50",
+                "0x1A",
+                "MODEL_LIFT_CARRIAGE",
+                "LIFT_FLAG_START_BOTTOM | LIFT_FLAG_CAN_BE_CALLED"
+            ]
+        },
+        {
+            "name": "Set_Lift_Bounds",
+            "args": [
+                "0x1A",
+                "0x1B"
+            ]
+        },
+        {
+            "name": "Set_Lift_Speed",
+            "args": [
+                "0x0038"
+            ]
+        },
+        {
+            "name": "Set_Lift_Sound",
+            "args": [
+                "SFX_ELEVATOR_WHINE"
+            ]
+        },
+        {
+            "name": "Bind_Call_Button",
+            "args": [
+                "0x1C",
+                "FLOOR_BOTTOM"
+            ]
+        },
+        {
+            "name": "Bind_Call_Button",
+            "args": [
+                "0x1D",
+                "FLOOR_TOP"
+            ]
+        },
+        {
+            "name": "End_Lift",
+            "args": []
+        },
+        {
+            "name": "Begin_Destructible",
+            "args": [
+                "0x60",
+                "0x25",
+                "MODEL_GLASS_PANEL",
+                "OBJ_FLAG_SHOOTABLE | OBJ_FLAG_RAYCAST_COLLISION | OBJ_FLAG_DESTRUCTIBLE"
+            ]
+        },
+        {
+            "name": "Set_Object_Health",
+            "args": [
+                "15"
+            ]
+        },
+        {
+            "name": "Set_Shatter_Particle",
+            "args": [
+                "FX_GLASS_SHARDS"
+            ]
+        },
+        {
+            "name": "Set_Destruction_Sound",
+            "args": [
+                "SFX_WINDOW_SHATTER"
+            ]
+        },
+        {
+            "name": "End_Destructible",
+            "args": []
+        },
+        {
+            "name": "Begin_Destructible",
+            "args": [
+                "0x61",
+                "0x26",
+                "MODEL_BARREL_VOLATILE",
+                "OBJ_FLAG_SHOOTABLE | OBJ_FLAG_EXPLOSIVE | OBJ_FLAG_GRAVITY"
+            ]
+        },
+        {
+            "name": "Set_Object_Health",
+            "args": [
+                "5"
+            ]
+        },
+        {
+            "name": "Set_Explosion_Radius",
+            "args": [
+                "15"
+            ]
+        },
+        {
+            "name": "Set_Explosion_Damage",
+            "args": [
+                "300"
+            ]
+        },
+        {
+            "name": "End_Destructible",
+            "args": []
+        },
+        {
+            "name": "Begin_Weapon_Sentry",
+            "args": [
+                "0x70",
+                "0x30",
+                "MODEL_SENTRY_TURRET",
+                "TURRET_FLAG_TEAM_MANUAL | TURRET_FLAG_ENGAGE_BOTS"
+            ]
+        },
+        {
+            "name": "Set_Sentry_Targeting",
+            "args": [
+                "AI_SCAN_180"
+            ]
+        },
+        {
+            "name": "Set_Sentry_Weapon",
+            "args": [
+                "WEAPON_CMP150"
+            ]
+        },
+        {
+            "name": "Set_Sentry_Accuracy",
+            "args": [
+                "0x0048"
+            ]
+        },
+        {
+            "name": "End_Sentry",
+            "args": []
+        },
+        {
+            "name": "Begin_Terminal",
+            "args": [
+                "OBJECT_HACK_TERMINAL",
+                "0x31",
+                "MODEL_COMPUTER_CONSOLEV2",
+                "OBJ_FLAG_INTERACTIVE | OBJ_FLAG_RAYCAST_COLLISION"
+            ]
+        },
+        {
+            "name": "Set_Terminal_Interaction_Time",
+            "args": [
+                "8"
+            ]
+        },
+        {
+            "name": "Set_Terminal_Script_On_Success",
+            "args": [
+                "0x1A"
+            ]
+        },
+        {
+            "name": "Set_Terminal_Script_On_Interrupted",
+            "args": [
+                "0x1B"
+            ]
+        },
+        {
+            "name": "End_Terminal",
+            "args": []
+        },
+        {
+            "name": "Begin_Teleporter",
+            "args": [
+                "OBJECT_PORTAL_GATE",
+                "0x35",
+                "MODEL_TELEPORTER_FX"
+            ]
+        },
+        {
+            "name": "Set_Teleport_Destination",
+            "args": [
+                "0x36"
+            ]
+        },
+        {
+            "name": "Set_Teleport_Cooldown",
+            "args": [
+                "3"
+            ]
+        },
+        {
+            "name": "Set_Teleport_VFX",
+            "args": [
+                "FX_WARP_BEAM"
+            ]
+        },
+        {
+            "name": "Set_Initial_State",
+            "args": [
+                "STATE_DEACTIVATED"
+            ]
+        },
+        {
+            "name": "End_Teleporter",
+            "args": []
+        },
+        {
+            "name": "Begin_Container",
+            "args": [
+                "0x90",
+                "0x40",
+                "MODEL_CARGO_CRATE",
+                "OBJ_FLAG_DESTRUCTIBLE | OBJ_FLAG_GRAVITY | OBJ_FLAG_RAYCAST_COLLISION"
+            ]
+        },
+        {
+            "name": "Set_Object_Health",
+            "args": [
+                "25"
+            ]
+        },
+        {
+            "name": "Set_Container_Contents",
+            "args": [
+                "WEAPON_RC_P50"
+            ]
+        },
+        {
+            "name": "End_Container",
+            "args": []
+        },
+        {
+            "name": "Path_Start",
+            "args": [
+                "0x01"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x00"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x45"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x15"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x46"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x31"
+            ]
+        },
+        {
+            "name": "Path_End",
+            "args": []
+        },
+        {
+            "name": "Path_Start",
+            "args": [
+                "0x02"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x06"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x49"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x16"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x4A"
+            ]
+        },
+        {
+            "name": "Path_Node",
+            "args": [
+                "0x31"
+            ]
+        },
+        {
+            "name": "Path_End",
+            "args": []
+        },
+        {
+            "name": "Place_Static_Prop",
+            "args": [
+                "0xA0",
+                "0x50",
+                "MODEL_CHAIR_OFFICE"
+            ]
+        },
+        {
+            "name": "Place_Static_Prop",
+            "args": [
+                "0xA1",
+                "0x51",
+                "MODEL_DESK_LABORATORY"
+            ]
+        },
+        {
+            "name": "Place_Static_Prop",
+            "args": [
+                "0xA2",
+                "0x52",
+                "MODEL_MONITOR_WALL_STATIC"
+            ]
+        },
+        {
+            "name": "Begin_Timer_Loop",
+            "args": [
+                "0x01",
+                "120",
+                "TIMER_FLAG_CONTINUOUS | TIMER_FLAG_AUTO_START"
+            ]
+        },
+        {
+            "name": "Play_Global_Sound",
+            "args": [
+                "SFX_ALARM_SIREN_LOOP",
+                "0x00FF"
+            ]
+        },
+        {
+            "name": "Override_Door_State",
+            "args": [
+                "0x40",
+                "DOOR_FORCE_CLOSE_AND_LOCK"
+            ]
+        },
+        {
+            "name": "Override_Door_State",
+            "args": [
+                "0x41",
+                "DOOR_FORCE_CLOSE_AND_LOCK"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x01",
+                "0xFF",
+                "0x00",
+                "0x00",
+                "0x1E"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x02",
+                "0xFF",
+                "0x00",
+                "0x00",
+                "0x1E"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x03",
+                "0xFF",
+                "0x00",
+                "0x00",
+                "0x1E"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x04",
+                "0xFF",
+                "0x00",
+                "0x00",
+                "0x1E"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x05",
+                "0xFF",
+                "0x00",
+                "0x00",
+                "0x1E"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x06",
+                "0xFF",
+                "0x00",
+                "0x00",
+                "0x1E"
+            ]
+        },
+        {
+            "name": "End_Timer_Loop",
+            "args": []
+        },
+        {
+            "name": "Begin_Timer_Loop",
+            "args": [
+                "0x02",
+                "135",
+                "TIMER_FLAG_CONTINUOUS | TIMER_FLAG_AUTO_START"
+            ]
+        },
+        {
+            "name": "Stop_Global_Sound",
+            "args": [
+                "SFX_ALARM_SIREN_LOOP"
+            ]
+        },
+        {
+            "name": "Override_Door_State",
+            "args": [
+                "0x40",
+                "DOOR_RESTORE_DEFAULT_BEHAVIOR"
+            ]
+        },
+        {
+            "name": "Override_Door_State",
+            "args": [
+                "0x41",
+                "DOOR_RESTORE_DEFAULT_BEHAVIOR"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x01",
+                "0x42",
+                "0x42",
+                "0x4A",
+                "0x3C"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x02",
+                "0x42",
+                "0x42",
+                "0x4A",
+                "0x3C"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x03",
+                "0x42",
+                "0x42",
+                "0x4A",
+                "0x3C"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x04",
+                "0x42",
+                "0x42",
+                "0x4A",
+                "0x3C"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x05",
+                "0x42",
+                "0x42",
+                "0x4A",
+                "0x3C"
+            ]
+        },
+        {
+            "name": "Flash_Ambient_Room_Color",
+            "args": [
+                "0x06",
+                "0x42",
+                "0x42",
+                "0x4A",
+                "0x3C"
+            ]
+        },
+        {
+            "name": "End_Timer_Loop",
+            "args": []
+        },
+        {
+            "name": "Begin_Script_Thread",
+            "args": [
+                "SCRIPT_STAGE_GLOBAL_INIT",
+                "TRIGGER_ON_LEVEL_LOAD"
+            ]
+        },
+        {
+            "name": "Set_Variable",
+            "args": [
+                "VAR_HACK_PROGRESS",
+                "0"
+            ]
+        },
+        {
+            "name": "Set_Variable",
+            "args": [
+                "VAR_TELEPORTER_STATE",
+                "0"
+            ]
+        },
+        {
+            "name": "Set_Object_Text_Prompt",
+            "args": [
+                "OBJECT_HACK_TERMINAL",
+                "\"TERMINAL: [BYPASS SECURITY CORE]\""
+            ]
+        },
+        {
+            "name": "Set_Object_Text_Prompt",
+            "args": [
+                "OBJECT_PORTAL_GATE",
+                "\"TELEPORTER: [POWER GRID DISCONNECTED]\""
+            ]
+        },
+        {
+            "name": "End_Script_Thread",
+            "args": []
+        },
+        {
+            "name": "Begin_Script_Thread",
+            "args": [
+                "0x1D",
+                "TRIGGER_ON_LEVEL_LOAD"
+            ]
+        },
+        {
+            "name": "Set_Variable",
+            "args": [
+                "VAR_BOT_TARGET_ACQUIRED",
+                "0"
+            ]
+        },
+        {
+            "name": "Execute_AI_Override",
+            "args": [
+                "AI_BOT_TEAM_ALL",
+                "AI_BEHAVIOR_OVERRIDE_SLOT",
+                "AI_CMD_FLUSH_PRIORITIES | AI_CMD_DISABLE_WEAPON_HUNT | AI_CMD_SET_SIGHT_MAX"
+            ]
+        },
+        {
+            "name": "Set_Simulant_Navmesh_Weight",
+            "args": [
+                "AI_BOT_TEAM_ALL",
+                "0x01",
+                "0x02"
+            ]
+        },
+        {
+            "name": "Set_Simulant_Target_Object",
+            "args": [
+                "AI_BOT_TEAM_ALL",
+                "OBJECT_HACK_TERMINAL",
+                "AI_PATH_ACCURACY_STRICT"
+            ]
+        },
+        {
+            "name": "Broadcast_Text_Message",
+            "args": [
+                "\"SIMULANT INJECT: BOT OBJECTIVE UTILITY MODES ASSIGNED TO SECURITY CORE.\""
+            ]
+        },
+        {
+            "name": "End_Script_Thread",
+            "args": []
+        },
+        {
+            "name": "Begin_State_Listener",
+            "args": [
+                "0x03",
+                "1",
+                "OBJECT_HACK_TERMINAL"
+            ]
+        },
+        {
+            "name": "If_Variable_Equals",
+            "args": [
+                "VAR_TELEPORTER_STATE",
+                "1"
+            ]
+        },
+        {
+            "name": "Release_AI_Override",
+            "args": [
+                "AI_BOT_TEAM_ALL",
+                "AI_BEHAVIOR_OVERRIDE_SLOT"
+            ]
+        },
+        {
+            "name": "Set_Simulant_Combat_Tactic",
+            "args": [
+                "AI_BOT_TEAM_ALL",
+                "TACTIC_SEARCH_AND_DESTROY"
+            ]
+        },
+        {
+            "name": "Stop_Script_Execution",
+            "args": []
+        },
+        {
+            "name": "End_If",
+            "args": []
+        },
+        {
+            "name": "If_Actor_Within_Object_Radius",
+            "args": [
+                "ACTOR_CLASS_SIMULANT",
+                "OBJECT_HACK_TERMINAL",
+                "4"
+            ]
+        },
+        {
+            "name": "Execute_AI_Override",
+            "args": [
+                "ACTOR_CURRENT_INTERACTING",
+                "AI_BEHAVIOR_OVERRIDE_SLOT",
+                "AI_CMD_FORCE_LOITER"
+            ]
+        },
+        {
+            "name": "Set_Simulant_Combat_Tactic",
+            "args": [
+                "ACTOR_CURRENT_INTERACTING",
+                "BOT_TACTIC_RUSH_CONSOLE"
+            ]
+        },
+        {
+            "name": "If_Actor_Interacting_With_Object",
+            "args": [
+                "ACTOR_CURRENT_INTERACTING",
+                "OBJECT_HACK_TERMINAL"
+            ]
+        },
+        {
+            "name": "Increment_Variable_By_Step",
+            "args": [
+                "VAR_HACK_PROGRESS",
+                "1"
+            ]
+        }
+    ]
+}

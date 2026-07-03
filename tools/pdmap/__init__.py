@@ -42,7 +42,12 @@ def cmd_build(args):
         mod = None
 
     has_box_dims = mod is not None and hasattr(mod, "BOX_HALF") and hasattr(mod, "BOX_HEIGHT")
-    want_seg = args.seg is not None or bool(seg_script) or has_box_dims
+    skip_seg_mod = bool(getattr(mod, "SKIP_SEG", False)) if mod else False
+    want_seg = (
+        (args.seg is not None or bool(seg_script) or has_box_dims)
+        and not getattr(args, "no_seg", False)
+        and not skip_seg_mod
+    )
     seg_script_path = None
     if args.seg and args.seg != "":
         seg_script_path = args.seg

@@ -1,228 +1,290 @@
-# Perfect Dark AIO — User Stories
+# Perfect Dark AIO — Map Creation User Stories
 
-**Parent spec:** [`SPEC.md`](SPEC.md)  
-**API detail:** [`API_CONTRACTS.md`](API_CONTRACTS.md)  
-**Verification commands:** [`ENVIRONMENTS.md`](ENVIRONMENTS.md) §6
+**Parent spec:** [`SPEC.md`](SPEC.md) (`R-MAP-*`)  
+**Normative detail:** [`docs/spec/MAP_CREATION.md`](docs/spec/MAP_CREATION.md)  
+**Curriculum table:** [`docs/spec/CURRICULUM.md`](docs/spec/CURRICULUM.md)
 
-Acceptance criteria IDs (`AC-*`) **must** appear in PR descriptions and agent task lists. Each criterion includes **procedure**, **pass/fail signals**, and **negative cases** where applicable.
-
----
-
-## How to verify a story
-
-1. Read the AC id in this file.
-2. Run the **Procedure** steps exactly (release `.app` unless marked dev).
-3. Grep logs per **Pass signals**; any **Fail signal** is a blocker.
-4. Run **Negative case** when present — must not crash or duplicate spawn.
-5. Reference AC id in commit/PR: `Fixes AC-ANIM-1.1`.
+Each story includes **copy-paste bash** and **expected log substrings**. Reference the AC id in PRs: `Fixes AC-MAP-AUTHOR-1.2`.
 
 ---
 
-## Hub — Perfect Dark Kit
+## How to verify
 
-### US-HUB-1 — Single entry point
-
-**As a** macOS mod author,  
-**I want** one hub app that lists every kit tool,  
-**So that** I don’t hunt for `.app` bundles in Finder.
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-HUB-1.1 | Hub reads `kit.json` and renders all `kitHub.wraps` entries | Open hub; count tool cards | 7 cards: Map Editor, Map Launcher, Anim Lab, Agent Office, Asset Upgrader, Replay Test, LLM Play | Missing card for non-optional app |
-| AC-HUB-1.2 | Each card shows built / optional / dev badge | Inspect badges on each card | Built apps: `Available` or `Wrapped in kit`; optional missing: `Optional — not built` | Generic error with no badge |
-| AC-HUB-1.3 | Hub survives ≥30 s idle | Launch hub; wait 30 s without interaction | Process alive; no crash dialog | `EXC_BREAKPOINT` or hub quit |
-
-**Log check:** `tail -f ~/Library/Logs/PerfectDarkKit/kit-hub.log` — no `Unhandled rejection:` during AC-HUB-1.3.
+1. Run commands from **repo root** with `build/pd.arm64` built (`make -j8`) and ROM at `data/pd.ntsc-final.z64`.
+2. Grep launch/build output for **Pass substrings**; any **Fail substring** is a blocker.
+3. Map acceptance criteria to `R-MAP-*` ids in [`SPEC.md`](SPEC.md).
 
 ---
 
-### US-HUB-2 — Safe app launch
-
-**As a** hub user clicking **Open Anim Lab**,  
-**I want** only one child app instance to start,  
-**So that** the hub and Anim Lab don’t spawn duplicate servers.
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-HUB-2.1 | 1200 ms cooldown per `appKey` | Double-click Open Anim Lab rapidly (5× in 1 s) | Log shows ≤1 `Launch animLab:` per 1.2 s; IPC returns `skipped: true` for rest | 5+ `Launch animLab:` in 1 s |
-| AC-HUB-2.2 | Renderer disables button while pending | Click once; observe button during invoke | Button disabled until IPC returns | Multiple concurrent invokes |
-| AC-HUB-2.3 | Failed `open` returns error object | Rename Anim Lab.app temporarily; click Open | Hub shows error status; `{ ok: false, error }`; hub alive | Hub crash |
-| AC-HUB-2.4 | Wrapped apps resolve from Resources/Apps | Build full kit; launch Anim Lab from hub on machine without release copy | Opens wrapped path under hub `.app` | Falls back incorrectly when wrap exists |
-
-**Negative case AC-HUB-2.N1:** Hammer-click Open Anim Lab for 10 s — hub and macOS must not spawn >1 Anim Lab process per 1.2 s window.
-
----
-
-### US-HUB-3 — Pipeline actions
-
-**As a** kit operator,  
-**I want** to run build/validate/scenario scripts from the hub,  
-**So that** I don’t switch to Terminal for routine tasks.
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-HUB-3.1 | All `actionGroups` appear | Scroll hub action sections | 4 sections: Build, Validate & Learn, Scenarios & Launch, Setup & Utilities; 18 actions total | Missing group or action |
-| AC-HUB-3.2 | `requiresGame` disables when binary missing | Remove/rename `build/pd.arm64`; refresh hub | Play Matrix Battle, validateNext, etc. disabled | Enabled actions spawn failing scripts silently |
-| AC-HUB-3.3 | Long-running vs sync feedback | Run `validateStatus` (sync) then `rebuildMapEditor` (detached) | Sync shows output tail; detached shows "started in background" | UI hang with no status |
-
-**Action count reference:** see [`SPEC.md`](SPEC.md) §19.
-
----
-
-### US-HUB-4 — Play from hub
-
-**As a** player with a built binary,  
-**I want** Play and Test Map buttons in the hub,  
-**So that** I can smoke-test without the map editor.
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-HUB-4.1 | Play launches mod_allinone | Click Play | Log: `Launch game: … --moddir mods/mod_allinone`; game window | Wrong moddir |
-| AC-HUB-4.2 | Test Map adds `--test-map` | Click Test Map | Command includes `--test-map` | Missing flag |
-| AC-HUB-4.3 | Buttons disabled without binary | Hide binary; refresh | Both buttons disabled | Click launches error crash |
-
----
-
-## PD Map Editor
-
-### US-MAP-1 — Author and test loop
+## US-MAP-AUTHOR — Author a level module
 
 **As a** map author,  
-**I want** to edit JSON and Test/Play in one window,  
-**So that** I iterate quickly on Combat Sim arenas.
+**I want** to define a level in `src/levels/<name>.py` and validate it,  
+**So that** invalid pads and intro commands fail before deploy.
 
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-MAP-1.1 | Single Python backend per bootstrap | Open Map Editor; grep map-editor.log | One server spawn sequence per app launch | Multiple serve_editor on different ports same second |
-| AC-MAP-1.2 | Test/Play uses `PDMAP_SEG_MODE=empty` | Test/Play from editor; inspect build env in log | No viewport seg sheet in FPS | Full seg sheet blocking view |
-| AC-MAP-1.3 | Spawn pads Y ≥ 10 | Place spawn in editor; validate | pdmap validate passes; pads at Y≥10 in export | Y≤0 pads in deployed asset |
-| AC-MAP-1.4 | Setup ailist 0x1000 | Deploy test map; inspect setup binary | mp_init_simulants present | Bots fail to spawn |
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-AUTHOR-1.1 | Module loads and builds | `python3 tools/pdmap.py validate uff` | exit 0; no `Pad at position` errors | `Cannot load level module` |
+| AC-MAP-AUTHOR-1.2 | Contiguous pad indices enforced | `python3 tools/pdmap.py validate learn_01_spawn` | exit 0 | `must be contiguous from 0` |
+| AC-MAP-AUTHOR-1.3 | Spawn required | `python3 tools/pdmap.py validate learn_01_spawn` | exit 0 | `no Spawn commands` |
 
-**Procedure AC-MAP-1.2 detail:** Default Test/Play must set or inherit `PDMAP_SEG_MODE=empty` (see `tools/pdmap/pipeline.py`).
+```bash
+python3 tools/pdmap.py validate learn_01_spawn
+echo "exit:$?"
+# EXPECT: exit:0
+```
 
-**Automated probe:** `python3 journal/uff_viewer/validate_edit_play.py` (requires server on 8765–8775).
-
----
-
-### US-MAP-2 — Distinct identity
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-MAP-2.1 | productName PD Map Editor | Check Dock tooltip and window title | "PD Map Editor" | "Electron" |
-| AC-MAP-2.2 | Single-instance focus | Open editor twice from Dock | Second open focuses first window | Two Dock icons / two servers |
-
-**Ports:** Editor server **8765–8775**; health `service: uff-editor`.
+**Spec:** R-MAP-07, R-MAP-09
 
 ---
 
-## PD Anim Lab
+## US-MAP-BUILD — Build and deploy
 
-### US-ANIM-1 — Reliable startup
+**As a** map author,  
+**I want** `pdmap build --deploy` to write assets to build tree and mod,  
+**So that** the game loads my map from `--moddir`.
 
-**As a** user opening Anim Lab from Finder or the hub,  
-**I want** the app to start once and show the catalog,  
-**So that** it doesn’t crash after a few seconds.
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-BUILD-1.1 | Five-file deploy to mod | See bash below | `Deployed bg_uff`; files exist under mod | `WARNING: … not found` (all assets) |
+| AC-MAP-BUILD-1.2 | Seg validated before deploy | `python3 tools/pdmap.py build uff --seg --deploy` | no `Refusing to deploy corrupt seg` | `Seg G_VTX` error + refuse |
 
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-ANIM-1.1 | One start marker per launch | `grep 'electron anim-lab start' ~/Library/Logs/PerfectDarkKit/anim-lab.log` after fresh open | Count +1 per launch | +2 or more same second |
-| AC-ANIM-1.2 | At most one spawned server | `grep serve_animlab ~/Library/Logs/PerfectDarkKit/anim-lab.log` | One `Starting serve_animlab.py` OR reuse existing healthy port | 5+ spawns 8776–8795 |
-| AC-ANIM-1.3 | Catalog within 10 s | Open app; wait for UI | `/api/catalog` loads; animation list visible | Blank window >10 s |
-| AC-ANIM-1.4 | Shared ensureBootstrap | Trigger activate (Cmd+Tab away/back) within 5 s of launch | No second bootstrap in log | Parallel bootstrap lines |
+```bash
+python3 tools/pdmap.py build uff --seg --deploy 2>&1 | tee /tmp/pdmap-deploy.log
+test -f mods/mod_allinone/files/bgdata/bg_uff.seg && echo "seg:OK"
+test -f mods/mod_allinone/files/bgdata/bg_uff_tilesZ && echo "tiles:OK"
+test -f mods/mod_allinone/files/bgdata/bg_uff_padsZ && echo "pads:OK"
+test -f mods/mod_allinone/files/Ump_setupuffZ && echo "setup:OK"
+rg 'Deployed bg_uff' /tmp/pdmap-deploy.log
+# EXPECT: seg/tiles/pads/setup OK; Deployed lines in log
+```
 
-**iCloud path:** Repo under `Mobile Documents` must pass AC-ANIM-1.1–1.4 (normalization in main.js).
-
-**Negative case AC-ANIM-1.N1:** Launch from hub + double-click release `.app` within 2 s — second instance must focus first (single-instance lock), not spawn second server.
-
----
-
-### US-ANIM-2 — Parade test map
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-ANIM-2.1 | Deploy animlab parade | UI Build & Play or POST `/api/build-play` | pdmap deploy to mod_allinone; `--test-animlab` boots | Build error 500 |
-| AC-ANIM-2.2 | play-config API | `curl -s http://127.0.0.1:PORT/api/play-config \| jq .ok` | `true` + presets animlab/uff | 404 or missing presets |
+**Spec:** R-MAP-01, R-MAP-03, R-MAP-11, R-MAP-17
 
 ---
 
-### US-ANIM-3 — Branding
+## US-MAP-CURRICULUM — Validate full learn path
 
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-ANIM-3.1 | HTML title PD Anim Lab | View page source / tab title | Title and h1 match | "Animation Lab" only |
-| AC-ANIM-3.2 | Bundle display name | Get Info on `.app` | PD Anim Lab | Electron |
+**As a** curriculum maintainer,  
+**I want** all 31 steps to validate,  
+**So that** regressions are caught in CI.
 
----
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-CURR-1.1 | 31/31 steps OK | See bash | `31/31`; `steps OK` | any `FAIL` or assertion |
 
-## PD Asset Upgrader
+```bash
+python3 -c "
+from tools.pdmap.learn.curriculum import validate_curriculum
+r = validate_curriculum(verbose=True)
+bad = [x for x in r if not x.ok]
+assert not bad, bad
+print(f'{len(r)}/31 steps OK')
+"
+# EXPECT: 31/31 steps OK
+```
 
-### US-UP-1 — Batch texture upgrade
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-UP-1.1 | setup script creates venv | `./scripts/setup-asset-upgrader.sh` | Exit 0; venv import works | Missing deps |
-| AC-UP-1.2 | Hub runAssetUpgrader | Hub → Run Upgrader CLI | Process starts on `mods/` | Script not found |
-| AC-UP-1.3 | productName PD Asset Upgrader | Open .app | Correct Dock name | Generic Electron |
-
----
-
-## Virtual Agent Office
-
-Full story set: [`journal/agent_office/SPEC.md`](journal/agent_office/SPEC.md) §2 (US-1 … US-6+).
-
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-AO-HUB-1 | Hub launches Virtual Agent Office | Hub Open Agent Office | App opens from wrap or release | Error when built |
-| AC-AO-HUB-2 | Scenario actions deploy correct stage | Hub → Agent Office: dataDyne G5 | Boots stage 0x83 | Wrong map |
-| AC-AO-HUB-3 | CI scenario | Hub → Agent Office: Carrington | Boots stage 0x84 | Wrong map |
+**Spec:** R-MAP-29, R-MAP-30
 
 ---
 
-## PC port & pdmap
+## US-MAP-PADY — Fix pad Y height
 
-### US-PORT-1 — Modded play
+**As a** map author,  
+**I want** pads at Y=10 not Y=0,  
+**So that** players don't fall through the floor.
 
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-PORT-1.1 | mod_allinone loads | `./build/pd.arm64 --moddir mods/mod_allinone` | Custom maps in MP menu | Vanilla only |
-| AC-PORT-1.2 | test-map flag | Deploy via editor; `./build/pd.arm64 --test-map --moddir mods/mod_allinone` | Last deploy boots | Wrong slot |
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-PADY-1.1 | Y=0 rejected or autocorrected | Step 11 play script | `learn_11`; Y=10 in output | `at/below the floor` on final validate |
+| AC-MAP-PADY-1.2 | PAD_FLOOR_OFFSET is 10.0 | Python one-liner | `10.0` | |
+
+```bash
+python3 -c "from tools.pdmap.builders import PAD_FLOOR_OFFSET; assert PAD_FLOOR_OFFSET==10.0"
+./scripts/play-learn-step.sh 11 --no-play 2>&1 | rg -i 'learn_11|y=10|autocorrect'
+python3 tools/pdmap.py validate learn_11_y_autocorrect && echo validate:OK
+# EXPECT: PAD_FLOOR_OFFSET 10.0; validate:OK
+```
+
+**Spec:** R-MAP-05, R-MAP-08 (validate)
 
 ---
 
-### US-PDMAP-1 — Valid maps only
+## US-MAP-UFF — Deploy to uff test slot
 
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-PDMAP-1.1 | Non-contiguous pads fail | Inject gap in pad indices; `pdmap validate` | Non-zero exit | Silent pass |
-| AC-PDMAP-1.2 | Waypoint symmetrization | Asymmetric graph in JSON; build | Output pads symmetric | One-way edges |
-| AC-PDMAP-1.3 | Spec matches probes | `pdmap learn run`; diff MAP_DETERMINISTIC_SPEC | No unexpected drift | Hand-edited spec |
+**As a** map author,  
+**I want** to deploy any curriculum map into the **uff** retail test slot,  
+**So that** `--test-map` loads my latest build.
+
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-UFF-1.1 | deploy-as uff | Step 9 | `Deploy-as`; `bg_uff` | wrong asset basename |
+| AC-MAP-UFF-1.2 | Mod hygiene | Step 30 | `loaded externally`; `bg_uff` | stale vanilla assets |
+
+```bash
+./scripts/play-learn-step.sh 9 --no-play 2>&1 | tee /tmp/step9.log
+rg -i 'learn_09|Deployed bg_uff|Deploy-as' /tmp/step9.log
+# EXPECT: learn_09 + bg_uff deploy lines
+```
+
+**Spec:** R-MAP-17, R-MAP-18, R-MAP-25
 
 ---
 
-## Build & release
+## US-MAP-REGISTER — Register a dedicated stage
 
-### US-BUILD-1 — Reproducible kit output
+**As a** map author,  
+**I want** to register `my_arena` as `STAGE_MY_ARENA` (`0x80`),  
+**So that** it appears in Combat Simulator and boots with `--boot-stage 0x80`.
 
-| ID | Acceptance criterion | Procedure | Pass | Fail |
-|----|---------------------|-----------|------|------|
-| AC-BUILD-1.1 | apps-only build | `./scripts/build-pd-kit.sh --skip-game --apps-only` | Exit 0; hub + children in release/ | Build fail |
-| AC-BUILD-1.2 | manifest fields | `jq .kitVersion,.builtAt,.apps.kitHub.wrappedApps scripts/release/kit-manifest.json` | Versions match; wrapped flags correct | Missing manifest |
-| AC-BUILD-1.3 | Single root symlink | `ls -la *.app` at repo root | Only Perfect Dark Kit.app → release | Multiple child symlinks |
-| AC-BUILD-1.4 | Staging pruned | After build, `ls scripts/release/*-dist` | No *-dist directories | Stale electron-dist |
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-REG-1.1 | Register plan generated | `pdmap register --dry-run` | `stagetable`; `STAGE_` | empty plan / traceback |
+| AC-MAP-REG-1.2 | Registered arena in engine | grep C sources | `STAGE_MY_ARENA`; `0x7FFD` | missing symbol |
+| AC-MAP-REG-1.3 | Step 16 curriculum | play-learn-step 16 | `my_arena`; `scenario-5` | wrong stage |
+
+```bash
+python3 tools/pdmap.py register my_arena --dry-run 2>&1 | rg -i 'stagetable|setup.c|STAGE'
+rg 'STAGE_MY_ARENA' src/include/constants.h src/game/stagetable.c src/game/mplayer/setup.c
+./scripts/play-learn-step.sh 16 --no-play 2>&1 | rg -i 'learn_16|my_arena|scenario-5'
+# EXPECT: register mentions stagetable; STAGE_MY_ARENA in C; step 16 deploy log
+```
+
+**Spec:** R-MAP-26, R-MAP-27
+
+---
+
+## US-MAP-JSON — Editor JSON pipeline
+
+**As a** map author using the Map Editor JSON export,  
+**I want** `from-json` and `test_map.py` to build without a hand-written level module,  
+**So that** I can iterate in the editor.
+
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-JSON-1.1 | from-json CLI | See bash | `Deployed bg_uff`; validate OK | traceback |
+| AC-MAP-JSON-1.2 | test_map.py deploy | `--deploy` without `--play` | build + deploy lines | 500 / import error |
+
+```bash
+python3 tools/pdmap.py from-json journal/map_learn/maps/learn_17_from_json_cli.json \
+  --deploy-as uff --seg --deploy 2>&1 | tee /tmp/from-json.log
+rg 'Deployed bg_uff|validate' /tmp/from-json.log
+python3 journal/uff_viewer/test_map.py journal/map_learn/maps/learn_01_spawn.json \
+  --level uff --seg --deploy 2>&1 | rg -i 'deploy|build|uff'
+# EXPECT: Deployed bg_uff; test_map completes without error
+```
+
+**Spec:** R-MAP-28
+
+---
+
+## US-MAP-SEG — Seg mode selection
+
+**As a** map author,  
+**I want** `PDMAP_SEG_MODE=empty` for FPS test and `full` only for preview lessons,  
+**So that** I don't get a dark viewport sheet in-game.
+
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-SEG-1.1 | Step 15 empty | play-learn-step 15 | `PDMAP_SEG_MODE=empty` or empty seg build | `full` |
+| AC-MAP-SEG-1.2 | Step 14 full lesson | play-learn-step 14 | `full` or `learn_14` | |
+
+```bash
+./scripts/play-learn-step.sh 15 --no-play 2>&1 | rg -i 'learn_15|empty|PDMAP_SEG_MODE'
+./scripts/play-learn-step.sh 14 --no-play 2>&1 | rg -i 'learn_14|full|PDMAP_SEG_MODE'
+# EXPECT: step 15 mentions empty; step 14 mentions full/procedural
+```
+
+**Spec:** R-MAP-13, R-MAP-14, R-MAP-15, R-MAP-16
+
+---
+
+## US-MAP-SETUP — Bots and loadout intro
+
+**As a** Combat Simulator author,  
+**I want** ailist 0x1000 and symmetric waypoints,  
+**So that** bots spawn and navigate without crashing.
+
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-SETUP-1.1 | Loadout intro step 5 | validate + play-learn | `learn_05`; exit 0 | validate errors |
+| AC-MAP-SETUP-1.2 | Waypoints step 6 | play-learn-step 6 --no-play | `learn_06`; `--num-sims 1` | missing sim flag |
+| AC-MAP-SETUP-1.3 | 4-bot stock cap step 23 | curriculum metadata | `learn_23`; bot cap note | |
+
+```bash
+python3 tools/pdmap.py validate learn_05_loadout && echo loadout:OK
+./scripts/play-learn-step.sh 6 --no-play 2>&1 | rg 'learn_06|num-sims'
+./scripts/play-learn-step.sh 23 --no-play 2>&1 | rg 'learn_23'
+# EXPECT: loadout:OK; learn_06 with num-sims; learn_23 deploy
+```
+
+**Spec:** R-MAP-21, R-MAP-22, R-MAP-23, R-MAP-24
+
+---
+
+## US-MAP-PLAY — Playtest via CLI
+
+**As a** map author,  
+**I want** to boot the last deployed uff map with `--test-map`,  
+**So that** I can smoke-test without the Map Launcher UI.
+
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-PLAY-1.1 | play-learn-step launches | Step 1 deploy+play flags | `--test-map`; `--scenario-0` | wrong moddir |
+| AC-MAP-PLAY-1.2 | Direct pd boot | Manual launch | game window / stage load | immediate exit |
+| AC-MAP-PLAY-1.3 | KOTH scenario | Step 7 | `--scenario-4` | `--scenario-0` only |
+
+```bash
+./scripts/play-learn-step.sh 1 --no-play 2>&1 | tee /tmp/step1.log
+rg '--test-map|--scenario-0|learn_01|Deployed bg_uff' /tmp/step1.log
+./scripts/play-learn-step.sh 7 --no-play 2>&1 | rg '--scenario-4|learn_07'
+# EXPECT: test-map + scenario flags per step
+
+# Optional interactive smoke:
+# ./build/pd.arm64 --test-map --scenario-0 --basedir data \
+#   --moddir mods/mod_allinone --savedir . --num-sims 0
+```
+
+**Spec:** R-MAP-25, R-MAP-31, R-MAP-32, R-MAP-34
+
+---
+
+## US-MAP-DETERMINISTIC — Generated spec stays in sync
+
+**As a** maintainer,  
+**I want** `pdmap learn run` to refresh deterministic invariants,  
+**So that** docs match probed code behavior.
+
+| ID | Criterion | Procedure | Pass substrings | Fail substrings |
+|----|-----------|-----------|-----------------|-----------------|
+| AC-MAP-DET-1.1 | Learn run completes | See bash | probe completion; no traceback | Python exception |
+| AC-MAP-DET-1.2 | Spec mentions 0x1000 | grep generated spec | `0x1000`; `mp_init_simulants` | missing ailist fact |
+
+```bash
+python3 tools/pdmap.py learn run 2>&1 | tail -20
+rg '0x1000|mp_init_simulants|PAD_FLOOR_OFFSET' docs/MAP_DETERMINISTIC_SPEC.md
+# EXPECT: learn run exits 0; generated spec contains key invariants
+```
+
+**Spec:** R-MAP-12
 
 ---
 
 ## Story → spec traceability
 
-| Story | Spec IDs | Detail docs |
-|-------|----------|-------------|
-| US-HUB-* | R-KIT-05 … R-KIT-12 | [`API_CONTRACTS.md`](API_CONTRACTS.md) §1 |
-| US-MAP-* | R-PDMAP-* | [`API_CONTRACTS.md`](API_CONTRACTS.md) §4 |
-| US-ANIM-* | R-KIT-08, R-KIT-09 | [`API_CONTRACTS.md`](API_CONTRACTS.md) §3 |
-| US-UP-* | R-KIT-01 | `tools/asset_upgrader/` |
-| US-PORT-* | R-PORT-* | [`docs/spec/CLI_AND_LIMITS.md`](docs/spec/CLI_AND_LIMITS.md) |
-| US-PDMAP-* | R-PDMAP-* | [`docs/MAP_DETERMINISTIC_SPEC.md`](docs/MAP_DETERMINISTIC_SPEC.md) |
-| US-BUILD-* | R-KIT-01, R-KIT-10, R-KIT-11 | [`ARCHITECTURE.md`](ARCHITECTURE.md) §9 |
+| Story | Spec IDs | Detail |
+|-------|----------|--------|
+| US-MAP-AUTHOR | R-MAP-07, R-MAP-09 | [`MAP_CREATION.md`](docs/spec/MAP_CREATION.md) §4 |
+| US-MAP-BUILD | R-MAP-01, R-MAP-03, R-MAP-11, R-MAP-17 | §1, §6 |
+| US-MAP-CURRICULUM | R-MAP-29, R-MAP-30 | [`CURRICULUM.md`](docs/spec/CURRICULUM.md) |
+| US-MAP-PADY | R-MAP-04, R-MAP-05 | §3 |
+| US-MAP-UFF | R-MAP-17, R-MAP-18, R-MAP-25 | §6, §7 |
+| US-MAP-REGISTER | R-MAP-26, R-MAP-27 | §7 |
+| US-MAP-JSON | R-MAP-28 | §8 |
+| US-MAP-SEG | R-MAP-13 … R-MAP-16 | §5 |
+| US-MAP-SETUP | R-MAP-21 … R-MAP-24 | §9 |
+| US-MAP-PLAY | R-MAP-25, R-MAP-31, R-MAP-32 | §8, §10 |
+| US-MAP-DETERMINISTIC | R-MAP-12 | §4.3 |
 
 ---
 
@@ -230,5 +292,5 @@ Full story set: [`journal/agent_office/SPEC.md`](journal/agent_office/SPEC.md) �
 
 | Date | Change |
 |------|--------|
-| 2026-07-02 | Added procedures, pass/fail signals, negative cases, traceability |
-| 2026-07-02 | Initial AC ids for kit v0.2 |
+| 2026-07-02 | Map-creation-only stories; removed Kit Hub / Launcher / Anim Lab / Agent Office |
+| 2026-07-02 | Initial AC ids for kit v0.2 (superseded hub stories) |

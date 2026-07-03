@@ -201,6 +201,8 @@ struct mparena g_MpArenas[] = {
 	{ STAGE_MY_ARENA,        0, 0x7FFD       }, // My Arena
 	{ STAGE_TESTARENA,       0, 0x7FFC       }, // Test Arena
 	{ STAGE_ANIMLAB,       0, 0x7FFB       }, // Animation Lab
+	{ STAGE_AGENT_OFFICE,  0, 0x7FFA       }, // Virtual Agent Office (dataDyne G5)
+	{ STAGE_AGENT_OFFICE_CI, 0, 0x7FF9     }, // Virtual Agent Office (Carrington Institute)
 	// Random
 	{ STAGE_MP_RANDOM_MULTI, 0, L_MPMENU_294 }, // Random Multi
 	{ STAGE_MP_RANDOM_SOLO,  0, L_MPMENU_295 }, // Random Solo

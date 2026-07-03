@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .core import MapDef
 from .intro import Spawn, Weapon, Ammo, Case, CaseRespawn, Hill
-from .props import Weapon as WeaponProp, AmmoCrate, AmmoCrateMulti
+from .props import Weapon as WeaponProp, AmmoCrateMulti
 from .tiles import _DEFAULT_FLAGS
 from . import weapons as W
 from .anim_catalog import PARADE_ZONE_HALF
@@ -77,42 +77,81 @@ def add_floor_weapons(
         ))
 
 
+def _retail_multi_ammo_crate(
+    pad: int,
+    *,
+    slots: dict[int, int] | None = None,
+    scale: int = 0x0100,
+    model: int = W.MODEL_MULTI_AMMO_CRATE,
+) -> AmmoCrateMulti:
+    """Large retail Combat Simulator ammo crate (OBJTYPE 0x14, scale 0x0100)."""
+    return AmmoCrateMulti(
+        scale=scale,
+        model=model,
+        pad=pad,
+        flags=W.OBJFLAG_FALL,
+        flags2=W.OBJFLAG2_IMMUNETOANTI,
+        maxdamage=1000,
+        slots=slots,
+    )
+
+
 def add_ammo_row(
     g: MapDef,
     pads: list[int],
     *,
     ammotype: int = W.AMMOTYPE_PISTOL,
-    scale: int = 0x0019,
+    scale: int = 0x0100,
     model: int = W.MODEL_MULTI_AMMO_CRATE,
     slot_crate: bool = False,
+    quantity: int | None = None,
 ) -> None:
     """Place floor ammo props.
 
-    Default (retail Combat / uff): OBJTYPE_AMMOCRATE (0x07) with
-    MODEL_MULTI_AMMO_CRATE — the large multi-ammo box bots pick up by ammotype.
+    Default (retail Combat Simulator): OBJTYPE_MULTIAMMOCRATE (0x14) at scale
+    0x0100 with MODEL_MULTI_AMMO_CRATE and generous per-type quantities copied
+    from g_MpWeapons. Scale 0x0019 (uff test setup) renders tiny crates — do
+    not use for Combat-style resupply.
 
-    slot_crate=True emits OBJTYPE_MULTIAMMOCRATE (0x14) for HTM bank pads where
+    slot_crate=True emits an empty multiammocrate for HTM bank pads where
     scenario code registers MODEL_MULTI_AMMO_CRATE props by pad index."""
     for pad in pads:
         if slot_crate:
-            g.add_prop(AmmoCrateMulti(
-                scale=scale,
-                model=model,
-                pad=pad,
-                flags=W.OBJFLAG_FALL,
-                flags2=W.OBJFLAG2_IMMUNETOANTI,
-                maxdamage=1000,
-            ))
+            g.add_prop(_retail_multi_ammo_crate(pad, scale=scale, model=model))
         else:
-            g.add_prop(AmmoCrate(
-                ammotype=ammotype,
+            qty = quantity if quantity is not None else W.RETAIL_AMMO_QTY.get(ammotype, 80)
+            g.add_prop(_retail_multi_ammo_crate(
+                pad,
                 scale=scale,
                 model=model,
-                pad=pad,
-                flags=W.OBJFLAG_FALL,
-                flags2=W.OBJFLAG2_IMMUNETOANTI,
-                maxdamage=1000,
+                slots={ammotype: qty},
             ))
+
+
+def add_weapon_ammo_pair(
+    g: MapDef,
+    weapon_pad: int,
+    weapon_id: int,
+    ammo_pads: list[int],
+    *,
+    scale: int = 0x0100,
+    model: int = W.MODEL_MULTI_AMMO_CRATE,
+) -> None:
+    """Place a floor weapon with adjacent large retail multiammocrate(s).
+
+    Matches mp_setupmp1.c / mp_setuparec.c: weapon prop then one or two
+    ammocratemulti(0x0100, MODEL_MULTI_AMMO_CRATE, …) on neighbouring pads.
+    Quantities come from WEAPON_RETAIL_AMMO (g_MpWeapons pri/sec ammo fields).
+    """
+    add_floor_weapons(g, [(weapon_pad, weapon_id)])
+    slots = W.WEAPON_RETAIL_AMMO.get(weapon_id, {W.AMMOTYPE_PISTOL: 80})
+    for pad in ammo_pads:
+        g.add_prop(_retail_multi_ammo_crate(
+            pad,
+            scale=scale,
+            model=model,
+            slots=slots,
+        ))
 
 
 def floor_box_tiles(
@@ -788,6 +827,250 @@ def _subtract_rect_from_quad(
     return out
 
 
+def _subtract_rect_from_rect(
+    xmin: float,
+    zmin: float,
+    xmax: float,
+    zmax: float,
+    hx0: float,
+    hz0: float,
+    hx1: float,
+    hz1: float,
+) -> list[tuple[float, float, float, float]]:
+    """Axis-aligned rectangle minus a rectangular hole (non-overlapping pieces)."""
+    if hx1 <= xmin or hx0 >= xmax or hz1 <= zmin or hz0 >= zmax:
+        return [(xmin, zmin, xmax, zmax)]
+    pieces: list[tuple[float, float, float, float]] = []
+    if hz0 > zmin:
+        pieces.append((xmin, zmin, xmax, hz0))
+    if hz1 < zmax:
+        pieces.append((xmin, hz1, xmax, zmax))
+    pieces.append((xmin, max(hz0, zmin), min(hx0, xmax), min(hz1, zmax)))
+    pieces.append((max(hx1, xmin), max(hz0, zmin), xmax, min(hz1, zmax)))
+    return [(a, b, c, d) for a, b, c, d in pieces if c > a and d > b]
+
+
+def _carve_floor_rect_from_tiles(
+    tiles: list[dict],
+    x0: float,
+    z0: float,
+    x1: float,
+    z1: float,
+    *,
+    y: float = 0.0,
+    preserve: list[tuple[float, float, float, float]] | None = None,
+) -> None:
+    """Remove non-carpet floor quads at *y* overlapping an XZ rectangle (in-place).
+
+    Used to punch a hole in room-1 arena collision so dedicated prop-district
+    rooms (museum, megaworld, …) own floor + props when the player walks there.
+    Rectangles in *preserve* are never carved (e.g. spawn plaza stays room 1).
+    """
+    hx0, hx1 = (float(x0), float(x1)) if x0 <= x1 else (float(x1), float(x0))
+    hz0, hz1 = (float(z0), float(z1)) if z0 <= z1 else (float(z1), float(z0))
+    holes: list[tuple[float, float, float, float]] = [(hx0, hz0, hx1, hz1)]
+    for preserve_rect in preserve or ():
+        px0, pz0, px1, pz1 = preserve_rect
+        next_holes: list[tuple[float, float, float, float]] = []
+        for hole in holes:
+            next_holes.extend(_subtract_rect_from_rect(*hole, px0, pz0, px1, pz1))
+        holes = next_holes
+    carved: list[dict] = []
+    target_y = int(y)
+    for tile in tiles:
+        if tile.get("floortype") == "carpet":
+            carved.append(tile)
+            continue
+        vs = tile["vertices"]
+        if int(vs[0]["y"]) != target_y:
+            carved.append(tile)
+            continue
+        pieces = [tile]
+        for hole_x0, hole_z0, hole_x1, hole_z1 in holes:
+            next_pieces: list[dict] = []
+            for piece in pieces:
+                bx0, bz0, bx1, bz1 = _tile_quad_bounds(piece)
+                next_pieces.extend(
+                    _subtract_rect_from_quad(
+                        bx0,
+                        bz0,
+                        bx1,
+                        bz1,
+                        hole_x0,
+                        hole_z0,
+                        hole_x1,
+                        hole_z1,
+                        y=y,
+                        floorcolour=int(piece.get("floorcolour", 4095)),
+                    )
+                )
+            pieces = next_pieces
+        carved.extend(pieces)
+    tiles[:] = carved
+
+
+def _ensure_spawn_plaza_floor(
+    tiles: list[dict],
+    *,
+    y: float,
+    floorcolour: int,
+) -> None:
+    """Guarantee room-1 collision under pad 0 (never removed by district carves)."""
+    from .anim_catalog import spawn_plaza_bounds
+
+    plaza = spawn_plaza_bounds()
+    tiles.append(
+        tile_quad(
+            plaza["x0"],
+            plaza["z0"],
+            plaza["x1"],
+            plaza["z1"],
+            y=y,
+            floorcolour=floorcolour,
+        )
+    )
+
+
+def _ensure_route_collision_floor(
+    tiles: list[dict],
+    x0: float,
+    z0: float,
+    x1: float,
+    z1: float,
+    *,
+    y: float,
+    floorcolour: int,
+) -> None:
+    """Stamp a Y=collision walk quad in room 1 (under marker_y carpets).
+
+    Megaworld carve removes room-1 arena collision so prop-district rooms own
+    props, but the player stays in room 1 until ``floorroom`` updates — without
+    these quads ``cdFindGroundFromList`` finds no floor and the player falls.
+    """
+    ax0, ax1 = (float(x0), float(x1)) if x0 <= x1 else (float(x1), float(x0))
+    az0, az1 = (float(z0), float(z1)) if z0 <= z1 else (float(z1), float(z0))
+    if ax1 <= ax0 or az1 <= az0:
+        return
+    tiles.append(
+        tile_quad(ax0, az0, ax1, az1, y=y, floorcolour=floorcolour)
+    )
+
+
+def _ensure_animlab_walk_collision_floors(
+    hub_tiles: list[dict],
+    *,
+    y: float,
+    floorcolour: int,
+) -> None:
+    """Restore room-1 collision along every audited spawn walk spine."""
+    from .anim_catalog import PARADE_CORRIDOR_HALF_WIDTH
+    from .anim_levels import megaworld_plan
+    from .anim_wayfinding import _path_waypoints_for_wing, spawn_corridor_routes
+
+    for route in spawn_corridor_routes():
+        _ensure_route_collision_floor(
+            hub_tiles,
+            route["x0"],
+            route["z0"],
+            route["x1"],
+            route["z1"],
+            y=y,
+            floorcolour=floorcolour,
+        )
+
+    # Belt each audited polyline segment — route rects can end before wing centres.
+    half_w = PARADE_CORRIDOR_HALF_WIDTH
+    for wing_id in (
+        "districts",
+        "props",
+        "catalog",
+        "characters",
+        "true_scale",
+        "solo",
+        "mp",
+        "dev",
+    ):
+        waypoints = _path_waypoints_for_wing(wing_id)
+        for i in range(len(waypoints) - 1):
+            x0, z0 = waypoints[i]
+            x1, z1 = waypoints[i + 1]
+            _ensure_route_collision_floor(
+                hub_tiles,
+                min(x0, x1) - half_w,
+                min(z0, z1) - half_w,
+                max(x0, x1) + half_w,
+                max(z0, z1) + half_w,
+                y=y,
+                floorcolour=floorcolour,
+            )
+
+    plan = megaworld_plan()
+    for spine in plan["hubSpines"]:
+        _ensure_route_collision_floor(
+            hub_tiles,
+            spine.x0,
+            spine.z0,
+            spine.x1,
+            spine.z1,
+            y=y,
+            floorcolour=floorcolour,
+        )
+    for bridge in plan["bridges"]:
+        _ensure_route_collision_floor(
+            hub_tiles,
+            bridge.x0,
+            bridge.z0,
+            bridge.x1,
+            bridge.z1,
+            y=y,
+            floorcolour=floorcolour,
+        )
+    for isl in plan["islands"]:
+        _ensure_route_collision_floor(
+            hub_tiles,
+            isl.x - isl.half_x,
+            isl.z - isl.half_z,
+            isl.x + isl.half_x,
+            isl.z + isl.half_z,
+            y=y,
+            floorcolour=floorcolour,
+        )
+
+
+def _ensure_hub_carpet_collision_floors(
+    hub_tiles: list[dict],
+    *,
+    y: float,
+    floorcolour: int,
+) -> None:
+    """Stamp Y=0 collision under every room-1 hub carpet tile missing floor below.
+
+    Megaworld carve removes the room-1 arena shell so prop-district rooms own
+    props, but marker_y carpets remain visible while the player is still in
+    room 1 (``floorroom`` has not switched). Without matching collision quads
+    the player falls through painted walk surfaces — especially level-island
+    pads and bridge segments between audited corridor spines.
+    """
+    from .anim_wayfinding import _collision_quads_at_y, _point_has_collision
+
+    quads = _collision_quads_at_y(hub_tiles, y=y)
+    for tile in hub_tiles:
+        if tile.get("floortype") != "carpet":
+            continue
+        vs = tile["vertices"]
+        x0, z0 = float(vs[0]["x"]), float(vs[0]["z"])
+        x1, z1 = float(vs[2]["x"]), float(vs[2]["z"])
+        ax0, ax1 = min(x0, x1), max(x0, x1)
+        az0, az1 = min(z0, z1), max(z0, z1)
+        cx, cz = (ax0 + ax1) * 0.5, (az0 + az1) * 0.5
+        if _point_has_collision(cx, cz, quads):
+            continue
+        _ensure_route_collision_floor(
+            hub_tiles, ax0, az0, ax1, az1, y=y, floorcolour=floorcolour
+        )
+        quads.append((ax0, az0, ax1, az1))
+
+
 def _floor_tiles_minus_zones(
     half: float,
     y: float,
@@ -1137,6 +1420,8 @@ def configure_animation_lab(*, half: float | None = None, pad_y: float = PAD_FLO
         parade_slot_markers,
         parade_special_marker,
     )
+    from .anim_characters import add_character_gallery_pads
+    from .anim_levels import add_level_megaworld_pads
     from .anim_parade import NUM_GRID_SLOTS, PAD_PARADE_FIRST, PAD_SPECIAL_TOUR
     from .anim_props import add_parade_props
 
@@ -1182,6 +1467,12 @@ def configure_animation_lab(*, half: float | None = None, pad_y: float = PAD_FLO
     # Static props — props yard west + computer-district vignette (pads after tour).
     add_parade_props(g, pad_y=pad_y)
 
+    # Main-character gallery — southeast wing (pads after all props; chr in setup packer).
+    add_character_gallery_pads(g, pad_y=pad_y)
+
+    # Level megaworld — pad-sized footprint islands (pads + name markers after character gallery).
+    add_level_megaworld_pads(g, pad_y=pad_y)
+
     add_loadout_intro(g)
     return g
 
@@ -1189,6 +1480,60 @@ def configure_animation_lab(*, half: float | None = None, pad_y: float = PAD_FLO
 # Animation lab parade — category-coloured floor markers (visible with SEG_MODE=parade).
 PARADE_SEG_MARKER_Y_OFFSET = 4.0
 PARADE_SEG_ARENA_RGBA = HILL_SEG_ARENA_RGBA
+
+
+def _tile_quad_bounds(tile: dict) -> tuple[float, float, float, float]:
+    """Axis-aligned XZ bounds from a tile quad vertex list."""
+    vs = tile["vertices"]
+    return (float(vs[0]["x"]), float(vs[0]["z"]), float(vs[2]["x"]), float(vs[2]["z"]))
+
+
+def _parade_carpet_occupied_from_tiles(
+    tiles: list[dict], marker_y: float
+) -> list[tuple[float, float, float, float]]:
+    """Existing marker_y carpet quads — used to keep hub overlays disjoint in XZ."""
+    my = int(marker_y)
+    occ: list[tuple[float, float, float, float]] = []
+    for tile in tiles:
+        vs = tile["vertices"]
+        if int(vs[0]["y"]) != my or tile.get("floortype") != "carpet":
+            continue
+        occ.append(_tile_quad_bounds(tile))
+    return occ
+
+
+def _append_disjoint_carpet(
+    hub_tiles: list[dict],
+    occupied: list[tuple[float, float, float, float]],
+    x0: float,
+    z0: float,
+    x1: float,
+    z1: float,
+    *,
+    y: float,
+    floorcolour: int,
+    floortype: str = "carpet",
+) -> None:
+    """Append carpet quads clipped against *occupied* — avoids same-Y z-fighting."""
+    if x1 <= x0 or z1 <= z0:
+        return
+    pieces = [
+        tile_quad(x0, z0, x1, z1, y=y, floorcolour=floorcolour, floortype=floortype)
+    ]
+    for ox0, oz0, ox1, oz1 in occupied:
+        clipped: list[dict] = []
+        for piece in pieces:
+            bx0, bz0, bx1, bz1 = _tile_quad_bounds(piece)
+            for sub in _subtract_rect_from_quad(
+                bx0, bz0, bx1, bz1, ox0, oz0, ox1, oz1, y=y, floorcolour=floorcolour
+            ):
+                sub["floortype"] = floortype
+                clipped.append(sub)
+        pieces = clipped
+    for piece in pieces:
+        piece["floortype"] = floortype
+        hub_tiles.append(piece)
+        occupied.append(_tile_quad_bounds(piece))
 
 
 def floor_box_with_parade_slots(
@@ -1205,19 +1550,22 @@ def floor_box_with_parade_slots(
     cuts = [(s["x"], s["z"], zone_half) for s in slots]
     arena_tiles = _floor_tiles_minus_zones(half, y, cuts, floorcolour=arena_colour)
     marker_y = y + PARADE_SEG_MARKER_Y_OFFSET
+    # Sub-zone pitch (150 u) is tighter than marker diameter (2×zone_half) — clip
+    # marker_y carpets so adjacent slots from different zones never share XZ area.
+    occupied: list[tuple[float, float, float, float]] = []
     for slot in slots:
         cx, cz = slot["x"], slot["z"]
         colour = slot["floorColour"]
-        arena_tiles.append(
-            tile_quad(
-                cx - zone_half,
-                cz - zone_half,
-                cx + zone_half,
-                cz + zone_half,
-                y=marker_y,
-                floorcolour=colour,
-                floortype="carpet",
-            )
+        _append_disjoint_carpet(
+            arena_tiles,
+            occupied,
+            cx - zone_half,
+            cz - zone_half,
+            cx + zone_half,
+            cz + zone_half,
+            y=marker_y,
+            floorcolour=colour,
+            floortype="carpet",
         )
         arena_tiles.append(
             tile_quad(
@@ -1248,15 +1596,19 @@ def floor_box_with_parade_zones(
     districts: list[dict] | None = None,
     props_district: dict | None = None,
     museum_district: dict | None = None,
+    true_scale_district: dict | None = None,
+    characters_district: dict | None = None,
+    levels_district: dict | None = None,
     vignette_props: dict | None = None,
     zone_half: float = PARADE_ZONE_HALF,
     arena_room_index: int = 1,
     arena_colour: int = 4095,
 ) -> dict:
-    """Parade arena: room 1 hub + district boundary tiles; rooms 2+ per sub-zone.
+    """Parade arena: room 1 hub + per-wing carpets; rooms 2+ per sub-zone.
 
-    Guard pads use zone tile rooms (≤30 chr/room). District boundary markers use
-    category colours on the hub floor (tiles only — avoids seg bgInflate crash).
+    Hub marker_y carpets are disjoint in XZ (one colour per cell) to avoid z-fighting.
+    Guard slot markers from ``floor_box_with_parade_slots`` claim the district grid;
+    wings, props yard, and corridors clip against that occupancy map.
     """
     base = floor_box_with_parade_slots(
         name,
@@ -1271,8 +1623,9 @@ def floor_box_with_parade_zones(
     prefix = name.upper()
     marker_y = y + PARADE_SEG_MARKER_Y_OFFSET
     hub_tiles = list(rooms.get(f"ROOM_{prefix}_{arena_room_index:04d}", []))
+    # Slot markers from base already occupy the district grid at marker_y.
+    occupied = _parade_carpet_occupied_from_tiles(hub_tiles, marker_y)
 
-    # North walk spine — hub carpet from spawn toward district grid.
     from .anim_catalog import (
         PARADE_CORRIDOR_COLOUR,
         PARADE_CORRIDOR_END_Z,
@@ -1283,168 +1636,145 @@ def floor_box_with_parade_zones(
         PARADE_SPECIAL_Z,
     )
 
-    hub_tiles.append(
-        tile_quad(
-            -PARADE_CORRIDOR_HALF_WIDTH,
-            PARADE_PLAYER_SPAWN_Z + 80.0,
-            PARADE_CORRIDOR_HALF_WIDTH,
-            PARADE_CORRIDOR_END_Z,
+    def _hub_carpet(
+        x0: float, z0: float, x1: float, z1: float, colour: int
+    ) -> None:
+        _append_disjoint_carpet(
+            hub_tiles,
+            occupied,
+            x0,
+            z0,
+            x1,
+            z1,
             y=marker_y,
-            floorcolour=PARADE_CORRIDOR_COLOUR,
+            floorcolour=colour,
             floortype="carpet",
         )
-    )
-    # Full-tour pad marker (gold carpet east of spawn).
-    tour_half = zone_half * 0.85
-    hub_tiles.append(
-        tile_quad(
-            PARADE_SPECIAL_X - tour_half,
-            PARADE_SPECIAL_Z - tour_half,
-            PARADE_SPECIAL_X + tour_half,
-            PARADE_SPECIAL_Z + tour_half,
-            y=marker_y,
-            floorcolour=_hex_to_floor_colour("#ffd166"),
-            floortype="carpet",
-        )
-    )
 
-    # Category district boundary markers on hub floor (subtle carpet overlay).
-    from .anim_catalog import PARADE_DISTRICT_CELL_D, PARADE_DISTRICT_CELL_W
+    # --- Wing interiors (high priority — claim territory before corridors) ---
 
-    for district in districts or []:
-        dcx = float(district["centerX"])
-        dcz = float(district["centerZ"])
-        span_cols = int(district.get("spanCols", 1))
-        span_rows = int(district.get("spanRows", 1))
-        hw = span_cols * PARADE_DISTRICT_CELL_W / 2.0 + 80.0
-        hd = span_rows * PARADE_DISTRICT_CELL_D / 2.0 + 80.0
-        colour = _hex_to_floor_colour(str(district.get("color", "#505060")))
-        hub_tiles.append(
-            tile_quad(
-                dcx - hw,
-                dcz - hd,
-                dcx + hw,
-                dcz + hd,
-                y=marker_y,
-                floorcolour=colour,
-                floortype="carpet",
+    if museum_district:
+        from .anim_catalog import parade_museum_half
+
+        tag_districts = museum_district.get("tagDistricts") or []
+        if tag_districts:
+            for td in tag_districts:
+                tcx = float(td.get("centerX", 0))
+                tcz = float(td.get("centerZ", 0))
+                th = float(td.get("half", 1200.0))
+                tag_colour = int(td.get("floorColour", _hex_to_floor_colour("#0ea5e9")))
+                _hub_carpet(tcx - th, tcz - th, tcx + th, tcz + th, tag_colour)
+        else:
+            mcx = float(museum_district.get("centerX", 0))
+            mcz = float(museum_district.get("centerZ", 0))
+            mh = float(museum_district.get("half", parade_museum_half()))
+            museum_colour = int(
+                museum_district.get("floorColour", _hex_to_floor_colour("#0ea5e9"))
             )
+            _hub_carpet(mcx - mh, mcz - mh, mcx + mh, mcz + mh, museum_colour)
+
+    if true_scale_district:
+        from .anim_catalog import (
+            PARADE_TRUE_SCALE_NORMAL_CENTER_X,
+            PARADE_TRUE_SCALE_NORMAL_CENTER_Z,
+            parade_true_scale_normal_half,
         )
 
-    rooms[f"ROOM_{prefix}_{arena_room_index:04d}"] = hub_tiles
+        for wing in true_scale_district.get("wings") or []:
+            wcx = float(wing.get("centerX", 0))
+            wcz = float(wing.get("centerZ", 0))
+            wh = float(wing.get("half", 1200.0))
+            wing_colour = int(wing.get("floorColour", _hex_to_floor_colour("#14b8a6")))
+            if not _parade_wing_tile_in_s16(wcx, wcz, wh):
+                continue
+            _hub_carpet(wcx - wh, wcz - wh, wcx + wh, wcz + wh, wing_colour)
 
-    # Props district carpet on hub floor (props pads use room 1).
+    if characters_district:
+        from .anim_catalog import (
+            PARADE_CHARACTERS_CENTER_X,
+            PARADE_CHARACTERS_CENTER_Z,
+            PARADE_CHARACTERS_HALF,
+        )
+
+        ccx = float(characters_district.get("centerX", PARADE_CHARACTERS_CENTER_X))
+        ccz = float(characters_district.get("centerZ", PARADE_CHARACTERS_CENTER_Z))
+        ch = float(characters_district.get("half", PARADE_CHARACTERS_HALF))
+        char_colour = int(
+            characters_district.get("floorColour", _hex_to_floor_colour("#c084fc"))
+        )
+        _hub_carpet(ccx - ch, ccz - ch, ccx + ch, ccz + ch, char_colour)
+
+    if levels_district:
+        from .anim_levels import append_megaworld_hub_tiles
+
+        append_megaworld_hub_tiles(hub_tiles, marker_y=marker_y, occupied=occupied)
+
     if props_district:
         pcx = float(props_district.get("centerX", 0))
         pcz = float(props_district.get("centerZ", 0))
         ph = PARADE_PROPS_HALF
         prop_colour = int(props_district.get("floorColour", 0x38B))
-        hub_tiles.append(
-            tile_quad(
-                pcx - ph,
-                pcz - ph,
-                pcx + ph,
-                pcz + ph,
-                y=marker_y,
-                floorcolour=prop_colour,
-                floortype="carpet",
-            )
-        )
-        rooms[f"ROOM_{prefix}_{arena_room_index:04d}"] = hub_tiles
+        _hub_carpet(pcx - ph, pcz - ph, pcx + ph, pcz + ph, prop_colour)
 
-    # Mirror guard category colours onto hub room 1 (always visible on hub floor).
-    for slot in slots:
-        if slot.get("isSpecialTour"):
-            continue
-        scx, scz = slot["x"], slot["z"]
-        colour = int(slot.get("floorColour", arena_colour))
-        hub_tiles.append(
-            tile_quad(
-                scx - zone_half,
-                scz - zone_half,
-                scx + zone_half,
-                scz + zone_half,
-                y=marker_y,
-                floorcolour=colour,
-                floortype="carpet",
-            )
-        )
+    # Full-tour pad marker (gold carpet east of spawn).
+    tour_half = zone_half * 0.85
+    _hub_carpet(
+        PARADE_SPECIAL_X - tour_half,
+        PARADE_SPECIAL_Z - tour_half,
+        PARADE_SPECIAL_X + tour_half,
+        PARADE_SPECIAL_Z + tour_half,
+        _hex_to_floor_colour("#ffd166"),
+    )
 
-    # Corridor district bands — coloured strips along the north walk spine.
-    if districts:
-        band_count = len(districts)
-        z_start = PARADE_PLAYER_SPAWN_Z + 120.0
-        z_end = PARADE_CORRIDOR_END_Z
-        z_step = (z_end - z_start) / max(1, band_count)
-        spine_half = PARADE_CORRIDOR_HALF_WIDTH
-        for i, district in enumerate(districts):
-            colour = _hex_to_floor_colour(str(district.get("color", "#505060")))
-            z0 = z_start + i * z_step
-            z1 = z_start + (i + 1) * z_step
-            hub_tiles.append(
-                tile_quad(
-                    -spine_half,
-                    z0,
-                    spine_half,
-                    z1,
-                    y=marker_y,
-                    floorcolour=colour,
-                    floortype="carpet",
-                )
-            )
-
-    # Prop museum wing carpet (far west, room 1).
-    if museum_district:
-        from .anim_catalog import (
-            PARADE_MUSEUM_CENTER_X,
-            PARADE_PROPS_CENTER_X,
-            parade_museum_half,
-        )
-
-        mcx = float(museum_district.get("centerX", 0))
-        mcz = float(museum_district.get("centerZ", 0))
-        mh = float(museum_district.get("half", parade_museum_half()))
-        museum_colour = int(museum_district.get("floorColour", _hex_to_floor_colour("#0ea5e9")))
-        hub_tiles.append(
-            tile_quad(
-                mcx - mh,
-                mcz - mh,
-                mcx + mh,
-                mcz + mh,
-                y=marker_y,
-                floorcolour=museum_colour,
-                floortype="carpet",
-            )
-        )
-        # Walk path props yard → museum.
-        hub_tiles.append(
-            tile_quad(
-                PARADE_MUSEUM_CENTER_X + mh,
-                mcz - 200.0,
-                PARADE_PROPS_CENTER_X - PARADE_PROPS_HALF,
-                mcz + 200.0,
-                y=marker_y,
-                floorcolour=PARADE_CORRIDOR_COLOUR,
-                floortype="carpet",
-            )
-        )
-
-    # District vignette entrance carpets at prop positions.
     if vignette_props:
         for prop in vignette_props.get("props") or []:
             px, pz = float(prop["x"]), float(prop["z"])
             colour = int(prop.get("floorColour", arena_colour))
-            hub_tiles.append(
-                tile_quad(
-                    px - 90.0,
-                    pz - 90.0,
-                    px + 90.0,
-                    pz + 90.0,
-                    y=marker_y,
-                    floorcolour=colour,
-                    floortype="carpet",
-                )
-            )
+            _hub_carpet(px - 90.0, pz - 90.0, px + 90.0, pz + 90.0, colour)
+
+    # --- Corridors (low priority — wing-coloured spines clip into gaps) ---
+
+    from .anim_wayfinding import append_compass_rose_tiles, spawn_corridor_routes
+
+    for route in spawn_corridor_routes():
+        _hub_carpet(
+            route["x0"],
+            route["z0"],
+            route["x1"],
+            route["z1"],
+            route["floorColour"],
+        )
+
+    append_compass_rose_tiles(hub_tiles, occupied, marker_y=marker_y)
+
+    # Room 1 arena floor overlaps prop-district rooms — carve megaworld so room 18
+    # owns collision, carpets, and the 89 stage-island crate props when walking NE.
+    if levels_district:
+        from .anim_catalog import spawn_plaza_bounds
+        from .anim_levels import megaworld_bounds
+
+        mb = megaworld_bounds()
+        plaza = spawn_plaza_bounds()
+        _carve_floor_rect_from_tiles(
+            hub_tiles,
+            mb["minX"],
+            mb["minZ"],
+            mb["maxX"],
+            mb["maxZ"],
+            y=y,
+            preserve=[(plaza["x0"], plaza["z0"], plaza["x1"], plaza["z1"])],
+        )
+
+    # Pad 0 is room 1 — always restore collision under spawn ± clearance.
+    _ensure_spawn_plaza_floor(hub_tiles, y=y, floorcolour=arena_colour)
+    # Carve leaves marker_y carpets but no Y=0 collision while player is room 1.
+    _ensure_animlab_walk_collision_floors(
+        hub_tiles, y=y, floorcolour=arena_colour
+    )
+    # Fill gaps on island/bridge carpets not fully covered by route belt stamps.
+    _ensure_hub_carpet_collision_floors(
+        hub_tiles, y=y, floorcolour=arena_colour
+    )
 
     rooms[f"ROOM_{prefix}_{arena_room_index:04d}"] = hub_tiles
 
@@ -1487,6 +1817,129 @@ def floor_box_with_parade_zones(
                 )
             )
         rooms[f"ROOM_{prefix}_{room_idx:04d}"] = zone_tiles
+
+    # Bulk prop districts — dedicated tile rooms so room 1 never exceeds
+    # cdCollectGeoForCyl's propnums[256] stack buffer during spawn/movement.
+    def _prop_district_room(
+        room_idx: int,
+        x0: float,
+        z0: float,
+        x1: float,
+        z1: float,
+        *,
+        carpet_colour: int | None = None,
+    ) -> None:
+        district_tiles = [
+            tile_quad(x0, z0, x1, z1, y=y, floorcolour=arena_colour)
+        ]
+        if carpet_colour is not None:
+            district_tiles.append(
+                tile_quad(
+                    x0,
+                    z0,
+                    x1,
+                    z1,
+                    y=marker_y,
+                    floorcolour=carpet_colour,
+                    floortype="carpet",
+                )
+            )
+        rooms[f"ROOM_{prefix}_{room_idx:04d}"] = district_tiles
+
+    if museum_district:
+        from .anim_catalog import parade_museum_half
+
+        tag_districts = museum_district.get("tagDistricts") or []
+        if tag_districts:
+            for td in tag_districts:
+                room_idx = int(td.get("room", 20))
+                tcx = float(td.get("centerX", 0))
+                tcz = float(td.get("centerZ", 0))
+                th = float(td.get("half", 1200.0))
+                tag_colour = int(td.get("floorColour", _hex_to_floor_colour("#0ea5e9")))
+                _prop_district_room(
+                    room_idx,
+                    tcx - th,
+                    tcz - th,
+                    tcx + th,
+                    tcz + th,
+                    carpet_colour=tag_colour,
+                )
+        else:
+            from .anim_catalog import (
+                PARADE_MUSEUM_ROOM_A,
+                PARADE_MUSEUM_ROOM_B,
+            )
+
+            mcx = float(museum_district.get("centerX", 0))
+            mcz = float(museum_district.get("centerZ", 0))
+            mh = float(museum_district.get("half", parade_museum_half()))
+            museum_colour = int(
+                museum_district.get("floorColour", _hex_to_floor_colour("#0ea5e9"))
+            )
+            mx0, mz0, mx1, mz1 = mcx - mh, mcz - mh, mcx + mh, mcz + mh
+            _prop_district_room(PARADE_MUSEUM_ROOM_A, mx0, mz0, mx1, mz1, carpet_colour=museum_colour)
+            _prop_district_room(PARADE_MUSEUM_ROOM_B, mx0, mz0, mx1, mz1, carpet_colour=museum_colour)
+
+    if true_scale_district:
+        from .anim_catalog import (
+            PARADE_TRUE_SCALE_MEGA_ROOM,
+            PARADE_TRUE_SCALE_NORMAL_ROOM,
+        )
+
+        for wing in true_scale_district.get("wings") or []:
+            wcx = float(wing.get("centerX", 0))
+            wcz = float(wing.get("centerZ", 0))
+            wh = float(wing.get("half", 1200.0))
+            wing_colour = int(wing.get("floorColour", _hex_to_floor_colour("#14b8a6")))
+            if not _parade_wing_tile_in_s16(wcx, wcz, wh):
+                continue
+            room_idx = (
+                PARADE_TRUE_SCALE_NORMAL_ROOM
+                if wing.get("wing") == "normal"
+                else PARADE_TRUE_SCALE_MEGA_ROOM
+            )
+            _prop_district_room(
+                room_idx,
+                wcx - wh,
+                wcz - wh,
+                wcx + wh,
+                wcz + wh,
+                carpet_colour=wing_colour,
+            )
+
+    if characters_district:
+        from .anim_catalog import (
+            PARADE_CHARACTERS_CENTER_X,
+            PARADE_CHARACTERS_CENTER_Z,
+            PARADE_CHARACTERS_HALF,
+            PARADE_CHARACTERS_ROOM,
+        )
+        ccx = float(characters_district.get("centerX", PARADE_CHARACTERS_CENTER_X))
+        ccz = float(characters_district.get("centerZ", PARADE_CHARACTERS_CENTER_Z))
+        ch = float(characters_district.get("half", PARADE_CHARACTERS_HALF))
+        char_colour = int(
+            characters_district.get("floorColour", _hex_to_floor_colour("#c084fc"))
+        )
+        _prop_district_room(
+            PARADE_CHARACTERS_ROOM,
+            ccx - ch,
+            ccz - ch,
+            ccx + ch,
+            ccz + ch,
+            carpet_colour=char_colour,
+        )
+
+    if levels_district:
+        from .anim_catalog import PARADE_MEGAWORLD_ROOM
+        from .anim_levels import megaworld_district_room_tiles
+
+        rooms[f"ROOM_{prefix}_{PARADE_MEGAWORLD_ROOM:04d}"] = megaworld_district_room_tiles(
+            y=y,
+            marker_y=marker_y,
+            arena_colour=arena_colour,
+        )
+
     return {"rooms": rooms}
 
 
@@ -1497,6 +1950,24 @@ def _hex_to_floor_colour(hex_color: str) -> int:
     g = int(h[2:4], 16) >> 4
     b = int(h[4:6], 16) >> 4
     return (r << 8) | (g << 4) | b
+
+
+def _tile_quad_in_s16(x0: float, z0: float, x1: float, z1: float) -> bool:
+    """True when all corners fit engine tile/seg s16 vertex range."""
+    for v in (x0, z0, x1, z1):
+        if v < -32768.0 or v > 32767.0:
+            return False
+    return True
+
+
+def _parade_wing_tile_in_s16(center_x: float, center_z: float, half: float) -> bool:
+    """Whether a carpet/seg quad at *center* ± *half* is within s16 coords."""
+    return _tile_quad_in_s16(
+        center_x - half,
+        center_z - half,
+        center_x + half,
+        center_z + half,
+    )
 
 
 def _parade_seg_colour_table(slots: list[dict]) -> tuple[list[int], dict[str, int]]:
@@ -1562,6 +2033,8 @@ def parade_district_seg_faces(
     *,
     props_district: dict | None = None,
     museum_district: dict | None = None,
+    true_scale_district: dict | None = None,
+    characters_district: dict | None = None,
     special: dict | None = None,
     zone_half: float = PARADE_ZONE_HALF,
     y: float = 0.0,
@@ -1619,9 +2092,35 @@ def parade_district_seg_faces(
         mcx = float(museum_district.get("centerX", 0))
         mcz = float(museum_district.get("centerZ", 0))
         mh = float(museum_district.get("half", parade_museum_half()))
+        # Seg vertices are s16 — clamp marker extent so mcx±mh / mcz±mh stay in range.
+        s16_cap = 32767 - int(max(abs(mcx), abs(mcz)))
+        mh = min(mh, float(max(1200, s16_cap)))
         rgba = _hex_to_seg_rgba("#0ea5e9")
         face_colours.append(rgba)
         zone_tile = tile_quad(mcx - mh, mcz - mh, mcx + mh, mcz + mh, y=marker_y)
+        faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+
+    if true_scale_district:
+        for wing in true_scale_district.get("wings") or []:
+            wcx = float(wing.get("centerX", 0))
+            wcz = float(wing.get("centerZ", 0))
+            wh = float(wing.get("half", 1200.0))
+            if not _parade_wing_tile_in_s16(wcx, wcz, wh):
+                continue
+            rgba = _hex_to_seg_rgba(str(wing.get("colour", "#14b8a6")))
+            face_colours.append(rgba)
+            zone_tile = tile_quad(wcx - wh, wcz - wh, wcx + wh, wcz + wh, y=marker_y)
+            faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+
+    if characters_district:
+        from .anim_catalog import PARADE_CHARACTERS_HALF
+
+        ccx = float(characters_district.get("centerX", 0))
+        ccz = float(characters_district.get("centerZ", 0))
+        ch = float(characters_district.get("half", PARADE_CHARACTERS_HALF))
+        rgba = _hex_to_seg_rgba("#c084fc")
+        face_colours.append(rgba)
+        zone_tile = tile_quad(ccx - ch, ccz - ch, ccx + ch, ccz + ch, y=marker_y)
         faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
 
     if special:

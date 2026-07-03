@@ -4,7 +4,7 @@
 # Or:          ./build/pd.arm64 --test-map --moddir mods/mod_allinone --scenario-0 --num-sims 50 --teams-battle --sim-difficulty 5
 # PC port supports up to 64 fighters (1 human + 63 bots); stock u32 chrslots caps N64 at 32.
 
-from tools.pdmap.builders import add_ammo_row, add_floor_weapons, add_loadout_intro, floor_box_tiles
+from tools.pdmap.builders import add_loadout_intro, add_weapon_ammo_pair, floor_box_tiles
 from tools.pdmap.core import MapDef
 from tools.pdmap.intro import Spawn
 from tools.pdmap import weapons as W
@@ -28,6 +28,9 @@ _X_STEP = 1000.0
 # 400-unit row spacing (was 200) — reduces spawn-line overlap with 25+ bots per flank.
 _TEAM0_Z = (-3400.0, -3800.0, -4200.0, -4600.0)
 _TEAM1_Z = (3400.0, 3800.0, 4200.0, 4600.0)
+
+# Retail Combat Simulator weapon→ammo pad offset (mp1 ≈130 units on X).
+_AMMO_OFFSET_X = W.RETAIL_AMMO_PAIR_OFFSET_X
 
 
 def _team_spawn_positions(team: int) -> list[tuple[float, float]]:
@@ -60,60 +63,77 @@ def build() -> MapDef:
             g.add_intro(Spawn(pad=pad_index))
             pad_index += 1
 
-    # Center-zone resupply between flanks (teams at Z ≈ ±3600–4200).
-    # 12 floor weapons + 19 ammo crates (7 base + 12 bullet boxes) for 50+ bots.
-    weapon_pads: list[tuple[int, float, float, int]] = [
-        (64, -2800.0, 0.0, W.WEAPON_AR34),
-        (65, -1400.0, 0.0, W.WEAPON_CMP150),
-        (66, 0.0, 0.0, W.WEAPON_SHOTGUN),
-        (67, 1400.0, 0.0, W.WEAPON_FALCON2),
-        (68, 2800.0, 0.0, W.WEAPON_MAGSEC4),
-        (69, -2000.0, -1000.0, W.WEAPON_SNIPERRIFLE),
-        (70, 2000.0, -1000.0, W.WEAPON_SUPERDRAGON),
-        (71, -2000.0, 1000.0, W.WEAPON_ROCKETLAUNCHER),
-        (72, 2000.0, 1000.0, W.WEAPON_CROSSBOW),
-        (73, -1000.0, -1600.0, W.WEAPON_LAPTOPGUN),
-        (74, 1000.0, -1600.0, W.WEAPON_MAULER),
-        (75, -1000.0, 1600.0, W.WEAPON_TRANQUILIZER),
+    # --- Weapon + large retail ammo pairs (48) — Combat Simulator layout ---
+    # Each station: weapon pad at (x, z), large multiammocrate at (x + offset, z).
+    weapon_layout: list[tuple[float, float, int]] = [
+        # Center belt (12).
+        (-2800.0, 0.0, W.WEAPON_AR34),
+        (-1400.0, 0.0, W.WEAPON_CMP150),
+        (0.0, 0.0, W.WEAPON_SHOTGUN),
+        (1400.0, 0.0, W.WEAPON_FALCON2),
+        (2800.0, 0.0, W.WEAPON_MAGSEC4),
+        (-2000.0, -1000.0, W.WEAPON_SNIPERRIFLE),
+        (2000.0, -1000.0, W.WEAPON_SUPERDRAGON),
+        (-2000.0, 1000.0, W.WEAPON_ROCKETLAUNCHER),
+        (2000.0, 1000.0, W.WEAPON_CROSSBOW),
+        (-1000.0, -1600.0, W.WEAPON_LAPTOPGUN),
+        (1000.0, -1600.0, W.WEAPON_MAULER),
+        (-1000.0, 1600.0, W.WEAPON_TRANQUILIZER),
+        # Team 0 advance rows (13).
+        (-3200.0, -2600.0, W.WEAPON_FALCON2),
+        (-2400.0, -2600.0, W.WEAPON_CMP150),
+        (-1600.0, -2600.0, W.WEAPON_AR34),
+        (-800.0, -2600.0, W.WEAPON_SHOTGUN),
+        (800.0, -2600.0, W.WEAPON_MAGSEC4),
+        (1600.0, -2600.0, W.WEAPON_FALCON2),
+        (2400.0, -2600.0, W.WEAPON_AR34),
+        (3200.0, -2600.0, W.WEAPON_CMP150),
+        (-3200.0, -1800.0, W.WEAPON_MAGSEC4),
+        (-1600.0, -1800.0, W.WEAPON_SHOTGUN),
+        (0.0, -1800.0, W.WEAPON_FALCON2),
+        (1600.0, -1800.0, W.WEAPON_CMP150),
+        (3200.0, -1800.0, W.WEAPON_AR34),
+        # Team 1 advance rows (13).
+        (-3200.0, 2600.0, W.WEAPON_FALCON2),
+        (-2400.0, 2600.0, W.WEAPON_CMP150),
+        (-1600.0, 2600.0, W.WEAPON_AR34),
+        (-800.0, 2600.0, W.WEAPON_SHOTGUN),
+        (800.0, 2600.0, W.WEAPON_MAGSEC4),
+        (1600.0, 2600.0, W.WEAPON_FALCON2),
+        (2400.0, 2600.0, W.WEAPON_AR34),
+        (3200.0, 2600.0, W.WEAPON_CMP150),
+        (-3200.0, 1800.0, W.WEAPON_MAGSEC4),
+        (-1600.0, 1800.0, W.WEAPON_SHOTGUN),
+        (0.0, 1800.0, W.WEAPON_FALCON2),
+        (1600.0, 1800.0, W.WEAPON_CMP150),
+        (3200.0, 1800.0, W.WEAPON_AR34),
+        # Just forward of front spawn lines (10).
+        (-2800.0, -3200.0, W.WEAPON_FALCON2),
+        (0.0, -3200.0, W.WEAPON_SHOTGUN),
+        (2800.0, -3200.0, W.WEAPON_AR34),
+        (-1400.0, -3200.0, W.WEAPON_MAGSEC4),
+        (1400.0, -3200.0, W.WEAPON_CMP150),
+        (-2800.0, 3200.0, W.WEAPON_FALCON2),
+        (0.0, 3200.0, W.WEAPON_SHOTGUN),
+        (2800.0, 3200.0, W.WEAPON_AR34),
+        (-1400.0, 3200.0, W.WEAPON_MAGSEC4),
+        (1400.0, 3200.0, W.WEAPON_CMP150),
     ]
-    for pad, x, z, _ in weapon_pads:
-        g.add_pad(index=pad, x=x, y=SPAWN_Y, z=z, room=1)
-    add_floor_weapons(g, [(pad, wid) for pad, _, _, wid in weapon_pads])
 
-    ammo_pads: list[tuple[int, float, float]] = [
-        (76, 0.0, 0.0),          # center multi-ammo (overlaps shotgun pad — OK)
-        (77, -1800.0, -600.0),   # rifle flank
-        (78, 1800.0, -600.0),
-        (79, -1800.0, 600.0),    # shotgun flank
-        (80, 1800.0, 600.0),
-        (81, 0.0, -2000.0),      # mid-lane toward team 0
-        (82, 0.0, 2000.0),       # mid-lane toward team 1
-    ]
-    for pad, x, z in ammo_pads:
-        g.add_pad(index=pad, x=x, y=SPAWN_Y, z=z, room=1)
-    # Large MODEL_MULTI_AMMO_CRATE boxes (retail ammocrate 0x07, not slot-crate 0x14).
-    add_ammo_row(g, [76, 81, 82])
-    add_ammo_row(g, [77, 78], ammotype=W.AMMOTYPE_RIFLE)
-    add_ammo_row(g, [79, 80], ammotype=W.AMMOTYPE_SHOTGUN)
-
-    # Bullet boxes: multi-ammo crates near weapon lines and team advance flanks.
-    bullet_box_pads: list[tuple[int, float, float]] = [
-        (83, -2800.0, -500.0),   # AR34 lane
-        (84, 2800.0, -500.0),    # MagSec lane
-        (85, -700.0, 0.0),       # west mid weapon line
-        (86, 700.0, 0.0),        # east mid weapon line
-        (87, -2400.0, -1200.0),  # NW heavy-weapon cluster
-        (88, 2400.0, -1200.0),   # NE heavy-weapon cluster
-        (89, -2400.0, 1200.0),   # SW heavy-weapon cluster
-        (90, 2400.0, 1200.0),    # SE heavy-weapon cluster
-        (91, -1500.0, -2400.0),  # team 0 left advance
-        (92, 1500.0, -2400.0),   # team 0 right advance
-        (93, -1500.0, 2400.0),   # team 1 left advance
-        (94, 1500.0, 2400.0),    # team 1 right advance
-    ]
-    for pad, x, z in bullet_box_pads:
-        g.add_pad(index=pad, x=x, y=SPAWN_Y, z=z, room=1)
-    add_ammo_row(g, [pad for pad, _, _ in bullet_box_pads])
+    for x, z, weapon_id in weapon_layout:
+        weapon_pad = pad_index
+        g.add_pad(index=weapon_pad, x=x, y=SPAWN_Y, z=z, room=1)
+        pad_index += 1
+        ammo_pad = pad_index
+        g.add_pad(
+            index=ammo_pad,
+            x=x + _AMMO_OFFSET_X,
+            y=SPAWN_Y,
+            z=z,
+            room=1,
+        )
+        pad_index += 1
+        add_weapon_ammo_pair(g, weapon_pad, weapon_id, [ammo_pad])
 
     add_loadout_intro(g)
     return g

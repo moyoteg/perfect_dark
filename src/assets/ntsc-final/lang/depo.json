@@ -41,53 +41,53 @@
     },
     {
         "id": "L_DEPO_004",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "Director - stand-up in progress.\nAll agent threads green.\n",
+        "gb": "Director - stand-up in progress.\nAll agent threads green.\n",
+        "jp": "Director - stand-up in progress.\nAll agent threads green.\n",
+        "it": "Director - stand-up in progress.\nAll agent threads green.\n",
+        "fr": "Director - stand-up in progress.\nAll agent threads green.\n",
+        "de": "Director - stand-up in progress.\nAll agent threads green.\n",
+        "es": "Director - stand-up in progress.\nAll agent threads green.\n"
     },
     {
         "id": "L_DEPO_005",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n",
+        "gb": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n",
+        "jp": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n",
+        "it": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n",
+        "fr": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n",
+        "de": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n",
+        "es": "Orchestrator - 12 tasks queued.\nDispatching Research and Code.\n"
     },
     {
         "id": "L_DEPO_006",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "Research - scanning repo context.\n847 files indexed.\n",
+        "gb": "Research - scanning repo context.\n847 files indexed.\n",
+        "jp": "Research - scanning repo context.\n847 files indexed.\n",
+        "it": "Research - scanning repo context.\n847 files indexed.\n",
+        "fr": "Research - scanning repo context.\n847 files indexed.\n",
+        "de": "Research - scanning repo context.\n847 files indexed.\n",
+        "es": "Research - scanning repo context.\n847 files indexed.\n"
     },
     {
         "id": "L_DEPO_007",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "Code - patch set staged.\nWaiting on QA sign-off.\n",
+        "gb": "Code - patch set staged.\nWaiting on QA sign-off.\n",
+        "jp": "Code - patch set staged.\nWaiting on QA sign-off.\n",
+        "it": "Code - patch set staged.\nWaiting on QA sign-off.\n",
+        "fr": "Code - patch set staged.\nWaiting on QA sign-off.\n",
+        "de": "Code - patch set staged.\nWaiting on QA sign-off.\n",
+        "es": "Code - patch set staged.\nWaiting on QA sign-off.\n"
     },
     {
         "id": "L_DEPO_008",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "QA - verification gate running.\n3 checks pending.\n",
+        "gb": "QA - verification gate running.\n3 checks pending.\n",
+        "jp": "QA - verification gate running.\n3 checks pending.\n",
+        "it": "QA - verification gate running.\n3 checks pending.\n",
+        "fr": "QA - verification gate running.\n3 checks pending.\n",
+        "de": "QA - verification gate running.\n3 checks pending.\n",
+        "es": "QA - verification gate running.\n3 checks pending.\n"
     },
     {
         "id": "L_DEPO_009",
@@ -531,13 +531,13 @@
     },
     {
         "id": "L_DEPO_053",
-        "en": "Communications bug placed correctly.\n",
-        "gb": "Communications bug placed correctly.\n",
-        "jp": "Communications Bug Placed Correctly\n",
-        "it": "Communications bug placed correctly.\n",
-        "fr": "Communications bug placed correctly.\n",
-        "de": "Communications bug placed correctly.\n",
-        "es": "Communications bug placed correctly.\n"
+        "en": "Comms - status channel open.\nBroadcasting build health to all agents.\n",
+        "gb": "Comms - status channel open.\nBroadcasting build health to all agents.\n",
+        "jp": "Comms - status channel open.\nBroadcasting build health to all agents.\n",
+        "it": "Comms - status channel open.\nBroadcasting build health to all agents.\n",
+        "fr": "Comms - status channel open.\nBroadcasting build health to all agents.\n",
+        "de": "Comms - status channel open.\nBroadcasting build health to all agents.\n",
+        "es": "Comms - status channel open.\nBroadcasting build health to all agents.\n"
     },
     {
         "id": "L_DEPO_054",
@@ -611,13 +611,13 @@
     },
     {
         "id": "L_DEPO_061",
-        "en": "That must be the meeting room up ahead. \nTime to use the CamSpy.\n",
-        "gb": "That must be the meeting room up ahead.\nTime to use the CamSpy.\n",
-        "jp": "I can't go any further, but the Eye-Spy can.\n",
-        "it": "That must be the meeting room up ahead.\nTime to use the CamSpy.\n",
-        "fr": "That must be the meeting room up ahead.\nTime to use the CamSpy.\n",
-        "de": "That must be the meeting room up ahead.\nTime to use the CamSpy.\n",
-        "es": "That must be the meeting room up ahead.\nTime to use the CamSpy.\n"
+        "en": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n",
+        "gb": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n",
+        "jp": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n",
+        "it": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n",
+        "fr": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n",
+        "de": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n",
+        "es": "dataDyne G5 - Agent Operations Floor.\n8 virtual agents online, all threads nominal.\nZ-target an agent for its status.\n"
     },
     {
         "id": "L_DEPO_062",
@@ -661,23 +661,23 @@
     },
     {
         "id": "L_DEPO_066",
-        "en": "\n",
-        "gb": "\n",
-        "jp": "\n",
-        "it": "\n",
-        "fr": "\n",
-        "de": "\n",
-        "es": "\n"
+        "en": "Security - perimeter clear.\nBriefing room unlocked.\n",
+        "gb": "Security - perimeter clear.\nBriefing room unlocked.\n",
+        "jp": "Security - perimeter clear.\nBriefing room unlocked.\n",
+        "it": "Security - perimeter clear.\nBriefing room unlocked.\n",
+        "fr": "Security - perimeter clear.\nBriefing room unlocked.\n",
+        "de": "Security - perimeter clear.\nBriefing room unlocked.\n",
+        "es": "Security - perimeter clear.\nBriefing room unlocked.\n"
     },
     {
         "id": "L_DEPO_067",
-        "en": "\n",
-        "gb": "\n",
-        "jp": "\n",
-        "it": "\n",
-        "fr": "\n",
-        "de": "\n",
-        "es": "\n"
+        "en": "Ops - deploy pipeline idle.\nagent_office build staged.\n",
+        "gb": "Ops - deploy pipeline idle.\nagent_office build staged.\n",
+        "jp": "Ops - deploy pipeline idle.\nagent_office build staged.\n",
+        "it": "Ops - deploy pipeline idle.\nagent_office build staged.\n",
+        "fr": "Ops - deploy pipeline idle.\nagent_office build staged.\n",
+        "de": "Ops - deploy pipeline idle.\nagent_office build staged.\n",
+        "es": "Ops - deploy pipeline idle.\nagent_office build staged.\n"
     },
     {
         "id": "L_DEPO_068",

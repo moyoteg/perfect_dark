@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PD Anim Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0a12;
+      --panel: #12121c;
+      --panel-2: #181828;
+      --border: #2a2a40;
+      --text: #e8e8f0;
+      --muted: #9090a8;
+      --accent: #6b8cff;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 600px at 20% -10%, #1a1a40 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+      background: rgba(10,10,18,.85); backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 20;
+    }
+    header h1 { margin: 0; font-size: 1.1rem; }
+    header p { margin: .15rem 0 0; font-size: .78rem; color: var(--muted); }
+    .status-row { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .35rem .65rem; border-radius: 999px; font-size: .75rem;
+      border: 1px solid var(--border); background: var(--panel);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .dot.ok { background: #4fd1a5; } .dot.bad { background: #ff6b6b; }
+    .dot.live { background: #ffb347; animation: pulse 1.2s ease infinite; }
+    @keyframes pulse { 50% { opacity: .45; } }
+
+    main { max-width: 1280px; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+    .tabs {
+      display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1rem;
+      position: sticky; top: 4.2rem; z-index: 15;
+      background: rgba(10,10,18,.92); padding: .5rem 0; backdrop-filter: blur(6px);
+    }
+    .tab {
+      border: 1px solid var(--border); background: var(--panel); color: var(--muted);
+      border-radius: 999px; padding: .4rem .85rem; font-size: .82rem; cursor: pointer;
+    }
+    .tab.active { color: var(--text); border-color: var(--accent); background: #1a2040; }
+    .panel { display: none; gap: 1rem; }
+    .panel.active { display: grid; }
+
+    section {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.1rem;
+    }
+    section.hero { border-color: #3a4a80; background: linear-gradient(180deg,#14182a,var(--panel)); }
+    section h2 { margin: 0 0 .65rem; font-size: .95rem; font-weight: 600; }
+    .hint { color: var(--muted); font-size: .82rem; line-height: 1.45; margin: 0 0 .75rem; }
+    .controls {
+      display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+      gap: .6rem; margin-bottom: .75rem;
+    }
+    label.field {
+      display: flex; flex-direction: column; gap: .25rem;
+      font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
+    }
+    select, input[type="search"] {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: .45rem .6rem; font-size: .85rem; width: 100%;
+    }
+    label.check {
+      display: flex; align-items: center; gap: .4rem; font-size: .82rem;
+      color: var(--text); text-transform: none; letter-spacing: 0; padding-top: 1rem;
+    }
+    .scenario-grid {
+      display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+      gap: .5rem; margin-bottom: .65rem;
+    }
+    .scenario-card {
+      text-align: left; border: 1px solid var(--border); background: var(--panel-2);
+      color: var(--text); border-radius: 10px; padding: .6rem .7rem; cursor: pointer;
+    }
+    .scenario-card:hover:not(:disabled) { border-color: var(--accent); background: #1c2040; }
+    .scenario-card .num { font-size: .68rem; color: var(--muted); font-family: var(--mono); }
+    .scenario-card .name { display: block; font-size: .86rem; font-weight: 600; margin-top: .1rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+    button {
+      border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+      border-radius: 8px; padding: .5rem .8rem; font-size: .84rem; cursor: pointer;
+    }
+    button.launch {
+      background: linear-gradient(180deg,#3d5fd9,#2f4ec4);
+      border-color: #4a66e0; font-weight: 600; flex: 1; min-width: 160px;
+    }
+    button.secondary { border-color: #3a5a48; color: #b8f0d8; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .stats {
+      display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .75rem;
+    }
+    .stat {
+      font-size: .74rem; font-family: var(--mono); padding: .25rem .55rem;
+      border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+    }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+    .chip {
+      font-size: .76rem; padding: .3rem .65rem; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--panel-2); cursor: pointer; color: var(--muted);
+    }
+    .chip.active { color: var(--text); border-color: var(--accent); background: #1a2040; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: .65rem;
+    }
+    .anim-card {
+      border: 1px solid var(--border); border-radius: 10px; padding: .75rem .85rem;
+      background: var(--panel-2); cursor: pointer; transition: border-color .15s, transform .1s;
+      border-left: 3px solid var(--cat-color, var(--border));
+    }
+    .anim-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .anim-card .top {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem;
+      margin-bottom: .35rem;
+    }
+    .anim-card .cat {
+      font-size: .72rem; font-weight: 600; color: var(--cat-color, var(--muted));
+    }
+    .anim-card .step {
+      font-size: .68rem; font-family: var(--mono); color: var(--muted);
+      padding: .1rem .4rem; border: 1px solid var(--border); border-radius: 4px;
+    }
+    .anim-card .title { font-size: .95rem; font-weight: 600; margin: 0 0 .2rem; line-height: 1.25; }
+    .anim-card .id-line {
+      font-family: var(--mono); font-size: .72rem; color: #a0a8c8; margin-bottom: .35rem;
+      word-break: break-all;
+    }
+    .anim-card .meta-line {
+      font-family: var(--mono); font-size: .68rem; color: var(--muted); margin-bottom: .4rem;
+    }
+    .anim-card .hint-line {
+      font-size: .78rem; line-height: 1.4; color: #c8d0e8;
+      padding: .4rem .5rem; background: rgba(0,0,0,.25); border-radius: 6px;
+      margin-bottom: .35rem;
+    }
+    .anim-card .hint-line::before { content: "💡 "; }
+    .anim-card .usage-line { font-size: .72rem; color: var(--muted); line-height: 1.35; }
+    .anim-card .usage-line::before { content: "📍 "; }
+    .anim-card .parade-badge {
+      display: inline-block; margin-top: .4rem; font-size: .68rem; font-family: var(--mono);
+      color: #4fd1a5; border: 1px solid #2a5040; border-radius: 4px; padding: .1rem .35rem;
+    }
+
+    .parade-layout-wrap { margin: .75rem 0 1rem; }
+    .parade-layout-wrap h3 { margin: 0 0 .35rem; font-size: .82rem; color: var(--muted); }
+    .parade-layout-grid {
+      display: grid; gap: 4px; max-width: 720px;
+    }
+    .parade-layout-cell {
+      border-radius: 6px; padding: .35rem .25rem; font-size: .62rem; line-height: 1.25;
+      text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,.08);
+      min-height: 2.6rem; display: flex; flex-direction: column; justify-content: center;
+    }
+    .parade-layout-cell .slot-num {
+      font-family: var(--mono); font-size: .58rem; opacity: .85; margin-bottom: .15rem;
+    }
+    .parade-layout-cell:hover { filter: brightness(1.08); }
+    .parade-layout-cell.special-tour {
+      grid-column: 1 / -1; max-width: 360px; margin-bottom: .35rem;
+      border-width: 2px; font-size: .72rem; min-height: 3rem;
+    }
+    .parade-special-wrap { margin-bottom: .5rem; }
+    .parade-special-wrap h3 { margin: 0 0 .35rem; font-size: .82rem; color: var(--muted); }
+    .anim-card .parade-badge.tour-badge { color: #ffd166; border-color: #5a4a20; }
+
+    .parade-layout-grid.compact-cells .parade-layout-cell {
+      font-size: .52rem; min-height: 1.8rem; padding: .2rem .15rem;
+    }
+    .parade-layout-grid.compact-cells .parade-layout-cell .slot-num { font-size: .5rem; }
+    .parade-zone-row { margin: .5rem 0 .75rem; flex-wrap: wrap; }
+    .parade-compass-row .chip { font-weight: 600; }
+    .parade-spatial-wrap { margin: .75rem 0 1rem; }
+    .parade-spatial-wrap h3 { margin: 0 0 .35rem; font-size: .82rem; color: var(--muted); }
+    .parade-spatial-map {
+      position: relative; width: 100%; max-width: 720px; aspect-ratio: 1.55;
+      background: linear-gradient(180deg, #0e0e1a 0%, #12121f 100%);
+      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    }
+    .parade-spatial-region {
+      position: absolute; border: 1px dashed; border-radius: 4px;
+      opacity: 0.28; pointer-events: none;
+    }
+    .parade-spatial-dot {
+      position: absolute; width: 5px; height: 5px; border-radius: 1px;
+      transform: translate(-50%, -50%); opacity: 0.7; cursor: pointer;
+    }
+    .parade-spatial-dot.preview { width: 9px; height: 9px; opacity: 1; border: 1px solid #fff6; }
+    .parade-spatial-dot.tour { width: 11px; height: 11px; opacity: 1; border: 2px solid #ffd166; border-radius: 50%; }
+    .parade-spatial-dot.prop { width: 7px; height: 7px; border-radius: 50%; opacity: 1; }
+    .parade-spatial-dot.vignette { width: 8px; height: 8px; border-radius: 2px; opacity: 1; border: 1px solid #fff5; }
+    .parade-spatial-dot.museum { width: 4px; height: 4px; border-radius: 50%; opacity: 0.85; }
+    .parade-spatial-dot.signpost { width: 10px; height: 10px; border-radius: 2px; opacity: 1; border: 2px solid #fbbf24; background: #78350f; }
+    .parade-spatial-region.object-tag {
+      border: 1px solid; opacity: 0.35; pointer-events: none; z-index: 0;
+    }
+    .parade-spatial-dot.true_scale { width: 4px; height: 4px; border-radius: 50%; opacity: 0.9; background: #14b8a6; }
+    .parade-spatial-dot.character { width: 8px; height: 8px; border-radius: 50%; opacity: 1; background: #c084fc; border: 1px solid #fff6; }
+    .parade-spatial-dot.megaworld { width: 7px; height: 7px; border-radius: 50%; opacity: 0.95; border: 1px solid #fff8; }
+    .parade-spatial-region.megaworld-bounds {
+      border: 2px dashed #f59e0b; background: #f59e0b18; pointer-events: none; z-index: 0;
+    }
+    .parade-spatial-region.world-bounds {
+      border: 2px solid; opacity: 0.45; pointer-events: none; z-index: 0;
+    }
+    .parade-spatial-region.world-bounds.world-solo { border-color: #f59e0b; background: #f59e0b22; }
+    .parade-spatial-region.world-bounds.world-mp { border-color: #dc2626; background: #dc262622; }
+    .parade-spatial-region.world-bounds.world-dev { border-color: #64748b; background: #64748b22; }
+    .parade-spatial-compass {
+      position: absolute; font-size: .62rem; font-weight: 600; color: #f97316;
+      text-shadow: 0 1px 3px #000c; pointer-events: none; white-space: nowrap;
+    }
+    .parade-spatial-walk {
+      position: absolute; border-radius: 3px; pointer-events: none;
+      opacity: 0.22; border: 1px solid #ffffff22;
+    }
+    .parade-spatial-walk.corridor { border-style: dashed; opacity: 0.35; }
+    .parade-spatial-link {
+      position: absolute; height: 1px; background: #ffd16688; transform-origin: 0 50%;
+      pointer-events: none; z-index: 2;
+    }
+    .parade-layer-row { margin: .35rem 0 .5rem; }
+    .parade-spatial-label {
+      position: absolute; font-size: .58rem; color: var(--muted);
+      transform: translate(-50%, -120%); white-space: nowrap; pointer-events: none;
+    }
+    .parade-spatial-legend {
+      font-size: .72rem; color: var(--muted); margin: .35rem 0 0; line-height: 1.45;
+    }
+    .in-game-guide-wrap {
+      margin: 1rem 0; padding: .75rem 1rem; border: 1px solid var(--border);
+      border-radius: 8px; background: #0f0f18;
+    }
+    .in-game-guide-wrap h3 { margin: 0 0 .5rem; font-size: .88rem; }
+    .in-game-guide-wrap .hint { margin: 0 0 .65rem; font-size: .78rem; }
+    .in-game-guide-table {
+      width: 100%; border-collapse: collapse; font-size: .76rem;
+    }
+    .in-game-guide-table th, .in-game-guide-table td {
+      text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #ffffff12;
+      vertical-align: top;
+    }
+    .in-game-guide-table th { color: var(--muted); font-weight: 600; }
+    .in-game-guide-compass {
+      display: inline-block; min-width: 2.2rem; font-weight: 700;
+    }
+    .in-game-guide-sub { margin-top: .75rem; font-size: .72rem; color: var(--muted); }
+    .study-step {
+      border: 1px solid var(--border); border-radius: 10px; padding: .75rem;
+      margin-bottom: .75rem; background: rgba(0,0,0,.15);
+    }
+    .study-step h3 {
+      margin: 0 0 .5rem; font-size: .88rem;
+      display: flex; align-items: center; gap: .45rem;
+    }
+    .study-step h3 span.num {
+      font-family: var(--mono); font-size: .72rem; color: var(--accent);
+      border: 1px solid #3a4a80; border-radius: 4px; padding: .1rem .35rem;
+    }
+
+    .search-row { display: flex; gap: .5rem; margin-bottom: .65rem; }
+
+    .detail-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 100;
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .detail-overlay.open { display: flex; }
+    .detail-box {
+      max-width: 520px; width: 100%; max-height: 85vh; overflow: auto;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1rem; border-left: 4px solid var(--cat-color, var(--accent));
+    }
+    .detail-box h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+    .detail-box .close {
+      float: right; background: transparent; border: none; color: var(--muted);
+      font-size: 1.2rem; cursor: pointer; padding: 0 .25rem;
+    }
+    .detail-kv {
+      display: grid; grid-template-columns: 7rem 1fr; gap: .25rem .65rem;
+      font-size: .78rem; margin: .75rem 0;
+    }
+    .detail-kv dt { color: var(--muted); font-family: var(--mono); }
+    .detail-kv dd { margin: 0; font-family: var(--mono); word-break: break-all; }
+
+    pre.log {
+      margin: 0; padding: .65rem; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; font-family: var(--mono); font-size: .7rem; line-height: 1.4;
+      max-height: 160px; overflow: auto; white-space: pre-wrap; color: #c8c8dc;
+    }
+    .busy { color: #ffb347; font-size: .8rem; min-height: 1.1em; margin-top: .4rem; }
+    .last-deploy { font-size: .76rem; color: var(--muted); font-family: var(--mono); margin-top: .3rem; }
+    .scroll-section { max-height: 70vh; overflow: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>PD Anim Lab</h1>
+      <p>Perfect Dark Kit · launch test maps · in-game parade · study guide · full catalog · <a href="../../docs/ANIMLAB_VISION.md" style="color:var(--accent)">Anim Lab vision</a></p>
+    </div>
+    <div class="status-row">
+      <div class="status-pill" id="gamePill" hidden>
+        <span class="dot live"></span><span id="gameText">Game running</span>
+      </div>
+      <div class="status-pill">
+        <span class="dot" id="healthDot"></span><span id="healthText">Checking…</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <nav class="tabs" id="tabBar">
+      <button type="button" class="tab active" data-tab="launch">Launch</button>
+      <button type="button" class="tab" data-tab="parade">Parade grid</button>
+      <button type="button" class="tab" data-tab="study">Study guide</button>
+      <button type="button" class="tab" data-tab="catalog">Full catalog</button>
+    </nav>
+
+    <!-- LAUNCH -->
+    <div class="panel active" id="panel-launch">
+      <section class="hero">
+        <h2>Launch Animation Lab</h2>
+        <p class="hint"><strong>For the animation parade:</strong> click a scenario card below or <strong>Build &amp; Play Anim Lab</strong>. That builds the animlab map and launches the game with <code>--test-animlab</code>. <em>Deploy only</em> buttons update files without starting the game. UFF Arena uses <code>--test-map</code> via the Map dropdown.</p>
+        <div class="controls">
+          <label class="field">Map<select id="mapSelect"></select></label>
+          <label class="field">Mod<select id="modSelect"></select></label>
+          <label class="field">Sim bots
+            <select id="numSims">
+              <option value="0">0 — solo</option><option value="1">1</option>
+              <option value="2">2</option><option value="4">4</option><option value="8">8</option>
+            </select>
+          </label>
+          <label class="field">Bot difficulty<select id="simDifficulty"></select></label>
+          <label class="check"><input type="checkbox" id="buildFirst" checked> Build &amp; deploy before launch</label>
+        </div>
+        <div class="scenario-grid" id="scenarioGrid"></div>
+        <div class="actions">
+          <button class="launch" id="btnLaunchSelected">Build &amp; Play Anim Lab</button>
+          <button id="btnReplay">Replay last</button>
+          <button id="btnLaunchOnly">Launch only (skip build)</button>
+        </div>
+        <div class="last-deploy" id="lastDeployLine"></div>
+        <div class="busy" id="busyLine"></div>
+      </section>
+      <section>
+        <h2>Deploy only (no launch)</h2>
+        <p class="hint">Rebuild and copy map files to the mod folder. Does not start the game.</p>
+        <div class="actions">
+          <button class="secondary" id="btnDeployAnimlab">Deploy Animation Lab — no launch</button>
+          <button class="secondary" id="btnDeployUff">Deploy UFF Arena — no launch</button>
+        </div>
+      </section>
+      <section>
+        <h2>Log</h2>
+        <pre class="log" id="logPanel">Ready.</pre>
+      </section>
+    </div>
+
+    <!-- PARADE -->
+    <div class="panel" id="panel-parade">
+      <section>
+        <h2>In-game parade grid</h2>
+        <p class="hint" id="paradeGridHint">After <strong>Build &amp; Play Anim Lab</strong>, use the eight compass portals at spawn (800 u ring). Filter by compass chip below — names match in-game signposts. See <a href="../../docs/ANIMLAB_VISION.md" style="color:var(--accent)">ANIMLAB_VISION.md</a> for the north-star map.</p>
+        <div class="chip-row parade-zone-row" id="paradeCompassChips"></div>
+        <div class="chip-row parade-zone-row" id="paradeDistrictChips"></div>
+        <div class="chip-row parade-zone-row" id="paradeZoneChips"></div>
+        <div class="parade-special-wrap" id="paradeSpecialWrap" hidden>
+          <h3>Full tour cycler</h3>
+          <div id="paradeSpecialCell"></div>
+        </div>
+        <div class="parade-layout-wrap">
+          <h3 id="paradeSpatialTitle">Arena layout (top-down — positions match in-game)</h3>
+          <div class="chip-row parade-layer-row" id="paradeLayerChips"></div>
+          <div class="parade-spatial-map" id="paradeSpatialMap"></div>
+          <p class="parade-spatial-legend" id="paradeSpatialLegend"></p>
+        </div>
+        <div class="in-game-guide-wrap" id="inGameGuideWrap">
+          <h3>In-game guide</h3>
+          <p class="hint" id="inGameGuideHint">Spawn signposts and coloured carpets match this table — walk from pad 0 (0, -2200).</p>
+          <div id="inGameGuidePanel"></div>
+          <p class="in-game-guide-sub" id="inGameGuideSub"></p>
+        </div>
+        <div class="parade-layout-wrap">
+          <h3 id="paradeGridTitle">Slot grid (filter by district above)</h3>
+          <div class="parade-layout-grid" id="paradeLayoutGrid"></div>
+        </div>
+        <div class="stats" id="paradeStats"></div>
+        <div class="card-grid" id="paradeGrid"></div>
+      </section>
+    </div>
+
+    <!-- STUDY -->
+    <div class="panel" id="panel-study">
+      <section class="scroll-section">
+        <h2>Study guide index</h2>
+        <p class="hint">Matches <code>docs/CHARACTER_ANIMATIONS.md</code> — curated animations per step with memory hints.</p>
+        <div id="studyGuide"></div>
+      </section>
+    </div>
+
+    <!-- CATALOG -->
+    <div class="panel" id="panel-catalog">
+      <section>
+        <h2>Full named catalog</h2>
+        <div class="stats" id="catalogStats"></div>
+        <div class="search-row">
+          <input type="search" id="animSearch" placeholder="Search name, hint, index, usage…">
+          <button id="btnSearch">Search</button>
+        </div>
+        <div class="chip-row" id="categoryChips"></div>
+        <div class="card-grid" id="catalogGrid"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-box" id="detailBox"></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'pdAnimLabLaunchPrefs';
+    const DEFAULT_API_PORT = 8776;
+    const API_PORT_RANGE = 20;
+    let playConfig = null;
+    let catalog = null;
+    let selectedScenario = 0;
+    let busy = false;
+    let activeCategory = '';
+    let activeParadeCompass = ''; // '' = all wings; N/SW/W/… match hub signposts
+    let activeParadeDistrict = ''; // '' = all districts; __props__, movement, __tag_furniture, …
+    let activeParadeZone = 0; // 0 = all sub-zones within district filter
+    let spatialLayers = { walk: true, vignettes: true, museum: true, trueScale: true, characters: true, megaworld: true, interactions: false };
+    let highlightedSpatialAnimId = '';
+    // file:// dev opens need an absolute API base; http://127.0.0.1:PORT/ uses same origin.
+    let apiBase = resolveApiBase();
+
+    function isSameOriginPort(port) {
+      return location.protocol.startsWith('http')
+        && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+        && Number(location.port) === port;
+    }
+
+    function apiBaseForPort(port) {
+      return isSameOriginPort(port) ? '' : `http://127.0.0.1:${port}`;
+    }
+
+    function resolveApiBase() {
+      const portParam = new URLSearchParams(location.search).get('port');
+      if (portParam) return apiBaseForPort(Number(portParam));
+      if (location.protocol.startsWith('http') && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+        return '';
+      }
+      return `http://127.0.0.1:${DEFAULT_API_PORT}`;
+    }
+
+    /** Ordered port list: Electron ?port=, page origin, cached base, then full 8776+ range. */
+    function preferredApiPorts() {
+      const ports = [];
+      const seen = new Set();
+      const add = (value) => {
+        const port = Number(value);
+        if (!Number.isFinite(port) || port < DEFAULT_API_PORT || port >= DEFAULT_API_PORT + API_PORT_RANGE) return;
+        if (seen.has(port)) return;
+        seen.add(port);
+        ports.push(port);
+      };
+      add(new URLSearchParams(location.search).get('port'));
+      add(location.port);
+      if (apiBase) {
+        try { add(new URL(apiBase).port); } catch { /* ignore */ }
+      }
+      add(DEFAULT_API_PORT);
+      for (let port = DEFAULT_API_PORT; port < DEFAULT_API_PORT + API_PORT_RANGE; port += 1) add(port);
+      return ports;
+    }
+
+    async function probeApiPort(port) {
+      const res = await fetch(`http://127.0.0.1:${port}/api/health`, { signal: AbortSignal.timeout(800) });
+      if (!res.ok) return false;
+      const health = await res.json();
+      return health.ok && health.service === 'anim-lab';
+    }
+
+    async function ensureApiBase() {
+      for (const port of preferredApiPorts()) {
+        try {
+          if (await probeApiPort(port)) {
+            apiBase = apiBaseForPort(port);
+            return true;
+          }
+        } catch {
+          // try next port
+        }
+      }
+      appendLog(
+        'Animation Lab API not reachable. Start the server: '
+        + 'cd journal/anim_lab/electron && npm start '
+        + '— or: python3 journal/anim_lab/serve_animlab.py --auto-port'
+      );
+      return false;
+    }
+
+    async function ensureApiReady() {
+      if (await ensureApiBase()) return true;
+      if (window.animLabAPI?.ensureServer) {
+        try {
+          const port = await window.animLabAPI.ensureServer();
+          if (port) {
+            apiBase = apiBaseForPort(Number(port));
+            if (await ensureApiBase()) return true;
+          }
+        } catch (err) {
+          appendLog('Could not restart Animation Lab server: ' + (err?.message || err));
+        }
+      }
+      return false;
+    }
+
+    const els = {
+      logPanel: document.getElementById('logPanel'),
+      busyLine: document.getElementById('busyLine'),
+      healthDot: document.getElementById('healthDot'),
+      healthText: document.getElementById('healthText'),
+      gamePill: document.getElementById('gamePill'),
+      gameText: document.getElementById('gameText'),
+      mapSelect: document.getElementById('mapSelect'),
+      modSelect: document.getElementById('modSelect'),
+      numSims: document.getElementById('numSims'),
+      simDifficulty: document.getElementById('simDifficulty'),
+      buildFirst: document.getElementById('buildFirst'),
+      scenarioGrid: document.getElementById('scenarioGrid'),
+      lastDeployLine: document.getElementById('lastDeployLine'),
+      paradeGrid: document.getElementById('paradeGrid'),
+      paradeStats: document.getElementById('paradeStats'),
+      paradeLayoutGrid: document.getElementById('paradeLayoutGrid'),
+      paradeZoneChips: document.getElementById('paradeZoneChips'),
+      paradeCompassChips: document.getElementById('paradeCompassChips'),
+      paradeDistrictChips: document.getElementById('paradeDistrictChips'),
+      paradeGridHint: document.getElementById('paradeGridHint'),
+      paradeSpecialWrap: document.getElementById('paradeSpecialWrap'),
+      paradeSpecialCell: document.getElementById('paradeSpecialCell'),
+      paradeGridTitle: document.getElementById('paradeGridTitle'),
+      paradeSpatialMap: document.getElementById('paradeSpatialMap'),
+      paradeLayerChips: document.getElementById('paradeLayerChips'),
+      paradeSpatialLegend: document.getElementById('paradeSpatialLegend'),
+      inGameGuidePanel: document.getElementById('inGameGuidePanel'),
+      inGameGuideHint: document.getElementById('inGameGuideHint'),
+      inGameGuideSub: document.getElementById('inGameGuideSub'),
+      studyGuide: document.getElementById('studyGuide'),
+      catalogGrid: document.getElementById('catalogGrid'),
+      catalogStats: document.getElementById('catalogStats'),
+      categoryChips: document.getElementById('categoryChips'),
+      detailOverlay: document.getElementById('detailOverlay'),
+      detailBox: document.getElementById('detailBox'),
+    };
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function appendLog(text) {
+      const t = new Date().toISOString().slice(11, 19);
+      els.logPanel.textContent = `[${t}] ${text}\n` + els.logPanel.textContent;
+    }
+
+    function setBusy(on, msg) {
+      busy = on;
+      els.busyLine.textContent = msg || '';
+      document.querySelectorAll('button, .scenario-card, .anim-card').forEach(el => {
+        if (el.id === 'btnSearch') return;
+        el.disabled = on && el.tagName === 'BUTTON';
+        if (on && el.classList.contains('scenario-card')) el.disabled = true;
+      });
+    }
+
+    async function api(path, opts) {
+      if (!(await ensureApiReady())) {
+        throw new Error(
+          `Animation Lab server not reachable — start it with `
+          + `cd journal/anim_lab/electron && npm start `
+          + `or python3 journal/anim_lab/serve_animlab.py --auto-port`
+        );
+      }
+      const url = `${apiBase}${path}`;
+      let res;
+      try {
+        res = await fetch(url, opts);
+      } catch (err) {
+        const msg = err?.message || 'network error';
+        const portHint = location.port || DEFAULT_API_PORT;
+        throw new Error(
+          `${msg} (${url || path}) — is serve_animlab.py running on port ${portHint} or ${DEFAULT_API_PORT}+?`
+        );
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok && !data.error) data.error = `HTTP ${res.status}`;
+      return data;
+    }
+
+    function renderAnimCard(a) {
+      const color = a.categoryColor || '#9090a8';
+      const step = a.studyStep ? `<span class="step">Step ${a.studyStep}</span>` : '';
+      const parade = a.isSpecialTour
+        ? `<span class="parade-badge tour-badge">Full tour · Guard ${a.chrRef} · pad ${a.padRef} · ${a.tourAnimCount || '?'} anims</span>`
+        : a.inParade
+        ? `<span class="parade-badge">Guard ${a.chrRef} · pad ${a.padRef} · slot ${a.paradeSlot}</span>` : '';
+      return `<article class="anim-card" style="--cat-color:${color}" data-id="${esc(a.id)}">
+        <div class="top">
+          <span class="cat">${a.categoryIcon || ''} ${esc(a.categoryTitle || a.category)}</span>
+          ${step}
+        </div>
+        <h4 class="title">${esc(a.label)}</h4>
+        <div class="id-line">${esc(a.id)}</div>
+        <div class="meta-line">${a.index} · ${esc(a.indexHex)} · ${a.numframes} fr · ${esc(a.file)}${a.flags?.length ? ' · ' + a.flags.join(',') : ''}</div>
+        <div class="hint-line">${esc(a.hint)}</div>
+        ${a.usage ? `<div class="usage-line">${esc(a.usage)}</div>` : ''}
+        ${parade}
+      </article>`;
+    }
+
+    function bindCardClicks(root) {
+      root.querySelectorAll('.anim-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.dataset.id;
+          const anim = findAnimById(id);
+          if (anim) showDetail(anim);
+        });
+      });
+    }
+
+    function findAnimById(id) {
+      if (!catalog) return null;
+      for (const sec of catalog.allSections || []) {
+        const hit = sec.animations.find(a => a.id === id);
+        if (hit) return hit;
+      }
+      return (catalog.parade || []).find(a => a.id === id) || null;
+    }
+
+    function showDetail(a) {
+      const color = a.categoryColor || '#6b8cff';
+      els.detailBox.style.setProperty('--cat-color', color);
+      els.detailBox.innerHTML = `
+        <button type="button" class="close" id="detailClose">×</button>
+        <h3>${a.categoryIcon || ''} ${esc(a.label)}</h3>
+        <div class="hint-line">${esc(a.hint)}</div>
+        <dl class="detail-kv">
+          <dt>ANIM id</dt><dd>${esc(a.id)}</dd>
+          <dt>Index</dt><dd>${a.index} (${esc(a.indexHex)})</dd>
+          <dt>File</dt><dd>${esc(a.file)}</dd>
+          <dt>Frames</dt><dd>${a.numframes} · ${a.bytesperframe} B/frame</dd>
+          <dt>Flags</dt><dd>${(a.flags && a.flags.length) ? a.flags.join(', ') : '—'}</dd>
+          <dt>Category</dt><dd>${esc(a.categoryTitle)}</dd>
+          ${a.studyStep ? `<dt>Study step</dt><dd>${a.studyStep} — ${esc(a.studyStepTitle)}</dd>` : ''}
+          ${a.usage ? `<dt>Used for</dt><dd>${esc(a.usage)}</dd>` : ''}
+          ${a.inParade ? `<dt>Parade</dt><dd>Guard ${esc(a.chrRef)} pad ${a.padRef}</dd>` : ''}
+          ${a.interactionContext ? `<dt>Interaction</dt><dd>${esc(a.interactionContext)}${a.linkedPropPads?.length ? ` · props pads ${a.linkedPropPads.join(', ')}` : ''}</dd>` : ''}
+        </dl>
+        <p class="hint">CLI: <code>python3 tools/list_animations.py --id ${esc(a.id)}</code></p>
+      `;
+      document.getElementById('detailClose').onclick = () => els.detailOverlay.classList.remove('open');
+      els.detailOverlay.classList.add('open');
+      highlightedSpatialAnimId = a.id || a.animId || '';
+      if (catalog?.paradeLayout) renderParadeSpatialMap(catalog.paradeLayout);
+    }
+
+    function findParadeAnim(id) {
+      if (!catalog || !id) return null;
+      if (id === '__FULL_TOUR__') {
+        return (catalog.parade || []).find(a => a.isSpecialTour)
+          || catalog.paradeLayout?.specialSlot || null;
+      }
+      const slotRec = (catalog.paradeLayout?.slots || []).find(s => s.animId === id);
+      if (slotRec) {
+        return findAnimById(id) || { ...slotRec, id: slotRec.animId, inParade: true };
+      }
+      return findAnimById(id);
+    }
+
+    const showAnimDetail = showDetail;
+
+    els.detailOverlay.addEventListener('click', (e) => {
+      if (e.target === els.detailOverlay) els.detailOverlay.classList.remove('open');
+    });
+
+    function paradeSlotDistrict(slot) {
+      const layout = catalog?.paradeLayout || {};
+      const slotRec = (layout.slots || []).find(s => s.slot === slot);
+      return slotRec?.district || '';
+    }
+
+    function paradeSlotZone(slot) {
+      const layout = catalog?.paradeLayout || {};
+      const slotRec = (layout.slots || []).find(s => s.slot === slot);
+      return slotRec?.zone || 0;
+    }
+
+    const COMPASS_ORDER = ['N', 'SW', 'W', 'WSW', 'E', 'NE', 'NW', 'SE'];
+
+    /** Default Parade district filter when a compass wing is selected. */
+    function compassDefaultDistrict(compass) {
+      const map = {
+        N: '',
+        SW: '__props__',
+        W: '__museum__',
+        WSW: '__megaworld_solo__',
+        E: '__megaworld_mp__',
+        NE: '__megaworld_dev__',
+        NW: '__true_scale__',
+        SE: '__characters__',
+      };
+      return map[compass] ?? '';
+    }
+
+    function districtToCompass(district) {
+      if (!district || district === 'cutscene') return 'N';
+      if (district === '__props__') return 'SW';
+      if (district === '__museum__' || district.startsWith('__tag_')) return 'W';
+      if (district === '__megaworld_solo__') return 'WSW';
+      if (district === '__megaworld_mp__') return 'E';
+      if (district === '__megaworld_dev__') return 'NE';
+      if (district === '__true_scale__') return 'NW';
+      if (district === '__characters__') return 'SE';
+      if (district === '__megaworld__') return '';
+      // Animation taxonomy districts (movement, combat, …) live under N.
+      return 'N';
+    }
+
+    function compassLiveCounts(layout) {
+      const props = layout.propsDistrict;
+      const museum = layout.museumDistrict;
+      const trueScale = layout.trueScaleDistrict;
+      const characters = layout.characterDistrict;
+      const megaworld = layout.levelMegaworldDistrict;
+      return {
+        N: layout.gridSlotCount || layout.slotCount || 0,
+        SW: (props?.props || []).length,
+        W: museum?.count || 0,
+        WSW: megaworld?.soloCount || megaworld?.worlds?.solo?.count || 0,
+        E: megaworld?.mpCount || megaworld?.worlds?.mp?.count || 0,
+        NE: megaworld?.devCount || megaworld?.worlds?.dev?.count || 0,
+        NW: trueScale?.count || 0,
+        SE: characters?.count || 0,
+      };
+    }
+
+    function syncCompassFromDistrict() {
+      activeParadeCompass = districtToCompass(activeParadeDistrict);
+    }
+
+    function applyUrlParadeFilters() {
+      const params = new URLSearchParams(location.search);
+      const compass = (params.get('compass') || '').toUpperCase();
+      const district = params.get('district') || '';
+      if (compass && COMPASS_ORDER.includes(compass)) {
+        activeParadeCompass = compass;
+        activeParadeDistrict = district || compassDefaultDistrict(compass);
+      } else if (district) {
+        activeParadeDistrict = district;
+        syncCompassFromDistrict();
+      }
+    }
+
+    function updateParadeUrl() {
+      if (location.protocol === 'file:') return;
+      const params = new URLSearchParams(location.search);
+      if (activeParadeCompass) params.set('compass', activeParadeCompass);
+      else params.delete('compass');
+      const defaultDist = compassDefaultDistrict(activeParadeCompass);
+      if (activeParadeDistrict && activeParadeDistrict !== defaultDist) {
+        params.set('district', activeParadeDistrict);
+      } else {
+        params.delete('district');
+      }
+      const next = `${location.pathname}?${params.toString()}`;
+      if (next !== location.pathname + location.search) {
+        history.replaceState(null, '', next);
+      }
+    }
+
+    function renderParadeCompassChips(layout) {
+      if (!els.paradeCompassChips) return;
+      const signs = layout.hubSignposts?.signs || [];
+      const byCompass = Object.fromEntries(signs.map(s => [s.compass, s]));
+      const counts = compassLiveCounts(layout);
+      const chips = [{ compass: '', label: 'All wings', color: '#888888', count: '' }];
+      COMPASS_ORDER.forEach(c => {
+        const sign = byCompass[c];
+        if (!sign) return;
+        const short = (sign.label || '').split('·')[0].trim();
+        chips.push({
+          compass: c,
+          label: `${c} · ${short}`,
+          color: sign.color || '#fbbf24',
+          count: counts[c] ?? '',
+        });
+      });
+      els.paradeCompassChips.className = 'chip-row parade-zone-row parade-compass-row';
+      els.paradeCompassChips.innerHTML = chips.map(c =>
+        `<button type="button" class="chip${c.compass === activeParadeCompass ? ' active' : ''}" data-compass="${esc(c.compass)}"`
+        + ` style="border-color:${esc(c.color)}88${c.compass === activeParadeCompass ? `;background:${esc(c.color)}22` : ''}">`
+        + `${esc(c.label)}${c.count !== '' ? ` · ${c.count}` : ''}</button>`
+      ).join('');
+      els.paradeCompassChips.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          activeParadeCompass = chip.dataset.compass || '';
+          activeParadeDistrict = activeParadeCompass ? compassDefaultDistrict(activeParadeCompass) : '';
+          activeParadeZone = 0;
+          updateParadeUrl();
+          renderParade();
+        });
+      });
+    }
+
+    function renderParadeDistrictChips(layout) {
+      if (!els.paradeDistrictChips) return;
+      const compass = activeParadeCompass;
+      const districtFilter = activeParadeDistrict;
+      const chips = [];
+
+      // North wing: animation taxonomy districts (+ reserved cutscene).
+      if (!compass || compass === 'N') {
+        chips.push({ id: '', label: `All animation districts (${layout.gridSlotCount || layout.slotCount || 0})` });
+        (layout.districts || []).forEach(d => {
+          const countLabel = d.reserved
+            ? `reserved · ${d.romCutsceneCount || 0} ROM`
+            : `${d.animCount} · ${d.zoneCount}z`;
+          chips.push({
+            id: d.id,
+            label: `${d.icon || ''} ${d.label} · ${countLabel}`,
+            color: d.color,
+          });
+        });
+      }
+
+      // West wing: object catalog tag districts.
+      if (compass === 'W' || districtFilter === '__museum__' || districtFilter.startsWith('__tag_')) {
+        const museum = layout.museumDistrict;
+        chips.push({ id: '__museum__', label: '🏛 All tags · ' + (museum?.count || 0), color: '#0ea5e9' });
+        (museum?.tagDistricts || []).forEach(td => {
+          chips.push({
+            id: '__tag_' + td.tag,
+            label: (td.icon || '📦') + ' ' + td.label + ' · ' + (td.count || 0),
+            color: td.color || '#64748b',
+          });
+        });
+      }
+
+      if (!chips.length) {
+        els.paradeDistrictChips.innerHTML = '';
+        els.paradeDistrictChips.hidden = true;
+        return;
+      }
+      els.paradeDistrictChips.hidden = false;
+      els.paradeDistrictChips.innerHTML = chips.map(c =>
+        `<button type="button" class="chip${c.id === activeParadeDistrict ? ' active' : ''}" data-district="${esc(c.id)}"`
+        + (c.color ? ` style="border-color:${esc(c.color)}55${c.id === activeParadeDistrict ? `;background:${esc(c.color)}22` : ''}"` : '') + `>${esc(c.label)}</button>`
+      ).join('');
+      els.paradeDistrictChips.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          activeParadeDistrict = chip.dataset.district || '';
+          syncCompassFromDistrict();
+          activeParadeZone = 0;
+          updateParadeUrl();
+          renderParade();
+        });
+      });
+    }
+
+    function renderParadeZoneChips(layout) {
+      if (!els.paradeZoneChips) return;
+      const compass = activeParadeCompass;
+      if (compass && compass !== 'N') {
+        els.paradeZoneChips.innerHTML = '';
+        els.paradeZoneChips.hidden = true;
+        return;
+      }
+      const zones = (layout.zones || []).filter(z =>
+        !activeParadeDistrict || z.district === activeParadeDistrict
+      );
+      if (!activeParadeDistrict || zones.length <= 1) {
+        els.paradeZoneChips.innerHTML = '';
+        els.paradeZoneChips.hidden = true;
+        return;
+      }
+      els.paradeZoneChips.hidden = false;
+      const chips = [{ id: 0, label: `All sub-zones (${zones.reduce((n, z) => n + z.slotCount, 0)})` }];
+      zones.forEach(z => {
+        chips.push({ id: z.index, label: `${z.label} · ${z.slotCount}/${z.maxSlots || 30}` });
+      });
+      els.paradeZoneChips.innerHTML = chips.map(c =>
+        `<button type="button" class="chip${c.id === activeParadeZone ? ' active' : ''}" data-zone="${c.id}">${esc(c.label)}</button>`
+      ).join('');
+      els.paradeZoneChips.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          activeParadeZone = parseInt(chip.dataset.zone, 10) || 0;
+          renderParade();
+        });
+      });
+    }
+
+    function renderParadeLayerChips() {
+      if (!els.paradeLayerChips) return;
+      const layers = [
+        { key: 'walk', label: 'Walk paths' },
+        { key: 'vignettes', label: 'Vignettes' },
+        { key: 'museum', label: 'Museum' },
+        { key: 'trueScale', label: 'True scale' },
+        { key: 'characters', label: 'Characters' },
+        { key: 'megaworld', label: 'Levels' },
+        { key: 'interactions', label: 'Interaction links' },
+      ];
+      els.paradeLayerChips.innerHTML = layers.map(l =>
+        `<button type="button" class="chip${spatialLayers[l.key] ? ' active' : ''}" data-layer="${l.key}">${esc(l.label)}</button>`
+      ).join('');
+      els.paradeLayerChips.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const key = chip.dataset.layer;
+          if (key) spatialLayers[key] = !spatialLayers[key];
+          renderParadeLayerChips();
+          if (catalog?.paradeLayout) renderParadeSpatialMap(catalog.paradeLayout);
+        });
+      });
+    }
+
+    function renderInGameGuide(layout) {
+      if (!els.inGameGuidePanel) return;
+      const guide = layout.inGameGuide || {};
+      const signs = guide.signposts || layout.hubSignposts?.signs || [];
+      if (!signs.length) {
+        els.inGameGuidePanel.innerHTML = '<p class="hint">Build Anim Lab to refresh in-game signpost data.</p>';
+        return;
+      }
+      const counts = compassLiveCounts(layout);
+      const ordered = COMPASS_ORDER.map(c => signs.find(s => s.compass === c)).filter(Boolean);
+      const rows = ordered.map(s => {
+        const sub = (s.subTargets || []).map(st =>
+          `<tr class="in-game-guide-sub"><td><span class="in-game-guide-compass" style="color:${esc(st.color || '#14b8a6')}">${esc(st.compass)}</span></td>`
+          + `<td>${esc(st.label)}</td>`
+          + `<td>${st.distance ? '~' + st.distance + ' u' : '—'}</td>`
+          + `<td>—</td>`
+          + `<td>Wing gate — follow teal carpet from NW portal</td></tr>`
+        ).join('');
+        const live = counts[s.compass];
+        const countCell = live !== undefined && live !== '' ? String(live) : '—';
+        return `<tr><td><span class="in-game-guide-compass" style="color:${esc(s.color || '#fbbf24')}">${esc(s.compass)}</span></td>`
+        + `<td>${esc(s.label)}</td>`
+        + `<td>${s.distance ? '~' + s.distance + ' u' : '—'}</td>`
+        + `<td>${esc(countCell)}</td>`
+        + `<td>${esc(s.hint || '')}</td></tr>${sub}`;
+      }).join('');
+      els.inGameGuidePanel.innerHTML =
+        `<table class="in-game-guide-table"><thead><tr>`
+        + `<th>Compass</th><th>Wing</th><th>Distance</th><th>Count</th><th>In-game hint</th></tr></thead><tbody>${rows}</tbody></table>`;
+      if (els.inGameGuideHint && guide.walkHint) {
+        els.inGameGuideHint.textContent = guide.walkHint;
+      }
+      if (els.inGameGuideSub) {
+        const gateCount = (guide.gates || []).length;
+        const beaconCount = (guide.beacons || []).length;
+        const corridorW = guide.corridorHalfWidth ? guide.corridorHalfWidth * 2 : '?';
+        els.inGameGuideSub.textContent =
+          `Compass rose at spawn · ${gateCount} wing gates · ${beaconCount} distance beacons (every ${guide.beaconInterval || 2000} u) · `
+          + `${corridorW} u corridor width · coloured carpet per wing · <a href="../../docs/ANIMLAB_VISION.md" style="color:var(--accent)">vision doc</a>`;
+      }
+    }
+
+    function renderParadeSpatialMap(layout) {
+      if (!els.paradeSpatialMap) return;
+      const half = layout.arenaHalf || 8000;
+      const spawn = layout.playerSpawn || { x: 0, z: -2200 };
+      const special = layout.specialSlot;
+      const props = layout.propsDistrict;
+      const vignettes = layout.vignetteProps;
+      const museum = layout.museumDistrict;
+      const trueScale = layout.trueScaleDistrict;
+      const characters = layout.characterDistrict;
+      const megaworld = layout.levelMegaworldDistrict;
+      const slots = layout.slots || [];
+      const districts = layout.districts || [];
+      const hubSigns = layout.hubSignposts;
+      const tagMeta = museum?.tagMeta || {};
+      const tagColor = (tag) => (tagMeta[tag]?.color || '#0ea5e9');
+      const walkable = layout.walkableRegions || [];
+      const mapW = half * 2;
+      const toPct = (x, z) => ({
+        left: ((x + half) / mapW * 100).toFixed(2) + '%',
+        top: ((z + half) / mapW * 100).toFixed(2) + '%',
+      });
+      const quadStyle = (r) => {
+        const x0 = Math.min(r.x0, r.x1);
+        const x1 = Math.max(r.x0, r.x1);
+        const z0 = Math.min(r.z0, r.z1);
+        const z1 = Math.max(r.z0, r.z1);
+        const left = ((x0 + half) / mapW * 100).toFixed(2);
+        const top = ((z0 + half) / mapW * 100).toFixed(2);
+        const w = ((x1 - x0) / mapW * 100).toFixed(2);
+        const h = ((z1 - z0) / mapW * 100).toFixed(2);
+        const kind = r.kind || 'district';
+        return `left:${left}%;top:${top}%;width:${w}%;height:${h}%;background:${esc(r.color || '#666')}33;border-color:${esc(r.color || '#666')}55`;
+      };
+
+      const walkOverlays = spatialLayers.walk
+        ? walkable.map(r =>
+            `<div class="parade-spatial-walk ${esc(r.kind || '')}" style="${quadStyle(r)}" title="${esc(r.label)}"></div>`
+          ).join('')
+        : '';
+
+      const tagDistrictRegions = spatialLayers.museum
+        ? (museum?.tagDistricts || []).map(td =>
+            `<div class="parade-spatial-region object-tag" style="${quadStyle({
+              x0: td.centerX - td.half, z0: td.centerZ - td.half,
+              x1: td.centerX + td.half, z1: td.centerZ + td.half,
+              color: td.color || tagColor(td.tag),
+            })}" title="${esc(td.label)} (${td.count || 0})"></div>`
+            + `<span class="parade-spatial-label" style="left:${toPct(td.centerX, td.centerZ).left};`
+            + `top:${toPct(td.centerX, td.centerZ).top};color:${esc(td.color || '#aaa')}">`
+            + `${esc(td.icon || '')} ${esc(td.label)}</span>`
+          ).join('')
+        : '';
+
+      const regions = districts.map(d => {
+        const spanCols = d.spanCols || 1;
+        const spanRows = d.spanRows || 1;
+        const hw = spanCols * (layout.spacingX ? layout.spacingX * 3 : 1500) / 2;
+        const hd = spanRows * (layout.spacingZ ? layout.spacingZ * 3 : 1200) / 2;
+        const c = toPct(d.centerX, d.centerZ);
+        return `<div class="parade-spatial-region" style="left:calc(${c.left} - ${(hw/mapW*100).toFixed(1)}%);`
+          + `top:calc(${c.top} - ${(hd/mapW*100).toFixed(1)}%);`
+          + `width:${(hw*2/mapW*100).toFixed(1)}%;height:${(hd*2/mapW*100).toFixed(1)}%;`
+          + `border-color:${esc(d.color || '#666')};background:${esc(d.color || '#666')}18"`
+          + `" title="${esc(d.label)}"></div>`
+          + `<span class="parade-spatial-label" style="left:${c.left};top:${c.top}">${esc(d.icon || '')} ${esc(d.label)}</span>`;
+      }).join('');
+
+      const guardDots = slots.map(s => {
+        const p = toPct(s.x, s.z);
+        const hi = highlightedSpatialAnimId && s.animId === highlightedSpatialAnimId;
+        return `<div class="parade-spatial-dot${hi ? ' preview' : ''}" data-anim-id="${esc(s.animId)}" `
+          + `style="left:${p.left};top:${p.top};background:${esc(s.categoryColor)}${hi ? ';border:2px solid #fff' : ''}" `
+          + `title="#${s.slot} pad ${s.pad}: ${esc(s.label)}"></div>`;
+      }).join('');
+
+      const tour = special ? (() => {
+        const p = toPct(special.x, special.z);
+        return `<div class="parade-spatial-dot tour" data-anim-id="__FULL_TOUR__" `
+          + `style="left:${p.left};top:${p.top};background:${esc(special.categoryColor)}" `
+          + `title="Full tour pad ${special.pad}"></div>`;
+      })() : '';
+
+      const hubPropDots = (props?.props || []).map(p => {
+        const pt = toPct(p.x, p.z);
+        return `<div class="parade-spatial-dot prop" style="left:${pt.left};top:${pt.top};background:#38bdf8" `
+          + `title="${esc(p.label)} pad ${p.pad}"></div>`;
+      }).join('');
+
+      const vignetteDots = spatialLayers.vignettes
+        ? (vignettes?.props || []).map(p => {
+            const pt = toPct(p.x, p.z);
+            return `<div class="parade-spatial-dot vignette" style="left:${pt.left};top:${pt.top};background:${esc(p.district ? (districts.find(d => d.id === p.district)?.color || '#a78bfa') : '#a78bfa')}" `
+              + `title="Vignette: ${esc(p.label)} pad ${p.pad}"></div>`;
+          }).join('')
+        : '';
+
+      const museumDots = spatialLayers.museum
+        ? (museum?.props || []).map(p => {
+            const pt = toPct(p.x, p.z);
+            const col = tagColor(p.tag || 'misc');
+            return `<div class="parade-spatial-dot museum" style="left:${pt.left};top:${pt.top};background:${esc(col)}" `
+              + `title="Catalog [${esc(p.tag || 'misc')}]: ${esc(p.label)} pad ${p.pad}"></div>`;
+          }).join('')
+        : '';
+
+      const signpostDots = hubSigns?.signs?.map(sign => {
+        const pt = toPct(sign.x, sign.z);
+        return `<div class="parade-spatial-dot signpost" style="left:${pt.left};top:${pt.top};border-color:${esc(sign.color || '#fbbf24')}" `
+          + `title="${esc(sign.hint || sign.label)}"></div>`
+          + `<span class="parade-spatial-label" style="left:${pt.left};top:calc(${pt.top} - 3%);color:${esc(sign.color || '#fbbf24')}">`
+          + `${esc(sign.compass)} · ${esc(sign.label)}</span>`;
+      }).join('') || '';
+
+      const trueScaleDots = spatialLayers.trueScale
+        ? (trueScale?.props || []).map(p => {
+            const pt = toPct(p.x, p.z);
+            return `<div class="parade-spatial-dot true_scale" style="left:${pt.left};top:${pt.top}" `
+              + `title="True scale: ${esc(p.label)} pad ${p.pad}"></div>`;
+          }).join('')
+        : '';
+
+      const characterDots = spatialLayers.characters
+        ? (characters?.characters || []).map(c => {
+            const pt = toPct(c.x, c.z);
+            return `<div class="parade-spatial-dot character" style="left:${pt.left};top:${pt.top}" `
+              + `title="${esc(c.label)} · chr ${esc(c.chrHex)} pad ${c.pad}"></div>`;
+          }).join('')
+        : '';
+
+      const worldBoundsOverlays = spatialLayers.megaworld && megaworld
+        ? (walkable || []).filter(r => r.kind === 'world_bounds').map(r => {
+            const cx = (r.x0 + r.x1) / 2;
+            const cz = (r.z0 + r.z1) / 2;
+            const c = toPct(cx, cz);
+            return `<div class="parade-spatial-region world-bounds world-${esc(r.world || '')}" style="${quadStyle(r)}" `
+              + `title="${esc(r.label)} — ${r.count || 0} islands"></div>`
+              + `<span class="parade-spatial-label" style="left:${c.left};top:${c.top};color:${esc(r.color || '#f59e0b')}">`
+              + `${esc(r.label)} (${r.count || 0})</span>`;
+          }).join('')
+        : '';
+
+      const megaworldBoundsOverlay = spatialLayers.megaworld && megaworld
+        ? (() => {
+            const b = (walkable || []).find(r => r.kind === 'megaworld');
+            if (!b) return '';
+            return `<div class="parade-spatial-region megaworld-bounds" style="${quadStyle(b)}" `
+              + `title="All level worlds — ${megaworld.count || 0} islands"></div>`;
+          })()
+        : '';
+
+      const megaworldEntryDots = spatialLayers.megaworld
+        ? (megaworld?.entrySigns || []).map(sign => {
+            const pt = toPct(sign.x, sign.z);
+            return `<div class="parade-spatial-dot megaworld" style="left:${pt.left};top:${pt.top};`
+              + `width:9px;height:9px;background:#f97316;border:2px solid #fff" `
+              + `title="${esc(sign.label || 'Megaworld entry')}"></div>`;
+          }).join('')
+        : '';
+
+      const megaworldDots = spatialLayers.megaworld
+        ? (megaworld?.islands || []).map(isl => {
+            const pt = toPct(isl.x, isl.z);
+            return `<div class="parade-spatial-dot megaworld" style="left:${pt.left};top:${pt.top};background:${esc(isl.colour || '#f97316')}" `
+              + `title="${esc(isl.label)} · ${esc(isl.stageHex)} pad ${isl.pad}"></div>`;
+          }).join('')
+        : '';
+
+      const propByPad = {};
+      [...(props?.props || []), ...(vignettes?.props || []), ...(museum?.props || []), ...(trueScale?.props || [])].forEach(p => {
+        propByPad[p.pad] = p;
+      });
+      const interactionLinks = spatialLayers.interactions && highlightedSpatialAnimId
+        ? (() => {
+            const slot = slots.find(s => s.animId === highlightedSpatialAnimId);
+            if (!slot?.linkedPropPads?.length) return '';
+            const from = toPct(slot.x, slot.z);
+            return slot.linkedPropPads.map(pad => {
+              const prop = propByPad[pad];
+              if (!prop) return '';
+              const to = toPct(prop.x, prop.z);
+              const x1 = parseFloat(from.left) / 100 * mapW - half;
+              const z1 = parseFloat(from.top) / 100 * mapW - half;
+              const x2 = prop.x;
+              const z2 = prop.z;
+              const len = Math.hypot(x2 - x1, z2 - z1);
+              const ang = Math.atan2(z2 - z1, x2 - x1) * 180 / Math.PI;
+              const leftPct = ((x1 + half) / mapW * 100).toFixed(2);
+              const topPct = ((z1 + half) / mapW * 100).toFixed(2);
+              const widthPct = (len / mapW * 100).toFixed(2);
+              return `<div class="parade-spatial-link" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;transform:rotate(${ang.toFixed(1)}deg)" title="pad ${pad}"></div>`;
+            }).join('');
+          })()
+        : '';
+
+      const spawnPt = toPct(spawn.x, spawn.z);
+      const hubCompass = (hubSigns?.signs || []).map(sign =>
+        `<span class="parade-spatial-compass" style="left:${toPct(sign.x, sign.z).left};top:${toPct(sign.x, sign.z).top};color:${esc(sign.color || '#fbbf24')}">`
+        + `${esc(sign.compass)} · ${esc(sign.label)} (~${sign.distance || '?'}u)</span>`
+      ).join('');
+      els.paradeSpatialMap.innerHTML = walkOverlays + worldBoundsOverlays + megaworldBoundsOverlay + tagDistrictRegions + regions + guardDots + tour + hubPropDots
+        + signpostDots + vignetteDots + museumDots + trueScaleDots + characterDots + megaworldEntryDots + megaworldDots + interactionLinks
+        + hubCompass
+        + `<div class="parade-spatial-dot tour" style="left:${spawnPt.left};top:${spawnPt.top};`
+        + `background:#6b8cff;border-color:#fff" title="Player spawn pad 0"></div>`;
+      els.paradeSpatialMap.querySelectorAll('[data-anim-id]').forEach(dot => {
+        dot.addEventListener('click', () => {
+          highlightedSpatialAnimId = dot.dataset.animId || '';
+          const rec = findParadeAnim(dot.dataset.animId);
+          if (rec) showAnimDetail(rec);
+          else renderParadeSpatialMap(layout);
+        });
+      });
+      if (els.paradeSpatialLegend) {
+        const signs = layout.hubSignposts?.signs || [];
+        const ordered = COMPASS_ORDER.map(c => signs.find(s => s.compass === c)).filter(Boolean);
+        const wingLegend = ordered.map(s => {
+          const short = (s.label || '').split('·')[0].trim();
+          return `${s.compass} ${short}`;
+        }).join(' · ');
+        const half = layout.arenaHalf || 8000;
+        const tourNote = layout.specialSlot ? ` · tour pad ${layout.specialSlot.pad}` : '';
+        els.paradeSpatialLegend.innerHTML = (wingLegend || 'Eight compass wings')
+          + ` · spawn ·${tourNote} · arena ±${half} u — colours match hub signposts`;
+      }
+    }
+
+    function levelIslandCard(isl) {
+      return `
+          <article class="anim-card" style="--cat-color:${esc(isl.colour || '#f59e0b')}">
+            <div class="top"><span class="cat">🗺 ${esc(isl.worldLabel || isl.categoryLabel || isl.category)}</span></div>
+            <h3 class="title">${esc(isl.label)}</h3>
+            <div class="id-line">${esc(isl.symbol)} · ${esc(isl.stageHex)} · pad ${isl.pad} · ${esc(isl.world || '')}</div>
+            <div class="hint-line">${esc(isl.hint)}</div>
+            <button type="button" class="chip boot-stage-btn" data-stage="${esc(isl.stageHex)}" style="margin-top:.45rem;border-color:${esc(isl.colour || '#f59e0b')}88">Boot stage ${esc(isl.stageHex)}</button>
+          </article>`;
+    }
+
+    function bindBootStageButtons(root) {
+      root.querySelectorAll('.boot-stage-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          bootStage(btn.dataset.stage);
+        });
+      });
+    }
+
+    async function bootStage(stageHex) {
+      if (busy || !stageHex) return;
+      setBusy(true, `Booting stage ${stageHex}…`);
+      try {
+        const data = await api('/api/play', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bootStage: stageHex,
+            mod: els.modSelect?.value || 'mod_allinone',
+            solo: true,
+            numSims: 0,
+            scenario: 0,
+          }),
+        });
+        appendLog(formatResult(data));
+        if (!data.ok) showLaunchFailure(data);
+        else {
+          await refreshGameStatus();
+          if (data.pid) appendLog(`Stage boot started (pid ${data.pid}).`);
+        }
+      } catch (e) {
+        appendLog('Boot stage failed: ' + e.message);
+        alert('Boot stage failed: ' + e.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function renderParade() {
+      if (!catalog) return;
+      const layout = catalog.paradeLayout || {};
+      const n = layout.gridSlotCount || layout.slotCount || catalog.paradeCount || 0;
+      const cols = layout.cols || 6;
+      const districtCount = layout.districtCount || (layout.districts || []).length;
+      const zoneCount = layout.zoneCount || 1;
+      const maxPerZone = layout.maxChrPerZone || 30;
+      const special = layout.specialSlot;
+      const props = layout.propsDistrict;
+      const museum = layout.museumDistrict;
+      const trueScale = layout.trueScaleDistrict;
+      const characters = layout.characterDistrict;
+      const megaworld = layout.levelMegaworldDistrict;
+      const vignettes = layout.vignetteProps;
+      renderParadeLayerChips();
+      renderParadeSpatialMap(layout);
+      renderInGameGuide(layout);
+      renderParadeCompassChips(layout);
+      renderParadeDistrictChips(layout);
+      renderParadeZoneChips(layout);
+      const zoneFilter = activeParadeZone;
+      const districtFilter = activeParadeDistrict;
+      const slotsAll = layout.slots || [];
+
+      if (districtFilter === '__props__') {
+        els.paradeLayoutGrid.innerHTML = (props?.props || []).map(p => `
+          <div class="parade-layout-cell" style="background:#38bdf822;border-color:#38bdf855"
+               title="Pad ${p.pad}: ${esc(p.label)} (${esc(p.modelHex)})">
+            <span class="slot-num">🪑 pad ${p.pad} · ${esc(p.modelHex)}</span>
+            <span>${esc(p.label)}</span>
+          </div>`).join('');
+        els.paradeGridHint.innerHTML = `Props gallery SW of spawn (x≈${props?.centerX}, z≈${props?.centerZ}). `
+          + `Static StdObjects — ${(props?.props || []).length} hub props. Walk far southwest (W) for the object catalog.`;
+        els.paradeStats.innerHTML = `
+          <span class="stat">${(props?.props || []).length} hub props · room 1</span>
+          <span class="stat">arena ±${layout.arenaHalf || '?'}</span>`;
+        els.paradeGridTitle.textContent = 'Props yard';
+        els.paradeGrid.innerHTML = (props?.props || []).map(p => `
+          <article class="anim-card" style="--cat-color:#38bdf8">
+            <div class="top"><span class="cat">🪑 Props yard</span></div>
+            <h3 class="title">${esc(p.label)}</h3>
+            <div class="id-line">${esc(p.modelHex)} · pad ${p.pad}</div>
+            <div class="hint-line">${esc(p.hint)}</div>
+          </article>`).join('');
+        if (els.paradeSpecialWrap) els.paradeSpecialWrap.hidden = true;
+        return;
+      }
+
+      if (districtFilter === '__museum__' || districtFilter.startsWith('__tag_')) {
+        const tagFilter = districtFilter.startsWith('__tag_') ? districtFilter.slice(6) : '';
+        const mprops = tagFilter
+          ? (museum?.byTag?.[tagFilter] || [])
+          : (museum?.props || []);
+        const td = (museum?.tagDistricts || []).find(t => t.tag === tagFilter);
+        const metaColor = (tag) => museum?.tagMeta?.[tag]?.color;
+        const chipColor = td?.color || metaColor(tagFilter) || '#0ea5e9';
+        els.paradeLayoutGrid.innerHTML = mprops.map(p => {
+          const col = metaColor(p.tag) || chipColor;
+          return `
+          <div class="parade-layout-cell" style="background:${esc(col)}22;border-color:${esc(col)}55"
+               title="Pad ${p.pad}: ${esc(p.label)} (${esc(p.modelHex)}) · ${esc(p.tag || '')}">
+            <span class="slot-num">🏛 pad ${p.pad} · ${esc(p.modelHex)}</span>
+            <span>${esc(p.label)}</span>
+          </div>`;
+        }).join('');
+        const tdInfo = td ? `${td.label} district (x≈${Math.round(td.centerX)}, z≈${Math.round(td.centerZ)})` :
+          `Object catalog megazone (hub x≈${museum?.hubX}, z≈${museum?.hubZ})`;
+        els.paradeGridHint.innerHTML = `${tdInfo}. ${mprops.length} showcase-scaled StdObject models. `
+          + `Walk southwest from spawn — follow signpost ring then catalog approach corridor.`;
+        els.paradeStats.innerHTML = `
+          <span class="stat">${mprops.length} props · ${tagFilter || 'all tags'} · ${(museum?.tagDistricts || []).length} districts</span>
+          <span class="stat">arena ±${layout.arenaHalf || '?'}</span>`;
+        els.paradeGridTitle.textContent = tagFilter ? `Object catalog · ${tagFilter}` : 'Object catalog (all tags)';
+        els.paradeGrid.innerHTML = mprops.map(p => {
+          const col = metaColor(p.tag) || chipColor;
+          return `
+          <article class="anim-card" style="--cat-color:${esc(col)}">
+            <div class="top"><span class="cat">🏛 ${esc(p.tag || 'misc')}</span></div>
+            <h3 class="title">${esc(p.label)}</h3>
+            <div class="id-line">${esc(p.modelHex)} · pad ${p.pad}</div>
+            <div class="hint-line">${esc(p.hint)}</div>
+          </article>`;
+        }).join('');
+        if (els.paradeSpecialWrap) els.paradeSpecialWrap.hidden = true;
+        return;
+      }
+
+      if (districtFilter === '__true_scale__') {
+        const tsprops = trueScale?.props || [];
+        const wings = trueScale?.wings || [];
+        const normalWing = wings.find(w => w.wing === 'normal') || {};
+        const megaWing = wings.find(w => w.wing === 'mega') || {};
+        els.paradeLayoutGrid.innerHTML = tsprops.map(p => `
+          <div class="parade-layout-cell" style="background:#14b8a622;border-color:#14b8a655"
+               title="Pad ${p.pad}: ${esc(p.label)} (${esc(p.modelHex)}) · ${esc(p.tag || '')}">
+            <span class="slot-num">📐 pad ${p.pad} · ${esc(p.modelHex)}</span>
+            <span>${esc(p.label)}</span>
+          </div>`).join('');
+        els.paradeGridHint.innerHTML = `True-scale gallery — retail extrascale only, bbox from prop bin rodata (no showcase shrink). `
+          + `Normal wing (${normalWing.count || 0}) east-north (x≈${normalWing.centerX}, z≈${normalWing.centerZ}); `
+          + `megastructure yard (${megaWing.count || 0}) far northwest (x≈${megaWing.centerX}, z≈${megaWing.centerZ}).`;
+        els.paradeStats.innerHTML = `
+          <span class="stat">${tsprops.length} true-scale props · ${trueScale?.normalCount || 0} normal + ${trueScale?.megaCount || 0} mega</span>
+          <span class="stat">0 overlaps verified · arena ±${layout.arenaHalf || '?'}</span>`;
+        els.paradeGridTitle.textContent = 'True scale gallery';
+        els.paradeGrid.innerHTML = tsprops.map(p => `
+          <article class="anim-card" style="--cat-color:#14b8a6">
+            <div class="top"><span class="cat">📐 ${esc(p.tag || 'misc')}</span></div>
+            <h3 class="title">${esc(p.label)}</h3>
+            <div class="id-line">${esc(p.modelHex)} · pad ${p.pad}</div>
+            <div class="hint-line">${esc(p.hint)}</div>
+          </article>`).join('');
+        if (els.paradeSpecialWrap) els.paradeSpecialWrap.hidden = true;
+        return;
+      }
+
+      if (districtFilter === '__characters__') {
+        const chrs = characters?.characters || [];
+        els.paradeLayoutGrid.innerHTML = chrs.map(c => `
+          <div class="parade-layout-cell" style="background:#c084fc22;border-color:#c084fc55"
+               title="Pad ${c.pad}: ${esc(c.label)} (${esc(c.bodyHex)} / ${esc(c.headHex)})">
+            <span class="slot-num">🧍 pad ${c.pad} · ${esc(c.chrHex)}</span>
+            <span>${esc(c.label)}</span>
+          </div>`).join('');
+        els.paradeGridHint.innerHTML = `Character gallery southeast (x≈${characters?.centerX}, z≈${characters?.centerZ}). `
+          + `${chrs.length} story/playable bodies on distinct rigs — walk east from spawn (purple carpet).`;
+        els.paradeStats.innerHTML = `
+          <span class="stat">${chrs.length} characters · ${Object.keys(characters?.byGroup || {}).length} groups</span>
+          <span class="stat">arena ±${layout.arenaHalf || '?'}</span>`;
+        els.paradeGridTitle.textContent = 'Character gallery';
+        els.paradeGrid.innerHTML = chrs.map(c => `
+          <article class="anim-card" style="--cat-color:#c084fc">
+            <div class="top"><span class="cat">🧍 ${esc(c.group)}</span></div>
+            <h3 class="title">${esc(c.label)}</h3>
+            <div class="id-line">${esc(c.bodyHex)} · head ${esc(c.headHex)} · chr ${esc(c.chrHex)} · pad ${c.pad}</div>
+            <div class="hint-line">${esc(c.hint)}</div>
+          </article>`).join('');
+        if (els.paradeSpecialWrap) els.paradeSpecialWrap.hidden = true;
+        return;
+      }
+
+      if (districtFilter === '__megaworld__' || (districtFilter && districtFilter.startsWith('__megaworld_'))) {
+        let islands = megaworld?.islands || [];
+        let worldKey = '';
+        if (districtFilter === '__megaworld_solo__') { islands = islands.filter(i => i.world === 'solo'); worldKey = 'solo'; }
+        else if (districtFilter === '__megaworld_mp__') { islands = islands.filter(i => i.world === 'mp'); worldKey = 'mp'; }
+        else if (districtFilter === '__megaworld_dev__') { islands = islands.filter(i => i.world === 'dev'); worldKey = 'dev'; }
+        const worldMeta = worldKey && megaworld?.worlds ? megaworld.worlds[worldKey] : null;
+        const title = worldMeta ? worldMeta.label : 'All level worlds';
+        els.paradeLayoutGrid.innerHTML = islands.map(isl => `
+          <div class="parade-layout-cell" style="background:${esc(isl.colour || '#f59e0b')}22;border-color:${esc(isl.colour || '#f59e0b')}55"
+               title="Pad ${isl.pad}: ${esc(isl.label)} (${esc(isl.stageHex)}) · ${esc(isl.category)} · ${esc(isl.world || '')}">
+            <span class="slot-num">🗺 pad ${isl.pad} · ${esc(isl.stageHex)}</span>
+            <span>${esc(isl.label)}</span>
+          </div>`).join('');
+        els.paradeGridHint.innerHTML = worldMeta
+          ? `${esc(worldMeta.walkHint || '')} Gate at (${worldMeta.gateX}, ${worldMeta.gateZ}). `
+          : `${esc(megaworld?.walkHint || '')} `
+          + `${esc(megaworld?.portalNote || '')}`;
+        els.paradeStats.innerHTML = `
+          <span class="stat">${islands.length} stages · ${megaworld?.bridgeCount || 0} bridges · solo ${megaworld?.soloCount || 0} · MP ${megaworld?.mpCount || 0} · dev ${megaworld?.devCount || 0}</span>
+          <span class="stat">arena ±${layout.arenaHalf || '?'}</span>`;
+        els.paradeGridTitle.textContent = title;
+        els.paradeGrid.innerHTML = islands.map(levelIslandCard).join('');
+        bindBootStageButtons(els.paradeGrid);
+        if (els.paradeSpecialWrap) els.paradeSpecialWrap.hidden = true;
+        return;
+      }
+
+      if (districtFilter === 'cutscene') {
+        const d = (layout.districts || []).find(x => x.id === 'cutscene');
+        if (d?.reserved) {
+          els.paradeLayoutGrid.innerHTML = `
+            <div class="parade-layout-cell" style="grid-column:1/-1;background:#94a3b822;border-color:#94a3b855"
+                 title="${esc(d.reserveNote || '')}">
+              <span class="slot-num">🎬 Cutscene district · Phase 4 reserved</span>
+              <span>${esc(d.reserveNote || 'Mission body rigs required for CUT_* clips.')}</span>
+            </div>`;
+          els.paradeGridHint.innerHTML = `North animation grid — cutscene row (rows 3–4). `
+            + `${d.romCutsceneCount || 392} CUT_* clips exist in ROM but cannot play on guard pads. `
+            + `In-game: follow purple carpet north; look for the mainframe signpost at the reserved yard centre.`;
+          els.paradeStats.innerHTML = `
+            <span class="stat">0 guard slots · ${d.romCutsceneCount || 392} ROM cutscene clips</span>
+            <span class="stat">Phase 4 — alternate body rigs</span>`;
+          els.paradeGridTitle.textContent = '🎬 Cutscene (reserved)';
+          els.paradeGrid.innerHTML = '<p class="hint">No parade guards here yet — CUT_* animations need mission-specific chr bodies.</p>';
+          if (els.paradeSpecialWrap) els.paradeSpecialWrap.hidden = true;
+          return;
+        }
+      }
+
+      const slots = slotsAll.filter(s => {
+        if (districtFilter && s.district !== districtFilter) return false;
+        if (zoneFilter > 0 && s.zone !== zoneFilter) return false;
+        return true;
+      });
+      const compact = slots.length > 40;
+      els.paradeLayoutGrid.classList.toggle('compact-cells', compact);
+      els.paradeLayoutGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      if (els.paradeGridHint) {
+        const spacing = layout.spacingX && layout.spacingZ
+          ? `${layout.spacingX}×${layout.spacingZ} u`
+          : '200×200 u';
+        const policy = layout.includedPolicy || `${n} named animations`;
+        const limitNote = layout.engineLimitNote || `≤${maxPerZone} guards/zone`;
+        els.paradeGridHint.innerHTML = `Walk north from spawn through `
+          + `<strong>${districtCount} category districts</strong> (${zoneCount} sub-zones, ${spacing}, ${esc(limitNote)}). `
+          + `Props SW; catalog far W (${museum?.count || 0} showcase); true scale NW (${trueScale?.normalCount || 0} normal + ${trueScale?.megaCount || 0} mega); character gallery SE (${characters?.count || 0}); `
+          + `<strong>level worlds (${megaworld?.soloCount || 0} solo WSW · ${megaworld?.mpCount || 0} MP east · ${megaworld?.devCount || 0} dev NE)</strong> — use Solo / MP / Dev chips or walk from spawn signposts; ${vignettes?.count || 0} district vignettes; `
+          + `full tour east (pad ${special?.pad ?? '—'}). <em>${esc(policy)}</em>`;
+      }
+      els.paradeStats.innerHTML = `
+        <span class="stat">${n} grid loops · ${districtCount} districts · ${zoneCount} sub-zones</span>
+        <span class="stat">+1 tour · ${(props?.props || []).length || 0} hub · ${vignettes?.count || 0} vignette · ${museum?.count || 0} museum · ${trueScale?.count || 0} true · ${characters?.count || 0} chr · ${megaworld?.count || 0} levels</span>
+        <span class="stat">${catalog.namedCount} named in ROM · arena ±${layout.arenaHalf || '?'}</span>
+      `;
+      if (special && els.paradeSpecialWrap && els.paradeSpecialCell) {
+        els.paradeSpecialWrap.hidden = false;
+        els.paradeSpecialCell.innerHTML = `
+          <div class="parade-layout-cell special-tour" data-anim-id="__FULL_TOUR__"
+               style="background:${esc(special.categoryColor)}33;border-color:${esc(special.categoryColor)}88"
+               title="Pad ${special.pad}: cycles all animations">
+            <span class="slot-num">🎞️ Full tour · pad ${special.pad} · chr ${esc(special.chrRef)}</span>
+            <span>${esc(special.label)} — ${special.tourAnimCount || n} anims sequentially</span>
+          </div>`;
+        els.paradeSpecialCell.querySelector('.parade-layout-cell')?.addEventListener('click', () => {
+          const rec = findParadeAnim('__FULL_TOUR__');
+          if (rec) showAnimDetail(rec);
+        });
+      }
+      if (els.paradeGridTitle) {
+        let label = 'All districts';
+        if (districtFilter) {
+          const d = (layout.districts || []).find(x => x.id === districtFilter);
+          label = d ? `${d.icon || ''} ${d.label}` : districtFilter;
+        }
+        if (zoneFilter > 0) label += ` · sub-zone ${zoneFilter}`;
+        els.paradeGridTitle.textContent = compact
+          ? `Floor map — ${label} (${slots.length} cells — scroll)`
+          : `Floor map — ${label} (match colours in-game)`;
+      }
+      els.paradeLayoutGrid.innerHTML = slots.map(s => `
+        <div class="parade-layout-cell" data-anim-id="${esc(s.animId)}"
+             style="background:${esc(s.categoryColor)}22;border-color:${esc(s.categoryColor)}55"
+             title="${esc(s.districtLabel || s.district)} · pad ${s.pad}: ${esc(s.label)}">
+          <span class="slot-num">${esc(s.districtIcon || '')} ${esc(s.districtLabel || s.district)} · #${s.slotInZone || s.slot} · pad ${s.pad}</span>
+          <span>${esc(s.label)}</span>
+        </div>
+      `).join('');
+      els.paradeLayoutGrid.querySelectorAll('.parade-layout-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+          const rec = findParadeAnim(cell.dataset.animId);
+          if (rec) showAnimDetail(rec);
+        });
+      });
+      const gridCards = (catalog.parade || []).filter(a => !a.isSpecialTour && (
+        (!districtFilter || paradeSlotDistrict(a.paradeSlot) === districtFilter)
+        && (zoneFilter <= 0 || paradeSlotZone(a.paradeSlot) === zoneFilter)
+      ));
+      const tourCard = (catalog.parade || []).find(a => a.isSpecialTour);
+      els.paradeGrid.innerHTML = [
+        tourCard && (!districtFilter || zoneFilter <= 0) ? renderAnimCard(tourCard) : '',
+        ...gridCards.map(renderAnimCard),
+      ].filter(Boolean).join('');
+      bindCardClicks(els.paradeGrid);
+    }
+
+    function renderStudyGuide() {
+      if (!catalog) return;
+      els.studyGuide.innerHTML = (catalog.studyGuide || []).map(block => `
+        <div class="study-step">
+          <h3><span class="num">Step ${block.step}</span> ${esc(block.title)}</h3>
+          <div class="card-grid">${block.animations.map(renderAnimCard).join('')}</div>
+        </div>
+      `).join('');
+      bindCardClicks(els.studyGuide);
+    }
+
+    function renderCatalogSections(anims) {
+      els.catalogGrid.innerHTML = anims.map(renderAnimCard).join('');
+      bindCardClicks(els.catalogGrid);
+    }
+
+    function renderCategoryChips() {
+      if (!catalog) return;
+      const chips = [{ id: '', label: 'All' }];
+      (catalog.allSections || []).forEach(sec => {
+        chips.push({ id: sec.id, label: `${sec.icon} ${sec.title} (${sec.count})` });
+      });
+      els.categoryChips.innerHTML = chips.map(c =>
+        `<button type="button" class="chip${c.id === activeCategory ? ' active' : ''}" data-cat="${esc(c.id)}">${esc(c.label)}</button>`
+      ).join('');
+      els.categoryChips.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          activeCategory = chip.dataset.cat;
+          renderCategoryChips();
+          searchCatalog();
+        });
+      });
+    }
+
+    async function loadCatalog() {
+      applyUrlParadeFilters();
+      catalog = await api('/api/catalog');
+      els.catalogStats.innerHTML = `
+        <span class="stat">${catalog.totalAnimations} total</span>
+        <span class="stat">${catalog.namedCount} named</span>
+        <span class="stat">${catalog.paradeCount} in parade</span>
+      `;
+      renderParade();
+      renderStudyGuide();
+      renderCategoryChips();
+      await searchCatalog();
+    }
+
+    async function searchCatalog() {
+      const q = document.getElementById('animSearch').value.trim();
+      const url = `/api/animations?search=${encodeURIComponent(q)}&limit=120&namedOnly=1`
+        + (activeCategory ? `&category=${encodeURIComponent(activeCategory)}` : '');
+      const data = await api(url);
+      renderCatalogSections(data.animations || []);
+    }
+
+    // --- Launch (unchanged core) ---
+    function loadPrefs() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; } }
+    function savePrefs() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        map: els.mapSelect.value, mod: els.modSelect.value,
+        numSims: els.numSims.value, simDifficulty: els.simDifficulty.value,
+        buildFirst: els.buildFirst.checked, scenario: selectedScenario,
+      }));
+    }
+
+    function launchPayload(overrides = {}) {
+      return {
+        map: els.mapSelect.value, mod: els.modSelect.value,
+        numSims: parseInt(els.numSims.value, 10) || 0,
+        simDifficulty: parseInt(els.simDifficulty.value, 10) || 2,
+        build: els.buildFirst.checked, play: true, scenario: selectedScenario, ...overrides,
+      };
+    }
+
+    function formatResult(data) {
+      const p = [];
+      if (data.playCommand) p.push('play: ' + data.playCommand);
+      if (data.play?.command) p.push('play: ' + data.play.command);
+      if (data.build?.command) p.push('build: ' + data.build.command);
+      if (data.hint) p.push('Hint: ' + data.hint);
+      if (data.error) p.push('Error: ' + data.error);
+      if (data.build?.error) p.push('Build: ' + data.build.error);
+      if (data.play?.error) p.push('Play: ' + data.play.error);
+      if (data.stderr) p.push(data.stderr);
+      if (data.build?.stderr) p.push(String(data.build.stderr).slice(-2000));
+      if (data.play?.stderr) p.push(String(data.play.stderr).slice(-2000));
+      if (data.play?.logPath) p.push('Log: ' + data.play.logPath);
+      return p.join('\n') || JSON.stringify(data, null, 2);
+    }
+
+    function showLaunchFailure(data) {
+      const parts = [data.error || 'Launch failed'];
+      if (data.build?.stderr) parts.push(String(data.build.stderr).slice(-600));
+      else if (data.stderr) parts.push(String(data.stderr).slice(-600));
+      else if (data.play?.stderr) parts.push(String(data.play.stderr).slice(-600));
+      alert(parts.filter(Boolean).join('\n\n'));
+    }
+
+    /** Build + launch Animation Lab parade (--test-animlab). */
+    function launchAnimLab(overrides = {}) {
+      els.mapSelect.value = 'animlab';
+      savePrefs();
+      return launchGame({ map: 'animlab', ...overrides });
+    }
+
+    async function launchGame(overrides = {}) {
+      if (busy) return;
+      const payload = launchPayload(overrides);
+      const mapLabel = payload.map === 'animlab' ? 'Anim Lab' : payload.map;
+      setBusy(true, `Launching ${mapLabel} scenario ${payload.scenario}…`);
+      savePrefs();
+      try {
+        const data = await api('/api/launch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        appendLog(formatResult(data));
+        if (!data.ok) {
+          showLaunchFailure(data);
+        } else {
+          await refreshLastDeploy();
+          await refreshGameStatus();
+          if (data.pid) appendLog(`Game started (pid ${data.pid}). Check the Dock for the Perfect Dark window.`);
+        }
+      } catch (e) { appendLog('Launch failed: ' + e.message); alert('Launch failed: ' + e.message); }
+      finally { setBusy(false); }
+    }
+
+    async function deployOnly(level) {
+      if (busy) return;
+      setBusy(true, 'Deploying ' + level + '…');
+      try {
+        const data = await api('/api/launch', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ map: level, build: true, play: false }) });
+        appendLog(formatResult(data));
+        if (!data.ok) {
+          appendLog('Deploy finished with errors (see above).');
+          showLaunchFailure(data);
+        }
+      } catch (e) {
+        appendLog('Deploy failed: ' + e.message);
+        alert('Deploy failed: ' + e.message);
+        return;
+      } finally {
+        setBusy(false);
+      }
+      try {
+        await refreshLastDeploy();
+      } catch (e) {
+        appendLog('Deploy ok but could not refresh last-deploy time: ' + e.message);
+      }
+    }
+
+    async function refreshHealth() {
+      const h = await api('/api/health');
+      const ok = h.ok && h.binaryFound;
+      els.healthDot.className = 'dot ' + (ok ? 'ok' : 'bad');
+      els.healthText.textContent = ok ? 'pd binary ready' : 'Build pd first';
+    }
+
+    async function refreshGameStatus() {
+      const st = await api('/api/status');
+      const pids = Object.entries(st.games || {}).filter(([,a]) => a).map(([p]) => p);
+      els.gamePill.hidden = !pids.length;
+      if (pids.length) els.gameText.textContent = `Game running (${pids.join(', ')})`;
+    }
+
+    async function refreshLastDeploy() {
+      const cfg = await api('/api/play-config');
+      const ld = cfg.lastDeploy || {};
+      els.lastDeployLine.textContent = ld.map && ld.at ? `Last deploy: ${ld.map} @ ${ld.at}` : '';
+    }
+
+    async function initPlayConfig() {
+      playConfig = await api('/api/play-config');
+      const prefs = loadPrefs();
+      const d = playConfig.defaults || {};
+      els.mapSelect.innerHTML = (playConfig.maps || []).map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+      els.modSelect.innerHTML = (playConfig.mods || []).map(m => `<option value="${m.id}">${m.id}</option>`).join('');
+      els.simDifficulty.innerHTML = (playConfig.simDifficulties || []).map(x => `<option value="${x.id}">${x.id} — ${x.name}</option>`).join('');
+      els.mapSelect.value = prefs.map || d.map || 'animlab';
+      els.modSelect.value = prefs.mod || d.mod || 'mod_allinone';
+      els.numSims.value = String(prefs.numSims ?? d.numSims ?? 0);
+      els.simDifficulty.value = String(prefs.simDifficulty ?? d.simDifficulty ?? 2);
+      els.buildFirst.checked = prefs.buildFirst ?? d.buildBeforeLaunch ?? true;
+      selectedScenario = prefs.scenario ?? d.scenario ?? 0;
+      els.scenarioGrid.innerHTML = (playConfig.scenarios || []).map(s => `
+        <button type="button" class="scenario-card" data-scenario="${s.id}">
+          <span class="num">Scenario ${s.id}</span>
+          <span class="name">${esc(s.name)}</span>
+        </button>`).join('');
+      els.scenarioGrid.querySelectorAll('.scenario-card').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedScenario = +btn.dataset.scenario;
+          launchAnimLab({ scenario: selectedScenario });
+        });
+      });
+      els.mapSelect.addEventListener('change', savePrefs);
+      ['modSelect','numSims','simDifficulty','buildFirst'].forEach(id => document.getElementById(id).addEventListener('change', savePrefs));
+    }
+
+    document.getElementById('tabBar').addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab.dataset.tab));
+    });
+
+    document.getElementById('btnLaunchSelected').onclick = () => launchAnimLab();
+    document.getElementById('btnLaunchOnly').onclick = () => launchGame({ build: false });
+    document.getElementById('btnReplay').onclick = async () => {
+      if (busy) return;
+      setBusy(true, 'Replaying…');
+      try { appendLog(formatResult(await api('/api/replay', { method: 'POST', body: '{}' }))); await refreshGameStatus(); }
+      catch (e) { appendLog(e.message); } finally { setBusy(false); }
+    };
+    document.getElementById('btnDeployAnimlab').onclick = () => deployOnly('animlab');
+    document.getElementById('btnDeployUff').onclick = () => deployOnly('uff');
+    document.getElementById('btnSearch').onclick = searchCatalog;
+    document.getElementById('animSearch').addEventListener('keydown', e => { if (e.key === 'Enter') searchCatalog(); });
+
+    (async function init() {
+      if (!(await ensureApiReady())) {
+        els.healthDot.className = 'dot bad';
+        els.healthText.textContent = 'server offline — start Anim Lab app';
+        return;
+      }
+      if (location.protocol === 'file:' || apiBase) {
+        appendLog(`API base: ${apiBase || location.origin}`);
+      }
+      try {
+        await refreshHealth();
+        await initPlayConfig();
+        await refreshLastDeploy();
+        await loadCatalog();
+        await refreshGameStatus();
+      } catch (e) {
+        appendLog('Init failed: ' + e.message);
+        els.healthDot.className = 'dot bad';
+        els.healthText.textContent = 'server error';
+        return;
+      }
+      setInterval(refreshHealth, 15000);
+      setInterval(refreshGameStatus, 4000);
+    })();
+  </script>
+</body>
+</html>

@@ -74,6 +74,7 @@
 #include "types.h"
 #include "system.h"
 #include "input.h"
+#include "bootmp.h"
 
 extern u8 *g_MempHeap;
 extern u32 g_MempHeapSize;
@@ -160,7 +161,9 @@ struct stageallocation g_StageAllocations8Mb[] = {
 	{ STAGE_TEST_UFF,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_MY_ARENA,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_TESTARENA,     "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
-	{ STAGE_ANIMLAB,       "-ml0 -me0 -mgfx768 -mvtx512 -ma700"             },
+	{ STAGE_ANIMLAB,       "-ml0 -me0 -mgfx768 -mvtx512 -ma8192"             },
+	{ STAGE_AGENT_OFFICE,  "-ml0 -me0 -mgfx110 -mgfxtra80 -mvtx100 -ma700" },
+	{ STAGE_AGENT_OFFICE_CI, "-ml0 -me0 -mgfx120 -mvtx100 -ma400"          },
 	{ STAGE_TEST_OLD,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_DUEL,          "-ml0 -me0 -mgfx120 -mvtx100 -ma700"            },
 	{ STAGE_TEST_LAM,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
@@ -323,6 +326,7 @@ void mainInit(void)
 	animsInit();
 	racesInit();
 	bodiesInit();
+	bootMpApplySentryCliFlags();
 	titleInit();
 
 	modelSetDistanceChecksDisabled(true); // don't use LODs

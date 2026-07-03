@@ -2041,18 +2041,22 @@
 #define FILE_BG_ANIMLAB_PADS      0x07ee
 #define FILE_USETUPANIMLAB         0x07ef
 #define FILE_UMP_SETUPANIMLAB      0x07f0
+#define FILE_USETUPAGENT_OFFICE      0x07f1
+#define FILE_UMP_SETUPAGENT_OFFICE   0x07f2
+#define FILE_USETUPAGENT_OFFICE_CI   0x07f3
+#define FILE_UMP_SETUPAGENT_OFFICE_CI 0x07f4
 
 #if VERSION >= VERSION_JPN_FINAL
 #ifdef PLATFORM_N64
 #define NUM_FILES 2021
 #else
-#define NUM_FILES 2033 // PD Plus Mod (+ 4) + custom arenas (+ 15)
+#define NUM_FILES 2037 // PD Plus Mod (+ 4) + custom arenas (+ 15) + agent_office (+ 2) + agent_office_ci (+ 2)
 #endif
 #elif VERSION >= VERSION_NTSC_1_0
 #ifdef PLATFORM_N64
 #define NUM_FILES 2019
 #else
-#define NUM_FILES 2033 // PD Plus Mod (+ 4) + custom arenas (+ 15)
+#define NUM_FILES 2037 // PD Plus Mod (+ 4) + custom arenas (+ 15) + agent_office (+ 2) + agent_office_ci (+ 2)
 #endif
 #else
 #define NUM_FILES 2018

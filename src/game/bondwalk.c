@@ -1002,7 +1002,10 @@ void bwalkUpdateVertical(void)
 				g_Vars.currentplayer->isfalling = true;
 				g_Vars.currentplayer->fallstart = g_Vars.lvframe60;
 			} else {
-				if (g_Vars.lvframe60 - g_Vars.currentplayer->fallstart > TICKS(240)) {
+				/* Animation Lab: museum-scale open floor — void death is confusing
+				 * when a carpet tile lacks collision; keep the player alive. */
+				if (g_Vars.stagenum != STAGE_ANIMLAB
+						&& g_Vars.lvframe60 - g_Vars.currentplayer->fallstart > TICKS(240)) {
 					// Have been falling for 4 seconds
 					playerDie(true);
 				}
@@ -1043,7 +1046,8 @@ void bwalkUpdateVertical(void)
 				g_Vars.currentplayer->isfalling = false;
 			}
 
-			if (g_Vars.currentplayer->vv_manground <= -30000) {
+			if (g_Vars.stagenum != STAGE_ANIMLAB
+					&& g_Vars.currentplayer->vv_manground <= -30000) {
 				playerDie(true);
 			}
 		}
@@ -1053,7 +1057,8 @@ void bwalkUpdateVertical(void)
 			g_Vars.currentplayer->isfalling = false;
 		}
 
-		if (g_Vars.currentplayer->vv_manground <= -30000) {
+		if (g_Vars.stagenum != STAGE_ANIMLAB
+				&& g_Vars.currentplayer->vv_manground <= -30000) {
 			playerDie(true);
 		}
 	}

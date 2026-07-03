@@ -445,6 +445,16 @@ void lvReset(s32 stagenum)
 		portalsReset();
 		lightsReset();
 		setCurrentPlayerNum(0);
+
+#ifndef PLATFORM_N64
+		/* Animation Lab: one-time compass HUD at spawn — eight portal ring + three level worlds. */
+		if (g_Vars.stagenum == STAGE_ANIMLAB) {
+			hudmsgCreateWithFlags(
+				"Anim Lab: N=districts SW=objects W=catalog E=MP(26) WSW=Solo(23) SE=chars NE=dev NW=true-scale",
+				HUDMSGTYPE_DEFAULT,
+				HUDMSGFLAG_ONLYIFALIVE | HUDMSGFLAG_NOWRAP | HUDMSGFLAG_ALLOWDUPES);
+		}
+#endif
 	}
 
 	if (g_Vars.lvmpbotlevel) {

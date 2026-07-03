@@ -1,0 +1,41 @@
+{
+  "tick": 1200,
+  "stage": 53,
+  "paused": false,
+  "scenario": 0,
+  "player_mask": 1,
+  "bot_mask": 15,
+  "players": [
+    {
+      "id": 0,
+      "team": 0,
+      "pos": {"x": 100.0, "y": 10.0, "z": 200.0},
+      "facing_deg": 90.0,
+      "health": 1.0,
+      "dead": false
+    }
+  ],
+  "actors": [
+    {
+      "id": 0,
+      "kind": "player",
+      "team": 0,
+      "pos": {"x": 100.0, "y": 10.0, "z": 200.0},
+      "health": 1.0,
+      "weapon": 5,
+      "command": -1,
+      "dead": false
+    },
+    {
+      "id": 1,
+      "kind": "bot",
+      "team": 1,
+      "pos": {"x": 500.0, "y": 10.0, "z": 200.0},
+      "health": 1.0,
+      "weapon": 5,
+      "command": 4,
+      "dead": false
+    }
+  ],
+  "events": []
+}

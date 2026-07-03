@@ -8,6 +8,8 @@ Companion docs (historical / slice detail):
 
 | Doc | Role |
 |-----|------|
+| [`VISION_AND_PRODUCT.md`](./VISION_AND_PRODUCT.md) | **North-star vision** — 3D game interface for managing AI agents; lobby-as-control-plane, Slack/connector model, full system design (this spec is its shipped P0) |
+| [`SPEC_AUDIT.md`](./SPEC_AUDIT.md) | Conformance audit of the shipped setups vs. this spec (fix list, incl. F1 spawn collision) |
 | [`SESSION_NOTES.md`](./SESSION_NOTES.md) | Full session chronology and bug-fix archaeology |
 | [`NEXT_STEPS.md`](./NEXT_STEPS.md) | Living checklist — defers to **this spec** for contracts |
 | [`LLM_CONVERSATION_LAYER.md`](./LLM_CONVERSATION_LAYER.md) | Live LLM / voice layer build spec (Phase 2+) |

@@ -1,0 +1,71 @@
+{
+  "name": "Perfect Dark Kit",
+  "kitVersion": "0.2.0",
+  "portVersion": "0.1.0",
+  "builtAt": "2026-07-02T22:22:37Z",
+  "repoRoot": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio",
+  "releaseDir": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release",
+  "gameBinary": {
+    "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/build/pd.arm64",
+    "built": true
+  },
+  "apps": {
+    "kitHub": {
+      "productName": "Perfect Dark Kit",
+      "bundleFileName": "Perfect Dark Kit.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/Perfect Dark Kit.app",
+      "wrappedApps": {
+        "mapEditor": true,
+        "mapLauncher": false,
+        "animLab": true,
+        "agentOffice": true,
+        "assetUpgrader": true,
+        "playLastTestMap": true,
+        "llmPlay": true
+      }
+    },
+    "mapEditor": {
+      "productName": "PD Map Editor",
+      "bundleFileName": "PD Map Editor.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Map Editor.app"
+    },
+    "mapLauncher": {
+      "productName": "PD Map Launcher",
+      "bundleFileName": "PD Map Launcher.app",
+      "built": false,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Map Launcher.app"
+    },
+    "animLab": {
+      "productName": "PD Anim Lab",
+      "bundleFileName": "PD Anim Lab.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Anim Lab.app"
+    },
+    "agentOffice": {
+      "productName": "Virtual Agent Office",
+      "bundleFileName": "Virtual Agent Office.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/Virtual Agent Office.app"
+    },
+    "assetUpgrader": {
+      "productName": "PD Asset Upgrader",
+      "bundleFileName": "PD Asset Upgrader.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Asset Upgrader.app"
+    },
+    "playLastTestMap": {
+      "productName": "Play Last Test Map",
+      "bundleFileName": "Play Last Test Map.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/Play Last Test Map.app"
+    },
+    "llmPlay": {
+      "productName": "LLM Play",
+      "bundleFileName": "LLM Play.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/LLM Play.app"
+    }
+  }
+}

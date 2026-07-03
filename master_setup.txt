@@ -1,0 +1,397 @@
+// =================================================================================================
+// PERFECT DARK ABSOLUTE COMPLETE COMBAT SIMULATOR MASTER LEVEL CONFIGURATION SETUP DATA FILE
+// =================================================================================================
+// Compatible Architectures: Native macOS arm64 (Apple Silicon M1/M2/M3/M4/M5) Execution
+// Compilation Pipeline Target: perfect-dark-pc-port Native Asset Compiler Assembly Tree
+// Description: The ultimate, zero-compromise production-ready level setup file containing
+//              all interactive objects, multiplayer entities, pathfinding networks, timed 
+//              cyclical script loops, terminal hacking state loops, and custom Simulant AI 
+//              behavior overrides.
+// =================================================================================================
+
+// =================================================================================================
+// TRACK 1: MASTER CONSTANTS, SYSTEM ENUMS, BITMASK MATRIX REGISTERS & AI MACROS
+// =================================================================================================
+
+// Map Topology Specs
+#define STAGE_ID_CUSTOM_MP         0x35         // Internal multiplayer level registration slot index
+#define TOTAL_ROOMS                0x06         // Explicit physical mesh rooms generated in Blender
+#define OUTSIDE_WORLD_ROOM         0x00         // Absolute fallback room index bounds for culled assets
+#define SKYBOX_SCALE_DEFAULT       0x0100       // Scale multiplier 1.0 (Fixed-point bit value alignment)
+
+// Object Model ID Reference Indices
+#define MODEL_DOOR_DATADYNE        0x0102       // DataDyne Corporate Sliding Blast Door Mesh Reference
+#define MODEL_DOOR_LAB             0x0105       // Reinforced Laboratory Airtight Pressure Door Mesh
+#define MODEL_LIFT_CARRIAGE        0x0120       // Motorized Heavy Elevator Platform Mesh Structure
+#define MODEL_GLASS_PANEL          0x0145       // Raycast-reactive Transparent Polycarbonate Window Mesh
+#define MODEL_BARREL_VOLATILE      0x0160       // Explosive Toxin Fluid Storage Container Model
+#define MODEL_SENTRY_TURRET        0x0188       // Ceiling/Wall-Mount Tracking Automated Sentry Asset
+#define MODEL_COMPUTER_CONSOLEV2   0x0210       // Multi-Screen Desktop Terminal Hub Mesh Base
+#define MODEL_TELEPORTER_FX        0x0240       // Quantum Dispersal Gateway Energy Cylinder Render
+#define MODEL_CARGO_CRATE          0x0290       // Breakable Reinforced Wooden Industrial Storage Unit
+#define MODEL_CHAIR_OFFICE         0x0312       // Static Interacting Scenery Asset: Task Swivel Chair
+#define MODEL_DESK_LABORATORY      0x0315       // Static Interacting Scenery Asset: Steel Workbench table
+#define MODEL_MONITOR_WALL_STATIC  0x0340       // Static Interacting Scenery Asset: Server Control Display
+
+// Weapon ID Reference Matrix
+#define WEAPON_FALCON2             0x01         // Falcon 2 (Standard Semi-Automatic Handgun Core)
+#define WEAPON_MAGSEC4             0x02         // MagSec 4 (Burst-Fire Kinetic Armor-Piercing Pistol)
+#define WEAPON_CMP150              0x05         // CMP150 (High-Velocity Submachine Gun System)
+#define WEAPON_SUPERDRAGON         0x07         // SuperDragon (Assault Rifle + Integral Grenade Launcher)
+#define WEAPON_SHOTGUN             0x0A         // Shotgun (Close-Quarters Kinetic Cleaving Scattergun)
+#define WEAPON_DEVASTATOR          0x0E         // Devastator (Heavy Automated Micromissile Launcher Artillery)
+#define WEAPON_RC_P50              0x12         // RC-P50 (Ultra-Capacity Electromagnetic Energy Assault Weapon)
+
+// Inventory & Utility Item Reference Registers
+#define ITEM_BODYARMOR             0x01         // Standard Combat Shield Overlay Energy Battery Generator
+#define ITEM_BOOSTSHIELD           0x02         // Over-Shield Buffer Module Modification Matrix
+#define ITEM_CLOAKINGDEVICE        0x05         // Active Thermo-Optical Light Deflection Camouflage Module
+#define KEYCARD_LEVEL_3            0x0A         // Restricted Clearance Dynamic Cipher Physical Card Key
+
+// Ammo Cache Categories
+#define AMMO_9MM                   0x01         // Standard Small-Caliber Handgun Bullet Block Allocation
+#define AMMO_RIFLE                 0x03         // Intermediate-Caliber High-Velocity Spooled Armor Penetrator
+
+// Interactive Object Flag Bitmasks
+#define OBJ_FLAG_NONE              0x00000000   // Zero state flag baseline value
+#define OBJ_FLAG_SHOOTABLE         0x00000001   // Enforces project mesh impact tracking and degradation registers
+#define OBJ_FLAG_INTERACTIVE       0x00000002   // Exposes action listener mappings for player input proximity
+#define OBJ_FLAG_DESTRUCTIBLE      0x00000004   // Evaluates structural durability equations to execute break arrays
+#define OBJ_FLAG_RAYCAST_COLLISION 0x00000008   // Generates absolute line-of-sight tracing geometry obstructions
+#define OBJ_FLAG_EXPLOSIVE         0x00000010   // Triggers radial displacement blast shockwaves when safety points zero out
+#define OBJ_FLAG_GRAVITY           0x00000020   // Binds physics mass parameters to downward Z-axis coordinate vectors
+
+// Specialized Mechanical Component Bitmasks
+#define DOOR_FLAG_AUTOMATIC        0x00000001   // Automatically polls player spatial distances to execute transformation
+#define DOOR_FLAG_CLOSES           0x00000002   // Triggers automated timer rollback to initial coordinate vectors
+#define DOOR_FLAG_DAMAGE_SHIELD    0x00000004   // Rejects weapon impacts; cannot be fractured by explosive splash
+#define DOOR_FLAG_LOCKED           0x00000008   // Restricts manipulation logic until inventory pointer resolves state
+#define DOOR_FLAG_REQUIRES_KEY     0x00000010   // Binds validation gate to explicit Key ID structural variables
+
+#define LIFT_FLAG_START_BOTTOM     0x00000001   // Sets carriage starting location vector directly to ground floor limits
+#define LIFT_FLAG_CAN_BE_CALLED    0x00000002   // Permits external trigger nodes to sequence positional state updates
+
+#define TURRET_FLAG_TEAM_MANUAL    0x00000001   // Ignores target lists containing matches belonging to friendly teams
+#define TURRET_FLAG_ENGAGE_BOTS    0x00000002   // Forces active scanner passes to log simulation bot memory registers
+
+// Scenario Identification Registers
+#define SCENARIO_HILL_ZONE         0x01         // Designates boundary perimeter matrix for King of the Hill matches
+#define SCENARIO_BRIEFCASE         0x02         // Core entity initialization slot tracking Carry the Briefcase modes
+#define SCENARIO_HACK_NODE         0x03         // Target data hub registration coordinate flags for Hacker Central runs
+
+// Peripheral Environmental System Enums
+#define SKYBOX_REXT_SPACE          0x0A         // Parallax celestial space void canvas backdrop allocation
+#define REVERB_ROOM_CONCRETE       0x04         // Sound wave degradation acoustics parameter matching dense cement walls
+#define AI_SCAN_180                0x01         // Restricts sight-cone vector polling maps to positive forward semicircles
+#define AI_SCAN_360                0x02         // Continuous omnidirectional target tracking verification matrix
+#define FLOOR_BOTTOM               0x00         // Low-altitude index reference indicator
+#define FLOOR_TOP                  0x01         // High-altitude index reference indicator
+
+// Audio Stream Assets
+#define MUSIC_COMBAT_SIM_04        0x0024       // Dynamic stereo background musical accompaniment loop registry
+#define SFX_DOOR_HEAVY_PNEUMATIC   0x04A1       // Acoustic event sequence tracking compression air sliding doors
+#define SFX_ELEVATOR_WHINE         0x05B2       // Continuous looping tone tracking translation along Z-axis matrices
+#define SFX_WINDOW_SHATTER         0x0612       // Transient acoustic explosion tracking structural failure of glass planes
+#define SFX_ALARM_SIREN_LOOP       0x05C4       // Dedicated structural reference handle for recurring alert audio
+#define SFX_TERMINAL_ACCESS_DENIED 0x031A       // UI error indicator frequency mapping
+#define SFX_DATA_UPLINK_SUCCESS    0x04C2       // Positive telemetry execution chime audio node
+#define SFX_POWER_GRID_ONLINE      0x071F       // Low frequency structural electrical hum activation track
+
+// VFX Shader Engine References
+#define FX_GLASS_SHARDS            0x02         // Particle system executing tracking vectors for translucent debris
+#define FX_WARP_BEAM               0x09         // Particle system generating structural chroma-distortion columns
+#define FX_PORTAL_ACTIVE_GLOW      0x0B         // Dense hyper-chroma portal ionization particle layer
+
+// Engine Dynamic Scripting Variables
+#define TIMER_FLAG_CONTINUOUS           0x00000002 // Forces the timer matrix to wrap and restart counting on zero
+#define TIMER_FLAG_AUTO_START          0x00000004 // Starts tracking time limits immediately upon stage initialization
+#define DOOR_FORCE_CLOSE_AND_LOCK      0x00000003 // Evicts actors from opening radius, shuts doors, and sets lock variables
+#define DOOR_RESTORE_DEFAULT_BEHAVIOR  0x00000000 // Wipes override vectors to restore proximity listening rules
+
+// Inter-Object & Advanced Script Definitions
+#define SCRIPT_STAGE_GLOBAL_INIT   0x01         // Initial level load script pointer array
+#define VAR_HACK_PROGRESS          0x20         // Custom data register storing hack completeness percent
+#define VAR_TELEPORTER_STATE       0x21         // Custom level flag register (0 = Offline, 1 = Active)
+#define OBJECT_HACK_TERMINAL       0x71         // Reference ID linking to the Operations Console Object
+#define OBJECT_PORTAL_GATE         0x80         // Reference ID linking to the Teleporter Beam Object
+
+// Scripting Trigger Modes
+#define TRIGGER_ON_LEVEL_LOAD          0x00000001 // Core listener attached directly to level generation frames
+#define TRIGGER_MANUAL_EXECUTION       0x00000000 // Blocks automatic polling; demands direct operational callback hook
+#define TRIGGER_ON_OBJECT_COLLISION    0x00000008 // Evaluates boundary box intersection overlaps on physical coordinates
+#define TRIGGER_ON_OBJECT_DAMAGE       0x00000010 // Fires script thread when specific object health is decremented
+#define STATE_DEACTIVATED              0x00000000 // Disables standard interaction functions on target entities
+#define STATE_ACTIVATED                0x00000001 // Forces runtime state transformation updates
+#define STATE_LISTENER_AUTO_START      0x00000001 // Auto-registers proximity scanning loops on map initialize
+
+// Advanced AI Custom Definitions
+#define AI_BOT_TEAM_ALL            0xFF         // Broadcasts command instructions to all simulant actors
+#define AI_BEHAVIOR_OVERRIDE_SLOT  0x03         // Target priority queue evaluation slot register
+#define AI_PATH_ACCURACY_STRICT    0x01         // Forces path node snap points to drop variance offsets
+#define ACTOR_CLASS_SIMULANT           0x02       // Identifies standard system-driven engine simulation bots
+#define ACTOR_CURRENT_INTERACTING      0x0A       // Contextual runtime variable pointer targeting the active entity
+#define TACTIC_SEARCH_AND_DESTROY      0x04       // Default high-aggression bot hunting movement routine
+#define TACTIC_DEFEND_AREA             0x05       // Anchors bot spatial coordination paths to a targeted map prop
+#define VAR_BOT_TARGET_ACQUIRED    0x22         // Individual bot variable storing target objective state
+#define BOT_TACTIC_RUSH_CONSOLE    0x0A         // Operational behavior mode tracker index
+
+// =================================================================================================
+// TRACK 2: ENGINE GLOBAL CONTEXT & ENVIRONMENTAL MAPPING
+// =================================================================================================
+
+Set_Skybox(SKYBOX_REXT_SPACE)
+Set_Skybox_Scale(SKYBOX_SCALE_DEFAULT)
+Set_Ambient_Light(0x42, 0x42, 0x4A)             // Unified vertex matrix shading value array (RGB limits)
+Set_Floor_Shadow_Intensity(0x60)                // Alpha transparency percentage rating for dynamic ambient occlusion
+
+// Volumetric Atmospheric Fog Profiling (Engine Depth Cull Bounds)
+// Format: Configure_Fog(Target_Room_ID, Color_R, Color_G, Color_B, Linear_Start, Absolute_Cull_End)
+Configure_Fog(0x01, 0x12, 0x12, 0x1A, 0x03E8, 0x2710)
+Configure_Fog(0x02, 0x12, 0x12, 0x1A, 0x03E8, 0x2710)
+Configure_Fog(0x03, 0x12, 0x12, 0x1A, 0x03E8, 0x2710)
+Configure_Fog(0x04, 0x12, 0x12, 0x1A, 0x03E8, 0x2710)
+Configure_Fog(0x05, 0x12, 0x12, 0x1A, 0x03E8, 0x2710)
+Configure_Fog(0x06, 0x12, 0x12, 0x1A, 0x03E8, 0x2710)
+
+// Architectural Audio Interfacing Links
+Set_Level_Music(MUSIC_COMBAT_SIM_04)            // Mounts binary sequence stream data to core music synth engine
+Set_Reverb_Profile(REVERB_ROOM_CONCRETE)        // Binds acoustic decay constants to level geometry properties
+
+// =================================================================================================
+// TRACK 3: MULTIPLAYER PLAYER BIRTH ARRAYS (Mandatory Actor Vectors)
+// =================================================================================================
+
+// Engine Constraint: The Combat Simulator engine initialization pipeline must find exactly 8 locations.
+Spawn_Pad(0x00, 0x01)                           // Registration Anchor 1: Match Player 1 / Simulant Target Alpha
+Spawn_Pad(0x01, 0x01)                           // Registration Anchor 2: Match Player 2 / Simulant Target Beta
+Spawn_Pad(0x02, 0x02)                           // Registration Anchor 3: Match Player 3 / Simulant Target Gamma
+Spawn_Pad(0x03, 0x02)                           // Registration Anchor 4: Match Player 4 / Simulant Target Delta
+Spawn_Pad(0x04, 0x03)                           // Registration Anchor 5: Match Player 5 / Simulant Target Epsilon
+Spawn_Pad(0x05, 0x03)                           // Registration Anchor 6: Match Player 6 / Simulant Target Zeta
+Spawn_Pad(0x06, 0x04)                           // Registration Anchor 7: Match Player 7 / Simulant Target Eta
+Spawn_Pad(0x07, 0x04)                           // Registration Anchor 8: Match Player 8 / Simulant Target Theta
+
+// =================================================================================================
+// TRACK 4: WEAPON MATRIX TILES & DISCRETE AMMUNITION RIGS
+// =================================================================================================
+
+Weapon_Tile(0x08, WEAPONSLOT_AUTOMATIC,  WEAPON_FALCON2)       // Light Armament Matrix Allocation Node
+Weapon_Tile(0x09, WEAPONSLOT_POWER,      WEAPON_MAGSEC4)       // Secondary Handgun Core Allocation Node
+Weapon_Tile(0x0A, WEAPONSLOT_EXPLOSIVE,  WEAPON_DEVASTATOR)    // Heavy Ballistic Artillery Allocation Node
+Weapon_Tile(0x0B, WEAPONSLOT_AUTOMATIC,  WEAPON_CMP150)        // Secondary SMG Frame Allocation Node
+Weapon_Tile(0x0C, WEAPONSLOT_AUTOMATIC,  WEAPON_SUPERDRAGON)   // Assault Frame Core Allocation Node
+Weapon_Tile(0x0D, WEAPONSLOT_CLOSE,      WEAPON_SHOTGUN)       // Close Range Breaker Frame Allocation Node
+
+// Standalone Ammunition Supply Rigs (Static Resupplies Independent of Weapon Overlays)
+Ammo_Spawn(0x0E, AMMO_9MM, 0x001E, 12)          // Direct Supply Station 1: Feeds 30 Rounds 9mm Kinetic Core
+Ammo_Spawn(0x0F, AMMO_RIFLE, 0x001E, 12)        // Direct Supply Station 2: Feeds 30 Rounds Rifle Spooled Core
+
+// =================================================================================================
+// TRACK 5: SHIELDS & STRATEGIC SCENARIO UTILITY NODES
+// =================================================================================================
+
+Item_Spawn(0x10, ITEM_BODYARMOR, 30)            // Protection Node 1: Deflection Shield Matrix Buffer
+Item_Spawn(0x11, ITEM_BOOSTSHIELD, 60)          // Protection Node 2: Heavy Structural Kinetic Over-Shield Array
+Item_Spawn(0x12, ITEM_CLOAKINGDEVICE, 90)       // Special Utility Node: Sub-Surface Light Deflector Cloak Engine
+
+// =================================================================================================
+// TRACK 6: SPECIALIZED MULTIPLAYER GAME SCENARIO BOUNDS
+// =================================================================================================
+
+Scenario_Target(0x20, SCENARIO_HILL_ZONE, OBJ_FLAG_NONE) // Captures coordinate vectors to draw the active Hill boundary
+Scenario_Target(0x21, SCENARIO_BRIEFCASE, OBJ_FLAG_NONE) // Spawns the physical objective item model if game criteria match
+Scenario_Target(0x22, SCENARIO_HACK_NODE, OBJ_FLAG_NONE) // Interlinks local geometry arrays to interface as a Data Uplink base
+
+// =================================================================================================
+// TRACK 7: COMPLEX INTERACTIVE AIRLOCK & LOCKED SWITCH DOORS
+// =================================================================================================
+
+// Component Definition: Automated Proximity Air Blast Door
+Begin_Door(0x40, 0x15, MODEL_DOOR_DATADYNE, DOOR_FLAG_AUTOMATIC | DOOR_FLAG_CLOSES | DOOR_FLAG_DAMAGE_SHIELD)
+Set_Door_Speed(0x0045)                        // Vector displacement speed steps per frame tick
+Set_Door_Delay(5)                             // Temporal threshold before execution of auto-return cycle
+Set_Door_Sound(SFX_DOOR_HEAVY_PNEUMATIC)      // Links binary audio sample reference index to motion arrays
+Link_To_Room(0x01, 0x02)                       // Portal engine tracking line: isolates Room 1 from Room 2 when closed
+End_Door()
+
+// Component Definition: Security Cipher Locked Card-Key Door Block
+Begin_Door(0x41, 0x16, MODEL_DOOR_LAB, DOOR_FLAG_LOCKED | DOOR_FLAG_REQUIRES_KEY | DOOR_FLAG_CLOSES)
+Set_Door_Speed(0x0030)                        // Smooth linear interpolation transformation scale
+Set_Door_Delay(4)                             // Relocking interval duration tracking metric
+Set_Door_Lock_ID(KEYCARD_LEVEL_3)             // Demands player metadata validation against structural value 0x0A
+Set_Door_Sound(SFX_DOOR_HEAVY_PNEUMATIC)      // Shared audio sample allocation map
+Link_To_Room(0x02, 0x03)                       // Portal engine tracking line: isolates Room 2 from Room 3 when closed
+End_Door()
+
+// =================================================================================================
+// TRACK 8: MOTORIZED VERTICAL TRAVEL LIFTS & ELEVATOR SYSTEMS
+// =================================================================================================
+
+Begin_Lift(0x50, 0x1A, MODEL_LIFT_CARRIAGE, LIFT_FLAG_START_BOTTOM | LIFT_FLAG_CAN_BE_CALLED)
+Set_Lift_Bounds(0x1A, 0x1B)                   // Bound 1: Ground floor coordinate pad → Bound 2: Roof floor coordinate pad
+Set_Lift_Speed(0x0038)                        // Total units translated along vertical Z-axis grid lines per tick
+Set_Lift_Sound(SFX_ELEVATOR_WHINE)            // Loops sound sample track while displacement delta exceeds zero
+Bind_Call_Button(0x1C, FLOOR_BOTTOM)           // Hardware wall mesh call button connection tracker (Lower Deck)
+Bind_Call_Button(0x1D, FLOOR_TOP)              // Hardware wall mesh call button connection tracker (Upper Deck)
+End_Lift()
+
+// =================================================================================================
+// TRACK 9: DESTRUCTIBLE ENVIRONMENT LAYERS & VOLATILE OBSTRUCTIONS
+// =================================================================================================
+
+// Component Definition: Brittle Polycarbonate Window Partition
+Begin_Destructible(0x60, 0x25, MODEL_GLASS_PANEL, OBJ_FLAG_SHOOTABLE | OBJ_FLAG_RAYCAST_COLLISION | OBJ_FLAG_DESTRUCTIBLE)
+Set_Object_Health(15)                         // Direct point accumulation threshold value before structural decay
+Set_Shatter_Particle(FX_GLASS_SHARDS)         // Spawns spatial particle clusters utilizing index pointer 0x02
+Set_Destruction_Sound(SFX_WINDOW_SHATTER)     // Fires audio explosion burst tracking mesh dissolution events
+End_Destructible()
+
+// Component Definition: Volatile Fuel / Pressurized Combustible Cell Asset
+Begin_Destructible(0x61, 0x26, MODEL_BARREL_VOLATILE, OBJ_FLAG_SHOOTABLE | OBJ_FLAG_EXPLOSIVE | OBJ_FLAG_GRAVITY)
+Set_Object_Health(5)                          // Fragile containment line limits (Easily triggered by low kinetic fire)
+Set_Explosion_Radius(15)                      // Vector unit dispersion radius calculation scale modifier
+Set_Explosion_Damage(300)                     // Base value integer deducted from actor durability tracking blocks
+End_Destructible()
+
+// =================================================================================================
+// TRACK 10: INTERACTIVE AUTOMATED WEAPON SENTRIES & NETWORK SYSTEM HUBS
+// =================================================================================================
+
+// Component Definition: Ceiling Perimeter Target Tracking Sentry
+Begin_Weapon_Sentry(0x70, 0x30, MODEL_SENTRY_TURRET, TURRET_FLAG_TEAM_MANUAL | TURRET_FLAG_ENGAGE_BOTS)
+Set_Sentry_Targeting(AI_SCAN_180)             // Limits active line-of-sight tracking sweeping steps to a 180-degree sector
+Set_Sentry_Weapon(WEAPON_CMP150)              // Mounts firing cadence math and impact properties to target weapon index
+Set_Sentry_Accuracy(0x0048)                   // Aim path variance modifier equation parameters
+End_Sentry()
+
+// Component Definition: Operations Control Terminal Hub (Hacking Node)
+Begin_Terminal(OBJECT_HACK_TERMINAL, 0x31, MODEL_COMPUTER_CONSOLEV2, OBJ_FLAG_INTERACTIVE | OBJ_FLAG_RAYCAST_COLLISION)
+Set_Terminal_Interaction_Time(8)              // Requires player to maintain input lock for 8 consecutive real-time seconds
+Set_Terminal_Script_On_Success(0x1A)          // Executes dedicated logic thread 0x1A upon completing the timeline gate
+Set_Terminal_Script_On_Interrupted(0x1B)      // Executes backup thread 0x1B if player drops interface alignment midway
+End_Terminal()
+
+// =================================================================================================
+// TRACK 11: GEOMETRIC COMPONENT TRANSLATORS (Spatial Teleport Gateways)
+// =================================================================================================
+
+// Component Definition: Conditional Transport Grid Teleporter
+Begin_Teleporter(OBJECT_PORTAL_GATE, 0x35, MODEL_TELEPORTER_FX)
+Set_Teleport_Destination(0x36)                // Connects the entrance pad directly to the target output pad exit vector
+Set_Teleport_Cooldown(3)                      // Gating system timeline in seconds before trigger reuse is unlocked
+Set_Teleport_VFX(FX_WARP_BEAM)                // Projects specialized chroma energy visuals around the platform coordinates
+Set_Initial_State(STATE_DEACTIVATED)          // Intercepts baseline setup initialization to lock out geometry translations
+End_Teleporter()
+
+// =================================================================================================
+// TRACK 12: STORAGE CHEST CONTAINERS & DESTRUCTIBLE LOOT DROPS
+// =================================================================================================
+
+Begin_Container(0x90, 0x40, MODEL_CARGO_CRATE, OBJ_FLAG_DESTRUCTIBLE | OBJ_FLAG_GRAVITY | OBJ_FLAG_RAYCAST_COLLISION)
+Set_Object_Health(25)                         // Durability cap value limits before destruction state processing
+Set_Container_Contents(WEAPON_RC_P50)         // Yields internal inventory tracking index asset to floor space on burst
+End_Container()
+
+// =================================================================================================
+// TRACK 13: SIMULANT NAVIGATIONAL MESH NETWORKS (Bot Waypoints)
+// =================================================================================================
+
+// Interlinks coordinates so simulation bots can evaluate spatial geometry routes cleanly.
+// Navmesh Route 1: West Wing Spawns to Room 3 Console Access Interface
+Path_Start(0x01)
+Path_Node(0x00)                               // Links directly to Player Spawn Pad 0x00 (Room 1)
+Path_Node(0x45)                               // Enters West Corridor Connecting Hub
+Path_Node(0x15)                               // Transits through Automatic Airlock Door Coordinate Pad
+Path_Node(0x46)                               // Enters Core Central Intersection Zone
+Path_Node(0x31)                               // Terminates directly on Terminal Console Pad 0x31 (Room 3)
+Path_End()
+
+// Navmesh Route 2: East Wing Spawns to Room 3 Console Access Interface
+Path_Start(0x02)
+Path_Node(0x06)                               // Links directly to Player Spawn Pad 0x06 (Room 4)
+Path_Node(0x49)                               // Enters East Ventilation Bypass Duct
+Path_Node(0x16)                               // Transits through Security Card-Key Locked Door Pad
+Path_Node(0x4A)                               // Enters Command Center Server Balcony
+Path_Node(0x31)                               // Terminates directly on Terminal Console Pad 0x31 (Room 3)
+Path_End()
+
+// =================================================================================================
+// TRACK 14: FIXED WORLD SCENERY & NON-INTERACTIVE GEOMETRY PROPS
+// =================================================================================================
+
+Place_Static_Prop(0xA0, 0x50, MODEL_CHAIR_OFFICE)
+Place_Static_Prop(0xA1, 0x51, MODEL_DESK_LABORATORY)
+Place_Static_Prop(0xA2, 0x52, MODEL_MONITOR_WALL_STATIC)
+
+// =================================================================================================
+// TRACK 15: ADVANCED COMBAT SIMULATING SCRIPT BLOCKS, TIMERS, & AI LISTENERS
+// =================================================================================================
+
+// -------------------------------------------------------------------------------------------------
+// LOOP ENGINE BLOCK 1: ENVIRONMENTAL ALERT STATE OVERRIDES (Every 2 Minutes / 120 Seconds)
+// -------------------------------------------------------------------------------------------------
+Begin_Timer_Loop(0x01, 120, TIMER_FLAG_CONTINUOUS | TIMER_FLAG_AUTO_START)
+Play_Global_Sound(SFX_ALARM_SIREN_LOOP, 0x00FF)
+Override_Door_State(0x40, DOOR_FORCE_CLOSE_AND_LOCK)
+Override_Door_State(0x41, DOOR_FORCE_CLOSE_AND_LOCK)
+Flash_Ambient_Room_Color(0x01, 0xFF, 0x00, 0x00, 0x1E)
+Flash_Ambient_Room_Color(0x02, 0xFF, 0x00, 0x00, 0x1E)
+Flash_Ambient_Room_Color(0x03, 0xFF, 0x00, 0x00, 0x1E)
+Flash_Ambient_Room_Color(0x04, 0xFF, 0x00, 0x00, 0x1E)
+Flash_Ambient_Room_Color(0x05, 0xFF, 0x00, 0x00, 0x1E)
+Flash_Ambient_Room_Color(0x06, 0xFF, 0x00, 0x00, 0x1E)
+End_Timer_Loop()
+
+// -------------------------------------------------------------------------------------------------
+// LOOP ENGINE BLOCK 2: RESET SYSTEMS DISMISSED (Executes 15 Seconds Post-Alarm / 135 Seconds)
+// -------------------------------------------------------------------------------------------------
+Begin_Timer_Loop(0x02, 135, TIMER_FLAG_CONTINUOUS | TIMER_FLAG_AUTO_START)
+Stop_Global_Sound(SFX_ALARM_SIREN_LOOP)
+Override_Door_State(0x40, DOOR_RESTORE_DEFAULT_BEHAVIOR)
+Override_Door_State(0x41, DOOR_RESTORE_DEFAULT_BEHAVIOR)
+Flash_Ambient_Room_Color(0x01, 0x42, 0x42, 0x4A, 0x3C)
+Flash_Ambient_Room_Color(0x02, 0x42, 0x42, 0x4A, 0x3C)
+Flash_Ambient_Room_Color(0x03, 0x42, 0x42, 0x4A, 0x3C)
+Flash_Ambient_Room_Color(0x04, 0x42, 0x42, 0x4A, 0x3C)
+Flash_Ambient_Room_Color(0x05, 0x42, 0x42, 0x4A, 0x3C)
+Flash_Ambient_Room_Color(0x06, 0x42, 0x42, 0x4A, 0x3C)
+End_Timer_Loop()
+
+// -------------------------------------------------------------------------------------------------
+// LOGIC STEP A: LEVEL INITIAL LOAD COMPILATION BINDINGS
+// -------------------------------------------------------------------------------------------------
+Begin_Script_Thread(SCRIPT_STAGE_GLOBAL_INIT, TRIGGER_ON_LEVEL_LOAD)
+Set_Variable(VAR_HACK_PROGRESS, 0)            // Resets structural database completeness to baseline zero
+Set_Variable(VAR_TELEPORTER_STATE, 0)         // Disables teleporter variable tracks completely
+Set_Object_Text_Prompt(OBJECT_HACK_TERMINAL, "TERMINAL: [BYPASS SECURITY CORE]")
+Set_Object_Text_Prompt(OBJECT_PORTAL_GATE, "TELEPORTER: [POWER GRID DISCONNECTED]")
+End_Script_Thread()
+
+// -------------------------------------------------------------------------------------------------
+// LOGIC STEP B: INITIAL SIMULANT BEHAVIOR HIJACK RUN
+// -------------------------------------------------------------------------------------------------
+Begin_Script_Thread(0x1D, TRIGGER_ON_LEVEL_LOAD)
+Set_Variable(VAR_BOT_TARGET_ACQUIRED, 0)
+Execute_AI_Override(AI_BOT_TEAM_ALL, AI_BEHAVIOR_OVERRIDE_SLOT, AI_CMD_FLUSH_PRIORITIES | AI_CMD_DISABLE_WEAPON_HUNT | AI_CMD_SET_SIGHT_MAX)
+Set_Simulant_Navmesh_Weight(AI_BOT_TEAM_ALL, 0x01, 0x02) // Forces prioritization of custom navmesh tracking paths
+Set_Simulant_Target_Object(AI_BOT_TEAM_ALL, OBJECT_HACK_TERMINAL, AI_PATH_ACCURACY_STRICT)
+Broadcast_Text_Message("SIMULANT INJECT: BOT OBJECTIVE UTILITY MODES ASSIGNED TO SECURITY CORE.")
+End_Script_Thread()
+
+// -------------------------------------------------------------------------------------------------
+// LOGIC STEP C: CONSOLE INTERACTION METRICS & REAL-TIME STATE SCANNER (Fires Every Frame Loop)
+// -------------------------------------------------------------------------------------------------
+Begin_State_Listener(0x03, 1, OBJECT_HACK_TERMINAL)
+// Verify if the teleporter is already functional to clear priority logic
+If_Variable_Equals(VAR_TELEPORTER_STATE, 1)
+Release_AI_Override(AI_BOT_TEAM_ALL, AI_BEHAVIOR_OVERRIDE_SLOT) // Returns bots to general gun hunt arrays
+Set_Simulant_Combat_Tactic(AI_BOT_TEAM_ALL, TACTIC_SEARCH_AND_DESTROY)
+Stop_Script_Execution()
+End_If()
+
+// Dynamic sweeping step maps bounding box interaction radii
+If_Actor_Within_Object_Radius(ACTOR_CLASS_SIMULANT, OBJECT_HACK_TERMINAL, 4)
+Execute_AI_Override(ACTOR_CURRENT_INTERACTING, AI_BEHAVIOR_OVERRIDE_SLOT, AI_CMD_FORCE_LOITER)
+Set_Simulant_Combat_Tactic(ACTOR_CURRENT_INTERACTING, BOT_TACTIC_RUSH_CONSOLE)
+If_Actor_Interacting_With_Object(ACTOR_CURRENT_INTERACTING, OBJECT_HACK_TERMINAL)
+Increment_Variable_By_Step(VAR_HACK_PROGRESS, 1)

@@ -61,6 +61,8 @@ def _build_box_seg_to_build_dir(
     parade_districts: list[dict] | None = None,
     parade_props_district: dict | None = None,
     parade_museum_district: dict | None = None,
+    parade_true_scale_district: dict | None = None,
+    parade_characters_district: dict | None = None,
     parade_special: dict | None = None,
     center_marker: bool = False,
     center_marker_half: float | None = None,
@@ -87,6 +89,8 @@ def _build_box_seg_to_build_dir(
             districts=parade_districts,
             props_district=parade_props_district,
             museum_district=parade_museum_district,
+            true_scale_district=parade_true_scale_district,
+            characters_district=parade_characters_district,
             special=parade_special,
         )
     elif parade_slots:
@@ -290,9 +294,12 @@ def build_from_module(
     mod = load_level_module(name)
     mapdef = mod.build()
     deploy_as = getattr(mod, "DEPLOY_AS", None)
+    skip_tiles = bool(getattr(mod, "SKIP_TILES", False))
+    skip_seg = bool(getattr(mod, "SKIP_SEG", False))
+    skip_pads = bool(getattr(mod, "SKIP_PADS", False))
     seg_script = seg_script_path or _resolve_seg_script(mod, name)
     has_box_dims = hasattr(mod, "BOX_HALF") and hasattr(mod, "BOX_HEIGHT")
-    do_seg = want_seg or bool(seg_script) or has_box_dims
+    do_seg = (want_seg or bool(seg_script) or has_box_dims) and not skip_seg
 
     if do_seg:
         hill_center = hill_zone_center_from_mapdef(mapdef)
@@ -317,6 +324,8 @@ def build_from_module(
         parade_districts = None
         parade_props_district = None
         parade_museum_district = None
+        parade_true_scale_district = None
+        parade_characters_district = None
         parade_special = None
         if effective_seg_mode == "parade":
             from .anim_catalog import parade_slot_markers, parade_special_marker
@@ -324,11 +333,19 @@ def build_from_module(
             parade_slots = parade_slot_markers() + [parade_special_marker()]
         elif effective_seg_mode == "parade_districts":
             from .anim_catalog import parade_district_markers, parade_special_marker
-            from .anim_props import parade_museum_layout_payload, parade_props_layout_payload, parade_vignette_layout_payload
+            from .anim_props import (
+                parade_museum_layout_payload,
+                parade_props_layout_payload,
+                parade_true_scale_layout_payload,
+                parade_vignette_layout_payload,
+            )
+            from .anim_characters import character_gallery_layout_payload
 
             parade_districts = parade_district_markers()
             parade_props_district = parade_props_layout_payload()
             parade_museum_district = parade_museum_layout_payload()
+            parade_true_scale_district = parade_true_scale_layout_payload()
+            parade_characters_district = character_gallery_layout_payload()
             parade_special = parade_special_marker()
         if seg_script:
             if verbose:
@@ -352,6 +369,8 @@ def build_from_module(
                 parade_districts=parade_districts,
                 parade_props_district=parade_props_district,
                 parade_museum_district=parade_museum_district,
+                parade_true_scale_district=parade_true_scale_district,
+                parade_characters_district=parade_characters_district,
                 parade_special=parade_special,
                 center_marker=(
                     getattr(mod, "CENTER_MARKER", False)
@@ -371,50 +390,68 @@ def build_from_module(
                     else None
                 ),
             )
+    elif deploy and verbose and skip_seg:
+        print("  SKIP_SEG: retail seg/tiles left in ROM (deploy pads + setup only)")
     elif deploy and verbose:
         print(
             "  WARNING: seg build skipped; deploy will copy existing BUILD_DIR seg "
             "(must pass G_VTX validation)"
         )
 
-    pads_json_path = write_pads_json(mapdef)
-    if verbose:
-        print(f"  Generated pads JSON: {pads_json_path}")
-    compile_pads(name, pads_json_path)
-    if verbose:
-        print("  Compiled pads binary")
-        print(f"  Pad layout log: {_write_pad_layout_log(name, mapdef)}")
-
-    tiles_json_path = os.path.join(ROOT, "src", "assets", ROMID, "tiles", f"{name}.json")
-    if hasattr(mod, "build_tiles_json"):
-        tiles_data = mod.build_tiles_json()
-        os.makedirs(os.path.dirname(tiles_json_path), exist_ok=True)
-        with open(tiles_json_path, "w", encoding="utf-8") as fp:
-            json.dump(tiles_data, fp, indent=4)
+    if skip_pads:
         if verbose:
-            print("  Generated tiles JSON from build_tiles_json()")
-    elif os.path.exists(tiles_json_path):
-        if verbose:
-            print(f"  Using existing tiles JSON: {tiles_json_path}")
+            print("  SKIP_PADS: keeping mod_kakariko Conker-corrected bg_mp13_padsZ")
     else:
-        template = getattr(mapdef, "tiles_template", "mp14")
-        tiles_json_path = copy_tiles_from_template(name, template)
+        pads_json_path = write_pads_json(mapdef)
         if verbose:
-            print(f"  Copied tiles JSON from template ({template})")
+            print(f"  Generated pads JSON: {pads_json_path}")
+        compile_pads(name, pads_json_path)
+        if verbose:
+            print("  Compiled pads binary")
+            print(f"  Pad layout log: {_write_pad_layout_log(name, mapdef)}")
 
-    compile_tiles(name, tiles_json_path)
-    if verbose:
-        print("  Compiled tiles binary")
+    if skip_tiles:
+        if verbose:
+            retail = getattr(mod, "RETAIL_TILES", "mp13")
+            print(f"  SKIP_TILES: using retail {retail} collision from ROM/mod")
+    else:
+        tiles_json_path = os.path.join(ROOT, "src", "assets", ROMID, "tiles", f"{name}.json")
+        if hasattr(mod, "build_tiles_json"):
+            tiles_data = mod.build_tiles_json()
+            os.makedirs(os.path.dirname(tiles_json_path), exist_ok=True)
+            with open(tiles_json_path, "w", encoding="utf-8") as fp:
+                json.dump(tiles_data, fp, indent=4)
+            if verbose:
+                print("  Generated tiles JSON from build_tiles_json()")
+        elif os.path.exists(tiles_json_path):
+            if verbose:
+                print(f"  Using existing tiles JSON: {tiles_json_path}")
+        else:
+            template = getattr(mapdef, "tiles_template", "mp14")
+            tiles_json_path = copy_tiles_from_template(name, template)
+            if verbose:
+                print(f"  Copied tiles JSON from template ({template})")
+
+        compile_tiles(name, tiles_json_path)
+        if verbose:
+            print("  Compiled tiles binary")
 
     setup_path = write_setup_binary(mapdef, name)
     if verbose:
         print(f"  Wrote setup binary: {setup_path}")
 
+    deploy_kwargs = dict(
+        deploy_as=deploy_as,
+        include_tiles=not skip_tiles,
+        include_seg=not skip_seg,
+        include_pads=not skip_pads,
+    )
+
     if skip_validate:
         if deploy:
             if verbose:
                 print("  Deploying...")
-            deploy_all(name, mod_dirs, deploy_as=deploy_as)
+            deploy_all(name, mod_dirs, **deploy_kwargs)
         return [], []
 
     errors, warnings = validate_all(name, mapdef)
@@ -424,9 +461,9 @@ def build_from_module(
     if deploy:
         if verbose:
             if deploy_as and deploy_as != name:
-                print(f"  Deploy-as: {name} → {deploy_as} (test-map slot)")
+                print(f"  Deploy-as: {name} → {deploy_as} (retail slot)")
             print("  Deploying...")
-        deploy_all(name, mod_dirs, deploy_as=deploy_as)
+        deploy_all(name, mod_dirs, **deploy_kwargs)
         if verbose:
             print("  Deploy complete")
 

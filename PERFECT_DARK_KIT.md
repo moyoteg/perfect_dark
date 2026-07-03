@@ -1,13 +1,15 @@
 # Perfect Dark Kit
 
 > **Spec-driven development:** canonical contracts live in [`SPEC.md`](SPEC.md) (product/engineering), [`API_CONTRACTS.md`](API_CONTRACTS.md) (IPC/HTTP schemas), [`STORIES.md`](STORIES.md) (acceptance + verification steps), [`ARCHITECTURE.md`](ARCHITECTURE.md), and [`ENVIRONMENTS.md`](ENVIRONMENTS.md). This file is the operator guide.
+>
+> **Map creation (normative):** requirement index [`SPEC.md`](SPEC.md) (`R-MAP-*`, v0.4.0-map-creation) · consolidated spec [`docs/spec/MAP_CREATION.md`](docs/spec/MAP_CREATION.md) · workflow wiki [`docs/MAP_MAKING_WIKI.md`](docs/MAP_MAKING_WIKI.md).
 
 **Kit version:** `KIT_VERSION` (currently **0.2.0**)  
 **Port version:** `PORT_VERSION` (currently **0.1.0**, see [`RELEASE_v0.1.0.md`](RELEASE_v0.1.0.md))
 
 The **Perfect Dark Kit** is the unified modding stack for this repository: PC port runtime, deterministic build pipelines, desktop authoring apps, and the wiki/spec layer. Kit semver tracks tooling releases; port semver tracks the game fork baseline.
 
-**Spec-driven development:** [`SPEC.md`](SPEC.md) (requirement IDs) · [`API_CONTRACTS.md`](API_CONTRACTS.md) (IPC/HTTP) · **Domain contracts:** [`docs/spec/`](docs/spec/) (exact pads, argv, bytes, commands) · [`STORIES.md`](STORIES.md) · [`ARCHITECTURE.md`](ARCHITECTURE.md)
+**Spec-driven development:** [`SPEC.md`](SPEC.md) (`R-MAP-*` map creation index) · [`docs/spec/MAP_CREATION.md`](docs/spec/MAP_CREATION.md) (normative map spec) · [`STORIES.md`](STORIES.md) (map verification stories) · Kit IPC: [`API_CONTRACTS.md`](API_CONTRACTS.md) · Other domains: [`docs/spec/README.md`](docs/spec/README.md)
 
 ## What is included
 

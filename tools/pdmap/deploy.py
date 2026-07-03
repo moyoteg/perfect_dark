@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import shutil
 import subprocess
@@ -65,12 +67,55 @@ def deploy_setup(name: str, mod_dirs: list[str] | None = None, *, deploy_as: str
         dst = os.path.join(files_dir, f"Ump_setup{asset_name}Z")
         shutil.copy2(setup_path, dst)
         print(f"  Deployed setup -> {dst}")
+        # Dedicated stages also need Usetup* for stagetable solo slot.
+        if asset_name == name:
+            usetup_dst = os.path.join(files_dir, f"Usetup{asset_name}Z")
+            shutil.copy2(setup_path, usetup_dst)
+            print(f"  Deployed setup -> {usetup_dst}")
 
 
-def deploy_all(name: str, mod_dirs: list[str] | None = None, *, deploy_as: str | None = None):
+def deploy_all(
+    name: str,
+    mod_dirs: list[str] | None = None,
+    *,
+    deploy_as: str | None = None,
+    include_tiles: bool = True,
+    include_seg: bool = True,
+    include_pads: bool = True,
+    include_setup: bool = True,
+):
+    """Deploy built assets; omit tiles/seg when overlaying retail geometry."""
     asset_name = deploy_as or name
-    deploy(name, mod_dirs, deploy_as=asset_name)
-    deploy_setup(name, mod_dirs, deploy_as=asset_name)
+
+    if include_pads or include_tiles or include_seg:
+        if mod_dirs is None:
+            mod_dirs = MOD_DIRS
+
+        asset_name = deploy_as or name
+        bgdata_assets: list[str] = []
+        if include_tiles:
+            bgdata_assets.append(f"bg_{asset_name}_tilesZ")
+        if include_pads:
+            bgdata_assets.append(f"bg_{asset_name}_padsZ")
+        if include_seg:
+            bgdata_assets.append(f"bg_{asset_name}.seg")
+
+        for mod_dir in mod_dirs:
+            os.makedirs(mod_dir, exist_ok=True)
+            for asset in bgdata_assets:
+                built = asset.replace(asset_name, name, 1) if asset_name != name else asset
+                src = os.path.join(BUILD_DIR, built)
+                dst = os.path.join(mod_dir, asset)
+                if os.path.exists(src):
+                    if asset.endswith(".seg"):
+                        _validate_seg_before_deploy(src)
+                    shutil.copy2(src, dst)
+                    print(f"  Deployed {asset} -> {dst}")
+                else:
+                    print(f"  WARNING: {src} not found, skipping")
+
+    if include_setup:
+        deploy_setup(name, mod_dirs, deploy_as=asset_name)
 
 
 def build_box_seg_asset(name: str, *, half: float = 5000.0, height: float = 3000.0,

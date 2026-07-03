@@ -3,18 +3,25 @@
 #include "bss.h"
 #include "data.h"
 #include "types.h"
+#include "bootmp.h"
+#include "lib/main.h"
 
 #ifndef PLATFORM_N64
 extern s32 sysArgCheck(const char *arg);
 void titleInitLegal(void);
+
+static bool titleShouldFastBootMpTest(void)
+{
+	return sysArgCheck("--test-map") || sysArgCheck("--test-animlab")
+		|| bootMpShouldApplyBootStageQuickStart(mainGetStageNum());
+}
 #endif
 
 void titleInit(void)
 {
 #ifndef PLATFORM_N64
-	// Apply --test-map / --test-animlab before STAGE_TITLE loads so the async
-	// controller-pak banner and intro sequence are skipped entirely.
-	if (sysArgCheck("--test-map") || sysArgCheck("--test-animlab")) {
+	// Apply fast MP test boot before STAGE_TITLE loads.
+	if (titleShouldFastBootMpTest()) {
 		titleInitLegal();
 		return;
 	}

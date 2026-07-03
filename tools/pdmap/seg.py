@@ -10,6 +10,8 @@ tiles, and spawn layout all derive from the same dimensions, so the visible
 walls always match the collision floor and contain the spawn pads.
 """
 
+from __future__ import annotations
+
 import os
 import struct
 import zlib
@@ -769,6 +771,8 @@ def build_parade_districts_box_seg(
     districts: list[dict],
     props_district: dict | None = None,
     museum_district: dict | None = None,
+    true_scale_district: dict | None = None,
+    characters_district: dict | None = None,
     special: dict | None = None,
     zone_half=None,
     template_seg=None,
@@ -794,6 +798,8 @@ def build_parade_districts_box_seg(
             districts,
             props_district=props_district,
             museum_district=museum_district,
+            true_scale_district=true_scale_district,
+            characters_district=characters_district,
             special=special,
             zone_half=zone_half,
         )
@@ -848,6 +854,8 @@ def write_parade_districts_box_seg(
     districts: list[dict],
     props_district: dict | None = None,
     museum_district: dict | None = None,
+    true_scale_district: dict | None = None,
+    characters_district: dict | None = None,
     special: dict | None = None,
     zone_half=None,
     template_seg=None,
@@ -858,6 +866,8 @@ def write_parade_districts_box_seg(
         districts=districts,
         props_district=props_district,
         museum_district=museum_district,
+        true_scale_district=true_scale_district,
+        characters_district=characters_district,
         special=special,
         zone_half=zone_half,
         template_seg=template_seg,

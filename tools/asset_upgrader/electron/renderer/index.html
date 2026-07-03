@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+    <title>PD Asset Upgrader</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>PD Asset Upgrader</h1>
+        <p class="subtitle">Compare original vs enhanced textures across your mods</p>
+      </div>
+      <div class="topbar-actions">
+        <span id="runBadge" class="badge idle">Idle</span>
+        <button id="refreshBtn" type="button">Refresh</button>
+        <button id="startBtn" type="button" class="primary">Start Run</button>
+        <button id="stopBtn" type="button" class="danger" disabled>Stop</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel settings">
+        <h2>Run settings</h2>
+        <label>
+          Mod path
+          <div class="row">
+            <input id="modPath" type="text" spellcheck="false" />
+            <button id="pickModBtn" type="button">Browse</button>
+          </div>
+        </label>
+        <label>
+          Deploy dir
+          <input id="deployDir" type="text" spellcheck="false" />
+        </label>
+        <label>
+          Backend
+          <select id="backend">
+            <option value="local">Local (free upscale)</option>
+            <option value="openai">OpenAI API (paid)</option>
+          </select>
+        </label>
+        <label>
+          OpenAI model
+          <input id="model" type="text" value="gpt-image-1" spellcheck="false" />
+        </label>
+        <label>
+          Batch limit (0 = all)
+          <input id="limit" type="number" min="0" step="1" value="0" />
+        </label>
+        <label>
+          Sleep between API calls (s)
+          <input id="sleep" type="number" min="0" step="0.5" value="1" />
+        </label>
+        <label class="checkbox">
+          <input id="dryRun" type="checkbox" />
+          Dry run (skip enhancement)
+        </label>
+        <label>
+          Custom prompt
+          <textarea id="prompt" rows="4" placeholder="Optional override prompt (OpenAI only)"></textarea>
+        </label>
+      </section>
+
+      <section class="panel progress-panel">
+        <h2>Progress</h2>
+        <div class="stats">
+          <div class="stat"><span id="statTotal">0</span><label>Total</label></div>
+          <div class="stat ok"><span id="statDeployed">0</span><label>Deployed</label></div>
+          <div class="stat warn"><span id="statWorking">0</span><label>In progress</label></div>
+          <div class="stat bad"><span id="statFailed">0</span><label>Failed</label></div>
+        </div>
+        <div class="progress-bar"><div id="progressFill"></div></div>
+        <p id="progressLabel" class="muted">Waiting for catalog…</p>
+
+        <div class="toolbar">
+          <div class="filters">
+            <button class="filter active" data-filter="all">All</button>
+            <button class="filter" data-filter="failed">Failed</button>
+            <button class="filter" data-filter="deployed">Deployed</button>
+            <button class="filter" data-filter="working">Working</button>
+          </div>
+          <label class="search">
+            <span class="sr-only">Search textures</span>
+            <input id="searchInput" type="search" placeholder="Search texture ID or mod…" spellcheck="false" />
+          </label>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Texture</th>
+                <th>Mod</th>
+                <th>Stage</th>
+                <th>Original</th>
+                <th>Enhanced</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody id="assetRows"></tbody>
+          </table>
+        </div>
+        <p id="tableHint" class="muted table-hint"></p>
+      </section>
+
+      <section class="panel logs">
+        <h2>Logs</h2>
+        <pre id="logView"></pre>
+      </section>
+    </main>
+
+    <dialog id="compareDialog" class="compare-dialog">
+      <div class="compare-header">
+        <div>
+          <h2 id="compareTitle">Texture comparison</h2>
+          <p id="compareMeta" class="muted"></p>
+        </div>
+        <div class="compare-nav">
+          <button id="comparePrev" type="button" aria-label="Previous texture">← Prev</button>
+          <button id="compareNext" type="button" aria-label="Next texture">Next →</button>
+          <button id="compareClose" type="button" class="danger">Close</button>
+        </div>
+      </div>
+
+      <div class="compare-body">
+        <div class="compare-pane">
+          <span class="compare-label">Original</span>
+          <div class="compare-frame">
+            <img id="compareBefore" class="compare-img" alt="Original texture" />
+          </div>
+        </div>
+        <div class="compare-pane">
+          <span class="compare-label enhanced">Enhanced</span>
+          <div class="compare-frame">
+            <img id="compareAfter" class="compare-img" alt="Enhanced texture" />
+          </div>
+        </div>
+      </div>
+
+      <div class="compare-overlay-section">
+        <span class="compare-label">Interactive wipe</span>
+        <div class="compare-frame overlay-frame">
+          <img id="compareBeforeOverlay" class="compare-img overlay-base" alt="Original overlay" />
+          <img id="compareAfterOverlay" class="compare-img overlay-top" alt="Enhanced overlay" />
+        </div>
+        <div class="compare-slider-wrap">
+          <label for="compareSlider">Drag to reveal enhanced pixels</label>
+          <input id="compareSlider" type="range" min="0" max="100" value="50" />
+        </div>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,16 +1,33 @@
-# Domain specifications index
+# Domain specifications — map creation
 
-Normative contracts for spec-driven development.  
-Requirement IDs live in [`SPEC.md`](../../SPEC.md).  
-Kit IPC/HTTP: [`API_CONTRACTS.md`](../../API_CONTRACTS.md) · Architecture: [`ARCHITECTURE.md`](../../ARCHITECTURE.md).
+Normative contracts for **custom multiplayer arena authoring** only.  
+Requirement IDs: [`SPEC.md`](../../SPEC.md) (`R-MAP-*`).  
+Verification stories: [`STORIES.md`](../../STORIES.md).
 
-| File | Contents |
-|------|----------|
-| [WAR_COLORS.md](WAR_COLORS.md) | Pad indices `35,116,…`, file sizes (6096 B), argv template, sim cap 31, SIGBUS at 32, probe flags |
-| [MAP_LAUNCHER.md](MAP_LAUNCHER.md) | 9 whitelist IDs, `resolveWarColorsSimOptions`, launch `open --env`, 8 curriculum phases |
-| [CURRICULUM.md](CURRICULUM.md) | All 31 steps: slug, module, scenario, seg mode, launch flags |
-| [CLI_AND_LIMITS.md](CLI_AND_LIMITS.md) | Every `bootmp.c` flag, `MAX_CHRSPERTEAM=32`, stage hex table, matrix argv |
+| File | Role |
+|------|------|
+| **[MAP_CREATION.md](MAP_CREATION.md)** | **Primary normative spec** — five-file contract, paths, coordinates, validation, seg modes, deploy, registration, test boot, acceptance commands |
+| [CURRICULUM.md](CURRICULUM.md) | 31 learn steps: slug, module, scenario, seg mode, launch flags |
+| [CLI_AND_LIMITS.md](CLI_AND_LIMITS.md) | **Appendix:** map-test CLI flags (`--test-map`, `--scenario-*`, stage hex table, coordinate contract). Kit/War Colors/Matrix argv trimmed to cross-references |
 
 **Generated (do not hand-edit):** [`../MAP_DETERMINISTIC_SPEC.md`](../MAP_DETERMINISTIC_SPEC.md)
 
-**Narrative / diagrams:** [`../WAR_COLORS_LEVEL.md`](../WAR_COLORS_LEVEL.md)
+**Operator guides (non-normative but authoritative for workflow):**
+
+| File | Role |
+|------|------|
+| [`../MAP_MAKING_WIKI.md`](../MAP_MAKING_WIKI.md) | Master workflow, checklists, troubleshooting |
+| [`../MAP_CREATION.md`](../MAP_CREATION.md) | Binary layouts, intro opcodes, C wiring detail |
+
+---
+
+## Out of scope (see other PR branches — files retained)
+
+These specs are **not** indexed in [`SPEC.md`](../../SPEC.md) v0.4.0-map-creation:
+
+| File | Notes |
+|------|-------|
+| [WAR_COLORS.md](WAR_COLORS.md) | Retail-slot mp13 overlay, sim caps, pad probe — optional pattern only (`R-MAP-20`) |
+| [MAP_LAUNCHER.md](MAP_LAUNCHER.md) | Electron Map Launcher UI + whitelist IDs — use `./scripts/play-learn-step.sh` for CLI curriculum |
+
+Kit Hub, Agent Office, LLM Play, and Anim Lab specs remain in [`API_CONTRACTS.md`](../../API_CONTRACTS.md) and [`ARCHITECTURE.md`](../../ARCHITECTURE.md).
