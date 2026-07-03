@@ -5,8 +5,9 @@
 > between the shipped office maps (`agent_office`, `agent_office_ci`) and the north-star
 > vision in [`../../../llm-play/VISION.md`](../../../llm-play/VISION.md).
 >
-> Companion scaffold: [`../../tools/agent_office_llm/`](../../tools/agent_office_llm/).
-> Status: **design + scaffold** (this pass). Scripted HUD lines keep working throughout.
+> Companion implementation: [`../../tools/agent_office_llm/`](../../tools/agent_office_llm/).
+> Status: **C3 implemented** (llm-play backend replies + Office Service dispatch).
+> Scripted HUD lines keep working as the fallback.
 
 ---
 
@@ -111,9 +112,10 @@ Loop (≈4–10 Hz, faster than the idle briefing tick):
    latch).
 3. **Listen** — on approach, open mic; `voice_pipeline/asr.py` (Whisper) → transcript.
    Text input is the fallback when no mic.
-4. **Think** — route to that agent's brain: an llm-play `AdapterOrchestrator` with the
-   character's system prompt + rolling memory. Output = one short in-character line
-   (+ optional intent, e.g. "turn to face", "look busy").
+4. **Think** — route to that agent's brain using the llm-play backend contract
+   (`--llm --backend auto|ollama|mlx`) with the character's system prompt + rolling
+   memory. Output = one short in-character JSON reply (+ optional intent later,
+   e.g. "turn to face", "look busy").
 5. **Speak** — `voice_pipeline` TTS for that character → play the clip; the ASR
    intelligibility gate (`asr.py`) rejects garbled synthesis before it's spoken.
 6. **Show + face** — `POST /act` with `agents:[{chrnum, say, face_player:true}]`.
@@ -153,7 +155,7 @@ binds slug→chrnum on start.
 | **C0** | This spec + scaffold (director skeleton, one `brain.json`) | — |
 | **C1** | `/observe` emits `agents[]`; director prints who you're near | Console logs "approaching Director (712u)" |
 | **C2** | `/act` `agents[].say` → `aiShowHudmsg`; director sends a **canned** line on approach | Walk up → agent shows a director-driven line |
-| **C3** | Per-agent LLM brain (text in, text out) replaces canned line | Type to an agent, get an in-character reply on the HUD |
+| **C3** | Per-agent LLM brain (text in, text out) replaces canned line; engage dispatches an Office Service task | `office_director.py --dry-run --llm --utterance "status?"` returns an in-character HUD payload |
 | **C4** | Voice: `voice_pipeline` TTS out; mic ASR in | Speak to Dr. Caroll, hear him answer |
 | **C5** | Memory + `face_player` + world events | He remembers; the guard reports; agents turn to you |
 

@@ -69,16 +69,35 @@ Static briefing NPCs → per-character LLM agents you can approach and talk to.
 
 - [x] Build spec: [`LLM_CONVERSATION_LAYER.md`](./LLM_CONVERSATION_LAYER.md)
 - [x] Runnable scaffold: `tools/agent_office_llm/` (`--dry-run`)
-- [ ] **C1** engine: `/observe` emits `agents[]` — `port/src/llm_observe.c`
-- [ ] **C2** engine: `/act` accepts `agents[].say` — `port/src/llm_bridge.c`
-- [ ] **C3** brain: replace `AgentBrain.respond` stub with llm-play orchestrator
+- [x] **C1** engine: `/observe` emits `agents[]` — `port/src/llm_observe.c` **(written; needs build)**
+- [x] **C2** engine: `/act` accepts `agents[].say` — `port/src/llm_bridge.c` **(written; needs build)**
+- [x] **C3** brain: llm-play backend replies (`--llm`) + director → `OfficeService.dispatch`
 - [ ] **C4** voice: wire `voice_pipeline/` (ASR in, TTS out)
 - [ ] **C5** memory + `face_player` + world events
 
+## Vision control plane (Phase 3–4 — [`VISION_AND_PRODUCT.md`](./VISION_AND_PRODUCT.md))
+
+3D interface for managing AI agents; office = control plane; Slack-anchored tools.
+
+- [x] Vision & product spec: [`VISION_AND_PRODUCT.md`](./VISION_AND_PRODUCT.md) (system design, roadmap P0–P7)
+- [x] **Office Service core** — `tools/agent_office_llm/service/`: tasks, event bus, connector
+  gateway (autonomy + audit), dispatch, human-present approvals, Slack round-trip. **11/11 tests**
+  (`tests/test_office_service.py`)
+- [ ] Real MCP connectors behind the gateway (Slack first) — swap stub `.call` bodies
+- [x] Director → Office Service wiring (engage/utterance → `Task`) [C3]
+- [ ] HTTP API + webhook ingress for remote/Slack dispatch (P6)
+- [ ] Status billboards / inspect panel in-world (P2 client)
+
+## Fixes this pass (SPEC_AUDIT)
+
+- [x] **F1** spawn/agent pad collision — repointed alts (G5 `0x07`, CI `0x02`); SPEC §7 + AC-6.5
+- [x] **F3** null-guard `hudmsgCreateWithColour` variants (`chraicommands.c`)
+
 ## Next steps (open — track against SPEC §14)
 
+- [ ] **In-game verify:** F1 spawn pads walkable; menu names, copy, greeter (SPEC V-1–V-9)
+- [ ] **In-game verify:** C1/C2 — observe shows `agents[]`, `/act agents[].say` shows a HUD line
 - [ ] **In-game verify:** static door meshes G5 + CI (SPEC V-5, V-8)
-- [ ] **In-game verify:** menu names, console/Comms copy, Security greeter (SPEC V-1–V-9)
 - [ ] Openable doors + briefing wing access (SPEC §14 Phase 3)
 - [ ] Functional CI elevators (SPEC §14 Phase 4)
 

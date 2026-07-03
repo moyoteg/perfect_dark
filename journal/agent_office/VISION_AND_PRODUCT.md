@@ -421,16 +421,24 @@ right foundation and not a full mission map.
 
 Each phase is demoable and builds on the last; grounded in real components.
 
-| Phase | Theme | Delivers | Demo |
-|-------|-------|----------|------|
-| **P0 (shipped)** | Static office | Lobby, 8 NPCs, Z-target, console, greeter, 2 variants | Walk & examine |
-| **P1** | Live brains | Per-agent LLM (llm-play), engage→talk, voice (C1–C4 in LLM spec) | Ask an agent, get a spoken answer |
-| **P2** | Real state | `/observe agents[]`, status billboards, inspect panel | Read the room at a glance |
-| **P3** | Dispatch | Office Service: tasks, queue, interrupt, hand-off, event bus | Drop a task; watch a hand-off |
-| **P4** | Tools (Slack) | Connector Gateway + autonomy + audit; Comms↔Slack round-trip | Office answers Slack; you approve a send |
-| **P5** | Fleet ops | Ops↔PagerDuty/Datadog, Code/QA↔GitHub; approvals via Security | Page on-call; gate a release, in-world |
-| **P6** | Persistent + remote | Headless service; Slack remote-dispatch; replay | `/office dispatch …` with the game closed |
-| **P7** | Multi-office | G5 + CI as two teams; cross-office routing | Manage two teams; hand off across offices |
+| Phase | Theme | Delivers | Status |
+|-------|-------|----------|--------|
+| **P0** | Static office | Lobby, 8 NPCs, Z-target, console, greeter, 2 variants | **shipped** · F1/F3 fixed |
+| **P1** | Live brains | Per-agent LLM (llm-play), engage→talk, voice (C1–C4) | **C3 backend + dispatch written**; C4 voice open |
+| **P2** | Real state | `/observe agents[]`, status billboards, inspect panel | **C1 engine written** (needs build); billboards open |
+| **P3** | Dispatch | Office Service: tasks, queue, interrupt, hand-off, event bus | **built + tested** (`service/`, 9/9); C2 act-inject written |
+| **P4** | Tools (Slack) | Connector Gateway + autonomy + audit; Comms↔Slack round-trip | **built + tested** (stub connectors); real MCP swap open |
+| **P5** | Fleet ops | Ops↔PagerDuty/Datadog, Code/QA↔GitHub; approvals via Security | gateway + stubs done; real connectors open |
+| **P6** | Persistent + remote | Headless service; Slack remote-dispatch; replay | event log is replayable; HTTP API + ingress open |
+| **P7** | Multi-office | G5 + CI as two teams; cross-office routing | open |
+
+**What landed this pass:** the P3/P4 **control-plane core is real and unit-tested** —
+`tools/agent_office_llm/service/` (tasks, event bus, connector gateway with autonomy +
+audit, dispatch, human-present approvals, Slack round-trip). The engine seams **C1**
+(observe agents) and **C2** (act utterance injection) are written additively and need an
+in-engine build. **C3** is now wired: the director can use llm-play backends for per-agent
+replies and turns engage/utterance events into Office Service tasks with reply context.
+What remains for a live P4 demo: voice (C4), real MCP connectors, and in-game verification.
 
 **Definition of done for the pitchable build (P4):** launch the office, walk to Ops (it reports
 a real Datadog signal), walk to Comms (it shows real Slack threads and, on your approval, posts a
