@@ -93,9 +93,12 @@ PAD_LOBBY_CONSOLE = 0x0017  # North lobby console alcove (-100, 35, 128)
 PAD_LOBBY_NE = 0x0003  # (217, 35, -172)
 
 # MP quick-start picks among every intro Spawn — lobby Y≈35 only.
-PAD_PLAYER_SPAWN = PAD_LOBBY_CENTRE
-PAD_PLAYER_SPAWN_ALT = PAD_LOBBY_SOUTH
-PAD_PLAYER_SPAWN_LOBBY = PAD_LOBBY_EAST
+# SPEC_AUDIT F1: old alts 0x00/0x10 were the Orchestrator/Director desks — the player
+# spawned on top of an agent. Repointed to a clear foyer pad + a 2nd centre spawn.
+PAD_LOBBY_SPAWN_CLEAR = 0x0002  # (1019,35,-158) empty foyer pad — no agent here
+PAD_PLAYER_SPAWN = PAD_LOBBY_CENTRE          # 0x0E primary — foyer centre (604,35,317)
+PAD_PLAYER_SPAWN_ALT = PAD_LOBBY_SPAWN_CLEAR # clear foyer pad (verify walkable — V-1)
+PAD_PLAYER_SPAWN_LOBBY = PAD_PLAYER_SPAWN    # 2nd centre spawn (safe; avoids agent pads)
 PAD_BRIEFING_ENTRY = PAD_PLAYER_SPAWN
 
 PAD_INTERACT_CONSOLE = PAD_LOBBY_CONSOLE

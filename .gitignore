@@ -54,7 +54,10 @@ debug_pos_file.log
 .tmp-pr-split/
 **/node_modules/
 journal/anim_lab/.anim_lab_server.port
-journal/anim_lab/.last_play.*
+journal/anim_lab/last_deploy.json
+journal/anim_lab/last_launch.json
+**/electron/repo-config.json
+**/repo-config.json
 journal/anim_lab/.npm_start.log
 journal/anim_lab/.serve_animlab.log
 journal/uff_viewer/.editor_server*
