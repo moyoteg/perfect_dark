@@ -2,7 +2,7 @@
   "name": "Perfect Dark Kit",
   "kitVersion": "0.2.0",
   "portVersion": "0.1.0",
-  "builtAt": "2026-07-02T22:22:37Z",
+  "builtAt": "2026-07-04T05:27:38Z",
   "repoRoot": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio",
   "releaseDir": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release",
   "gameBinary": {
@@ -17,8 +17,9 @@
       "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/Perfect Dark Kit.app",
       "wrappedApps": {
         "mapEditor": true,
-        "mapLauncher": false,
+        "mapLauncher": true,
         "animLab": true,
+        "objectCatalog": true,
         "agentOffice": true,
         "assetUpgrader": true,
         "playLastTestMap": true,
@@ -34,7 +35,7 @@
     "mapLauncher": {
       "productName": "PD Map Launcher",
       "bundleFileName": "PD Map Launcher.app",
-      "built": false,
+      "built": true,
       "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Map Launcher.app"
     },
     "animLab": {
@@ -42,6 +43,12 @@
       "bundleFileName": "PD Anim Lab.app",
       "built": true,
       "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Anim Lab.app"
+    },
+    "objectCatalog": {
+      "productName": "PD Asset Catalog",
+      "bundleFileName": "PD Asset Catalog.app",
+      "built": true,
+      "path": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/scripts/release/PD Asset Catalog.app"
     },
     "agentOffice": {
       "productName": "Virtual Agent Office",

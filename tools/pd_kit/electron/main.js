@@ -129,10 +129,48 @@ function readReleaseManifest() {
   return null;
 }
 
-function hubAppKeys() {
+function hubAppKeys(kind) {
   const apps = kitManifest.apps || {};
-  const wraps = apps.kitHub && Array.isArray(apps.kitHub.wraps) ? apps.kitHub.wraps : [];
-  return wraps.filter((key) => key !== 'kitHub' && apps[key]);
+  const hub = apps.kitHub || {};
+  const list =
+    kind === 'more'
+      ? Array.isArray(hub.moreTools)
+        ? hub.moreTools
+        : []
+      : Array.isArray(hub.wraps)
+        ? hub.wraps
+        : [];
+  return list.filter((key) => key !== 'kitHub' && apps[key]);
+}
+
+function buildToolCard(key) {
+  const cfg = kitPaths.appConfig(key);
+  const appPath = appBundlePath(key);
+  const devMode = !appPath && devLaunchAvailable(key);
+  const wrappedPath = path.join(wrappedAppsDir(), cfg.bundleFileName);
+  return {
+    key,
+    title: cfg.productName,
+    shortTitle: cfg.shortTitle || cfg.productName,
+    description: cfg.description || '',
+    category: cfg.category || 'authoring',
+    optional: Boolean(cfg.optional),
+    built: Boolean(appPath) || devMode,
+    devMode,
+    wrapped: fs.existsSync(wrappedPath),
+    path: appPath || (devMode ? path.join(repoRoot, cfg.devLaunchScript) : ''),
+    buildScript: cfg.buildScript || cfg.devLaunchScript || null,
+  };
+}
+
+function toolCards() {
+  return hubAppKeys('core').map((key) => buildToolCard(key));
+}
+
+function moreToolCards() {
+  return hubAppKeys('more')
+    .map((key) => buildToolCard(key))
+    .filter((card) => card.built);
 }
 
 function appBundlePath(appKey) {
@@ -159,28 +197,6 @@ function devLaunchAvailable(appKey) {
   const cfg = kitPaths.appConfig(appKey);
   if (!cfg.devLaunchScript) return false;
   return fs.existsSync(path.join(repoRoot, cfg.devLaunchScript));
-}
-
-function toolCards() {
-  return hubAppKeys().map((key) => {
-    const cfg = kitPaths.appConfig(key);
-    const appPath = appBundlePath(key);
-    const devMode = !appPath && devLaunchAvailable(key);
-    const wrappedPath = path.join(wrappedAppsDir(), cfg.bundleFileName);
-    return {
-      key,
-      title: cfg.productName,
-      shortTitle: cfg.shortTitle || cfg.productName,
-      description: cfg.description || '',
-      category: cfg.category || 'authoring',
-      optional: Boolean(cfg.optional),
-      built: Boolean(appPath) || devMode,
-      devMode,
-      wrapped: fs.existsSync(wrappedPath),
-      path: appPath || (devMode ? path.join(repoRoot, cfg.devLaunchScript) : ''),
-      buildScript: cfg.buildScript || cfg.devLaunchScript || null,
-    };
-  });
 }
 
 function actionGroups() {
@@ -279,7 +295,10 @@ function createWindow() {
       sandbox: false,
     },
   });
-  mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  // Cache-bust so renderer updates are never stuck on a stale HTML/CSS/JS snapshot.
+  mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'), {
+    query: { v: `${app.getVersion()}-${Date.now()}` },
+  });
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
@@ -299,6 +318,7 @@ function registerIpc() {
           built: fs.existsSync(gamePath),
         },
         tools: toolCards(),
+        moreTools: moreToolCards(),
         actionGroups: actionGroups(),
         docs: docLinks(),
         manifestBuiltAt: readReleaseManifest()?.builtAt || null,
@@ -314,6 +334,7 @@ function registerIpc() {
         wrappedAppsDir: wrappedAppsDir(),
         gameBinary: { path: '', built: false },
         tools: [],
+        moreTools: [],
         actionGroups: [],
         docs: [],
         manifestBuiltAt: null,

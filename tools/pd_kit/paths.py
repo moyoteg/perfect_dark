@@ -139,6 +139,21 @@ def resolve_anim_lab_state_dir(repo_root: str | Path | None = None) -> str:
     return str(kit_dir)
 
 
+def resolve_object_catalog_state_dir(repo_root: str | Path | None = None) -> str:
+    """Match Asset Catalog server/Electron state directory resolution."""
+    env_state = os.environ.get("PD_OBJECT_CATALOG_STATE_DIR", "").strip()
+    if env_state:
+        os.makedirs(env_state, exist_ok=True)
+        return env_state
+
+    root = Path(repo_root).resolve() if repo_root else _REPO_ROOT
+    repo_app = root / "journal" / "object_catalog"
+    if _repo_dir_writable(repo_app):
+        return str(repo_app)
+
+    return str(kit_support_dir("objectCatalog"))
+
+
 def app_product_name(component: str) -> str:
     return str(_app_config(component).get("productName", kit_name()))
 

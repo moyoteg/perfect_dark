@@ -17,15 +17,17 @@ The **Perfect Dark Kit** is the unified modding stack for this repository: PC po
 |-----------|------|-------------|
 | **PC port** | Play modded Perfect Dark | `./build/pd.arm64 --moddir mods/mod_allinone` |
 | **pdmap pipeline** | Validate → build → deploy → register maps | `python3 tools/pdmap.py …` |
-| **Kit Hub** | Launch all tools from one `.app` | `Perfect Dark Kit.app` |
-| **Map Editor** | 3D JSON editor + Test/Play | nested in hub + `scripts/release/` |
-| **Map Launcher** | Test map playtesting + learn curriculum | hub card → `./scripts/launch-map-launcher.sh` (dev) |
-| **Animation Lab** | Animation catalog + parade test map | nested in hub + `scripts/release/` |
-| **Virtual Agent Office** | Agent simulation maps — dataDyne G5 + Carrington Institute | nested in hub + `scripts/release/` |
-| **Asset Upgrader** | Batch texture upgrade for mods | nested in hub + `scripts/release/` |
-| **Play Last Test Map** | Replay last editor Test/Play | hub card + `scripts/release/` |
-| **LLM Play** | AI play adapter (sibling project) | hub card → `../llm-play/LLM Play.app` |
+| **Kit Hub** | Launch core tools from one `.app` | `Perfect Dark Kit.app` |
+| **Map Editor** *(core)* | 3D JSON editor + Test/Play | hub card + `scripts/release/` |
+| **Animation Lab** *(core)* | Animation catalog + parade test map | hub card + `scripts/release/` |
+| **Asset Upgrader** *(core)* | Batch texture upgrade for mods | hub card + `scripts/release/` |
+| **Map Launcher** *(optional)* | Test map playtesting + learn curriculum | More tools (when built) or `./scripts/launch-map-launcher.sh` |
+| **Asset Catalog** *(optional)* | Browse props/weapons with 3D previews | More tools when built |
+| **Virtual Agent Office** *(optional)* | Agent simulation maps — G5 + Carrington | More tools when built; scenarios still in hub |
+| **LLM Play** *(optional)* | AI play adapter (sibling project) | More tools when built → `../llm-play/LLM Play.app` |
 | **Docs** | Workflow + binary reference | [`docs/MAP_MAKING_WIKI.md`](docs/MAP_MAKING_WIKI.md) |
+
+Use hub **Test Map** or Map Editor **Test/Play** instead of a separate Play Last Test Map card.
 
 **BYO ROM** — no game assets are bundled. Place `pd.ntsc-final.z64` in `data/` (see [`README.md`](README.md)).
 
@@ -45,20 +47,22 @@ Provide your NTSC-final ROM and symlink at repo root (see README QUICKSTART).
 ./scripts/build-pd-kit.sh
 ```
 
-This builds:
+This builds by default:
 
 - `./build/pd.arm64`
-- `scripts/release/Perfect Dark Kit.app` (hub — **wraps all tools below**)
+- `scripts/release/Perfect Dark Kit.app` (hub — **wraps the three core apps**)
 - `scripts/release/PD Map Editor.app`
 - `scripts/release/PD Anim Lab.app`
-- `scripts/release/Virtual Agent Office.app`
 - `scripts/release/PD Asset Upgrader.app`
-- `scripts/release/Play Last Test Map.app`
 - `scripts/release/kit-manifest.json`
 
-Optional (sibling project): `../llm-play/LLM Play.app` — surfaced in the hub when built.
+Optional companion apps (Asset Catalog, Map Launcher, Agent Office, LLM Play) are **not** built unless you set `PD_KIT_BUILD_ALL=1`:
 
-Child apps are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` when present in `scripts/release/`. The hub UI also exposes build, validate, scenario, setup scripts, and documentation links from `tools/pd_kit/kit.json`.
+```bash
+PD_KIT_BUILD_ALL=1 ./scripts/build-pd-kit.sh --skip-game --apps-only
+```
+
+When built, companions appear under hub **More tools** (collapsed) and are copied into `Perfect Dark Kit.app/Contents/Resources/Apps/` when present in `scripts/release/`. The hub UI also exposes build, validate, scenario, setup scripts, and documentation links from `tools/pd_kit/kit.json`.
 
 ### 3. CLI launcher
 
@@ -146,19 +150,15 @@ Bump **`KIT_VERSION`** when shipping kit tool changes. Bump **`PORT_VERSION`** w
 ```
 scripts/release/
 ├── kit-manifest.json
-├── Perfect Dark Kit.app                    ← hub (wraps Apps/*)
+├── Perfect Dark Kit.app                    ← hub (wraps core Apps/*)
 │   └── Contents/Resources/Apps/
 │       ├── PD Map Editor.app
 │       ├── PD Anim Lab.app
-│       ├── Virtual Agent Office.app
 │       ├── PD Asset Upgrader.app
-│       ├── Play Last Test Map.app
-│       └── LLM Play.app (when built + wrapped)
+│       └── … optional companions when PD_KIT_BUILD_ALL=1
 ├── PD Map Editor.app
 ├── PD Anim Lab.app
-├── Virtual Agent Office.app
-├── PD Asset Upgrader.app
-└── Play Last Test Map.app
+└── PD Asset Upgrader.app
 
 ../llm-play/LLM Play.app                      ← optional sibling project
 
@@ -172,8 +172,9 @@ build/pd.arm64
 | Section | Contents |
 |---------|----------|
 | **Game** | Play with Mod, Test Map |
-| **Desktop Apps** | All `kitHub.wraps` entries (editors + companion apps) |
-| **Build** | Build Apps, Build Game, Build Full Kit |
+| **Core Apps** | `kitHub.wraps` — Map Editor, Anim Lab, Asset Upgrader |
+| **More tools** | Built optional companions from `kitHub.moreTools` (collapsed) |
+| **Build** | Build Apps (core by default), Build Game, Build Full Kit |
 | **Validate & Learn** | pdmap validate, curriculum validation, learn step |
 | **Scenarios & Launch** | AIO mod, matrix battle, Agent Office (G5 + Carrington), Agent Office Live Director, reset uff, rebuild editors |
 | **Setup & Utilities** | Link ROM, asset upgrader setup/CLI, Ollama setup |

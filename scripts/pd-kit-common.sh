@@ -53,6 +53,8 @@ PD_PORT_VERSION="$(read_port_version)"
 
 PD_KIT_APP_MAP_EDITOR="$(kit_json_field apps.mapEditor.bundleFileName)"
 PD_KIT_APP_ANIM_LAB="$(kit_json_field apps.animLab.bundleFileName)"
+PD_KIT_APP_MAP_LAUNCHER="$(kit_json_field apps.mapLauncher.bundleFileName)"
+PD_KIT_APP_OBJECT_CATALOG="$(kit_json_field apps.objectCatalog.bundleFileName)"
 PD_KIT_APP_ASSET_UPGRADER="$(kit_json_field apps.assetUpgrader.bundleFileName)"
 PD_KIT_APP_HUB="$(kit_json_field apps.kitHub.bundleFileName)"
 
@@ -138,6 +140,23 @@ for key in wraps:
 PY
 }
 
+# Optional companions from kitHub.moreTools — wrapped when present, skipped otherwise.
+kit_json_more_tool_bundles() {
+	python3 - "$PD_KIT_MANIFEST" <<'PY'
+import json, sys
+manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+apps = manifest.get("apps", {})
+more = apps.get("kitHub", {}).get("moreTools", [])
+for key in more:
+    cfg = apps.get(key)
+    if not cfg:
+        continue
+    bundle = cfg.get("bundleFileName")
+    if bundle:
+        print(bundle)
+PY
+}
+
 # Remove superseded .app bundles and repo-root symlinks from older naming schemes.
 kit_prune_legacy_app_bundles() {
 	local legacy=(
@@ -165,6 +184,8 @@ kit_prune_electron_staging_dirs() {
 		"$PD_KIT_RELEASE_DIR/kit-hub-dist" \
 		"$PD_KIT_RELEASE_DIR/electron-dist" \
 		"$PD_KIT_RELEASE_DIR/anim-lab-dist" \
+		"$PD_KIT_RELEASE_DIR/object-catalog-dist" \
+		"$PD_KIT_RELEASE_DIR/map-launcher-dist" \
 		"$PD_KIT_RELEASE_DIR/asset-upgrader-electron-dist"; do
 		rm -rf "$dir" 2>/dev/null || true
 	done

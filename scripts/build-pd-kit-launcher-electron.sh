@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Build the Perfect Dark Kit hub .app — wraps Map Editor, Animation Lab,
-# Virtual Agent Office, and Asset Upgrader inside Contents/Resources/Apps/.
+# Build the Perfect Dark Kit hub .app — wraps core tools (and optional companions when built)
+# inside Contents/Resources/Apps/.
 #
 # Outputs:
 #   scripts/release/Perfect Dark Kit.app
@@ -29,6 +29,11 @@ CHILD_APPS=()
 while IFS= read -r bundle; do
 	[[ -n "$bundle" ]] && CHILD_APPS+=("$bundle")
 done < <(kit_json_wrap_bundles)
+
+OPTIONAL_APPS=()
+while IFS= read -r bundle; do
+	[[ -n "$bundle" ]] && OPTIONAL_APPS+=("$bundle")
+done < <(kit_json_more_tool_bundles)
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -95,7 +100,7 @@ wrap_child_apps() {
 	for child in "${CHILD_APPS[@]}"; do
 		local src="$RELEASE_DIR/$child"
 		if [[ ! -d "$src" ]]; then
-			echo "WARNING: missing child app (not wrapped): $src" >&2
+			echo "WARNING: missing core app (not wrapped): $src" >&2
 			missing=1
 			continue
 		fi
@@ -103,8 +108,17 @@ wrap_child_apps() {
 		rm -rf "$apps_dir/$child"
 		cp -R "$src" "$apps_dir/$child"
 	done
+	for child in "${OPTIONAL_APPS[@]}"; do
+		local src="$RELEASE_DIR/$child"
+		if [[ ! -d "$src" ]]; then
+			continue
+		fi
+		echo "  wrapping optional $child"
+		rm -rf "$apps_dir/$child"
+		cp -R "$src" "$apps_dir/$child"
+	done
 	if [[ "$missing" -eq 1 ]]; then
-		echo "Build child apps first: ./scripts/build-pd-kit.sh --apps-only" >&2
+		echo "Build core apps first: ./scripts/build-pd-kit.sh --apps-only" >&2
 	fi
 }
 

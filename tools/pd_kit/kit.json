@@ -13,11 +13,13 @@
       "legacyLogFile": null,
       "wraps": [
         "mapEditor",
-        "mapLauncher",
         "animLab",
+        "assetUpgrader"
+      ],
+      "moreTools": [
+        "objectCatalog",
+        "mapLauncher",
         "agentOffice",
-        "assetUpgrader",
-        "playLastTestMap",
         "llmPlay"
       ]
     },
@@ -53,6 +55,19 @@
       "category": "authoring",
       "legacySupportDir": "PerfectDarkAnimLab",
       "legacyLogFile": "PerfectDarkAnimLab.log"
+    },
+    "objectCatalog": {
+      "id": "object-catalog",
+      "productName": "PD Asset Catalog",
+      "shortTitle": "Asset Catalog",
+      "bundleFileName": "PD Asset Catalog.app",
+      "logFile": "object-catalog.log",
+      "description": "Browse props, weapons, characters, and other game assets with 3D previews.",
+      "category": "authoring",
+      "optional": true,
+      "legacySupportDir": null,
+      "legacyLogFile": null,
+      "buildScript": "scripts/build-object-catalog-electron.sh"
     },
     "agentOffice": {
       "id": "agent-office",
@@ -109,7 +124,7 @@
         {
           "key": "buildApps",
           "shortTitle": "Build Apps",
-          "description": "Rebuild all Electron kit apps and refresh the hub wrapper.",
+          "description": "Rebuild the three core kit apps and refresh the hub wrapper. Set PD_KIT_BUILD_ALL=1 for optional companions.",
           "script": "scripts/build-pd-kit.sh",
           "args": ["--skip-game", "--apps-only"],
           "longRunning": true
@@ -201,6 +216,14 @@
           "shortTitle": "Agent Office: Carrington",
           "description": "Deploy and launch the Carrington Institute virtual agent office map (STAGE_AGENT_OFFICE_CI).",
           "script": "scripts/play-agent-office-ci.sh",
+          "args": [],
+          "requiresGame": true
+        },
+        {
+          "key": "playAgentOfficeLab",
+          "shortTitle": "Agent Office: Lab / Matrix",
+          "description": "Deploy and launch the matrix white-room office lab sandbox (STAGE_AGENT_OFFICE_LAB).",
+          "script": "scripts/play-agent-office-lab.sh",
           "args": [],
           "requiresGame": true
         },

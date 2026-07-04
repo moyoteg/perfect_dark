@@ -9,6 +9,7 @@ from tools.pd_kit.paths import (
     port_version,
     resolve_editor_state_dir,
     resolve_anim_lab_state_dir,
+    resolve_object_catalog_state_dir,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "port_version",
     "resolve_editor_state_dir",
     "resolve_anim_lab_state_dir",
+    "resolve_object_catalog_state_dir",
 ]

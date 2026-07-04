@@ -62,6 +62,11 @@ build_anim_lab() {
 		"$BUILD_DIR/anim-lab-icon-1024.png" "$BUILD_DIR/AnimLabAppIcon.icns"
 }
 
+build_object_catalog() {
+	build_icon object-catalog generate-object-catalog-icon.swift \
+		"$BUILD_DIR/object-catalog-icon-1024.png" "$BUILD_DIR/ObjectCatalogAppIcon.icns"
+}
+
 build_asset_upgrader() {
 	build_icon asset-upgrader generate-asset-upgrader-icon.swift \
 		"$BUILD_DIR/asset-upgrader-1024.png" "$BUILD_DIR/AssetUpgraderAppIcon.icns"
@@ -82,6 +87,7 @@ all)
 	build_map_editor
 	build_map_launcher
 	build_anim_lab
+	build_object_catalog
 	build_asset_upgrader
 	build_agent_office
 	;;
@@ -89,10 +95,11 @@ kit-hub) build_kit_hub ;;
 map-editor) build_map_editor ;;
 map-launcher) build_map_launcher ;;
 anim-lab) build_anim_lab ;;
+object-catalog) build_object_catalog ;;
 asset-upgrader) build_asset_upgrader ;;
 agent-office) build_agent_office ;;
 -h | --help)
-	echo "Usage: $0 [all|kit-hub|map-editor|map-launcher|anim-lab|asset-upgrader|agent-office]"
+	echo "Usage: $0 [all|kit-hub|map-editor|map-launcher|anim-lab|object-catalog|asset-upgrader|agent-office]"
 	exit 0
 	;;
 *)

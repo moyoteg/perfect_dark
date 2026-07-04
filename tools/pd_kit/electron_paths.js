@@ -54,11 +54,13 @@ function loadManifest() {
         logFile: 'kit-hub.log',
         wraps: [
           'mapEditor',
-          'mapLauncher',
           'animLab',
-          'agentOffice',
           'assetUpgrader',
-          'playLastTestMap',
+        ],
+        moreTools: [
+          'objectCatalog',
+          'mapLauncher',
+          'agentOffice',
           'llmPlay',
         ],
       },
@@ -86,6 +88,14 @@ function loadManifest() {
         bundleFileName: 'PD Anim Lab.app',
         logFile: 'anim-lab.log',
         legacySupportDir: 'PerfectDarkAnimLab',
+      },
+      objectCatalog: {
+        id: 'object-catalog',
+        productName: 'PD Asset Catalog',
+        shortTitle: 'Asset Catalog',
+        bundleFileName: 'PD Asset Catalog.app',
+        logFile: 'object-catalog.log',
+        buildScript: 'scripts/build-object-catalog-electron.sh',
       },
       agentOffice: {
         id: 'agent-office',

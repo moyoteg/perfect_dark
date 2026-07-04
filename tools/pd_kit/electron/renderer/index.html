@@ -12,8 +12,8 @@
       <header class="hero">
         <div>
           <p class="eyebrow">Modding stack</p>
-          <h1 id="kitTitle">Perfect Dark Kit</h1>
-          <p id="kitSubtitle" class="subtitle">Every Perfect Dark tool in one launcher.</p>
+          <h1 id="kitTitle"><span class="hero-icon" aria-hidden="true">🎯</span> Perfect Dark Kit</h1>
+          <p id="kitSubtitle" class="subtitle">Three core authoring apps from one launcher.</p>
         </div>
         <div class="meta">
           <div class="pill" id="kitVersionPill">Kit v0.0.0</div>
@@ -22,26 +22,69 @@
       </header>
 
       <section class="actions-row">
-        <button id="playBtn" type="button" class="primary">Play with Mod</button>
-        <button id="testMapBtn" type="button">Test Map</button>
-        <button id="buildAppsBtn" type="button">Build Apps</button>
-        <button id="revealReleaseBtn" type="button" class="ghost">Reveal Release Folder</button>
+        <button id="playBtn" type="button" class="primary toolbar-btn"><span class="btn-icon" aria-hidden="true">🎯</span> Play with Mod</button>
+        <button id="testMapBtn" type="button" class="toolbar-btn"><span class="btn-icon" aria-hidden="true">🧪</span> Test Map</button>
+        <button id="buildAppsBtn" type="button" class="toolbar-btn"><span class="btn-icon" aria-hidden="true">📱</span> Build Apps</button>
+        <button id="revealReleaseBtn" type="button" class="ghost toolbar-btn"><span class="btn-icon" aria-hidden="true">📂</span> Reveal Release Folder</button>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <h2>Desktop Apps</h2>
-          <p class="section-note">Authoring tools and companion launchers</p>
+      <section class="filter-bar" aria-label="Search kit tools">
+        <div class="filter-label-row">
+          <label class="filter-label" for="kitSearchInput">Search</label>
+          <p id="kitSearchMeta" class="filter-meta" aria-live="polite"></p>
+        </div>
+        <div class="filter-controls">
+          <label class="filter-field" for="kitSearchInput">
+            <span class="filter-icon" aria-hidden="true">⌕</span>
+            <input
+              id="kitSearchInput"
+              type="search"
+              placeholder="Filter apps, actions, and docs by name…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </label>
+          <button id="kitSearchClear" type="button" class="ghost filter-clear" hidden>Clear</button>
+        </div>
+      </section>
+
+      <p id="kitSearchEmpty" class="filter-empty hidden" role="status">
+        No apps, actions, or docs match that filter.
+      </p>
+
+      <section class="section" id="toolsSection">
+        <div class="section-head section-head--icon">
+          <span class="icon-badge icon-badge--md icon-badge--authoring" aria-hidden="true">🖥️</span>
+          <div>
+            <h2>Core Apps</h2>
+            <p class="section-note" id="toolsSectionNote">Map Editor, Anim Lab, and Asset Upgrader</p>
+          </div>
         </div>
         <div class="grid" id="toolGrid"></div>
       </section>
 
+      <section class="section more-tools-section hidden" id="moreToolsSection">
+        <details id="moreToolsDetails" class="more-tools-details">
+          <summary class="more-tools-summary">
+            <span class="icon-badge icon-badge--md icon-badge--companion" aria-hidden="true">🧰</span>
+            <span class="more-tools-summary-text">
+              <span class="more-tools-title">More tools</span>
+              <span class="section-note" id="moreToolsSectionNote">Optional companions — shown when built</span>
+            </span>
+          </summary>
+          <div class="grid" id="moreToolGrid"></div>
+        </details>
+      </section>
+
       <section class="section" id="actionSections"></section>
 
-      <section class="section">
-        <div class="section-head">
-          <h2>Documentation</h2>
-          <p class="section-note">Workflow guides and reference specs</p>
+      <section class="section" id="docsSection">
+        <div class="section-head section-head--icon">
+          <span class="icon-badge icon-badge--md icon-badge--validate" aria-hidden="true">📚</span>
+          <div>
+            <h2>Documentation</h2>
+            <p class="section-note" id="docsSectionNote">Workflow guides and reference specs</p>
+          </div>
         </div>
         <div class="doc-grid" id="docGrid"></div>
       </section>

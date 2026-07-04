@@ -79,37 +79,36 @@ build_apps() {
 	kit_prune_legacy_app_bundles
 	"$SCRIPT_DIR/pd-kit-icons.sh" all
 
-	echo "==> Building Map Editor"
+	echo "==> Building core kit apps (Map Editor, Anim Lab, Asset Upgrader)"
 	"$SCRIPT_DIR/build-map-editor-electron.sh" --no-symlink
-
-	echo "==> Building Animation Lab"
 	"$SCRIPT_DIR/build-anim-lab-electron.sh" --no-symlink
-
-	echo "==> Building Virtual Agent Office"
-	"$SCRIPT_DIR/build-agent-office-electron.sh" --no-symlink
-
-	echo "==> Building Asset Upgrader"
 	"$SCRIPT_DIR/build-asset-upgrader-electron.sh" --build --no-symlink
 
-	echo "==> Building Play Last Test Map"
-	"$SCRIPT_DIR/build-map-editor-app.sh"
-
-	echo "==> Building LLM Play (optional sibling project)"
-	if [[ -f "$SCRIPT_DIR/build-llm-play-electron.sh" ]]; then
-		if "$SCRIPT_DIR/build-llm-play-electron.sh" 2>/dev/null; then
-			echo "    LLM Play.app built"
-			local llm_src="$PD_KIT_REPO_ROOT/../llm-play/LLM Play.app"
-			if [[ -d "$llm_src" ]]; then
-				ln -sfn "$llm_src" "$PD_KIT_RELEASE_DIR/LLM Play.app"
+	if [[ "${PD_KIT_BUILD_ALL:-0}" == "1" ]]; then
+		echo "==> Building optional companion apps (PD_KIT_BUILD_ALL=1)"
+		"$SCRIPT_DIR/build-object-catalog-electron.sh" --no-symlink
+		"$SCRIPT_DIR/build-map-launcher-electron.sh" --no-symlink
+		"$SCRIPT_DIR/build-agent-office-electron.sh" --no-symlink
+		"$SCRIPT_DIR/build-map-editor-app.sh"
+		if [[ -f "$SCRIPT_DIR/build-llm-play-electron.sh" ]]; then
+			if "$SCRIPT_DIR/build-llm-play-electron.sh" 2>/dev/null; then
+				echo "    LLM Play.app built"
+				local llm_src="$PD_KIT_REPO_ROOT/../llm-play/LLM Play.app"
+				if [[ -d "$llm_src" ]]; then
+					ln -sfn "$llm_src" "$PD_KIT_RELEASE_DIR/LLM Play.app"
+				fi
+			else
+				echo "    WARNING: LLM Play build skipped or failed (sibling llm-play project)" >&2
 			fi
-		else
-			echo "    WARNING: LLM Play build skipped or failed (sibling llm-play project)" >&2
 		fi
+	else
+		echo "==> Skipping optional companion apps (Asset Catalog, Map Launcher, Agent Office, LLM Play)"
+		echo "    Set PD_KIT_BUILD_ALL=1 to build every .app, or run individual build-*.sh scripts."
 	fi
 }
 
 build_kit_hub() {
-	echo "==> Building Kit Hub (wraps all tools)"
+	echo "==> Building Kit Hub (wraps core tools)"
 	if [[ "$SYMLINK_AT_ROOT" -eq 0 ]]; then
 		"$SCRIPT_DIR/build-pd-kit-launcher-electron.sh" --no-symlink
 	else
