@@ -47,6 +47,24 @@
         </div>
       </section>
 
+      <section class="panel director-panel">
+        <div class="director-head">
+          <div>
+            <h2>Live LLM Director</h2>
+            <p class="muted small">Runs the per-agent brain sidecar for walk-up conversations.</p>
+          </div>
+          <div class="director-status">
+            <span id="directorDot" class="status-dot idle"></span>
+            <span id="directorStatusText">Checking director…</span>
+          </div>
+        </div>
+        <div class="director-actions">
+          <button id="startDirectorBtn" type="button" class="primary">Start Live Director</button>
+          <button id="stopDirectorBtn" type="button" class="danger" disabled>Stop Director</button>
+          <button id="revealDirectorLogBtn" type="button" class="ghost">Reveal Director Log</button>
+        </div>
+      </section>
+
       <section class="panel">
         <h2>Virtual Agents</h2>
         <p id="agentsBlurb" class="muted small">Friendly NPCs in an open retail lobby — Z-target for status lines, no doors required.</p>

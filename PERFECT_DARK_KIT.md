@@ -175,7 +175,7 @@ build/pd.arm64
 | **Desktop Apps** | All `kitHub.wraps` entries (editors + companion apps) |
 | **Build** | Build Apps, Build Game, Build Full Kit |
 | **Validate & Learn** | pdmap validate, curriculum validation, learn step |
-| **Scenarios & Launch** | AIO mod, matrix battle, Agent Office (G5 + Carrington), reset uff, rebuild editors |
+| **Scenarios & Launch** | AIO mod, matrix battle, Agent Office (G5 + Carrington), Agent Office Live Director, reset uff, rebuild editors |
 | **Setup & Utilities** | Link ROM, asset upgrader setup/CLI, Ollama setup |
 | **Documentation** | Kit guide, map wiki, specs, anim reference, curriculum |
 
@@ -200,13 +200,15 @@ default (no combat sims, no MP loadout). Add `--with-bots` for 4 combat simulant
 - **Electron app:** `Virtual Agent Office.app` (location picker for G5 vs CI) — nested in the
   Kit Hub and built to `scripts/release/`. Dev launch: `scripts/launch-agent-office-app.sh`.
 - **Kit Hub actions:** both variants appear under **Scenarios & Launch** (`playAgentOffice`,
-  `playAgentOfficeCi`).
+  `playAgentOfficeCi`), plus `startAgentOfficeDirector` / `stopAgentOfficeDirector` for the
+  live LLM sidecar.
 - **Lang banks:** agent status + console strings live in `LANGBANK_DEPO` / `LANGBANK_DISH`
   (`src/assets/ntsc-final/lang/{depo,dish}.json`) and are auto-copied into the mod on deploy
   by the play scripts (after a `pd_headers` rebuild).
-- **Live AI (roadmap):** the sibling **LLM Play** project can drive these agents as real
-  per-character LLM brains with voice. See [`../llm-play/VISION.md`](../llm-play/VISION.md)
-  and the conversation-layer spec in `journal/agent_office/`.
+- **Live AI:** start the sidecar from `Virtual Agent Office.app` or Hub →
+  **Start Agent Office Live Director**. It runs
+  `scripts/start-agent-office-director.sh` and uses the sibling **LLM Play** backend for
+  per-character replies. Voice remains the next phase.
 
 Full session record: [`journal/agent_office/SESSION_NOTES.md`](journal/agent_office/SESSION_NOTES.md)
 · living checklist: [`journal/agent_office/NEXT_STEPS.md`](journal/agent_office/NEXT_STEPS.md).

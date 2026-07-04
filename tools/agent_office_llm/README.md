@@ -25,11 +25,16 @@ the director uses deterministic scripted fallback lines.
 
 ```bash
 python3 tools/agent_office_llm/office_director.py --url http://127.0.0.1:8780 --llm --backend auto
+./scripts/start-agent-office-director.sh
+./scripts/start-agent-office-director.sh --stop
 ```
 
 Requires the two additive bridge changes in the spec §3: `/observe` emitting `agents[]`
 and `/act` accepting `agents[].say`. Until then the director falls back to scanning
 `actors[]` and simply won't see the office chrs.
+
+From Perfect Dark Kit, open **Agent Office**, then use **Start Live Director**. The same
+start/stop actions are also exposed in the Kit Hub's **Scenarios & Launch** section.
 
 ## Layout
 

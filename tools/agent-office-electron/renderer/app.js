@@ -6,6 +6,11 @@ const killGameBtn = document.getElementById('killGameBtn');
 const playSoloBtn = document.getElementById('playSoloBtn');
 const deployOnlyBtn = document.getElementById('deployOnlyBtn');
 const withBotsBtn = document.getElementById('withBotsBtn');
+const startDirectorBtn = document.getElementById('startDirectorBtn');
+const stopDirectorBtn = document.getElementById('stopDirectorBtn');
+const revealDirectorLogBtn = document.getElementById('revealDirectorLogBtn');
+const directorStatusText = document.getElementById('directorStatusText');
+const directorDot = document.getElementById('directorDot');
 const agentList = document.getElementById('agentList');
 const logOutput = document.getElementById('logOutput');
 const revealLogBtn = document.getElementById('revealLogBtn');
@@ -24,8 +29,12 @@ let repoRoot = '';
 let currentLocation = 'g5';
 /** @type {string} */
 let currentLogPath = 'journal/agent_office/.last_launch.log';
+/** @type {string} */
+let directorLogPath = 'journal/agent_office/office_director.log';
 /** Block double-clicks while a deploy/play script is running. */
 let launchInFlight = false;
+/** Block double-clicks while the director start script is running. */
+let directorLaunchInFlight = false;
 
 function setStatus(message, kind) {
   statusLine.textContent = message;
@@ -60,6 +69,34 @@ function renderGameStatus(game) {
   playSoloBtn.disabled = !canLaunch;
   withBotsBtn.disabled = !canLaunch;
   deployOnlyBtn.disabled = false;
+}
+
+function renderDirectorStatus(director) {
+  const running = Boolean(
+    (director?.running && director.running.length > 0) ||
+      (director?.lastPid && director.lastAlive),
+  );
+  const pidText = director?.running?.length
+    ? director.running.map((entry) => entry.pid).join(', ')
+    : director?.lastPid;
+
+  if (running) {
+    directorStatusText.textContent = `Director running (PID ${pidText})`;
+    directorDot.className = 'status-dot running';
+    startDirectorBtn.disabled = true;
+    stopDirectorBtn.disabled = false;
+  } else {
+    directorStatusText.textContent = director?.scriptExists
+      ? 'Ready — director stopped'
+      : 'Director script missing';
+    directorDot.className = 'status-dot idle';
+    startDirectorBtn.disabled = !director?.scriptExists;
+    stopDirectorBtn.disabled = true;
+  }
+
+  if (director?.logPath) {
+    directorLogPath = director.logPath;
+  }
 }
 
 function renderAgents(layout) {
@@ -104,6 +141,11 @@ async function refreshGameStatus() {
   renderGameStatus(game);
 }
 
+async function refreshDirectorStatus() {
+  const director = await window.virtualAgentOffice.getDirectorStatus();
+  renderDirectorStatus(director);
+}
+
 async function refresh() {
   const info = await window.virtualAgentOffice.getInfo(currentLocation);
   repoRoot = info.repoRoot || '';
@@ -122,6 +164,7 @@ async function refresh() {
   }
   renderAgents(info.layout);
   renderGameStatus(info.game);
+  renderDirectorStatus(info.director);
   await refreshLog();
 }
 
@@ -167,6 +210,46 @@ playSoloBtn.addEventListener('click', () => launch('solo', 'Enter Office'));
 deployOnlyBtn.addEventListener('click', () => launch('deploy-only', 'Deploy'));
 withBotsBtn.addEventListener('click', () => launch('with-bots', 'Office with bots'));
 
+startDirectorBtn.addEventListener('click', async () => {
+  if (directorLaunchInFlight) {
+    setStatus('Director launch already in progress…', 'warn');
+    return;
+  }
+  directorLaunchInFlight = true;
+  startDirectorBtn.disabled = true;
+  setStatus('Starting live LLM director…', '');
+  try {
+    const result = await window.virtualAgentOffice.startDirector();
+    if (!result.ok) {
+      setStatus(result.error || 'Director launch failed', 'error');
+      return;
+    }
+    renderDirectorStatus(result.status);
+    if (result.alreadyRunning) {
+      setStatus('Live director already running', 'warn');
+    } else {
+      setStatus('Live director started — walk up to an agent in-game', 'ok');
+    }
+    if (result.logTail?.ok) {
+      logOutput.textContent = result.logTail.lines || '';
+    }
+  } finally {
+    directorLaunchInFlight = false;
+    await refreshDirectorStatus();
+  }
+});
+
+stopDirectorBtn.addEventListener('click', async () => {
+  setStatus('Stopping live director…', '');
+  const result = await window.virtualAgentOffice.stopDirector();
+  renderDirectorStatus(result.status);
+  if (result.killed?.length) {
+    setStatus(`Stopped director PID(s): ${result.killed.join(', ')}`, 'ok');
+  } else {
+    setStatus('No live director process found', 'warn');
+  }
+});
+
 killGameBtn.addEventListener('click', async () => {
   setStatus('Quitting game…', '');
   const result = await window.virtualAgentOffice.killGame(currentLocation);
@@ -183,6 +266,11 @@ revealLogBtn.addEventListener('click', async () => {
   await window.virtualAgentOffice.revealPath(`${repoRoot}/${currentLogPath}`);
 });
 
+revealDirectorLogBtn.addEventListener('click', async () => {
+  if (!repoRoot) return;
+  await window.virtualAgentOffice.revealPath(`${repoRoot}/${directorLogPath}`);
+});
+
 locationSelect?.addEventListener('change', async () => {
   currentLocation = locationSelect.value || 'g5';
   await refresh();
@@ -192,6 +280,7 @@ refresh().catch((err) => setStatus(String(err), 'error'));
 
 pollTimer = setInterval(async () => {
   await refreshGameStatus();
+  await refreshDirectorStatus();
   await refreshLog();
 }, 4000);
 

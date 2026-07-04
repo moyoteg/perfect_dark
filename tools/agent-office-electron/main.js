@@ -29,6 +29,9 @@ const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instan
 const APP_TITLE = 'Virtual Agent Office';
 const LOG_FILE_NAME = 'virtual-agent-office.log';
 const DEPLOY_LOG = 'journal/agent_office/.last_launch.log';
+const DIRECTOR_SCRIPT = 'scripts/start-agent-office-director.sh';
+const DIRECTOR_LOG = 'journal/agent_office/office_director.log';
+const DIRECTOR_PID = 'journal/agent_office/.office_director.pid';
 
 /** @type {Record<string, { id: string, label: string, eyebrow: string, bootStage: string, script: string, logDir: string, deployLog: string, pidFile: string, mapName: string, layoutImport: string }>} */
 const LOCATIONS = {
@@ -316,6 +319,93 @@ function getGameStatus(locationKey) {
   };
 }
 
+function directorScriptPath() {
+  return path.join(repoRoot, DIRECTOR_SCRIPT);
+}
+
+function directorPythonPath() {
+  return path.join(repoRoot, 'tools', 'agent_office_llm', 'office_director.py');
+}
+
+function findDirectorPids() {
+  const script = directorPythonPath();
+  const pids = [];
+  try {
+    const raw = execFileSync('pgrep', ['-f', 'office_director.py'], { encoding: 'utf8' });
+    for (const line of raw.split('\n')) {
+      const pid = parseInt(line.trim(), 10);
+      if (!Number.isFinite(pid)) continue;
+      try {
+        const cmd = execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' }).trim();
+        if (cmd.includes(script)) {
+          pids.push({ pid, command: cmd.slice(0, 200) });
+        }
+      } catch {
+        // skip
+      }
+    }
+  } catch {
+    // no director process
+  }
+  return pids;
+}
+
+function getDirectorStatus() {
+  const lastPid = readPidFile(DIRECTOR_PID);
+  const running = findDirectorPids();
+  return {
+    lastPid,
+    lastAlive: isProcessAlive(lastPid),
+    running,
+    script: directorScriptPath(),
+    scriptExists: fs.existsSync(directorScriptPath()),
+    logPath: DIRECTOR_LOG,
+  };
+}
+
+async function startDirector() {
+  const status = getDirectorStatus();
+  const alreadyRunning = Boolean(
+    (status.lastPid && status.lastAlive) ||
+      (status.running && status.running.length > 0),
+  );
+  if (alreadyRunning) {
+    return { ok: true, alreadyRunning: true, status };
+  }
+  const result = await runScript(DIRECTOR_SCRIPT, []);
+  await new Promise((r) => setTimeout(r, 1500));
+  return {
+    ...result,
+    status: getDirectorStatus(),
+    logTail: tailLog(DIRECTOR_LOG, 40, 'office_director'),
+  };
+}
+
+function stopDirector() {
+  const status = getDirectorStatus();
+  const killed = [];
+  const pids = new Set();
+  if (status.lastPid && status.lastAlive) pids.add(status.lastPid);
+  for (const entry of status.running) pids.add(entry.pid);
+
+  for (const pid of pids) {
+    try {
+      process.kill(pid, 'SIGTERM');
+      killed.push(pid);
+    } catch {
+      // ignore
+    }
+  }
+
+  try {
+    fs.unlinkSync(path.join(repoRoot, DIRECTOR_PID));
+  } catch {
+    // ignore stale/missing pid file
+  }
+  log(`Stop director pids: ${killed.join(', ') || '(none)'}`);
+  return { ok: true, killed, status: getDirectorStatus() };
+}
+
 /** macOS OpenGL init often logs compat-profile misses before 4.1 core succeeds. */
 function classifyLaunchLog(content, mapName) {
   const text = content || '';
@@ -399,6 +489,7 @@ function registerIpc() {
         bootStage: entry.bootStage,
       })),
       game: getGameStatus(location),
+      director: getDirectorStatus(),
       layout: loadOfficeLayout(location),
       logPath: loc.deployLog,
     };
@@ -473,6 +564,10 @@ function registerIpc() {
 
   ipcMain.handle('office:kill-game', (_event, locationKey) => killGame(locationKey));
   ipcMain.handle('office:game-status', (_event, locationKey) => getGameStatus(locationKey));
+  ipcMain.handle('office:start-director', () => startDirector());
+  ipcMain.handle('office:stop-director', () => stopDirector());
+  ipcMain.handle('office:director-status', () => getDirectorStatus());
+  ipcMain.handle('office:tail-director-log', (_event, lines) => tailLog(DIRECTOR_LOG, lines, 'office_director'));
   ipcMain.handle('office:tail-log', (_event, lines, locationKey) => {
     const loc = LOCATIONS[normalizeLocation(locationKey)];
     return tailLog(loc.deployLog, lines, loc.mapName);

@@ -103,6 +103,39 @@ h2 {
   font-size: 14px;
 }
 
+.director-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.director-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.director-head p {
+  margin: 0;
+}
+
+.director-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 180px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.director-actions {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 10px;
+}
+
 .status-dot {
   width: 10px;
   height: 10px;
@@ -298,4 +331,23 @@ button.large {
 
 .status.warn {
   color: var(--warn);
+}
+
+@media (max-width: 560px) {
+  .director-head,
+  .game-bar,
+  .location-panel {
+    display: grid;
+  }
+
+  .director-status {
+    justify-content: flex-start;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .director-actions,
+  .secondary-row {
+    grid-template-columns: 1fr;
+  }
 }

@@ -205,6 +205,20 @@
           "requiresGame": true
         },
         {
+          "key": "startAgentOfficeDirector",
+          "shortTitle": "Start Agent Office Live Director",
+          "description": "Start the live LLM sidecar for Virtual Agent Office walk-up conversations.",
+          "script": "scripts/start-agent-office-director.sh",
+          "args": []
+        },
+        {
+          "key": "stopAgentOfficeDirector",
+          "shortTitle": "Stop Agent Office Live Director",
+          "description": "Stop the Virtual Agent Office live LLM sidecar if it is running.",
+          "script": "scripts/start-agent-office-director.sh",
+          "args": ["--stop"]
+        },
+        {
           "key": "resetUffTestMap",
           "shortTitle": "Reset UFF Test Map",
           "description": "Purge and rebuild the empty-seg Matrix Test Room in the uff slot.",

@@ -72,6 +72,7 @@ Static briefing NPCs → per-character LLM agents you can approach and talk to.
 - [x] **C1** engine: `/observe` emits `agents[]` — `port/src/llm_observe.c` **(written; needs build)**
 - [x] **C2** engine: `/act` accepts `agents[].say` — `port/src/llm_bridge.c` **(written; needs build)**
 - [x] **C3** brain: llm-play backend replies (`--llm`) + director → `OfficeService.dispatch`
+- [x] **Kit launch:** Virtual Agent Office app has Start/Stop Live Director controls; Kit Hub has start/stop actions
 - [ ] **C4** voice: wire `voice_pipeline/` (ASR in, TTS out)
 - [ ] **C5** memory + `face_player` + world events
 
@@ -97,6 +98,7 @@ Static briefing NPCs → per-character LLM agents you can approach and talk to.
 
 - [ ] **In-game verify:** F1 spawn pads walkable; menu names, copy, greeter (SPEC V-1–V-9)
 - [ ] **In-game verify:** C1/C2 — observe shows `agents[]`, `/act agents[].say` shows a HUD line
+- [ ] **In-app verify:** Virtual Agent Office.app launches from Perfect Dark Kit and Start/Stop Live Director updates status
 - [ ] **In-game verify:** static door meshes G5 + CI (SPEC V-5, V-8)
 - [ ] Openable doors + briefing wing access (SPEC §14 Phase 3)
 - [ ] Functional CI elevators (SPEC §14 Phase 4)
