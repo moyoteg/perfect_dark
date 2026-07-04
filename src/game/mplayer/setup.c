@@ -24,9 +24,12 @@
 #include "data.h"
 #include "gbiex.h"
 #include "types.h"
+#ifndef PLATFORM_N64
+#include "net/net.h"
 #include "system.h"
 #include "input.h"
 #include "mpsetups.h"
+#endif
 
 struct menuitem g_MpCharacterMenuItems[];
 struct menudialogdef g_MpAddSimulantMenuDialog;
@@ -2594,7 +2597,7 @@ MenuItemHandlerResult mpLoadPlayerMenuHandler(s32 operation, struct menuitem *it
 		file = &g_FileLists[0]->files[data->list.value];
 		available = true;
 
-		for (i = 0; i < MAX_PLAYERS; i++) {
+		for (i = 0; i < MAX_LOCAL_PLAYERS; i++) {
 			if (file->fileid == g_PlayerConfigsArray[i].fileguid.fileid
 					&& file->deviceserial == g_PlayerConfigsArray[i].fileguid.deviceserial) {
 				if ((g_MpSetup.chrslots & (1 << i)) == 0) {
@@ -2725,6 +2728,15 @@ MenuItemHandlerResult menuhandlerMpHandicapPlayer(s32 operation, struct menuitem
 char *mpMenuTextHandicapPlayerName(struct menuitem *item)
 {
 	if (g_MpSetup.chrslots & (1 << item->param)) {
+#ifndef PLATFORM_N64
+		if (g_NetMode) {
+			// use client names directly, as the config names are not set yet
+			struct netclient *cl = netClientForPlayerNum(item->param);
+			if (cl) {
+				return cl->settings.name;
+			}
+		}
+#endif
 		return g_PlayerConfigsArray[item->param].base.name;
 	}
 
@@ -3052,6 +3064,40 @@ struct menuitem g_MpHandicapsMenuItems[] = {
 		0x000000ff,
 		menuhandlerMpHandicapPlayer,
 	},
+#if MAX_PLAYERS > 4
+	{
+		MENUITEMTYPE_SLIDER,
+		4,
+		MENUITEMFLAG_LESSLEFTPADDING | MENUITEMFLAG_LOCKABLEMINOR,
+		(uintptr_t)&mpMenuTextHandicapPlayerName,
+		0x000000ff,
+		menuhandlerMpHandicapPlayer,
+	},
+	{
+		MENUITEMTYPE_SLIDER,
+		5,
+		MENUITEMFLAG_LESSLEFTPADDING | MENUITEMFLAG_LOCKABLEMINOR,
+		(uintptr_t)&mpMenuTextHandicapPlayerName,
+		0x000000ff,
+		menuhandlerMpHandicapPlayer,
+	},
+	{
+		MENUITEMTYPE_SLIDER,
+		6,
+		MENUITEMFLAG_LESSLEFTPADDING | MENUITEMFLAG_LOCKABLEMINOR,
+		(uintptr_t)&mpMenuTextHandicapPlayerName,
+		0x000000ff,
+		menuhandlerMpHandicapPlayer,
+	},
+	{
+		MENUITEMTYPE_SLIDER,
+		7,
+		MENUITEMFLAG_LESSLEFTPADDING | MENUITEMFLAG_LOCKABLEMINOR,
+		(uintptr_t)&mpMenuTextHandicapPlayerName,
+		0x000000ff,
+		menuhandlerMpHandicapPlayer,
+	},
+#endif
 	{
 		MENUITEMTYPE_SEPARATOR,
 		0,
@@ -3810,7 +3856,7 @@ MenuItemHandlerResult menuhandlerMpHumansVsSimulants(s32 operation, struct menui
 			if (mpIsChrParticipating(i)) {
 				struct mpchrconfig *mpchr = MPCHR(i);
 
-				mpchr->team = i < 4 ? 0 : 1;
+				mpchr->team = i < MAX_PLAYERS ? 0 : 1;
 			}
 		}
 
@@ -3823,7 +3869,7 @@ MenuItemHandlerResult menuhandlerMpHumansVsSimulants(s32 operation, struct menui
 MenuItemHandlerResult menuhandlerMpHumanSimulantPairs(s32 operation, struct menuitem *item, union handlerdata *data)
 {
 	if (operation == MENUOP_SET) {
-		u8 team_ids[4] = {0, 1, 2, 3};
+		u8 team_ids[MAX_PLAYERS] = {0, 1, 2, 3, 4, 5, 6, 7};
 		s32 i;
 		s32 playerindex = 0;
 		s32 simindex = 0;
@@ -3832,7 +3878,7 @@ MenuItemHandlerResult menuhandlerMpHumanSimulantPairs(s32 operation, struct menu
 			if (mpIsChrParticipating(i)) {
 				struct mpchrconfig *mpchr = MPCHR(i);
 
-				if (i < 4) {
+				if (i < MAX_PLAYERS) {
 					mpchr->team = team_ids[playerindex++];
 				} else {
 					mpchr->team = team_ids[simindex++];
@@ -3855,6 +3901,15 @@ char *mpMenuTextChrNameForTeamSetup(struct menuitem *item)
 	struct mpchrconfig *mpchr = mpGetChrConfigBySlotNum(item->param);
 
 	if (mpchr) {
+#ifndef PLATFORM_N64
+		if (g_NetMode) {
+			// use client names directly, as the config names are not set yet
+			struct netclient *cl = netClientForPlayerNum(item->param);
+			if (cl) {
+				return cl->settings.name;
+			}
+		}
+#endif
 		return mpchr->name;
 	}
 
@@ -5598,7 +5653,7 @@ void mpCloseDialogsForNewSetup(void)
 	s32 k;
 
 	// Loop through each player
-	for (i = 0; i < MAX_PLAYERS; i++) {
+	for (i = 0; i < MAX_LOCAL_PLAYERS; i++) {
 		g_MpPlayerNum = i;
 
 		// If they have a menu open

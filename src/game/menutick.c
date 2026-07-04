@@ -20,6 +20,7 @@
 #include "game/training.h"
 #include "game/gamefile.h"
 #include "game/mplayer/mplayer.h"
+#include "game/mplayer/chrslots.h"
 #include "bss.h"
 #include "lib/vi.h"
 #include "lib/joy.h"
@@ -27,6 +28,9 @@
 #include "lib/snd.h"
 #include "data.h"
 #include "types.h"
+#ifndef PLATFORM_N64
+#include "net/net.h"
+#endif
 
 #ifndef PLATFORM_N64 // All in One Mod
 #include "system.h"
@@ -223,13 +227,19 @@ void menuTick(void)
 				viBlack(false);
 				g_MpNumJoined = 0;
 
+#ifndef PLATFORM_N64
+				if (g_NetMode) {
+					g_Vars.mpsetupmenu = MPSETUPMENU_ADVSETUP;
+					g_MpSetup.chrslots = 1;
+				} else
+#endif
 				if (g_Vars.usingadvsetup) {
 					g_Vars.mpsetupmenu = MPSETUPMENU_ADVSETUP;
 				} else {
 					g_Vars.mpsetupmenu = MPSETUPMENU_GENERAL;
 				}
 
-				for (i = 0; i < MAX_PLAYERS; i++) {
+				for (i = 0; i < MAX_LOCAL_PLAYERS; i++) {
 					g_Vars.waitingtojoin[i] = false;
 
 					if (g_MpSetup.chrslots & (1 << i)) {
@@ -238,6 +248,13 @@ void menuTick(void)
 						if (g_Vars.mpsetupmenu == MPSETUPMENU_ADVSETUP) {
 							g_MpNumJoined++;
 							func0f17fcb0(true);
+#ifndef PLATFORM_N64
+							if (g_NetMode == NETMODE_CLIENT) {
+								// autodump client into waiting screen while host is changing settings
+								extern struct menudialogdef g_NetJoiningDialog;
+								menuPushDialog(&g_NetJoiningDialog);
+							}
+#endif
 						} else if (g_MpNumJoined == 0) {
 							g_MpNumJoined++;
 
@@ -291,7 +308,8 @@ void menuTick(void)
 
 		if (g_MenuData.root == MENUROOT_MPSETUP || g_MenuData.root == MENUROOT_4MBMAINMENU) {
 			if (g_MenuData.prevmenuroot == -1) {
-				g_MpSetup.chrslots &= ~0xf;
+				/* Clear human player bits only; keep simulant slots. */
+				mpChrSlotClearPlayers();
 			}
 
 			g_MpNumJoined = 0;
@@ -306,11 +324,23 @@ void menuTick(void)
 				}
 			}
 
+#ifndef PLATFORM_N64
+			if (g_NetMode == NETMODE_SERVER && g_MenuData.prevmenuroot == -1) {
+				s32 slot = 1;
+				for (i = 1; i < g_NetMaxClients; ++i) {
+					if (g_NetClients[i].state >= CLSTATE_LOBBY) {
+						g_MpSetup.chrslots |= (1 << slot);
+						++slot;
+					}
+				}
+			}
+#endif
+
 			mpCalculateLockIfLastWinnerOrLoser();
 			challengePerformSanityChecks();
 		}
 
-		for (i = 0; i < MAX_PLAYERS; i++) {
+		for (i = 0; i < MAX_LOCAL_PLAYERS; i++) {
 			g_MpPlayerNum = i;
 
 			if (g_Menus[g_MpPlayerNum].curdialog) {
@@ -322,7 +352,7 @@ void menuTick(void)
 			}
 		}
 
-		for (i = 0; i < MAX_PLAYERS; i++) {
+		for (i = 0; i < MAX_LOCAL_PLAYERS; i++) {
 			g_MpPlayerNum = i;
 
 			if (g_Menus[g_MpPlayerNum].curdialog) {
@@ -346,7 +376,7 @@ void menuTick(void)
 							// Limit to 2 players? But in a roundabout kind of way
 							canjoin = true;
 
-							for (j = 0; j < MAX_PLAYERS; j++) {
+							for (j = 0; j < MAX_LOCAL_PLAYERS; j++) {
 								if (g_Vars.waitingtojoin[j]) {
 									canjoin = false;
 								}
@@ -359,6 +389,12 @@ void menuTick(void)
 						// 8MB - no restrictions on joining
 						canjoin = true;
 					}
+
+#ifndef PLATFORM_N64
+					if (g_NetMode) {
+						canjoin = false;
+					}
+#endif
 
 					if (g_BossFile.locktype == MPLOCKTYPE_CHALLENGE) {
 						g_PlayerConfigsArray[i].base.team = 0;
@@ -531,7 +567,12 @@ void menuTick(void)
 					func0f0fd548(4);
 				}
 
-				for (i = 0; i < MAX_PLAYERS; i++) {
+#ifdef PLATFORM_N64
+				for (i = 0; i < MAX_LOCAL_PLAYERS; i++) {
+#else
+				const s32 maxplayers = g_NetMode ? 1 : MAX_LOCAL_PLAYERS;
+				for (i = 0; i < maxplayers; i++) {
+#endif
 					if (g_MpSetup.chrslots & (1 << i)) {
 						if (g_Vars.coopplayernum >= 0) {
 							if (g_Vars.stagenum == STAGE_DEEPSEA) {
@@ -621,12 +662,12 @@ void menuTick(void)
 				} else if (g_Vars.coopplayernum >= 0 || g_Vars.antiplayernum >= 0) {
 					struct mpplayerconfig tmp;
 
-					tmp = g_PlayerConfigsArray[4];
-					g_PlayerConfigsArray[4] = g_PlayerConfigsArray[0];
+					tmp = g_PlayerConfigsArray[MAX_PLAYERS];
+					g_PlayerConfigsArray[MAX_PLAYERS] = g_PlayerConfigsArray[0];
 					g_PlayerConfigsArray[0] = tmp;
 
-					tmp = g_PlayerConfigsArray[5];
-					g_PlayerConfigsArray[5] = g_PlayerConfigsArray[1];
+					tmp = g_PlayerConfigsArray[MAX_PLAYERS + 1];
+					g_PlayerConfigsArray[MAX_PLAYERS + 1] = g_PlayerConfigsArray[1];
 					g_PlayerConfigsArray[1] = tmp;
 				}
 

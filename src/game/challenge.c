@@ -20,6 +20,9 @@
 #include "lib/rng.h"
 #include "data.h"
 #include "types.h"
+#ifndef PLATFORM_N64
+#include "net/net.h"
+#endif
 
 u8 g_MpFeaturesForceUnlocked[40];
 u8 g_MpFeaturesUnlocked[80];
@@ -137,7 +140,7 @@ void challengeDetermineUnlockedFeatures(void)
 	}
 
 	// Now same as above, but per player
-	for (j = 0; j < MAX_PLAYERS; j++) {
+	for (j = 0; j < MAX_LOCAL_PLAYERS; j++) {
 		numgifted = 0;
 
 		for (challengeindex = 0; challengeindex < ARRAYCOUNT(g_MpChallenges); challengeindex++) {
@@ -198,7 +201,7 @@ void challengeDetermineUnlockedFeatures(void)
 		}
 
 		for (challengeindex = 0; challengeindex < ARRAYCOUNT(g_MpChallenges); challengeindex++) {
-			for (prev = 0; prev < MAX_PLAYERS; prev++) {
+			for (prev = 0; prev < MAX_LOCAL_PLAYERS; prev++) {
 				if (challengeIsAvailableToPlayer(prev, challengeindex)) {
 					for (i = 0; i < ARRAYCOUNT(g_MpChallenges[challengeindex].unlockfeatures); i++) {
 						if (g_MpChallenges[challengeindex].unlockfeatures[i] == j) {
@@ -250,9 +253,8 @@ void challengePerformSanityChecks(void)
 			}
 		}
 
-		// Turn off all simulants and turn them on if enabled
+		// Turn off all simulants (and players 5-8 if supported) and turn them on if enabled
 		// for this number of players
-		g_MpSetup.chrslots &= 0x000f;
 		mpChrSlotClearAllSimulants();
 
 		for (i = 0; i < MAX_BOTS; i++) {
@@ -267,10 +269,16 @@ void challengePerformSanityChecks(void)
 			g_Vars.mphilltime = 10;
 		}
 	} else if (!challengeIsFeatureUnlocked(MPFEATURE_8BOTS)) {
-		// Limit to 4 players and 4 simulants
-		g_MpSetup.chrslots &= 0x00ff;
+		// Limit to 4 players and 4 simulants in local games; allow more players online.
 #ifndef PLATFORM_N64
-		g_MpSetup.chrslots_hi = 0;
+		g_MpSetup.chrslots &= (g_NetMode ? 0x0fff : 0x0f0f);
+		if (!g_NetMode) {
+			g_MpSetup.chrslots_hi = 0;
+		}
+#elif MAX_PLAYERS > 4
+		g_MpSetup.chrslots &= 0x0f0f;
+#else
+		g_MpSetup.chrslots &= 0x00ff;
 #endif
 	}
 }

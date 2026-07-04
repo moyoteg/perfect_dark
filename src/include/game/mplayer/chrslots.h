@@ -6,10 +6,13 @@
 extern struct mpsetup g_MpSetup;
 
 /**
- * chrslots is a u32 bitfield for chr indices 0-31 (4 players + 28 sims).
+ * chrslots is a u32 bitfield for chr indices 0-31.
+ * With MAX_PLAYERS=8 (port-net), bits 0-7 are players and 8-31 are sims.
  * On the PC port, chrslots_hi extends simulant tracking to indices 32-63
- * (sim slots 28-59) so matrix battle arenas can field up to 64 fighters total.
+ * (sim slots beyond the first 24) so matrix battle arenas can field more fighters.
  */
+#define MP_PLAYER_SLOT_MASK ((1U << MAX_PLAYERS) - 1U)
+
 static inline bool mpChrSlotIsSet(s32 index)
 {
 	if (index < 32) {
@@ -49,7 +52,7 @@ static inline void mpChrSlotDisable(s32 index)
 
 static inline bool mpHasAnySimulantSlots(void)
 {
-	if ((g_MpSetup.chrslots & ~0xfU) != 0) {
+	if ((g_MpSetup.chrslots & ~MP_PLAYER_SLOT_MASK) != 0) {
 		return true;
 	}
 #ifndef PLATFORM_N64
@@ -62,10 +65,16 @@ static inline bool mpHasAnySimulantSlots(void)
 
 static inline void mpChrSlotClearAllSimulants(void)
 {
-	g_MpSetup.chrslots &= 0x0fU;
+	g_MpSetup.chrslots &= MP_PLAYER_SLOT_MASK;
 #ifndef PLATFORM_N64
 	g_MpSetup.chrslots_hi = 0;
 #endif
+}
+
+/** Clear only human player bits; leave simulant bits intact. */
+static inline void mpChrSlotClearPlayers(void)
+{
+	g_MpSetup.chrslots &= ~MP_PLAYER_SLOT_MASK;
 }
 
 #endif
