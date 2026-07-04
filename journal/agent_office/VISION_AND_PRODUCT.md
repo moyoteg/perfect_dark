@@ -415,6 +415,12 @@ no-door-transit reachability, retail geometry overlay). The management UX inheri
 without opening anything" law that lobby mode already enforces — which is *why* lobby mode is the
 right foundation and not a full mission map.
 
+The closest retail UX reference is Perfect Dark's Carrington Institute headquarters
+walkaround at startup: a safe, navigable base where the player can orient, talk, train, and
+choose the next action before entering a mission. Virtual Agent Office should inherit that
+feeling of headquarters presence and readiness, then replace training/briefing content with
+agent-management work.
+
 ---
 
 ## 9. Roadmap — from shipped NPCs to a control plane

@@ -17,6 +17,9 @@ is the control plane.
 
 Core product law:
 - Use lobby walk-around / pre-mission hub mode as the primary experience.
+- Treat Perfect Dark's Carrington Institute HQ roam-at-start experience as the UX
+  reference: safe headquarters space, free movement, friendly NPCs, briefing context,
+  and mission-control affordances before any combat.
 - Do not make Combat Simulator the product default.
 - Combat Simulator / bots are only optional regression, chaos, or stress-test modes.
 - The office must feel like a management space: no weapons, no hostile pressure, no
