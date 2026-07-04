@@ -10,17 +10,23 @@ You are Codex working in the Perfect Dark AIO repository. Build toward the long-
 final goal for Virtual Agent Office:
 
 Create a full agent-management system with Slack-like operations at the core and a
-3D game interface as one first-class way to use it. Prag Chat should be the primary
-chat surface: channels, threads, mentions, agent DMs, task handoffs, approvals, and
-status updates all flow through one shared Office Service. Perfect Dark Kit should
-open Virtual Agent Office as a 3D tab/view into that same system, where the player
-walks around a peaceful pre-mission lobby, approaches embodied AI agents at their
-desks, talks to them, inspects their work, assigns tasks, approves risky actions, and
-sees real tool activity reflected in-world. The chat is the operational backbone; the
-office is the embodied control plane.
+3D game interface as one first-class way to use it. Prefer integrating with the
+existing Projex/PragChat host app if that is the current project-management surface,
+instead of rebuilding chat and project management inside this Perfect Dark repo.
+Projex/PragChat should be the primary chat surface: channels, threads, mentions, agent DMs,
+task handoffs, approvals, and status updates all flow through one shared Office
+Service. Perfect Dark Kit should open Virtual Agent Office as a 3D tab/view into that
+same system, where the player walks around a peaceful pre-mission lobby, approaches
+embodied AI agents at their desks, talks to them, inspects their work, assigns tasks,
+approves risky actions, and sees real tool activity reflected in-world. The chat and
+project workspace are the operational backbone; the office is the embodied control
+plane.
 
 Core product law:
-- Prag Chat and the Perfect Dark 3D office are two synchronized clients over the same
+- Projex/PragChat is the preferred host for the chat + project-management shell when
+  available. Virtual Agent Office should integrate into that host as an agent workspace
+  3D tab/view, launch target, or embedded companion surface.
+- Projex/PragChat and the Perfect Dark 3D office are two synchronized clients over the same
   agents, tasks, approvals, memory, events, connector calls, and audit log. Do not let
   them diverge into separate systems.
 - Model the operational structure on Slack: channels, threads, mentions, agent DMs,
@@ -47,10 +53,11 @@ Do not rely on memory. Inspect the current worktree and treat it as authoritativ
 Preserve shipped P0 behavior while adding forward capability.
 
 North-star final state:
-1. Prag Chat is the canonical chat interface for managing agents through Slack-like
-   channels, threads, mentions, agent DMs, dispatch commands, approvals, and status.
-2. Perfect Dark Kit opens Virtual Agent Office cleanly as a 3D view/tab over the same
-   Office Service that Prag Chat uses.
+1. Projex/PragChat is the canonical host for managing agents through Slack-like
+   channels, threads, mentions, agent DMs, dispatch commands, project/task state,
+   approvals, and status.
+2. Perfect Dark Kit opens Virtual Agent Office cleanly, and Projex/PragChat can expose
+   it as a 3D view/tab over the same Office Service.
 3. The player chooses dataDyne G5 or Carrington Institute from the Agent Office app.
 4. Each office boots as a peaceful lobby hub with eight TEAM_NONCOMBAT agents:
    Director, Orchestrator, Research, Code, QA, Security, Ops, and Comms.
@@ -64,7 +71,7 @@ North-star final state:
 8. Local LLMs work end to end for live conversation: push-to-talk or proximity listen,
    ASR transcript, per-agent LLM reply, character TTS playback, HUD/status fallback,
    and voice identities for in-world characters including Dr. Caroll-style AI voices.
-9. The Office Service is persistent and headless-capable. Prag Chat and the 3D game
+9. The Office Service is persistent and headless-capable. Projex/PragChat and the 3D game
    are clients, not the only brain. Closing either client must not destroy task state,
    memory, events, approvals, or audit logs.
 10. The Connector Gateway lets agents operate real tools through safe, audited MCP
@@ -73,9 +80,9 @@ North-star final state:
    tools for Orchestrator.
 11. Side-effecting tool actions default to ask-approval. Approvals should be cleared
     by an explicit human-present interaction in the office, especially through Security,
-    or by authenticated approval in Prag Chat when the headless service is enabled.
+    or by authenticated approval in Projex/PragChat when the headless service is enabled.
 12. The console becomes mission control: fleet overview, queued/blocked/done states,
-    pending approvals, recent events, and dispatch-to-room; Prag Chat exposes the same
+    pending approvals, recent events, and dispatch-to-room; Projex/PragChat exposes the same
     state as channels, threads, mentions, and approval cards.
 13. Agents show legible in-world state: idle, working, blocked, waiting for approval,
     done, or error. Use status billboards, HUD panels, monitor text, animation/posture,
@@ -97,8 +104,9 @@ Build roadmap to respect:
   billboards, inspect panels.
 - P3 Dispatch: Office Service tasks, queue, interrupt, hand-off, event bus, memory,
   approvals, audit.
-- P4 Prag Chat + tools, Slack first: Slack-like Prag Chat interface over the Office
-  Service, real connector gateway integration, Comms round-trip, safe approvals.
+- P4 Projex/PragChat + tools, Slack first: host the native chat/project-management
+  surface in Projex/PragChat over the Office Service, with real connector gateway
+  integration, Comms round-trip, and safe approvals.
 - P5 Fleet ops: Ops with PagerDuty/Datadog, Code/QA with GitHub and CI, Research with
   docs/web, Security as approval and policy desk.
 - P6 Persistent remote control: HTTP API, webhook ingress, Slack remote dispatch,
@@ -107,13 +115,14 @@ Build roadmap to respect:
   clear spatial scale.
 
 Pitchable P4 demo definition:
-Open Prag Chat and see the agent workspace as channels, threads, mentions, and agent
-DMs. Launch the Perfect Dark 3D tab/view from that same workspace, enter the peaceful
-G5 or CI lobby, walk to Ops, and hear/see Ops report a real runtime signal. Walk to
-Comms and see the same Slack-style threads that need attention. Ask Comms to draft a
-reply, approve it in-world or in Prag Chat, and confirm the message posts to Slack with
-one audit entry. The user managed real agents and real tools through synchronized chat
-and 3D interfaces backed by the same service.
+Open Projex/PragChat and see the agent workspace as projects, channels, threads,
+mentions, task state, approvals, and agent DMs. Launch the Perfect Dark 3D tab/view
+from that same workspace, enter the peaceful G5 or CI lobby, walk to Ops, and hear/see
+Ops report a real runtime signal. Walk to Comms and see the same Slack-style threads
+that need attention. Ask Comms to draft a reply, approve it in-world or in Projex/PragChat,
+and confirm the message posts to Slack with one audit entry. The user managed real
+agents and real tools through synchronized project, chat, and 3D interfaces backed by
+the same service.
 
 Implementation rules:
 - Read existing code and docs first; extend local patterns instead of inventing parallel
@@ -132,7 +141,8 @@ Implementation rules:
 
 Non-goals:
 - Do not turn this into a shooter or combat arena.
-- Do not build Prag Chat and the spatial office as disconnected products.
+- Do not build a second project-management app if Projex already owns that surface.
+- Do not build Projex/PragChat and the spatial office as disconnected products.
 - Do not let the chat app replace the spatial office, or the spatial office replace
   the chat. The product needs both surfaces over the same control plane.
 - Do not require the user to leave the room for core management actions.
@@ -147,12 +157,13 @@ right agent, and approving real work in a spatial, auditable, embodied control p
 ## Short Version
 
 ```text
-Build a Slack-like agent-management system with Prag Chat as the primary chat surface
-and Perfect Dark's Virtual Agent Office as a peaceful 3D tab/view into the same agents.
-The user should manage agents through channels, threads, mentions, DMs, approvals, and
-3D walk-up conversations with local LLMs and generated voices. Combat Sim is only an
-optional stress test. Preserve P0 lobby behavior while advancing P1-P7: live brains,
-voice, state billboards, Office Service dispatch, connector gateway, Prag Chat/Slack
+Build a Slack-like agent-management system using Projex/PragChat as the preferred
+project-management and chat host, with Perfect Dark's Virtual Agent Office as a
+peaceful 3D tab/view into the same agents. The user should manage agents through
+projects, channels, threads, mentions, DMs, approvals, and 3D walk-up conversations
+with local LLMs and generated voices. Combat Sim is only an optional stress test.
+Preserve P0 lobby behavior while advancing P1-P7: live brains, voice, state
+billboards, Office Service dispatch, connector gateway, Projex/PragChat/Slack
 round-trip, persistent remote control, and multi-office routing. Verify end to end and
 commit scoped slices.
 ```
