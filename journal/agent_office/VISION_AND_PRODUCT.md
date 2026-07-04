@@ -8,17 +8,21 @@
 
 ## 0. The one line
 
-> **A 3D video-game interface for managing AI agents — wonderfully and effectively.**
+> **A Slack-like agent workspace with a 3D video-game interface for managing AI agents —
+> wonderfully and effectively.**
 
-You don't read your agents' logs. You don't babysit a dozen chat tabs. You **walk into an
-office**, and your AI agents are *there* — at their desks, doing real work through real tools
-(Slack, GitHub, Linear, PagerDuty). You stroll up to the Ops agent; it turns and says prod is
-red and offers to page on-call. You glance at the Comms agent's monitor and see the three Slack
-threads that need you. You drop a task on the Research agent's desk and walk away. Managing a
-fleet of agents becomes **spatial, embodied, and legible** instead of a wall of dashboards.
+You don't read your agents' logs. You don't babysit a dozen disconnected chat tabs. You open
+**Prag Chat**, a Slack-like workspace where agents live in channels, threads, mentions, and DMs.
+When you need embodied presence, you open the **Perfect Dark 3D office tab** and your AI agents
+are *there* — at their desks, doing real work through real tools (Slack, GitHub, Linear,
+PagerDuty). You stroll up to the Ops agent; it turns and says prod is red and offers to page
+on-call. You glance at the Comms agent's monitor and see the same threads that Prag Chat is
+tracking. You drop a task on the Research agent's desk and walk away. Managing a fleet of
+agents becomes **chat-native, spatial, embodied, and legible** instead of a wall of dashboards.
 
-The medium is a fully realized game engine (decompiled Perfect Dark). The content is your actual
-work. **The office is the control plane.**
+The operational backbone is Slack-like chat. The embodied medium is a fully realized game engine
+(decompiled Perfect Dark). The content is your actual work. **The office is the spatial control
+plane; Prag Chat is the text control plane; both are views over the same agent system.**
 
 ---
 
@@ -47,6 +51,11 @@ and Perfect Dark's decompilation hands us a AAA-atmosphere office (dataDyne G5, 
 Institute) already built. We are not making a game. **We are making mission control for agents,
 and it happens to be the most fun agent dashboard ever shipped.**
 
+The same system also needs a fast ordinary work surface. Prag Chat supplies that surface: the
+Slack-like interface for agent channels, work threads, unread state, mentions, approvals, and
+remote dispatch. The 3D office is not a replacement for chat; it is an embodied tab into the
+same control plane.
+
 ### Why the game engine is the right substrate (not a gimmick)
 
 | Management need | What the engine gives, natively |
@@ -62,6 +71,19 @@ and it happens to be the most fun agent dashboard ever shipped.**
 ---
 
 ## 2. The core model: the office is the control plane
+
+The product has one durable core and multiple clients:
+
+```
+Prag Chat (Slack-like workspace)  \
+Slack / webhooks / remote API      >  Office Service  -> agents, tasks, tools, memory, audit
+Perfect Dark 3D office tab        /
+```
+
+The operational structure is Slack: channels, threads, mentions, agent DMs, presence,
+slash-style dispatch, unread/needs-you state, and searchable history. The 3D office should
+mirror that structure spatially: agents at desks, console overview, in-world approvals,
+monitor/result surfaces, and live voice conversations.
 
 The shipped **lobby mode** (SPEC §7 — a walkable foyer where eight agents stand at fixed pads,
 Z-targetable, with a tagged console) is not a demo of a game level. **It is the first version
@@ -138,6 +160,10 @@ Agent "ops"
 └── policy            autonomy: suggest | ask-approval | act               ← §6 safety
 ```
 
+Voice is part of identity, not decoration. The system should support local LLM replies paired
+with generated character voices, including Dr. Caroll-style AI voices for in-world characters
+whose personality should feel native to Perfect Dark rather than like generic speech synthesis.
+
 **Autonomy levels** (the safety dial, per agent per tool):
 
 - `suggest` — the agent proposes; nothing happens without you.
@@ -178,8 +204,10 @@ Agent brain (LLM)  --intent-->  Connector Gateway  --MCP-->  Slack / GitHub / Pa
 
 ### 5.2 Slack — the anchor integration (the Comms agent)
 
-Slack is the flagship because it's where *people* are, and it closes the loop between the office
-and the real team.
+Slack is the flagship external integration because it is where many real teams already are, and
+it closes the loop between the office and the real team. Prag Chat is the product's native
+Slack-like surface: it should expose the same operational model even when the external Slack
+connector is disabled or unavailable.
 
 **Inbound (Slack → office):**
 - New/important Slack messages surface as the **Comms agent's** state: its monitor shows the top
@@ -199,6 +227,11 @@ and the real team.
 **Slack as a remote control:** slash-style commands in Slack (`/office dispatch research "…"`)
 create tasks in the office even when you're not "in" the game — the office is a persistent
 service; the 3D view is one window onto it.
+
+**Prag Chat as the native control room:** the same dispatch can happen in Prag Chat through
+agent DMs, team channels, approval cards, mentions, and slash-style commands. Prag Chat should
+show exactly the same task, approval, event, and audit state that the 3D office renders through
+agents, consoles, monitors, and voice.
 
 ### 5.3 Other connectors (same pattern)
 
@@ -228,10 +261,12 @@ Applying the `engineering:system-design` framework.
 - FR-B Observe every agent's live state (task, status, last action) in-world.
 - FR-C Inspect, engage, brief/dispatch, interrupt, approve, hand off, review — all spatial (§3).
 - FR-D Agents operate real connectors through a gateway with per-agent/per-tool autonomy (§5).
-- FR-E Slack round-trip: inbound surfacing + outbound send + remote dispatch (§5.2).
-- FR-F Persistent office service; the 3D client is one view; headless/remote control possible.
-- FR-G Voice: speak to agents (ASR), hear them (TTS), anchored to position.
-- FR-H Memory: per-agent session + durable knowledge; auditable action log.
+- FR-E Prag Chat exposes the Slack-like native surface: channels, threads, mentions, agent DMs,
+  approvals, dispatch, status, and searchable history.
+- FR-F Slack round-trip: inbound surfacing + outbound send + remote dispatch (§5.2).
+- FR-G Persistent office service; Prag Chat and the 3D client are views; headless/remote control possible.
+- FR-H Voice: speak to agents (ASR), hear them (TTS), anchored to position.
+- FR-I Memory: per-agent session + durable knowledge; auditable action log.
 
 **Non-functional**
 - NFR-A Real-time feel: observe loop ≥ 6 Hz; engage→response < 2 s for cached tools.
@@ -252,36 +287,25 @@ Applying the `engineering:system-design` framework.
 ### 6.2 High-level architecture
 
 ```
-        ┌───────────────────────── 3D client (Perfect Dark pd.arm64) ─────────────────────────┐
-        │  lobby office (G5 / CI) · agents at desks · HUD/billboards · console · voice out/in   │
-        │  llm_bridge.c  :8780   /observe  /act(agents[].say|status)  /health                   │
-        └───────────────┬──────────────────────────────────────────────▲───────────────────────┘
-             observe (players + agents[])                     act (utterance, status, face)
-                        │                                               │
-        ┌───────────────▼───────────────────────────────────────────────┴───────────────────────┐
-        │                         Office Service  (persistent, headless-capable)                   │
-        │                                                                                          │
-        │   Simulation Director        Agent Brains (1/agent)        World Event Bus               │
-        │   • per-agent observe slice  • llm-play orchestrator       • approaches, hand-offs,      │
-        │   • proximity/engage         • persona + memory            •   Slack inbound, alerts     │
-        │   • dispatch → tasks         • plan → tool intents          Task Queue + Approvals        │
-        │                                                            Memory Store  Audit Log        │
-        └───────────────┬───────────────────────────────────────────────┬───────────────────────┘
-                        │ tool intents                                   │ events in
-        ┌───────────────▼───────────────────────┐        ┌──────────────▼───────────────────────┐
-        │        Connector Gateway               │        │   Ingress (webhooks / polls)          │
-        │  auth · rate-limit · autonomy · audit  │        │   Slack events, GitHub, PagerDuty…    │
-        └───────────────┬───────────────────────┘        └───────────────────────────────────────┘
-                        │ MCP
-        ┌───────────────▼──────────────────────────────────────────────────────────────────────┐
-        │   Slack · GitHub · Linear · PagerDuty · Datadog · Gmail · Calendar · Notion · …         │
-        └───────────────────────────────────────────────────────────────────────────────────────┘
+Prag Chat (Slack-like workspace)
+  channels · threads · mentions · agent DMs · approval cards
+        │  Office Service API / events
+        ▼
+Office Service (persistent, headless-capable)
+  Simulation Director · Agent Brains · Task Queue · Approvals
+  World Event Bus · Memory Store · Audit Log · Connector Gateway
+        ▲                         │                         ▲
+        │ observe/act bridge      │ MCP tool calls           │ webhooks / polls
+        │                         ▼                         │
+Perfect Dark 3D office tab    Slack/GitHub/Linear/...   External ingress
+  G5 / CI lobby · agents       Comms-owned Slack egress   Slack events, alerts
+  HUD/billboards · voice       audited connector calls    remote dispatch
 ```
 
-The **3D client is a view**, not the brain. The **Office Service** is the durable core: it runs
-the director, the agent brains, the task/approval/memory/audit stores, the event bus, and the
-connector gateway. This is what makes "manage from Slack while the game is closed" and "replay a
-day" possible.
+**Prag Chat and the 3D client are views**, not the brain. The **Office Service** is the durable
+core: it runs the director, the agent brains, the task/approval/memory/audit stores, the event
+bus, and the connector gateway. This is what makes "manage from Prag Chat while the game is
+closed," "open a 3D office tab when presence helps," and "replay a day" possible.
 
 ### 6.3 Data flow — one dispatch, end to end
 
@@ -318,6 +342,11 @@ You walk to Research → engage → say "find who owns the vault-log service"
 | `POST` | `/events` | inbound event (webhook ingress normalizes here) |
 | `GET` | `/audit` | every connector call + decision, replayable |
 
+**Prag Chat client contract (new):** render Office Service state as Slack-like
+`channels`, `threads`, `mentions`, `agent_dms`, `approval_cards`, `task_cards`, and
+`event_history`. Sending a message, slash command, approval decision, or agent DM becomes an
+Office Service dispatch/approval/event, not a separate chat-only state machine.
+
 **Connector Gateway (internal):** `invoke(agent_id, connector, action, args)` → checks autonomy
 + scope, calls MCP, records audit, returns result. One choke point for auth, rate limits, safety.
 
@@ -325,8 +354,10 @@ You walk to Research → engage → say "find who owns the vault-log service"
 
 ```
 Agent    { id, role, chrnum, persona, model, tools[], autonomy{tool:level}, voice, home_pad, state }
+Channel  { id, type(team|agent|incident|project), members[], topic, linked_agent_ids[] }  # Prag Chat
+Thread   { id, channel_id, subject, task_id?, messages[], unread_for[], mentions[] }       # Prag Chat
 Task     { id, agent_id, intent, context, status(queued|running|blocked|awaiting_approval|done|failed),
-           result, artifacts[], created_by(human|agent|slack), created_at }
+           result, artifacts[], created_by(human|agent|prag_chat|slack), created_at }
 Approval { id, task_id, agent_id, action, args, risk, status(pending|approved|denied), decided_by }
 Memory   { agent_id, session[], durable{knows[], withholds[]} }         # per LLM_CONVERSATION_LAYER §5
 Event    { id, type(approach|handoff|slack.msg|alert|task.*), from, to, payload, ts }  # append-only bus
@@ -345,6 +376,8 @@ Audit    { id, agent_id, connector, action, args_hash, result_hash, autonomy, hu
 - **Event bus & hand-offs.** Append-only log; agents subscribe to relevant types (an agent sees
   only its neighbourhood + addressed messages — the sliced perception from LLM_CONVERSATION_LAYER
   §7, which is what enables realistic hand-offs and "the guard heard you").
+- **Prag Chat ingress.** User messages, mentions, agent DMs, slash commands, and approval-card
+  decisions normalize to `Event`s; dispatch creates `Task`s and every write path is audited.
 - **Slack ingress.** Webhooks normalize to `Event`s; the Comms agent owns Slack egress (single
   audited sender). Remote dispatch (`/office …`) is just an `Event` that creates a `Task`.
 - **Idle cost control.** Agents re-plan on events, not on a busy timer; idle agents cost nothing.
@@ -369,6 +402,7 @@ Audit    { id, agent_id, connector, action, args_hash, result_hash, autonomy, hu
 | Perception | Sliced per agent | Enables secrets/rumor/realistic hand-offs; cost: more plumbing than god-view |
 | Safety default | `ask-approval` for side effects | Trust + auditability; cost: friction — mitigated by human-present being *fun* here |
 | Scale | Multiple offices | Keeps each room legible; cost: cross-office coordination is future work |
+| Native chat | Prag Chat over Office Service | Slack-like speed and history; cost: must keep chat and 3D state synchronized |
 | Slack egress | Single sender (Comms) | One audited door; cost: Comms is a bottleneck — acceptable, it's the point |
 | Engine changes | Additive bridge only | No fork rewrite; cost: some UI (billboards) constrained by engine capability |
 
@@ -433,7 +467,7 @@ Each phase is demoable and builds on the last; grounded in real components.
 | **P1** | Live brains | Per-agent LLM (llm-play), engage→talk, voice (C1–C4) | **C3 backend + dispatch written**; C4 voice open |
 | **P2** | Real state | `/observe agents[]`, status billboards, inspect panel | **C1 engine written** (needs build); billboards open |
 | **P3** | Dispatch | Office Service: tasks, queue, interrupt, hand-off, event bus | **built + tested** (`service/`, 9/9); C2 act-inject written |
-| **P4** | Tools (Slack) | Connector Gateway + autonomy + audit; Comms↔Slack round-trip | **built + tested** (stub connectors); real MCP swap open |
+| **P4** | Prag Chat + tools | Slack-like native UI; Connector Gateway + autonomy + audit; Comms↔Slack round-trip | core built/tested; Prag Chat UI + real MCP swap open |
 | **P5** | Fleet ops | Ops↔PagerDuty/Datadog, Code/QA↔GitHub; approvals via Security | gateway + stubs done; real connectors open |
 | **P6** | Persistent + remote | Headless service; Slack remote-dispatch; replay | event log is replayable; HTTP API + ingress open |
 | **P7** | Multi-office | G5 + CI as two teams; cross-office routing | open |
@@ -444,11 +478,14 @@ audit, dispatch, human-present approvals, Slack round-trip). The engine seams **
 (observe agents) and **C2** (act utterance injection) are written additively and need an
 in-engine build. **C3** is now wired: the director can use llm-play backends for per-agent
 replies and turns engage/utterance events into Office Service tasks with reply context.
-What remains for a live P4 demo: voice (C4), real MCP connectors, and in-game verification.
+What remains for a live P4 demo: Prag Chat UI over the Office Service, voice (C4), real MCP
+connectors, and in-game verification.
 
-**Definition of done for the pitchable build (P4):** launch the office, walk to Ops (it reports
-a real Datadog signal), walk to Comms (it shows real Slack threads and, on your approval, posts a
-reply). Real agents, real tools, managed by walking a room.
+**Definition of done for the pitchable build (P4):** open Prag Chat and see the agent workspace
+as channels/threads/agent DMs, launch the Perfect Dark office as a 3D tab, walk to Ops (it
+reports a real Datadog signal), walk to Comms (it shows the same threads that need attention),
+approve a reply in-world or in Prag Chat, and see one audited Slack egress. Real agents, real
+tools, managed through synchronized chat and 3D views.
 
 ---
 
@@ -459,6 +496,8 @@ reply). Real agents, real tools, managed by walking a room.
 - **Trust:** % of side-effecting actions that pass through an audited, human-present approval — target 100%.
 - **Presence value:** can a new observer, watching for 60 s, correctly state who's busy/blocked/waiting? (qualitative "read the room" test.)
 - **Round-trip:** office answers an inbound Slack request end-to-end without you touching a terminal.
+- **Surface sync:** a task, approval, or agent message created in Prag Chat appears in the 3D
+  office, and the equivalent in-world action appears back in Prag Chat, target < 1 s.
 
 ---
 

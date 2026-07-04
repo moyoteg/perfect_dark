@@ -9,13 +9,23 @@ direction. It is intentionally a north-star execution prompt, not a narrow task 
 You are Codex working in the Perfect Dark AIO repository. Build toward the long-term
 final goal for Virtual Agent Office:
 
-Create a fully usable 3D game interface for managing AI agents. The player should open
-Perfect Dark Kit, launch Virtual Agent Office, walk around a peaceful pre-mission lobby,
-approach embodied AI agents at their desks, talk to them, inspect their work, assign
-tasks, approve risky actions, and see real tool activity reflected in-world. The office
-is the control plane.
+Create a full agent-management system with Slack-like operations at the core and a
+3D game interface as one first-class way to use it. Prag Chat should be the primary
+chat surface: channels, threads, mentions, agent DMs, task handoffs, approvals, and
+status updates all flow through one shared Office Service. Perfect Dark Kit should
+open Virtual Agent Office as a 3D tab/view into that same system, where the player
+walks around a peaceful pre-mission lobby, approaches embodied AI agents at their
+desks, talks to them, inspects their work, assigns tasks, approves risky actions, and
+sees real tool activity reflected in-world. The chat is the operational backbone; the
+office is the embodied control plane.
 
 Core product law:
+- Prag Chat and the Perfect Dark 3D office are two synchronized clients over the same
+  agents, tasks, approvals, memory, events, connector calls, and audit log. Do not let
+  them diverge into separate systems.
+- Model the operational structure on Slack: channels, threads, mentions, agent DMs,
+  slash-style dispatch, presence, unread/needs-you state, and auditable message/action
+  history.
 - Use lobby walk-around / pre-mission hub mode as the primary experience.
 - Treat Perfect Dark's Carrington Institute HQ roam-at-start experience as the UX
   reference: safe headquarters space, free movement, friendly NPCs, briefing context,
@@ -37,41 +47,46 @@ Do not rely on memory. Inspect the current worktree and treat it as authoritativ
 Preserve shipped P0 behavior while adding forward capability.
 
 North-star final state:
-1. Perfect Dark Kit opens Virtual Agent Office cleanly.
-2. The player chooses dataDyne G5 or Carrington Institute from the Agent Office app.
-3. Each office boots as a peaceful lobby hub with eight TEAM_NONCOMBAT agents:
+1. Prag Chat is the canonical chat interface for managing agents through Slack-like
+   channels, threads, mentions, agent DMs, dispatch commands, approvals, and status.
+2. Perfect Dark Kit opens Virtual Agent Office cleanly as a 3D view/tab over the same
+   Office Service that Prag Chat uses.
+3. The player chooses dataDyne G5 or Carrington Institute from the Agent Office app.
+4. Each office boots as a peaceful lobby hub with eight TEAM_NONCOMBAT agents:
    Director, Orchestrator, Research, Code, QA, Security, Ops, and Comms.
-4. The player can walk to any agent, engage it by proximity or Z-target, and get a
+5. The player can walk to any agent, engage it by proximity or Z-target, and get a
    role-specific live response.
-5. Each agent has a body, desk/home pad, role, brain, memory, voice identity, tool
+6. Each agent has a body, desk/home pad, role, brain, memory, voice identity, tool
    permissions, autonomy policy, and auditable action log.
-6. The Office Director sidecar observes player + agent state, routes engagement to the
+7. The Office Director sidecar observes player + agent state, routes engagement to the
    right brain, posts agent utterances/status back into the game, and never breaks the
    static fallback when offline.
-7. Voice works end to end: push-to-talk or proximity listen, ASR transcript, per-agent
-   LLM reply, TTS playback, HUD/status fallback.
-8. The Office Service is persistent and headless-capable. The 3D game is one client,
-   not the only brain. Closing the game must not destroy task state, memory, events,
-   approvals, or audit logs.
-9. The Connector Gateway lets agents operate real tools through safe, audited MCP
+8. Local LLMs work end to end for live conversation: push-to-talk or proximity listen,
+   ASR transcript, per-agent LLM reply, character TTS playback, HUD/status fallback,
+   and voice identities for in-world characters including Dr. Caroll-style AI voices.
+9. The Office Service is persistent and headless-capable. Prag Chat and the 3D game
+   are clients, not the only brain. Closing either client must not destroy task state,
+   memory, events, approvals, or audit logs.
+10. The Connector Gateway lets agents operate real tools through safe, audited MCP
    connector calls. Start with Slack as the anchor through Comms, then GitHub for
    Code/QA, PagerDuty/Datadog for Ops, Notion/docs/web for Research, and routing/task
    tools for Orchestrator.
-10. Side-effecting tool actions default to ask-approval. Approvals should be cleared
+11. Side-effecting tool actions default to ask-approval. Approvals should be cleared
     by an explicit human-present interaction in the office, especially through Security,
-    or by authenticated remote approval when the headless service is enabled.
-11. The console becomes mission control: fleet overview, queued/blocked/done states,
-    pending approvals, recent events, and dispatch-to-room.
-12. Agents show legible in-world state: idle, working, blocked, waiting for approval,
+    or by authenticated approval in Prag Chat when the headless service is enabled.
+12. The console becomes mission control: fleet overview, queued/blocked/done states,
+    pending approvals, recent events, and dispatch-to-room; Prag Chat exposes the same
+    state as channels, threads, mentions, and approval cards.
+13. Agents show legible in-world state: idle, working, blocked, waiting for approval,
     done, or error. Use status billboards, HUD panels, monitor text, animation/posture,
     and console summaries as the engine allows.
-13. Slack round-trip works: inbound Slack events surface through Comms; outbound Slack
+14. Slack round-trip works: inbound Slack events surface through Comms; outbound Slack
     posts are drafted, approved, sent, and audited; remote Slack commands can dispatch
     work into the office.
-14. The system is resilient. If an LLM backend, connector, voice component, or sidecar
+15. The system is resilient. If an LLM backend, connector, voice component, or sidecar
     fails, the office degrades to visible status and static fallback behavior. The game
     must not crash or freeze.
-15. G5 and CI eventually become multiple offices/teams with cross-office routing rather
+16. G5 and CI eventually become multiple offices/teams with cross-office routing rather
     than crowded single-room scale.
 
 Build roadmap to respect:
@@ -82,8 +97,8 @@ Build roadmap to respect:
   billboards, inspect panels.
 - P3 Dispatch: Office Service tasks, queue, interrupt, hand-off, event bus, memory,
   approvals, audit.
-- P4 Tools, Slack first: real connector gateway integration, Comms round-trip, safe
-  approvals.
+- P4 Prag Chat + tools, Slack first: Slack-like Prag Chat interface over the Office
+  Service, real connector gateway integration, Comms round-trip, safe approvals.
 - P5 Fleet ops: Ops with PagerDuty/Datadog, Code/QA with GitHub and CI, Research with
   docs/web, Security as approval and policy desk.
 - P6 Persistent remote control: HTTP API, webhook ingress, Slack remote dispatch,
@@ -92,11 +107,13 @@ Build roadmap to respect:
   clear spatial scale.
 
 Pitchable P4 demo definition:
-Launch Perfect Dark Kit, open Virtual Agent Office, enter the peaceful G5 or CI lobby,
-walk to Ops, and hear/see Ops report a real runtime signal. Walk to Comms and see real
-Slack threads that need attention. Ask Comms to draft a reply, approve it in-world, and
-confirm the message posts to Slack with an audit entry. The player managed real agents
-and real tools by walking a room.
+Open Prag Chat and see the agent workspace as channels, threads, mentions, and agent
+DMs. Launch the Perfect Dark 3D tab/view from that same workspace, enter the peaceful
+G5 or CI lobby, walk to Ops, and hear/see Ops report a real runtime signal. Walk to
+Comms and see the same Slack-style threads that need attention. Ask Comms to draft a
+reply, approve it in-world or in Prag Chat, and confirm the message posts to Slack with
+one audit entry. The user managed real agents and real tools through synchronized chat
+and 3D interfaces backed by the same service.
 
 Implementation rules:
 - Read existing code and docs first; extend local patterns instead of inventing parallel
@@ -115,7 +132,9 @@ Implementation rules:
 
 Non-goals:
 - Do not turn this into a shooter or combat arena.
-- Do not replace the spatial office with a normal dashboard or chat app.
+- Do not build Prag Chat and the spatial office as disconnected products.
+- Do not let the chat app replace the spatial office, or the spatial office replace
+  the chat. The product needs both surfaces over the same control plane.
 - Do not require the user to leave the room for core management actions.
 - Do not allow unaudited side-effecting connector calls.
 - Do not break static Agent Office behavior when live AI is offline.
@@ -128,11 +147,12 @@ right agent, and approving real work in a spatial, auditable, embodied control p
 ## Short Version
 
 ```text
-Build Virtual Agent Office into a peaceful pre-mission lobby control plane for real AI
-agents. The player should walk up to embodied agents, talk to them, dispatch work,
-approve risky actions, and see real Slack/GitHub/Ops activity reflected in-world.
-Combat Sim is only an optional stress test. Preserve P0 lobby behavior while advancing
-P1-P7: live brains, voice, state billboards, Office Service dispatch, connector gateway,
-Slack round-trip, persistent remote control, and multi-office routing. Verify end to
-end and commit scoped slices.
+Build a Slack-like agent-management system with Prag Chat as the primary chat surface
+and Perfect Dark's Virtual Agent Office as a peaceful 3D tab/view into the same agents.
+The user should manage agents through channels, threads, mentions, DMs, approvals, and
+3D walk-up conversations with local LLMs and generated voices. Combat Sim is only an
+optional stress test. Preserve P0 lobby behavior while advancing P1-P7: live brains,
+voice, state billboards, Office Service dispatch, connector gateway, Prag Chat/Slack
+round-trip, persistent remote control, and multi-office routing. Verify end to end and
+commit scoped slices.
 ```
