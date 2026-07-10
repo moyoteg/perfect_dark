@@ -617,6 +617,8 @@ def build_from_spec(
                 if spec.cover_markers and mapdef.covers
                 else None
             ),
+            pads=mapdef.pads,
+            scale_factor=spec.scale_factor,
         )
 
     pads_json_path = write_pads_json(mapdef)

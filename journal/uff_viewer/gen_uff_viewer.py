@@ -1009,20 +1009,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   #validationSheet .sheet-actions { display:flex; justify-content:flex-end; gap:var(--space-sm);
     margin-top:var(--space-md); }
   #validationSheet .sheet-actions button { min-height:36px; padding:6px 14px; }
-  #validationCopy {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
-    color: var(--muted) !important;
-    font-size: 11px !important;
-    padding: 4px 10px !important;
-    border-radius: 6px !important;
-    transition: all 0.2s ease !important;
-  }
-  #validationCopy:hover {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
-    color: #f0f3fa !important;
-  }
   #testStatus { font-size:var(--label-size); margin:var(--space-xs) 0 0; min-height:14px; line-height:1.35; }
   #runTestStatus { position:fixed; right:var(--right-gap); top:calc(var(--chrome-top) + var(--runbar-h) + 4px); z-index:6; max-width:280px; font-size:11px;
     color:var(--muted); pointer-events:none; line-height:1.35; text-align:right; }
@@ -4252,10 +4238,10 @@ function showValidationModal(opts) {
   const copyBtn = document.getElementById('validationCopy');
   if (copyBtn) {
     if (errors.length) {
-      copyBtn.innerHTML = '📋 Copy Errors';
+      copyBtn.textContent = 'Copy Errors';
       copyBtn.title = 'Copy all errors to clipboard';
     } else {
-      copyBtn.innerHTML = '📋 Copy Warnings';
+      copyBtn.textContent = 'Copy Warnings';
       copyBtn.title = 'Copy all warnings to clipboard';
     }
     copyBtn.onclick = () => {
