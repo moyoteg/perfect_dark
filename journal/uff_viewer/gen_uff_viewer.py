@@ -991,6 +991,23 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     border-radius:7px; padding:8px 10px; cursor:pointer; }
   #mapPickList.map-pick-list button:hover { border-color:var(--accent); background:#222c3a; }
   #mapPickList .maps-open-empty { font-size:var(--label-size); color:var(--muted); padding:8px 0; }
+  #validationModal { position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; z-index:9999 !important; display:none; align-items:center;
+    justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); }
+  #validationModal.open { display:flex; }
+  #validationSheet { position:relative !important; width:min(500px, calc(100vw - 32px)); max-height:min(85vh, 600px);
+    display:flex; flex-direction:column; padding:var(--space-lg); border-radius:14px; }
+  #validationSheet h2 { margin:0 0 var(--space-xs); font-size:15px; color:#f0f3fa; }
+  .validation-modal-body { overflow-y:auto; flex-grow:1; margin:var(--space-md) 0; font-size:12px; color:#cdd6e6; line-height:1.5; max-height:400px; padding-right:8px; }
+  .validation-modal-body p { margin:0 0 6px 0; }
+  .validation-modal-body ul { margin:0 0 var(--space-md) 0; padding-left:20px; }
+  .validation-modal-body li { margin-bottom:4px; }
+  .validation-modal-body .err-header { color:#ff6b6b; font-weight:bold; margin-bottom:8px; }
+  .validation-modal-body .warn-header { color:#ffd43b; font-weight:bold; margin-bottom:8px; }
+  .validation-modal-body .err-item { color:#ff8787; }
+  .validation-modal-body .warn-item { color:#ffe066; }
+  #validationSheet .sheet-actions { display:flex; justify-content:flex-end; gap:var(--space-sm);
+    margin-top:var(--space-md); }
+  #validationSheet .sheet-actions button { min-height:36px; padding:6px 14px; }
   #testStatus { font-size:var(--label-size); margin:var(--space-xs) 0 0; min-height:14px; line-height:1.35; }
   #runTestStatus { position:fixed; right:var(--right-gap); top:calc(var(--chrome-top) + var(--runbar-h) + 4px); z-index:6; max-width:280px; font-size:11px;
     color:var(--muted); pointer-events:none; line-height:1.35; text-align:right; }
@@ -1239,6 +1256,18 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="sheet-actions">
       <button type="button" id="mapNameCancel">Cancel</button>
       <button type="button" id="mapNameOk" class="active">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scrollable Validation Warnings / Errors Modal -->
+<div id="validationModal" role="dialog" aria-modal="true" aria-labelledby="validationModalTitle" hidden>
+  <div id="validationSheet" class="panel">
+    <h2 id="validationModalTitle">Validation Results</h2>
+    <div id="validationModalBody" class="validation-modal-body"></div>
+    <div class="sheet-actions">
+      <button type="button" id="validationCancel">Cancel</button>
+      <button type="button" id="validationOk" class="active">Proceed</button>
     </div>
   </div>
 </div>
@@ -4138,95 +4167,170 @@ function startDevServerPolling() {
   devServerPollTimer = setInterval(pollDevServerHealth, 5000);
 }
 
-async function runTestPlay() {
-  if (testPlayBusy) return;
+function showValidationModal(opts) {
+  const { title, errors = [], warnings = [], confirmLabel = 'Proceed', onConfirm, onCancel } = opts;
+  const modal = document.getElementById('validationModal');
+  const body = document.getElementById('validationModalBody');
+  const titleEl = document.getElementById('validationModalTitle');
+  const okBtn = document.getElementById('validationOk');
+  const cancelBtn = document.getElementById('validationCancel');
 
+  if (!modal || !body) {
+    if (errors.length) {
+      alert(title + ' (Errors):\n\n' + errors.join('\n'));
+      if (onCancel) onCancel();
+    } else if (warnings.length) {
+      const ok = confirm(title + ' (Warnings):\n\n' + warnings.join('\n'));
+      if (ok && onConfirm) onConfirm();
+      else if (onCancel) onCancel();
+    }
+    return;
+  }
+
+  titleEl.textContent = title;
+  okBtn.textContent = confirmLabel;
+
+  let html = '';
+  if (errors.length) {
+    html += '<div class="err-header">The following errors must be resolved:</div>';
+    html += '<ul>';
+    errors.forEach(err => {
+      html += `<li class="err-item">${escapeHtmlForValidation(err)}</li>`;
+    });
+    html += '</ul>';
+    okBtn.textContent = 'OK';
+    cancelBtn.hidden = true;
+  } else if (warnings.length) {
+    html += '<div class="warn-header">Please review the following warnings:</div>';
+    html += '<ul>';
+    warnings.forEach(warn => {
+      html += `<li class="warn-item">${escapeHtmlForValidation(warn)}</li>`;
+    });
+    html += '</ul>';
+    html += '<p style="margin-top:12px">Do you wish to proceed anyway?</p>';
+    cancelBtn.hidden = false;
+  }
+
+  body.innerHTML = html;
+
+  modal.hidden = false;
+  modal.classList.add('open');
+
+  okBtn.onclick = () => {
+    modal.hidden = true;
+    modal.classList.remove('open');
+    if (!errors.length && onConfirm) {
+      onConfirm();
+    } else if (errors.length && onCancel) {
+      onCancel();
+    }
+  };
+
+  cancelBtn.onclick = () => {
+    modal.hidden = true;
+    modal.classList.remove('open');
+    if (onCancel) onCancel();
+  };
+}
+
+function escapeHtmlForValidation(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function validateAndProceed(title, confirmLabel, warnOk, onProceed) {
   const { errors, warnings } = collectValidationIssues();
-  const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
   if (errors.length) {
     setTestStatus('err', errors.join(' · '));
-    const displayErrors = errors.slice(0, 15);
-    if (errors.length > 15) {
-      displayErrors.push(`... and ${errors.length - 15} more errors.`);
-    }
-    alert('Fix validation errors before testing:\n\n' + displayErrors.join('\n'));
+    showValidationModal({
+      title: 'Fix validation errors',
+      errors: errors,
+      onCancel: () => {}
+    });
     return;
   }
   if (warnings.length && !warnOk) {
-    const displayWarns = warnings.slice(0, 15);
-    if (warnings.length > 15) {
-      displayWarns.push(`... and ${warnings.length - 15} more warnings.`);
-    }
-    const proceed = confirm(
-      'Validation warnings:\n\n' + displayWarns.join('\n') + '\n\nProceed with Test / Play anyway?');
-    if (!proceed) {
-      setTestStatus('warn', 'Test cancelled — fix warnings or enable "Allow warnings"');
+    showValidationModal({
+      title: 'Validation warnings',
+      warnings: warnings,
+      confirmLabel: confirmLabel,
+      onConfirm: onProceed,
+      onCancel: () => {
+        setTestStatus('warn', 'Cancelled — fix warnings or enable "Allow warnings"');
+      }
+    });
+    return;
+  }
+  onProceed();
+}
+
+async function runTestPlay() {
+  if (testPlayBusy) return;
+
+  const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
+  validateAndProceed('Test / Play', 'Proceed with Test / Play anyway', warnOk, async () => {
+    let opts;
+    try { opts = getTestOptions(); }
+    catch (e) { alert(e.message); return; }
+
+    const data = serializeMap();
+    data.name = opts.level;
+    data.box_half = opts.half;
+    data.box_height = opts.height;
+    lastTestPayload = data;
+    lastTestShell = buildTestShellScript(data, opts);
+
+    if (!devServerOnline) {
+      const startCmd = DEV_SERVER.startCommand || 'python3 journal/uff_viewer/serve_editor.py';
+      setTestStatus('warn',
+        'Cannot launch from here — open scripts/release/Perfect Dark Map Editor.app or run: ' + startCmd);
+      showToast('Start the editor server to play in-game — use Export below for files');
       return;
     }
-  }
 
-  let opts;
-  try { opts = getTestOptions(); }
-  catch (e) { alert(e.message); return; }
-
-  const data = serializeMap();
-  data.name = opts.level;
-  data.box_half = opts.half;
-  data.box_height = opts.height;
-  lastTestPayload = data;
-  lastTestShell = buildTestShellScript(data, opts);
-
-  if (!devServerOnline) {
-    const startCmd = DEV_SERVER.startCommand || 'python3 journal/uff_viewer/serve_editor.py';
-    setTestStatus('warn',
-      'Cannot launch from here — open scripts/release/Perfect Dark Map Editor.app or run: ' + startCmd);
-    showToast('Start the editor server to play in-game — use Export below for files');
-    return;
-  }
-
-  if (document.getElementById('testPlayChk')?.checked === false) {
-    setTestStatus('warn', 'Launch disabled — enable "Launch game after build" or use Export below');
-    return;
-  }
-
-  testPlayBusy = true;
-  updateTestServerHint();
-  setTestStatus('', 'Building map and launching game…');
-  showToast('Building + launching…');
-
-  const path = DEV_SERVER.testMapPath || '/api/test-map';
-  opts.play = true;
-  try {
-    const res = await fetch(DEV_SERVER_BASE + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ map: data, options: opts }),
-    });
-    const body = await res.json();
-    if (testCmdsEl) {
-      testCmdsEl.textContent =
-        (body.command || '') + '\n\n' +
-        (body.playCommand ? '# play:\n' + body.playCommand + '\n\n' : '') +
-        (body.stdout || '') +
-        (body.stderr ? '\n# stderr:\n' + body.stderr : '');
+    if (document.getElementById('testPlayChk')?.checked === false) {
+      setTestStatus('warn', 'Launch disabled — enable "Launch game after build" or use Export below');
+      return;
     }
-    if (body.ok) {
-      const pidMsg = body.pid ? ' (game pid ' + body.pid + ')' : '';
-      setTestStatus('ok', 'Build OK — game launched' + pidMsg);
-      showToast('Game launched' + pidMsg);
-    } else {
-      const err = body.error || body.stderr || 'Build or launch failed';
-      setTestStatus('err', String(err).slice(0, 500));
-      showToast('Test / Play failed — see status');
-    }
-  } catch (e) {
-    setTestStatus('err', 'Server request failed: ' + e.message);
-    showToast('Could not reach local server');
-  } finally {
-    testPlayBusy = false;
+
+    testPlayBusy = true;
     updateTestServerHint();
-    updateTestPanel();
-  }
+    setTestStatus('', 'Building map and launching game…');
+    showToast('Building + launching…');
+
+    const path = DEV_SERVER.testMapPath || '/api/test-map';
+    opts.play = true;
+    try {
+      const res = await fetch(DEV_SERVER_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ map: data, options: opts }),
+      });
+      const body = await res.json();
+      if (testCmdsEl) {
+        testCmdsEl.textContent =
+          (body.command || '') + '\n\n' +
+          (body.playCommand ? '# play:\n' + body.playCommand + '\n\n' : '') +
+          (body.stdout || '') +
+          (body.stderr ? '\n# stderr:\n' + body.stderr : '');
+      }
+      if (body.ok) {
+        const pidMsg = body.pid ? ' (game pid ' + body.pid + ')' : '';
+        setTestStatus('ok', 'Build OK — game launched' + pidMsg);
+        showToast('Game launched' + pidMsg);
+      } else {
+        const err = body.error || body.stderr || 'Build or launch failed';
+        setTestStatus('err', String(err).slice(0, 500));
+        showToast('Test / Play failed — see status');
+      }
+    } catch (e) {
+      setTestStatus('err', 'Server request failed: ' + e.message);
+      showToast('Could not reach local server');
+    } finally {
+      testPlayBusy = false;
+      updateTestServerHint();
+      updateTestPanel();
+    }
+  });
 }
 
 function updateTestPanel() {
@@ -4302,82 +4406,61 @@ function downloadText(filename, text, mime) {
 async function runTestBuildOnly() {
   if (testPlayBusy) return;
 
-  const { errors, warnings } = collectValidationIssues();
   const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
-  if (errors.length) {
-    setTestStatus('err', errors.join(' · '));
-    const displayErrors = errors.slice(0, 15);
-    if (errors.length > 15) {
-      displayErrors.push(`... and ${errors.length - 15} more errors.`);
-    }
-    alert('Fix validation errors before exporting:\n\n' + displayErrors.join('\n'));
-    return;
-  }
-  if (warnings.length && !warnOk) {
-    const displayWarns = warnings.slice(0, 15);
-    if (warnings.length > 15) {
-      displayWarns.push(`... and ${warnings.length - 15} more warnings.`);
-    }
-    const proceed = confirm(
-      'Validation warnings:\n\n' + displayWarns.join('\n') + '\n\nProceed with export anyway?');
-    if (!proceed) {
-      setTestStatus('warn', 'Export cancelled — fix warnings or enable "Allow warnings"');
+  validateAndProceed('Build / Export', 'Proceed with Build / Export anyway', warnOk, async () => {
+    let opts;
+    try { opts = getTestOptions(); }
+    catch (e) { alert(e.message); return; }
+
+    const data = serializeMap();
+    data.name = opts.level;
+    data.box_half = opts.half;
+    data.box_height = opts.height;
+    lastTestPayload = data;
+    opts.play = false;
+    lastTestShell = buildTestShellScript(data, opts);
+
+    if (!devServerOnline) {
+      runTestExport();
       return;
     }
-  }
 
-  let opts;
-  try { opts = getTestOptions(); }
-  catch (e) { alert(e.message); return; }
-
-  const data = serializeMap();
-  data.name = opts.level;
-  data.box_half = opts.half;
-  data.box_height = opts.height;
-  lastTestPayload = data;
-  opts.play = false;
-  lastTestShell = buildTestShellScript(data, opts);
-
-  if (!devServerOnline) {
-    runTestExport();
-    return;
-  }
-
-  testPlayBusy = true;
-  updateTestServerHint();
-  setTestStatus('', 'Building map artifacts (no launch)…');
-  showToast('Exporting build…');
-
-  const path = DEV_SERVER.testMapPath || '/api/test-map';
-  try {
-    const res = await fetch(DEV_SERVER_BASE + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ map: data, options: opts }),
-    });
-    const body = await res.json();
-    if (testCmdsEl) {
-      testCmdsEl.textContent =
-        (body.command || body.fullCommand || '') + '\n\n' +
-        (body.stdout || '') +
-        (body.stderr ? '\n# stderr:\n' + body.stderr : '');
-    }
-    if (body.ok) {
-      setTestStatus('ok', 'Build OK — artifacts deployed (game not launched)');
-      showToast('Export build complete');
-    } else {
-      const err = body.error || body.stderr || 'Build failed';
-      setTestStatus('err', String(err).slice(0, 500));
-      showToast('Export build failed — see status');
-    }
-  } catch (e) {
-    setTestStatus('err', 'Server request failed: ' + e.message);
-    showToast('Could not reach local server — try terminal fallback');
-  } finally {
-    testPlayBusy = false;
+    testPlayBusy = true;
     updateTestServerHint();
-    updateTestPanel();
-  }
+    setTestStatus('', 'Building map artifacts (no launch)…');
+    showToast('Exporting build…');
+
+    const path = DEV_SERVER.testMapPath || '/api/test-map';
+    try {
+      const res = await fetch(DEV_SERVER_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ map: data, options: opts }),
+      });
+      const body = await res.json();
+      if (testCmdsEl) {
+        testCmdsEl.textContent =
+          (body.command || body.fullCommand || '') + '\n\n' +
+          (body.stdout || '') +
+          (body.stderr ? '\n# stderr:\n' + body.stderr : '');
+      }
+      if (body.ok) {
+        setTestStatus('ok', 'Build OK — artifacts deployed (game not launched)');
+        showToast('Export build complete');
+      } else {
+        const err = body.error || body.stderr || 'Build failed';
+        setTestStatus('err', String(err).slice(0, 500));
+        showToast('Export build failed — see status');
+      }
+    } catch (e) {
+      setTestStatus('err', 'Server request failed: ' + e.message);
+      showToast('Could not reach local server — try terminal fallback');
+    } finally {
+      testPlayBusy = false;
+      updateTestServerHint();
+      updateTestPanel();
+    }
+  });
 }
 
 function downloadTestMapJson() {
@@ -4406,51 +4489,31 @@ function downloadTestMapPython() {
 }
 
 function runTestExport() {
-  const { errors, warnings } = collectValidationIssues();
   const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
-  if (errors.length) {
-    setTestStatus('err', errors.join(' · '));
-    const displayErrors = errors.slice(0, 15);
-    if (errors.length > 15) {
-      displayErrors.push(`... and ${errors.length - 15} more errors.`);
-    }
-    alert('Fix validation errors before testing:\n\n' + displayErrors.join('\n'));
-    return;
-  }
-  if (warnings.length && !warnOk) {
-    const displayWarns = warnings.slice(0, 15);
-    if (warnings.length > 15) {
-      displayWarns.push(`... and ${warnings.length - 15} more warnings.`);
-    }
-    const proceed = confirm(
-      'Validation warnings:\n\n' + displayWarns.join('\n') + '\n\nProceed with test export anyway?');
-    if (!proceed) {
-      setTestStatus('warn', 'Test cancelled — fix warnings or enable "Allow warnings"');
-      return;
-    }
-  }
+  validateAndProceed('Test / Export', 'Proceed with test export anyway', warnOk, () => {
+    let opts;
+    try { opts = getTestOptions(); }
+    catch (e) { alert(e.message); return; }
 
-  let opts;
-  try { opts = getTestOptions(); }
-  catch (e) { alert(e.message); return; }
+    const data = serializeMap();
+    data.name = opts.level;
+    data.box_half = opts.half;
+    data.box_height = opts.height;
+    opts.play = false;
+    lastTestPayload = data;
+    lastTestShell = buildTestShellScript(data, opts);
 
-  const data = serializeMap();
-  data.name = opts.level;
-  data.box_half = opts.half;
-  data.box_height = opts.height;
-  opts.play = false;
-  lastTestPayload = data;
-  lastTestShell = buildTestShellScript(data, opts);
+    downloadText('.last_test.json', JSON.stringify(data, null, 2), 'application/json');
+    downloadText('.last_test.sh', lastTestShell, 'application/x-sh');
+    if (testCmdsEl) testCmdsEl.textContent = buildTestCommandLine(opts) + '\n\n' + lastTestShell;
 
-  downloadText('.last_test.json', JSON.stringify(data, null, 2), 'application/json');
-  downloadText('.last_test.sh', lastTestShell, 'application/x-sh');
-  if (testCmdsEl) testCmdsEl.textContent = buildTestCommandLine(opts) + '\n\n' + lastTestShell;
-
-  const msg = warnings.length
-    ? 'Exported with ' + warnings.length + ' warning(s). Save files to journal/uff_viewer/ and run the command.'
-    : 'Exported .last_test.json + .last_test.sh — save to journal/uff_viewer/ and run in terminal.';
-  setTestStatus('ok', msg);
-  showToast('Export ready — run command in terminal');
+    const { warnings } = collectValidationIssues();
+    const msg = warnings.length
+      ? 'Exported with ' + warnings.length + ' warning(s). Save files to journal/uff_viewer/ and run the command.'
+      : 'Exported .last_test.json + .last_test.sh — save to journal/uff_viewer/ and run in terminal.';
+    setTestStatus('ok', msg);
+    showToast('Export files complete');
+  });
 }
 
 function populateLevelSelect() {
