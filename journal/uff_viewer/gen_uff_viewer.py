@@ -2967,7 +2967,6 @@ function loadMap(obj, opts = {}) {
   if (!opts.skipHistory && !suppressHistory) pushHistory();
   mapState.name = obj.name || mapState.name;
   mapState.level_module = obj.level_module || mapState.level_module || '';
-  mapState.scale_factor = obj.scale_factor || 1.0;
   syncMapNameFields(mapState.name);
   updateStorageKeyDisplay();
   if (Number.isFinite(+obj.box_half) && Number.isFinite(+obj.box_height)) {
@@ -3837,8 +3836,7 @@ function collectValidationIssues() {
   const c = { spawn: 0, weapon: 0, ammo: 0, scenario: 0 };
   const posBuckets = new Map();
 
-  const testLevelVal = document.getElementById('testLevelName')?.value || '';
-  const isParade = mapState.name === 'parade' || mapState.name?.startsWith('parade_') || mapState.level_module === 'parade' || testLevelVal === 'parade' || testLevelVal.startsWith('parade_') || mapState.scale_factor < 1.0 || mapState.pads.length > 256;
+  const isParade = mapState.name === 'parade' || mapState.name?.startsWith('parade_') || mapState.level_module === 'parade';
   if (pads.length === 0) errors.push('Empty map — add pads before testing');
   for (let i = 0; i < pads.length; i++) {
     const p = pads[i];
