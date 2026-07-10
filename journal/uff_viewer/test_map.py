@@ -49,6 +49,26 @@ assert ROOT == PDMAP_ROOT
 DEFAULT_LOADOUT = [0x01, 0x09, 0x10, 0x04, 0x00, 0x25]
 
 
+def parse_loadout(raw: str | None) -> list[int]:
+    """Parse six comma-separated MPWEAPON ids for --loadout."""
+    if not raw:
+        return list(DEFAULT_LOADOUT)
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    if len(parts) != 6:
+        raise ValueError(f"--loadout needs exactly 6 weapon ids, got {len(parts)}: {raw!r}")
+    return [int(p, 0) for p in parts]
+
+
+def _append_play_options(cmd: list[str], args: argparse.Namespace, use_test_map: bool) -> None:
+    if use_test_map:
+        cmd.extend(["--num-sims", str(args.num_sims)])
+        cmd.extend(["--sim-difficulty", str(args.sim_difficulty)])
+        weapons = args.loadout if args.loadout is not None else DEFAULT_LOADOUT
+        cmd.extend(["--loadout", ",".join(str(w) for w in weapons)])
+        if args.mp_options:
+            cmd.extend(["--mp-options", str(args.mp_options)])
+
+
 def _mod_bgdata(mod_key: str) -> str:
     if mod_key not in MOD_CHOICES:
         raise ValueError(f"Unknown mod {mod_key!r}; choose from {', '.join(MOD_CHOICES)}")
@@ -105,11 +125,19 @@ def build_shell_script(args: argparse.Namespace, data: dict[str, Any]) -> str:
         f"--level {args.level}",
         f"--mod {args.mod}",
         f"--scenario {args.scenario}",
+        f"--num-sims {args.num_sims}",
+        f"--sim-difficulty {args.sim_difficulty}",
     ]
+    if args.loadout:
+        flags.append(f"--loadout {','.join(str(w) for w in args.loadout)}")
+    if getattr(args, "mp_options", 0):
+        flags.append(f"--mp-options {args.mp_options}")
     if args.seg:
         flags.append("--seg")
     if args.deploy:
         flags.append("--deploy")
+    if getattr(args, "no_textures", False):
+        flags.append("--no-textures")
     if args.skip_validate:
         flags.append("--skip-validate")
     if args.rebuild_game:
@@ -161,6 +189,31 @@ def main(argv: list[str] | None = None) -> int:
         default=0,
         help="MP scenario for --test-map (default: 0 Combat)",
     )
+    parser.add_argument(
+        "--num-sims",
+        type=int,
+        default=8,
+        help="Simulant count for --test-map quick-team (default: 8, stock cap 4)",
+    )
+    parser.add_argument(
+        "--sim-difficulty",
+        type=int,
+        default=2,
+        choices=range(0, 6),
+        help="Bot difficulty 0=Meat … 5=Dark (default: 2 Normal)",
+    )
+    parser.add_argument(
+        "--loadout",
+        type=parse_loadout,
+        default=parse_loadout(None),
+        help="Six MPWEAPON ids comma-separated for match loadout",
+    )
+    parser.add_argument(
+        "--mp-options",
+        type=lambda x: int(x, 0),
+        default=0,
+        help="MP options bitmask for --test-map (decimal or 0x hex)",
+    )
     parser.add_argument("--seg", action="store_true", default=True, help="Build box seg (default: on)")
     parser.add_argument("--no-seg", dest="seg", action="store_false", help="Skip seg build")
     parser.add_argument("--deploy", action="store_true", default=True, help="Deploy to mod (default: on)")
@@ -188,7 +241,15 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Also write journal/uff_viewer/.last_test.json and .last_test.sh",
     )
+    parser.add_argument(
+        "--no-textures",
+        action="store_true",
+        help="Disable character texture pool lookups for Anim Lab guards",
+    )
     args = parser.parse_args(argv)
+
+    if getattr(args, "no_textures", False):
+        os.environ["PDMAP_DISABLE_TEXTURES"] = "1"
 
     data = _load_json(args.json_file if args.json_file != "-" else None)
     level_name = (args.level or data.get("name") or "map").strip().lower()
@@ -223,6 +284,7 @@ def main(argv: list[str] | None = None) -> int:
             pd_binary=pd_binary,
             deploy_name=deploy_name if args.play else TEST_MAP_SLOT,
         )
+        _append_play_options(play, args, use_test_map=((deploy_name == TEST_MAP_SLOT) if args.play else True))
         print("\n# play command:")
         print(" ".join(play))
         return 0
@@ -284,6 +346,7 @@ def main(argv: list[str] | None = None) -> int:
             pd_binary=pd_binary,
             deploy_name=deploy_name,
         )
+        _append_play_options(cmd, args, use_test_map=use_test_map)
         print("\nLaunching:", " ".join(cmd))
         subprocess.run(cmd, cwd=ROOT, check=False)
 
