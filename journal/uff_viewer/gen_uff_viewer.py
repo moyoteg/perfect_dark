@@ -3012,11 +3012,31 @@ function loadMap(obj, opts = {}) {
   if (!opts.skipHistory && !suppressHistory) pushHistory();
   mapState.name = obj.name || mapState.name;
   mapState.level_module = obj.level_module || mapState.level_module || '';
+  mapState.scale_factor = obj.scale_factor || 1.0;
   syncMapNameFields(mapState.name);
   updateStorageKeyDisplay();
-  if (Number.isFinite(+obj.box_half) && Number.isFinite(+obj.box_height)) {
-    halfRange.value = +obj.box_half; heightRange.value = +obj.box_height;
-    applyBoxSize(+obj.box_half, +obj.box_height);
+
+  const isParade = mapState.name === 'parade' || mapState.name?.startsWith('parade_') || mapState.level_module === 'parade';
+  let loadedHalf = +obj.box_half;
+  let loadedHeight = +obj.box_height;
+  if (isParade || (mapState.scale_factor && mapState.scale_factor < 1.0)) {
+    const scale = mapState.scale_factor || 0.35;
+    let maxCoord = 0.0;
+    obj.pads.forEach(p => {
+      maxCoord = Math.max(maxCoord, Math.abs((+p.x || 0) * scale), Math.abs((+p.z || 0) * scale));
+    });
+    loadedHalf = Math.min(32767.0, maxCoord + 1000.0);
+    loadedHeight = 3000.0;
+    if (loadedHalf > parseFloat(halfRange.max || 12000)) {
+      halfRange.max = Math.ceil(loadedHalf / 100) * 100;
+    }
+  } else {
+    halfRange.max = 12000;
+  }
+
+  if (Number.isFinite(loadedHalf) && Number.isFinite(loadedHeight)) {
+    halfRange.value = loadedHalf; heightRange.value = loadedHeight;
+    applyBoxSize(loadedHalf, loadedHeight);
   }
   mapState.pads = obj.pads.map(p => {
     const t = KIND_ORDER.includes(p.type) ? p.type : 'other';
