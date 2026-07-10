@@ -4145,12 +4145,20 @@ async function runTestPlay() {
   const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
   if (errors.length) {
     setTestStatus('err', errors.join(' · '));
-    alert('Fix validation errors before testing:\n\n' + errors.join('\n'));
+    const displayErrors = errors.slice(0, 15);
+    if (errors.length > 15) {
+      displayErrors.push(`... and ${errors.length - 15} more errors.`);
+    }
+    alert('Fix validation errors before testing:\n\n' + displayErrors.join('\n'));
     return;
   }
   if (warnings.length && !warnOk) {
+    const displayWarns = warnings.slice(0, 15);
+    if (warnings.length > 15) {
+      displayWarns.push(`... and ${warnings.length - 15} more warnings.`);
+    }
     const proceed = confirm(
-      'Validation warnings:\n\n' + warnings.join('\n') + '\n\nProceed with Test / Play anyway?');
+      'Validation warnings:\n\n' + displayWarns.join('\n') + '\n\nProceed with Test / Play anyway?');
     if (!proceed) {
       setTestStatus('warn', 'Test cancelled — fix warnings or enable "Allow warnings"');
       return;
@@ -4298,12 +4306,20 @@ async function runTestBuildOnly() {
   const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
   if (errors.length) {
     setTestStatus('err', errors.join(' · '));
-    alert('Fix validation errors before exporting:\n\n' + errors.join('\n'));
+    const displayErrors = errors.slice(0, 15);
+    if (errors.length > 15) {
+      displayErrors.push(`... and ${errors.length - 15} more errors.`);
+    }
+    alert('Fix validation errors before exporting:\n\n' + displayErrors.join('\n'));
     return;
   }
   if (warnings.length && !warnOk) {
+    const displayWarns = warnings.slice(0, 15);
+    if (warnings.length > 15) {
+      displayWarns.push(`... and ${warnings.length - 15} more warnings.`);
+    }
     const proceed = confirm(
-      'Validation warnings:\n\n' + warnings.join('\n') + '\n\nProceed with export anyway?');
+      'Validation warnings:\n\n' + displayWarns.join('\n') + '\n\nProceed with export anyway?');
     if (!proceed) {
       setTestStatus('warn', 'Export cancelled — fix warnings or enable "Allow warnings"');
       return;
@@ -4394,12 +4410,20 @@ function runTestExport() {
   const warnOk = document.getElementById('testWarnOkChk')?.checked === true;
   if (errors.length) {
     setTestStatus('err', errors.join(' · '));
-    alert('Fix validation errors before testing:\n\n' + errors.join('\n'));
+    const displayErrors = errors.slice(0, 15);
+    if (errors.length > 15) {
+      displayErrors.push(`... and ${errors.length - 15} more errors.`);
+    }
+    alert('Fix validation errors before testing:\n\n' + displayErrors.join('\n'));
     return;
   }
   if (warnings.length && !warnOk) {
+    const displayWarns = warnings.slice(0, 15);
+    if (warnings.length > 15) {
+      displayWarns.push(`... and ${warnings.length - 15} more warnings.`);
+    }
     const proceed = confirm(
-      'Validation warnings:\n\n' + warnings.join('\n') + '\n\nProceed with test export anyway?');
+      'Validation warnings:\n\n' + displayWarns.join('\n') + '\n\nProceed with test export anyway?');
     if (!proceed) {
       setTestStatus('warn', 'Test cancelled — fix warnings or enable "Allow warnings"');
       return;
