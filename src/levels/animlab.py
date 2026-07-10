@@ -3,14 +3,6 @@
 import os
 import json
 from tools.pdmap.from_json import EditorMapSpec
-from tools.pdmap.builders import floor_box_with_parade_zones
-from tools.pdmap.anim_catalog import (
-    parade_district_markers,
-    parade_slot_markers,
-    parade_special_marker,
-    parade_zone_half,
-    parade_zone_markers,
-)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 JSON_PATH = os.path.abspath(os.path.join(HERE, "..", "..", "journal", "uff_viewer", "maps", "animlab_map.json"))
@@ -36,13 +28,4 @@ def build():
 
 def build_tiles_json():
     spec = load_spec()
-    slots = parade_slot_markers() + [parade_special_marker()]
-    return floor_box_with_parade_zones(
-        "animlab",
-        half=spec.box_half,
-        y=0.0,
-        slots=slots,
-        zones=parade_zone_markers(),
-        districts=parade_district_markers(),
-        zone_half=parade_zone_half(),
-    )
+    return spec.tiles_json()

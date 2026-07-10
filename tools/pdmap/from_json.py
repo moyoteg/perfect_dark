@@ -450,6 +450,7 @@ class EditorMapSpec:
     center_marker_half: float = CENTER_MARKER_HALF
     # Visible floor markers at AI cover positions (step 31).
     cover_markers: bool = False
+    tiles: dict[str, Any] | None = None
 
     @classmethod
     def from_json(
@@ -577,10 +578,14 @@ class EditorMapSpec:
                 data.get("center_marker_half", CENTER_MARKER_HALF)
             ),
             cover_markers=bool(data.get("cover_markers", False)),
+            tiles=data.get("tiles"),
         )
 
     def tiles_json(self, *, seg_mode: str | None = None) -> dict:
         """Collision floor matching the box arena (hill / CTF zone tiles when anchored)."""
+        if self.tiles is not None:
+            return self.tiles
+
         try:
             from .core import load_level_module
             mod = load_level_module(self.level_module)
