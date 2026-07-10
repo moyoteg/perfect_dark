@@ -33,6 +33,9 @@
 #include "game/menu.h"
 #include "game/inv.h"
 #include "game/playermgr.h"
+#ifndef PLATFORM_N64
+#include "bootmp.h"
+#endif
 #include "game/rng2.h"
 #include "game/vtxstore.h"
 #include "game/explosions.h"
@@ -1451,7 +1454,7 @@ s32 door0f068c04(struct prop *prop, s32 *arg1, s32 *arg2)
 
 	sibling = door;
 
-	while (sibling && sibling->base.prop) {
+	while (sibling && sibling->base.type == OBJTYPE_DOOR && sibling->base.prop) {
 		if (sibling->portalnum == door->portalnum) {
 			if (g_Vars.currentplayer->prop) {
 				struct coord *campos = &g_Vars.currentplayer->cam_pos;
@@ -1523,7 +1526,9 @@ s32 door0f068c04(struct prop *prop, s32 *arg1, s32 *arg2)
 
 		sibling = sibling->sibling;
 
-		if (sibling == door) {
+		if (!sibling || sibling == door
+				|| sibling->base.type != OBJTYPE_DOOR
+				|| !sibling->base.prop) {
 			break;
 		}
 	}
@@ -1740,6 +1745,12 @@ void propCalculateShadeColour(struct prop *prop, u8 *nextcol, u16 floorcol)
 	if (scol || salp) {
 		nextcol[0] = nextcol[1] = nextcol[2] = scol;
 		nextcol[3] = salp;
+	}
+	if (g_Vars.stagenum == 0x82 || g_Vars.stagenum == 0x86) {
+		nextcol[0] = 255;
+		nextcol[1] = 255;
+		nextcol[2] = 255;
+		nextcol[3] = 255;
 	}
 }
 
@@ -8739,6 +8750,25 @@ void autogunTick(struct prop *prop)
 	}
 
 	// Regular behaviour
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		s32 plyr_idx;
+		u32 prevplayernum = g_Vars.currentplayernum;
+		for (plyr_idx = 0; plyr_idx < PLAYERCOUNT(); plyr_idx++) {
+			setCurrentPlayerNum(plyr_idx);
+			if (g_Vars.currentplayer && g_Vars.currentplayer->prop) {
+				f32 dx = g_Vars.currentplayer->prop->pos.x - prop->pos.x;
+				f32 dy = g_Vars.currentplayer->prop->pos.y - prop->pos.y;
+				f32 dz = g_Vars.currentplayer->prop->pos.z - prop->pos.z;
+				f32 dist = sqrtf(dx*dx + dy*dy + dz*dz);
+				if (dist < 200.0f) {
+					autogun->ammoquantity = 255;
+					break;
+				}
+			}
+		}
+		setCurrentPlayerNum(prevplayernum);
+	}
+
 	if (autogun->ammoquantity == 0) {
 		// Don't set target
 	} else if (autogun->target) {
@@ -11521,6 +11551,7 @@ s32 objTickPlayer(struct prop *prop)
 				objInitMatrices(prop);
 				modelUpdateRelationsQuick(model, model->definition->rootnode);
 			}
+
 		}
 
 		if (model->matrices) {
@@ -13820,6 +13851,7 @@ Gfx *objRender(struct prop *prop, Gfx *gdl, bool xlupass)
 	f32 shadecolourfracs[4];
 	s32 shademode;
 	struct defaultobj *obj = prop->obj;
+
 	struct modelrenderdata renderdata = {NULL, true, 3};
 	struct screenbox screenbox;
 	s32 colour[4];
@@ -14047,6 +14079,7 @@ Gfx *objRender(struct prop *prop, Gfx *gdl, bool xlupass)
 	}
 
 	renderdata.fogcolour = colour[0] << 24 | colour[1] << 16 | colour[2] << 8 | colour[3];
+
 	objRenderProp(prop, &renderdata, xlupass);
 
 	gdl = renderdata.gdl;
@@ -16236,12 +16269,12 @@ void objHit(struct shotdata *shotdata, struct hit *hit)
 
 u32 propobjGetCiTagId(struct prop *prop)
 {
-	if (prop && g_Vars.stagenum == STAGE_CITRAINING) {
-		u8 tags[8] = { 0x0e, 0x0f, 0x10, 0x47, 0x46, 0x45, 0x1b, 0x7f };
+	if (prop && (g_Vars.stagenum == STAGE_CITRAINING || g_Vars.stagenum == STAGE_ANIMLAB)) {
+		u8 tags[24] = { 0x0e, 0x0f, 0x10, 0x47, 0x46, 0x45, 0x1b, 0x7f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47 };
 		struct defaultobj *obj = prop->obj;
 		u32 i;
 
-		for (i = 0; i != 8; i++) {
+		for (i = 0; i != 24; i++) {
 			struct defaultobj *taggedobj = objFindByTagId(tags[i]);
 
 			if (obj == taggedobj) {
@@ -16390,6 +16423,22 @@ bool propobjInteract(struct prop *prop)
 	bool result = false;
 	u32 tag_id = propobjGetCiTagId(prop);
 
+	/* Virtual Agent Office: (Z) on tagged lobby console opens Perfect Menu like CI lobby PC. */
+	if (STAGE_IS_AGENT_OFFICE(g_Vars.stagenum)
+#ifndef PLATFORM_N64
+			|| (g_Vars.stagenum == STAGE_CITRAINING && agentOfficeCiLobbyActive())
+#endif
+	) {
+		struct defaultobj *console = objFindByTagId(OBJ_AGENT_CONSOLE);
+
+		if (console && console->prop == prop) {
+			func0f0f85e0(&g_CiMenuViaPcMenuDialog, MENUROOT_MAINMENU);
+			sndStart(var80095200, SFX_TYPING_8118, NULL, -1, -1, -1, -1, -1);
+			func0f0fd494(&prop->pos);
+			return true;
+		}
+	}
+
 	if (tag_id) {
 		// CI object - terminals etc
 		u8 handled = false;
@@ -16495,6 +16544,9 @@ bool propobjInteract(struct prop *prop)
 
 	if (g_Vars.normmplayerisrunning) {
 		scenarioHandleActivatedProp(g_Vars.currentplayer->prop->chr, prop);
+		if (g_Vars.stagenum == STAGE_ANIMLAB) {
+			obj->hidden |= OBJHFLAG_ACTIVATED_BY_BOND;
+		}
 	} else {
 		if (g_Vars.currentplayernum == g_Vars.coopplayernum) {
 			obj->hidden |= OBJHFLAG_ACTIVATED_BY_COOP;
@@ -20945,7 +20997,7 @@ bool doorTestForInteract(struct prop *prop)
 	bool checkmore = true;
 	struct doorobj *door = prop->door;
 
-	if ((door->base.flags & OBJFLAG_CANNOT_ACTIVATE) == 0
+	if ((door->base.flags & (OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DEACTIVATED)) == 0
 			&& door->maxfrac > 0
 			&& (prop->flags & PROPFLAG_ONTHISSCREENTHISTICK)) {
 		bool maybe = false;
@@ -21092,6 +21144,11 @@ bool propdoorInteract(struct prop *doorprop)
 	struct doorobj *door = doorprop->door;
 	bool usingeyespy = g_Vars.currentplayer->eyespy && g_Vars.currentplayer->eyespy->active;
 	struct prop *playerprop = usingeyespy ? g_Vars.currentplayer->eyespy->prop : g_Vars.currentplayer->prop;
+
+	/* Agent-office and other setups use deactivated doors as static collision. */
+	if (door->base.flags & OBJFLAG_DEACTIVATED) {
+		return TICKOP_NONE;
+	}
 
 	if (doorIsUnlocked(playerprop, doorprop)) {
 		doorsChooseSwingDirection(playerprop, door);
