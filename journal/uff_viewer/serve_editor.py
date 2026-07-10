@@ -23,7 +23,7 @@ import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Bundled .app copies set PD_REPO_ROOT; default infers repo from journal/uff_viewer layout.
@@ -83,7 +83,7 @@ def _cors_headers(handler: BaseHTTPRequestHandler) -> None:
     origin = handler.headers.get("Origin")
     if _localhost_origin(origin):
         handler.send_header("Access-Control-Allow-Origin", origin or "http://127.0.0.1")
-        handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        handler.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         handler.send_header("Access-Control-Allow-Headers", "Content-Type")
         handler.send_header("Vary", "Origin")
 
@@ -128,6 +128,8 @@ def _build_test_map_argv(json_path: str, opts: dict[str, Any], *, play: bool) ->
         cmd.append("--deploy")
     else:
         cmd.append("--no-deploy")
+    if opts.get("disableTextures") or opts.get("noTextures"):
+        cmd.append("--no-textures")
     if opts.get("skipValidate"):
         cmd.append("--skip-validate")
     if opts.get("rebuildGame"):
@@ -155,8 +157,30 @@ def _run_test_map(payload: dict[str, Any]) -> dict[str, Any]:
         return {"ok": False, "error": "Missing or invalid 'map' object in request body."}
 
     opts = payload.get("options") if isinstance(payload.get("options"), dict) else {}
-    level = str(opts.get("level") or map_data.get("name") or "uff").strip().lower()
-    deploy_as = str(opts.get("deployAs") or level).strip().lower()
+    # Get registered level modules from src/levels/
+    levels_dir = os.path.join(ROOT, "src", "levels")
+    registered_levels = []
+    if os.path.isdir(levels_dir):
+        registered_levels = [
+            f[:-3] for f in os.listdir(levels_dir)
+            if f.endswith(".py") and not f.startswith("_")
+        ]
+
+    raw_level = map_data.get("level_module") or map_data.get("name") or opts.get("level") or "uff"
+    raw_level = str(raw_level).strip().lower()
+
+    # Dynamic catalog-driven resolution
+    level = raw_level
+    for lvl in registered_levels:
+        if lvl in raw_level or raw_level in lvl:
+            level = lvl
+            break
+
+    deploy_as = opts.get("deployAs")
+    if not deploy_as or deploy_as == "__same__":
+        deploy_as = level
+    else:
+        deploy_as = str(deploy_as).strip().lower()
     want_play = bool(opts.get("play", True))
 
     map_data = dict(map_data)
@@ -190,6 +214,7 @@ def _run_test_map(payload: dict[str, Any]) -> dict[str, Any]:
             scenario=int(opts.get("scenario", 0)),
             pd_binary=pd_binary,
             use_test_map=use_test_map and want_play,
+            deploy_name=deploy_as,
             **_play_params_from_opts(opts),
         )
         return {
@@ -217,12 +242,17 @@ def _run_test_map(payload: dict[str, Any]) -> dict[str, Any]:
         rebuild_game=bool(opts.get("rebuildGame")),
         play=want_play,
         verbose=False,
+        write_level=False,
+        dry_run=False,
+        binary=None,
+        write_artifacts=False,
         backup=bool(opts.get("backup", True)),
         deploy_as=deploy_as,
         num_sims=play_params["num_sims"],
         sim_difficulty=play_params["sim_difficulty"],
         loadout=loadout,
         mp_options=play_params["mp_options"],
+        no_textures=bool(opts.get("disableTextures") or opts.get("noTextures")),
     )
     sh_path = os.path.join(STATE_DIR, ".last_test.sh")
     try:
@@ -271,6 +301,9 @@ def _run_test_map(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
     if proc.returncode != 0:
+        sys.stderr.write(f"[serve_editor] build failed with returncode {proc.returncode}\n")
+        sys.stderr.write(f"[serve_editor] build stdout:\n{proc.stdout}\n")
+        sys.stderr.write(f"[serve_editor] build stderr:\n{proc.stderr}\n")
         result["error"] = "build_failed"
         return result
 
@@ -282,6 +315,7 @@ def _run_test_map(payload: dict[str, Any]) -> dict[str, Any]:
         scenario=int(opts.get("scenario", 0)),
         pd_binary=pd_binary,
         use_test_map=use_test_map,
+        deploy_name=deploy_as,
         **_play_params_from_opts(opts),
     )
     result["playCommand"] = " ".join(play_argv)
@@ -385,6 +419,52 @@ class EditorHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(payload).encode("utf-8"))
             return
 
+        if path == "/api/maps":
+            maps_dir = os.path.join(STATE_DIR, "maps")
+            os.makedirs(maps_dir, exist_ok=True)
+            maps_list = []
+            for f in os.listdir(maps_dir):
+                if f.endswith(".json"):
+                    name = f[:-5]
+                    file_path = os.path.join(maps_dir, f)
+                    pad_count = 0
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as fp:
+                            map_data = json.load(fp)
+                            pad_count = len(map_data.get("pads", []))
+                    except Exception:
+                        pass
+                    maps_list.append({
+                        "name": name,
+                        "source": "file",
+                        "padCount": pad_count
+                    })
+            self.send_response(200)
+            _cors_headers(self)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps({"maps": maps_list}).encode("utf-8"))
+            return
+
+        if path.startswith("/api/maps/"):
+            name = unquote(path[len("/api/maps/"):])
+            name = os.path.basename(name)
+            file_path = os.path.join(STATE_DIR, "maps", f"{name}.json")
+            if not os.path.isfile(file_path):
+                self.send_error(404, f"Map not found: {name}")
+                return
+            try:
+                with open(file_path, "r", encoding="utf-8") as fp:
+                    map_data = json.load(fp)
+                self.send_response(200)
+                _cors_headers(self)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"map": map_data}).encode("utf-8"))
+            except Exception as exc:
+                self.send_error(500, str(exc))
+            return
+
         # Static files from journal/uff_viewer/
         if path in ("/", "/index.html"):
             rel = "uff_map.html"
@@ -414,6 +494,9 @@ class EditorHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
         self.end_headers()
         self.wfile.write(data)
 
@@ -449,6 +532,80 @@ class EditorHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.end_headers()
         self.wfile.write(json.dumps(result, indent=2).encode("utf-8"))
+
+    def do_PUT(self) -> None:  # noqa: N802
+        if self._check_cors_preflight():
+            return
+        if self._reject_origin():
+            return
+
+        path = urlparse(self.path).path
+        if path.startswith("/api/maps/"):
+            name = unquote(path[len("/api/maps/"):])
+            name = os.path.basename(name)
+            length = int(self.headers.get("Content-Length", "0"))
+            raw = self.rfile.read(length) if length else b""
+            try:
+                payload = json.loads(raw.decode("utf-8") if raw else "{}")
+                map_data = payload.get("map")
+                if not map_data:
+                    self.send_response(400)
+                    _cors_headers(self)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"ok": False, "error": "missing map object"}).encode("utf-8"))
+                    return
+                
+                maps_dir = os.path.join(STATE_DIR, "maps")
+                os.makedirs(maps_dir, exist_ok=True)
+                file_path = os.path.join(maps_dir, f"{name}.json")
+                with open(file_path, "w", encoding="utf-8") as fp:
+                    json.dump(map_data, fp, indent=2)
+                
+                self.send_response(200)
+                _cors_headers(self)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"ok": True}).encode("utf-8"))
+            except Exception as exc:
+                self.send_response(500)
+                _cors_headers(self)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"ok": False, "error": str(exc)}).encode("utf-8"))
+            return
+        self.send_error(404)
+
+    def do_DELETE(self) -> None:  # noqa: N802
+        if self._check_cors_preflight():
+            return
+        if self._reject_origin():
+            return
+
+        path = urlparse(self.path).path
+        if path.startswith("/api/maps/"):
+            name = unquote(path[len("/api/maps/"):])
+            name = os.path.basename(name)
+            file_path = os.path.join(STATE_DIR, "maps", f"{name}.json")
+            if os.path.isfile(file_path):
+                try:
+                    os.remove(file_path)
+                    self.send_response(200)
+                    _cors_headers(self)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"ok": True}).encode("utf-8"))
+                    return
+                except Exception as exc:
+                    self.send_response(500)
+                    _cors_headers(self)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"ok": False, "error": str(exc)}).encode("utf-8"))
+                    return
+            self.send_error(404, f"Map not found: {name}")
+            return
+        self.send_error(404)
 
 
 def _port_bindable(host: str, port: int) -> bool:

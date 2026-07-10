@@ -1,12 +1,11 @@
 # Virtual Agent Office — Carrington Institute (retail dish geometry).
 #
-# Pre-mission lobby hub: player spawns on PAD_DISH_000E (Y=35, room 0x0014),
-# eight virtual agents ring the open CI foyer, Z-target for status lines, and use
-# (Z) on the CI hub console in the north lobby (PAD_DISH_0017) for a room overview.
+# Player spawns at retail intro pad (PAD_DISH_00F5, Jo's office); eight virtual
+# agents at retail desk/chair chr pads. Z-target for status; (Z) on CI hub console.
 #
 # Geometry: retail bg_dish seg/tiles/pads from ROM (SKIP_* flags).
 # Setup: dedicated STAGE_AGENT_OFFICE_CI (0x84) → Ump_setupagent_office_ciZ.
-# Doors/lifts: retail dish props (deactivated/static; ci_retail_doors / ci_retail_lifts).
+# Doors/lifts: retail dish props (mp_unlock + sibling remap; ci_retail_doors / ci_retail_lifts).
 #
 # Deploy:  python3 tools/pdmap.py build agent_office_ci --deploy
 # Play:    ./scripts/play-agent-office-ci.sh
@@ -35,7 +34,7 @@ def build() -> MapDef:
 
     load_retail_pads(g, RETAIL_STAGE, default_room=-1)
 
-    # Player spawns — CI lobby hub (Y≈35); agents reachable without opening doors.
+    # Player spawns — retail intro office (setupdish.c intro[] → PAD_DISH_00F5).
     g.add_intro(Spawn(pad=PAD_BRIEFING_ENTRY))
     g.add_intro(Spawn(pad=PAD_PLAYER_SPAWN_ALT))
     g.add_intro(Spawn(pad=PAD_PLAYER_SPAWN_LOBBY))

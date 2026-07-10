@@ -33,13 +33,13 @@ class LocalTextureUpgrader:
             big = rgba.resize((w * scale, h * scale), Image.Resampling.NEAREST)
             big = big.filter(ImageFilter.UnsharpMask(radius=1.2, percent=180, threshold=1))
             big = ImageEnhance.Contrast(big).enhance(1.08)
-            out = big.resize((w, h), Image.Resampling.NEAREST)
+            out = big
         else:
             big = rgba.resize((w * scale, h * scale), Image.Resampling.LANCZOS)
             big = big.filter(ImageFilter.UnsharpMask(radius=1.5, percent=140, threshold=3))
             big = ImageEnhance.Contrast(big).enhance(1.05)
             big = ImageEnhance.Sharpness(big).enhance(1.15)
-            out = big.resize((w, h), Image.Resampling.LANCZOS)
+            out = big
 
         return out
 

@@ -50,6 +50,8 @@ def discover_textures(paths: Iterable[Path], repo_root: Path) -> list[AssetEntry
                 continue
             texture_id = path.stem.lower()
             mod_name = _mod_name(path, root)
+            if mod_name == "mod_upgraded":
+                continue
             key = (mod_name or "", texture_id)
             if key in seen:
                 continue

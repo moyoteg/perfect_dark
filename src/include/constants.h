@@ -4077,9 +4077,13 @@
 #define STAGE_ANIMLAB        0x82
 #define STAGE_AGENT_OFFICE   0x83
 #define STAGE_AGENT_OFFICE_CI 0x84
+#define STAGE_AGENT_OFFICE_LAB 0x85
 /* Anim Lab draw radius — mega yard ≈32k from spawn; 48k covers far wings from hub. */
 #define ANIMLAB_DRAW_DIST      48000.0f
 #define ANIMLAB_DRAW_DIST_SQ   (ANIMLAB_DRAW_DIST * ANIMLAB_DRAW_DIST)
+/* Room-1 bbox override — must match parade_arena_half() / BOX_HALF in animlab.py */
+#define ANIMLAB_ROOM1_HALF      32000.0f
+#define STAGE_PARADE         0x86
 #define STAGE_TITLE         0x5c
 #define STAGE_BOOTPAKMENU   0x5d
 #define STAGE_CREDITS       0x5e
@@ -4098,7 +4102,17 @@
 	((stage) == STAGE_TEST_UFF \
 		|| (stage) == STAGE_MY_ARENA \
 		|| (stage) == STAGE_TESTARENA \
-		|| (stage) == STAGE_ANIMLAB)
+		|| (stage) == STAGE_ANIMLAB \
+		|| (stage) == STAGE_PARADE)
+
+/* Virtual Agent Office hub stages (G5 / CI / lab sandbox). */
+#define STAGE_IS_AGENT_OFFICE(stage) \
+	((stage) == STAGE_AGENT_OFFICE \
+		|| (stage) == STAGE_AGENT_OFFICE_CI \
+		|| (stage) == STAGE_AGENT_OFFICE_LAB)
+
+/* Tagged lobby console in agent-office MP setups (tools/pdmap/agent_office*.py). */
+#define OBJ_AGENT_CONSOLE 0x20
 
 // Must match tools/pdmap/builders.py HILL_ZONE_HALF (default hill capture square).
 #define PDMAP_KOTH_HILL_HALF 600.0f
@@ -4225,6 +4239,7 @@
 #define STAGEINDEX_ANIMLAB       0x59
 #define STAGEINDEX_AGENT_OFFICE  0x5a
 #define STAGEINDEX_AGENT_OFFICE_CI 0x5b
+#define STAGEINDEX_AGENT_OFFICE_LAB 0x5c
 
 #define SURFACETYPE_DEFAULT      0
 #define SURFACETYPE_STONE        1

@@ -250,6 +250,9 @@ def _channels_to_rgba(
                 if x + 1 < width:
                     pixels.append((lo * 17, lo * 17, lo * 17, 255))
                 pos += 2
+            # texChannelsToPixels: odd widths consume one fewer channel per row.
+            if width & 1:
+                pos -= 1
     else:
         pos = 0
         for _y in range(height):

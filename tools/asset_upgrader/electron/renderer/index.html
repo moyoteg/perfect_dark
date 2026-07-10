@@ -39,6 +39,7 @@
           Backend
           <select id="backend">
             <option value="local">Local (free upscale)</option>
+            <option value="mlx">Apple Silicon MLX Core (free)</option>
             <option value="openai">OpenAI API (paid)</option>
           </select>
         </label>
@@ -57,6 +58,14 @@
         <label class="checkbox">
           <input id="dryRun" type="checkbox" />
           Dry run (skip enhancement)
+        </label>
+        <label class="checkbox">
+          <input id="noResume" type="checkbox" />
+          Force re-run (disable resume)
+        </label>
+        <label class="checkbox">
+          <input id="includeBase" type="checkbox" />
+          Include base game textures
         </label>
         <label>
           Custom prompt
@@ -129,13 +138,13 @@
         <div class="compare-pane">
           <span class="compare-label">Original</span>
           <div class="compare-frame">
-            <img id="compareBefore" class="compare-img" alt="Original texture" />
+            <img id="compareBefore" class="compare-img original-rendering" alt="Original texture" />
           </div>
         </div>
         <div class="compare-pane">
           <span class="compare-label enhanced">Enhanced</span>
           <div class="compare-frame">
-            <img id="compareAfter" class="compare-img" alt="Enhanced texture" />
+            <img id="compareAfter" class="compare-img enhanced-rendering" alt="Enhanced texture" />
           </div>
         </div>
       </div>
@@ -143,8 +152,8 @@
       <div class="compare-overlay-section">
         <span class="compare-label">Interactive wipe</span>
         <div class="compare-frame overlay-frame">
-          <img id="compareBeforeOverlay" class="compare-img overlay-base" alt="Original overlay" />
-          <img id="compareAfterOverlay" class="compare-img overlay-top" alt="Enhanced overlay" />
+          <img id="compareBeforeOverlay" class="compare-img original-rendering overlay-base" alt="Original overlay" />
+          <img id="compareAfterOverlay" class="compare-img enhanced-rendering overlay-top" alt="Enhanced overlay" />
         </div>
         <div class="compare-slider-wrap">
           <label for="compareSlider">Drag to reveal enhanced pixels</label>

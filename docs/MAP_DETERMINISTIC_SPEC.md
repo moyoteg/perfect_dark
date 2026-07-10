@@ -72,7 +72,7 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_runtime_smoke`
   - Tags: runtime, test-map
 
-- **Box-arena modules without SEG_SCRIPT (procedural seg): 40**
+- **Box-arena modules without SEG_SCRIPT (procedural seg): 45**
   - Source: `tools/pdmap/pipeline.py:build_from_spec`
   - Verified by: `probe_seg_script_inventory`
   - Tags: seg, box
@@ -97,10 +97,30 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_curriculum_integration`
   - Tags: curriculum, validate
 
-- **Level module animlab: 21 pads, box_arena=True, custom_tiles=True**
+- **Level module agent_office: 259 pads, box_arena=False, custom_tiles=False**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/agent_office.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, agent_office
+
+- **Level module agent_office_ci: 650 pads, box_arena=False, custom_tiles=False**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/agent_office_ci.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, agent_office_ci
+
+- **Level module agent_office_lab: 32 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/agent_office_lab.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, agent_office_lab
+
+- **Level module animlab: 1154 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/animlab.py`
   - Verified by: `probe_level_modules`
   - Tags: level-module, animlab
+
+- **Level module conker_war_sentry_inf: 295 pads, box_arena=False, custom_tiles=False**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/conker_war_sentry_inf.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, conker_war_sentry_inf
 
 - **Level module csim: 10 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/csim.py`
@@ -232,7 +252,7 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_level_modules`
   - Tags: level-module, learn_20_overlap_pads
 
-- **Level module learn_21_hacker_central: 2 pads, box_arena=True, custom_tiles=True**
+- **Level module learn_21_hacker_central: 4 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_21_hacker_central.py`
   - Verified by: `probe_level_modules`
   - Tags: level-module, learn_21_hacker_central
@@ -287,6 +307,26 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_level_modules`
   - Tags: level-module, learn_31_cover_points
 
+- **Level module learn_32_office_door: 5 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_32_office_door.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, learn_32_office_door
+
+- **Level module matrix_battle_64: 160 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/matrix_battle_64.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, matrix_battle_64
+
+- **Level module matrix_battle_sentry: 180 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/matrix_battle_sentry.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, matrix_battle_sentry
+
+- **Level module matrix_battle_sentry_inf: 180 pads, box_arena=True, custom_tiles=True**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/matrix_battle_sentry_inf.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, matrix_battle_sentry_inf
+
 - **Level module my_arena: 17 pads, box_arena=True, custom_tiles=True**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/my_arena.py`
   - Verified by: `probe_level_modules`
@@ -301,6 +341,11 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/uff.py`
   - Verified by: `probe_level_modules`
   - Tags: level-module, uff
+
+- **Level module war_colors_conker: 219 pads, box_arena=False, custom_tiles=False**
+  - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/war_colors_conker.py`
+  - Verified by: `probe_level_modules`
+  - Tags: level-module, war_colors_conker
 
 - **Level modules with SEG_SCRIPT: 1 (learn_29_custom_seg_script)**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels`
@@ -322,7 +367,7 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_pipeline_contract`
   - Tags: cli
 
-- **plan_registration('learn_scratch') emits 4 C wiring snippets**
+- **plan_registration('learn_scratch') emits 7 C wiring snippets**
   - Source: `tools/pdmap/register.py:plan_registration`
   - Verified by: `probe_register_codegen`
   - Tags: registration, codegen
@@ -374,7 +419,7 @@ or direct source inspection. Do not edit by hand — re-run the learn engine._
   - Verified by: `probe_registered_stages`
   - Tags: registration, testarena, env, lang
 
-- **files.h defines 189 FILE_BG_* asset constants**
+- **files.h defines 192 FILE_BG_* asset constants**
   - Source: `/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/include/files.h`
   - Verified by: `probe_engine_wiring`
   - Tags: registration, files.h

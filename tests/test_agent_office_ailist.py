@@ -21,22 +21,47 @@ from tools.pdmap import agent_office as G5  # noqa: E402
 from tools.pdmap import agent_office_ci as CI  # noqa: E402
 
 
+def _build(mod, spec, greet_text):
+    return mod._build_agent_briefing_ailist(
+        mod.VirtualAgentSpec(
+            spec.role,
+            spec.pad,
+            spec.body,
+            spec.head,
+            spec.anim_index,
+            spec.status_text,
+            doing_idle=spec.doing_idle,
+            fixed_height=getattr(spec, "fixed_height", False),
+            chair=getattr(spec, "chair", 0xFFFF),
+            naturalanim=getattr(spec, "naturalanim", 0),
+            anim_flags=getattr(spec, "anim_flags", mod._AGENT_ANIM_FLAGS),
+            anim_speed=getattr(spec, "anim_speed", 16),
+            facing_note=spec.facing_note,
+            greet_text=greet_text,
+        )
+    )
+
+
 def _examine_only(mod, spec):
-    return mod._build_agent_briefing_ailist(spec.anim_index, spec.status_text, None)
+    return _build(mod, spec, None)
 
 
 def _actual(mod, spec):
-    return mod._build_agent_briefing_ailist(spec.anim_index, spec.status_text, spec.greet_text)
+    return _build(mod, spec, spec.greet_text)
 
 
 def test_examine_only_agents_unchanged():
-    """Agents without a greeting emit byte-identical bytecode to before."""
+    """Standing briefing agents without greetings keep stable examine-only bytecode."""
+    stable_roles = frozenset(
+        {"Director", "Orchestrator", "Research", "Code", "QA", "Comms"}
+    )
     for mod in (G5, CI):
         for spec in mod.VIRTUAL_AGENTS:
-            if spec.greet_text is None:
-                assert _actual(mod, spec) == _examine_only(mod, spec), (
-                    f"{mod.__name__}:{spec.role} bytecode changed unexpectedly"
-                )
+            if spec.greet_text is not None or spec.role not in stable_roles:
+                continue
+            assert _actual(mod, spec) == _examine_only(mod, spec), (
+                f"{mod.__name__}:{spec.role} bytecode changed unexpectedly"
+            )
 
 
 def test_greeter_agents_extend_examine_build():

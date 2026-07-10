@@ -33,6 +33,10 @@
         "filter": ["kit.json", "electron_paths.js", "electron_single_instance.js"]
       },
       {
+        "from": "../../../tools/pd_kit/kit_domain.js",
+        "to": "kit_domain.js"
+      },
+      {
         "from": "../../../KIT_VERSION",
         "to": "KIT_VERSION"
       },

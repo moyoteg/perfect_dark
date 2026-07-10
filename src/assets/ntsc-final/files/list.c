@@ -2040,6 +2040,16 @@ char *filenames[] = {
 	/*0x7f2*/ "Ump_setupagent_officeZ",
 	/*0x7f3*/ "Usetupagent_office_ciZ",
 	/*0x7f4*/ "Ump_setupagent_office_ciZ",
+	/*0x7f5*/ "bgdata/bg_agent_office_lab.seg",
+	/*0x7f6*/ "bgdata/bg_agent_office_lab_tilesZ",
+	/*0x7f7*/ "bgdata/bg_agent_office_lab_padsZ",
+	/*0x7f8*/ "Usetupagent_office_labZ",
+	/*0x7f9*/ "Ump_setupagent_office_labZ",
+/*0x07fa*/ "bgdata/bg_parade.seg",
+		/*0x07fb*/ "bgdata/bg_parade_tilesZ",
+		/*0x07fc*/ "bgdata/bg_parade_padsZ",
+		/*0x07fd*/ "UsetupparadeZ",
+		/*0x07fe*/ "Ump_setupparadeZ",
 #endif
 
 };

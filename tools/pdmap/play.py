@@ -9,8 +9,28 @@ import sys
 from .core import ROOT
 
 TEST_MAP_SLOT = "uff"
-STAGE_TEST_UFF = 0x4D
-STAGE_ANIMLAB = 0x82
+
+def get_stage_id(stage_name: str) -> int | None:
+    constants_h = os.path.join(ROOT, "src", "include", "constants.h")
+    if not os.path.isfile(constants_h):
+        return None
+    names_to_try = [stage_name.upper(), f"TEST_{stage_name.upper()}"]
+    for name in names_to_try:
+        symbol = f"STAGE_{name}"
+        with open(constants_h, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("#define") and symbol in line:
+                    parts = line.split()
+                    if len(parts) >= 3 and parts[1] == symbol:
+                        val_str = parts[2]
+                        try:
+                            if val_str.startswith("0x") or val_str.startswith("0X"):
+                                return int(val_str, 16)
+                            else:
+                                return int(val_str)
+                        except ValueError:
+                            pass
+    return None
 
 MOD_CHOICES: dict[str, str] = {
     "mod_allinone": "mods/mod_allinone",
@@ -83,7 +103,9 @@ def play_command(
             cmd.append("--test-map")
             cmd.append(f"--scenario-{scenario}")
         else:
-            stage = STAGE_ANIMLAB if map_level == "animlab" else STAGE_TEST_UFF
+            stage = get_stage_id(map_level)
+            if stage is None:
+                stage = get_stage_id("uff") or 0x4D
             cmd.extend(["--boot-stage", str(stage)])
             cmd.append("--skip-intro")
     cmd.extend(["--moddir", mod_path])

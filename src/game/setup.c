@@ -21,6 +21,7 @@
 #include "game/mplayer/scenarios.h"
 #include "game/challenge.h"
 #ifndef PLATFORM_N64
+#include "bootmp.h"
 #include "system.h"
 #include "warcolors_probe.h"
 #endif
@@ -409,6 +410,9 @@ void setupCreateObject(struct defaultobj *obj, s32 cmdindex)
 
 	modelnum = obj->modelnum;
 	setupLoadModeldef(modelnum);
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		sysLogPrintf(LOG_WARNING, "setupCreateObject: stagenum=82 type=%u modelnum=%d pad=%d modeldef=%p", obj->type, modelnum, obj->pad, g_ModelStates[modelnum].modeldef);
+	}
 	scale = obj->extrascale * (1.0f / 256.0f);
 
 	if (g_Vars.normmplayerisrunning || g_Vars.lvmpbotlevel) {
@@ -452,6 +456,9 @@ void setupCreateObject(struct defaultobj *obj, s32 cmdindex)
 		}
 
 		padUnpack(obj->pad, PADFIELD_POS | PADFIELD_LOOK | PADFIELD_UP | PADFIELD_BBOX | PADFIELD_ROOM, &pad);
+		if (g_Vars.stagenum == STAGE_ANIMLAB) {
+			sysLogPrintf(LOG_WARNING, "setupCreateObject: stagenum=82 pad=%d unpacked pos=(%f,%f,%f) room=%d", obj->pad, pad.pos.x, pad.pos.y, pad.pos.z, pad.room);
+		}
 
 		if (g_ModelStates[modelnum].modeldef == NULL) {
 #ifndef PLATFORM_N64
@@ -1066,6 +1073,10 @@ s32 setupGetPortalByDoorPad(s32 padnum)
 	return bgFindPortalBetweenPositions(&centre, &coord);
 }
 
+static bool g_DoorSiblingsResolved;
+static void setupResolveOneDoorSibling(struct doorobj *door, s32 cmdindex);
+static void setupResolveAllDoorSiblings(void);
+
 void setupCreateDoor(struct doorobj *door, s32 cmdindex)
 {
 	f32 scale;
@@ -1121,7 +1132,6 @@ void setupCreateDoor(struct doorobj *door, s32 cmdindex)
 	if (pad.room > 0) {
 		Mtxf sp110;
 		struct prop *prop;
-		s32 siblingcmdindex;
 		struct coord pos;
 		RoomNum rooms[8];
 		Mtxf finalmtx;
@@ -1183,11 +1193,10 @@ void setupCreateDoor(struct doorobj *door, s32 cmdindex)
 		door->decel = PALUPF(*(s32 *) &door->decel) / 65536000.0f;
 		door->maxspeed = PALUPF(*(s32 *) &door->maxspeed) / 65536.0f;
 
-		// The sibling door is stored as a relative command number,
-		// but at runtime it's a pointer.
-		if (door->sibling) {
-			siblingcmdindex = *(s32 *) &door->sibling + cmdindex;
-			door->sibling = (struct doorobj *) setupGetCmdByIndex(siblingcmdindex);
+		// Sibling offsets are resolved in setupResolveAllDoorSiblings() before the
+		// props loop; keep a fallback for stages that skip the pre-pass.
+		if (door->sibling && !g_DoorSiblingsResolved) {
+			setupResolveOneDoorSibling(door, cmdindex);
 		}
 
 		prop = doorInit(door, &pos, &finalmtx, rooms, &sp54, &centre);
@@ -1353,8 +1362,20 @@ void setupLoadFiles(s32 stagenum)
 	if (!STAGE_IS_MENU(stagenum)) {
 		// pdmap only emits gameplay content in Ump_setup*; the solo Usetup* stub is
 		// a minimal placeholder and must not be parsed as props.
-		if (g_Vars.normmplayerisrunning || STAGE_IS_PDMAP_BOX_ARENA(stagenum)) {
-			filenum = g_Stages[g_StageIndex].mpsetupfileid;
+		if (g_Vars.normmplayerisrunning || STAGE_IS_PDMAP_BOX_ARENA(stagenum)
+#ifndef PLATFORM_N64
+				|| (stagenum == STAGE_CITRAINING && agentOfficeCiLobbyActive())
+#endif
+		) {
+#ifndef PLATFORM_N64
+			if (stagenum == STAGE_CITRAINING && agentOfficeCiLobbyActive()) {
+				/* Fresh CI lobby: solo boot + agent_office_ci MP setup on retail dish geo. */
+				filenum = FILE_UMP_SETUPAGENT_OFFICE_CI;
+			} else
+#endif
+			{
+				filenum = g_Stages[g_StageIndex].mpsetupfileid;
+			}
 		} else {
 			filenum = g_Stages[g_StageIndex].setupfileid;
 		}
@@ -1507,6 +1528,60 @@ void setupLoadFiles(s32 stagenum)
 	g_Vars.maxprops = numobjs + numchrs + extra + 40;
 }
 
+static void setupResolveOneDoorSibling(struct doorobj *door, s32 cmdindex)
+{
+	s32 offset;
+	s32 siblingcmdindex;
+	u32 *siblingcmd;
+
+	if (!door->sibling) {
+		return;
+	}
+
+	offset = *(s32 *)&door->sibling;
+	siblingcmdindex = cmdindex + offset;
+	siblingcmd = setupGetCmdByIndex(siblingcmdindex);
+
+	if (siblingcmd && (u8)PD_BE32(siblingcmd[0]) == OBJTYPE_DOOR) {
+		door->sibling = (struct doorobj *)siblingcmd;
+	} else {
+#ifndef PLATFORM_N64
+		sysLogPrintf(LOG_WARNING,
+				"setupResolveOneDoorSibling: door cmd %d pad %d sibling %+d -> invalid (target cmd %d)",
+				cmdindex, door->base.pad, offset, siblingcmdindex);
+#endif
+		door->sibling = NULL;
+	}
+}
+
+/**
+ * Resolve every door sibling before any ``doorInit`` shade walk.
+ *
+ * ``door0f068c04`` follows ``sibling->sibling`` during init; per-door resolution
+ * in ``setupCreateDoor`` leaves later chain links as packed offsets until those
+ * doors are created, which dereferences garbage (e.g. ``0x0001100000000017``).
+ */
+static void setupResolveAllDoorSiblings(void)
+{
+	s32 index = 0;
+	struct defaultobj *obj = (struct defaultobj *)g_StageSetup.props;
+
+	if (!obj) {
+		return;
+	}
+
+	while (obj->type != OBJTYPE_END) {
+		if (obj->type == OBJTYPE_DOOR) {
+			setupResolveOneDoorSibling((struct doorobj *)obj, index);
+		}
+
+		obj = (struct defaultobj *)((u32 *)obj + setupGetCmdLength((u32 *)obj));
+		index++;
+	}
+
+	g_DoorSiblingsResolved = true;
+}
+
 static void setupMarkLiftDoors()
 {
 	s32 index = 0;
@@ -1612,10 +1687,14 @@ void setupCreateProps(s32 stagenum)
 			index = 0;
 
             bool nodoors = (g_MpSetup.options & MPOPTION_NODOORS) != 0;
-            
+
+			g_DoorSiblingsResolved = false;
+
 			if (nodoors) {
 				setupMarkLiftDoors();
 			}
+
+			setupResolveAllDoorSiblings();
 
 			obj = (struct defaultobj *)g_StageSetup.props;
 

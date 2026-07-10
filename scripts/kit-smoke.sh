@@ -28,8 +28,8 @@ done
 LOG_ROOT="${HOME}/Library/Logs/PerfectDarkKit"
 HUB_LOG="${LOG_ROOT}/kit-hub.log"
 ANIM_LOG="${LOG_ROOT}/anim-lab.log"
-HUB_APP="${PD_KIT_RELEASE_DIR}/${PD_KIT_APP_HUB}"
-ANIM_APP="${PD_KIT_RELEASE_DIR}/${PD_KIT_APP_ANIM_LAB}"
+HUB_APP="${PD_KIT_REPO_ROOT}/${PD_KIT_APP_HUB}"
+ANIM_APP="${PD_KIT_REPO_ROOT}/${PD_KIT_APP_HUB}/Contents/Resources/Apps/${PD_KIT_APP_ANIM_LAB}"
 
 fail() {
 	echo "FAIL: $*" >&2
@@ -41,6 +41,29 @@ pass() {
 }
 
 [[ -d "$HUB_APP" ]] || fail "Hub not built: $HUB_APP (run ./scripts/build-pd-kit.sh --apps-only)"
+
+python3 - "$PD_KIT_REPO_ROOT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+repo = Path(sys.argv[1])
+sys.path.insert(0, str(repo))
+from tools.pd_kit.hub_surface import validate_kit_hub_manifest
+
+manifest = json.loads((repo / "tools" / "pd_kit" / "kit.json").read_text(encoding="utf-8"))
+violations = validate_kit_hub_manifest(manifest)
+if violations:
+    print("FAIL: kit.json hub invariants:", "; ".join(violations), file=sys.stderr)
+    sys.exit(1)
+print("PASS: kit.json hub invariants")
+PY
+
+node "$PD_KIT_REPO_ROOT/tests/test_kit_launch_policy.js" || fail "Kit launch policy tests failed"
+
+node "$PD_KIT_REPO_ROOT/tests/test_kit_get_info_invariants.js" || fail "Kit get-info invariant tests failed"
+
+node "$PD_KIT_REPO_ROOT/tests/test_kit_game_action_policy.js" || fail "Kit game/action policy tests failed"
 
 if [[ -f "$HUB_LOG" ]] && grep -qi 'Unhandled rejection' "$HUB_LOG" 2>/dev/null; then
 	fail "Unhandled rejection in $HUB_LOG"

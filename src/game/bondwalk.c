@@ -1108,8 +1108,7 @@ void bwalkUpdateVertical(void)
 				g_Vars.currentplayer->isfalling = false;
 			}
 
-			if (g_Vars.stagenum != STAGE_ANIMLAB
-					&& g_Vars.currentplayer->vv_manground <= -30000) {
+			if (g_Vars.currentplayer->vv_manground <= -30000) {
 				playerDie(true);
 			}
 		}
@@ -1119,8 +1118,7 @@ void bwalkUpdateVertical(void)
 			g_Vars.currentplayer->isfalling = false;
 		}
 
-		if (g_Vars.stagenum != STAGE_ANIMLAB
-				&& g_Vars.currentplayer->vv_manground <= -30000) {
+		if (g_Vars.currentplayer->vv_manground <= -30000) {
 			playerDie(true);
 		}
 	}
@@ -1245,6 +1243,11 @@ void bwalkUpdateVertical(void)
 
 		propDeregisterRooms(g_Vars.currentplayer->prop);
 		roomsCopy(newrooms, g_Vars.currentplayer->prop->rooms);
+	}
+
+	if ((g_Vars.stagenum == STAGE_CITRAINING || g_Vars.stagenum == STAGE_ANIMLAB) && g_Vars.currentplayer->prop->pos.y < -100.0f) {
+		g_Vars.currentplayer->vv_manground = -30000.0f;
+		playerDie(true);
 	}
 }
 

@@ -38,11 +38,14 @@ CHRCFLAG_NOSHADOW = 0x00002000
 CHRCFLAG_NEVERSLEEP = 0x00040000
 # Do not set CHRCFLAG_NEVERSLEEP: it forces chraiExecute every frame for all
 # parade guards (570+) and pegs CPU. Ailists yield + CHRANIMFLAG_SLOWUPDATE suffice.
-_PARADE_CHR_FLAGS = CHRCFLAG_NOSHADOW
+import os
+_DISABLE_TEXTURES = os.environ.get("PDMAP_DISABLE_TEXTURES", "").strip().lower() in ("1", "true", "yes")
+_PARADE_CHR_FLAGS = CHRCFLAG_NOSHADOW if _DISABLE_TEXTURES else 0
 
 TEAM_ENEMY = 0x02
 SQUADRON_01 = 0x01
 CHR_SELF = 0xFD
+CHR_P1 = 0x00
 
 AILIST_MP_INIT = 0x1000
 AILIST_PARADE_BASE = 0x0401
@@ -108,6 +111,118 @@ def _cmd_set_self_chrflag(flag: int) -> bytes:
 
 def _cmd_set_ailist(ailist_id: int, chr: int = CHR_SELF) -> bytes:
     return struct.pack(">HBH", 0x0005, chr & 0xFF, ailist_id & 0xFFFF)
+
+
+def _cmd_if_chr_activated_object(chr: int, tag_id: int, fail_label: int) -> bytes:
+    return struct.pack(">HBBB", 0x0063, chr & 0xFF, tag_id & 0xFF, fail_label & 0xFF)
+
+
+def _cmd_chr_begin_or_end_teleport(pad_id: int, chr: int) -> bytes:
+    return struct.pack(">HHB", 0x01BF, pad_id & 0xFFFF, chr & 0xFF)
+
+
+def _cmd_if_chr_teleport_full_white(chr: int, fail_label: int) -> bytes:
+    return struct.pack(">HBB", 0x01C0, fail_label & 0xFF, chr & 0xFF)
+
+
+def _cmd_if_chr_distance_to_pad_lt(chr: int, distance: int, pad: int, label: int) -> bytes:
+    return struct.pack(">H B H H B", 0x0054, chr & 0xFF, int(distance / 10) & 0xFFFF, pad & 0xFFFF, label & 0xFF)
+
+
+def _cmd_if_chr_distance_to_pad_gt(chr: int, distance: int, pad: int, label: int) -> bytes:
+    return struct.pack(">H B H H B", 0x0055, chr & 0xFF, int(distance / 10) & 0xFFFF, pad & 0xFFFF, label & 0xFF)
+
+
+def _cmd_show_hudmsg(chr: int, text: int) -> bytes:
+    return struct.pack(">H B H", 0x00CB, chr & 0xFF, text & 0xFFFF)
+
+
+def _build_portal_teleport_ailist(mapdef) -> bytes:
+    from .anim_props import _HUB_PORTAL_TAGS, _RETURN_PORTAL_TAGS
+    code = bytearray()
+    outer = 0x10
+    code += _cmd_label(outer)
+    
+    # 1. Generate return portal checks (Wing -> Hub)
+    for tag_id, gate in _RETURN_PORTAL_TAGS:
+        fail_lbl = (tag_id + 0x40) & 0xFF
+        wait_lbl = (tag_id + 0x50) & 0xFF
+        success_lbl = (tag_id + 0x60) & 0xFF
+        
+        code += _cmd_if_chr_activated_object(CHR_P1, tag_id, fail_lbl)
+        code += _cmd_chr_begin_or_end_teleport(0, CHR_P1)  # Return to player spawn pad 0
+        code += _cmd_label(wait_lbl)
+        code += _cmd_if_chr_teleport_full_white(CHR_P1, success_lbl)
+        code += _cmd_yield()
+        code += _cmd_goto_first(wait_lbl)
+        code += _cmd_label(success_lbl)
+        code += _cmd_goto_first(outer)
+        code += _cmd_label(fail_lbl)
+
+    # 2. Generate hub portal checks (Hub -> Wing)
+    portal_landing_pads = getattr(mapdef, "portal_landing_pads", {})
+    
+    for tag_id, sign in _HUB_PORTAL_TAGS:
+        fail_lbl = (tag_id + 0x10) & 0xFF
+        compass = sign["compass"]
+        target_pad = portal_landing_pads.get(compass, 0)
+        
+        wait_lbl = (tag_id + 0x20) & 0xFF
+        success_lbl = (tag_id + 0x30) & 0xFF
+        
+        # Operation check
+        code += _cmd_if_chr_activated_object(CHR_P1, tag_id, fail_lbl)
+        code += _cmd_chr_begin_or_end_teleport(target_pad, CHR_P1)
+        code += _cmd_label(wait_lbl)
+        code += _cmd_if_chr_teleport_full_white(CHR_P1, success_lbl)
+        code += _cmd_yield()
+        code += _cmd_goto_first(wait_lbl)
+        code += _cmd_label(success_lbl)
+        code += _cmd_goto_first(outer)
+        code += _cmd_label(fail_lbl)
+        
+    code += _cmd_yield()
+    code += _cmd_goto_first(outer)
+    code += _cmd_endlist()
+    return bytes(code)
+
+
+def _build_portal_message_ailist(mapdef) -> bytes:
+    from .anim_props import _HUB_PORTAL_TAGS
+    code = bytearray()
+    outer = 0x10
+    code += _cmd_label(outer)
+    
+    portal_entrance_pads = getattr(mapdef, "portal_entrance_pads", {})
+    
+    for tag_id, sign in _HUB_PORTAL_TAGS:
+        compass = sign["compass"]
+        ent_pad = portal_entrance_pads.get(compass, 0)
+        near_lbl = (tag_id + 0x40) & 0xFF
+        
+        # Proximity check
+        code += _cmd_if_chr_distance_to_pad_lt(CHR_P1, 250, ent_pad, near_lbl)
+        
+    code += _cmd_yield()
+    code += _cmd_goto_first(outer)
+    
+    # Proximity message display sub-routines
+    for i, (tag_id, sign) in enumerate(_HUB_PORTAL_TAGS):
+        compass = sign["compass"]
+        ent_pad = portal_entrance_pads.get(compass, 0)
+        near_lbl = (tag_id + 0x40) & 0xFF
+        loop_lbl = (tag_id + 0x50) & 0xFF
+        text_id = 127 + i
+        
+        code += _cmd_label(near_lbl)
+        code += _cmd_show_hudmsg(CHR_P1, text_id)
+        code += _cmd_label(loop_lbl)
+        code += _cmd_yield()
+        code += _cmd_if_chr_distance_to_pad_lt(CHR_P1, 350, ent_pad, loop_lbl)
+        code += _cmd_goto_first(outer)
+        
+    code += _cmd_endlist()
+    return bytes(code)
 
 
 def _build_single_anim_loop_ailist(anim_index: int, *, never_sleep: bool = False) -> bytes:
@@ -195,7 +310,7 @@ def _tour_ailist_chunks() -> list[tuple[bytes, int]]:
     return result
 
 
-def _mp_init_ailist() -> bytes:
+def _mp_init_ailist(mapdef=None) -> bytes:
     return bytes([
         0x01, 0x85,
         0x01, 0x45,
@@ -230,46 +345,96 @@ def _chr_prop(*, chrnum: int, pad: int, ailist: int) -> Chr:
     )
 
 
-def parade_chr_props() -> list[Chr]:
+def parade_chr_props(mapdef) -> list[Chr]:
     """Grid guards (one anim each) plus the full-tour cycler."""
     props: list[Chr] = []
+    max_pads = len(mapdef.pads)
     for slot in range(NUM_GRID_SLOTS):
+        pad_idx = PAD_PARADE_FIRST + slot
+        if pad_idx >= max_pads:
+            break
         props.append(
             _chr_prop(
                 chrnum=CHR_PARADE_FIRST + slot,
-                pad=PAD_PARADE_FIRST + slot,
+                pad=pad_idx,
                 ailist=AILIST_PARADE_BASE + slot,
             )
         )
-    tour_chunks = _tour_ailist_chunks()
-    tour_entry = tour_chunks[0][1] if tour_chunks else AILIST_TOUR_BASE
-    props.append(
-        _chr_prop(
-            chrnum=CHR_SPECIAL_TOUR,
-            pad=PAD_SPECIAL_TOUR,
-            ailist=tour_entry,
+    if PAD_SPECIAL_TOUR < max_pads:
+        tour_chunks = _tour_ailist_chunks()
+        tour_entry = tour_chunks[0][1] if tour_chunks else AILIST_TOUR_BASE
+        props.append(
+            _chr_prop(
+                chrnum=CHR_SPECIAL_TOUR,
+                pad=PAD_SPECIAL_TOUR,
+                ailist=tour_entry,
+            )
         )
-    )
     return props
 
 
 def pack_anim_parade_setup(mapdef) -> bytes:
-    """Full setup binary: grid loop ailists + chained tour ailists + character gallery + MP init."""
-    from .anim_characters import character_ailist_chunks, character_chr_props
+    """Full setup binary: grid loop ailists + chained tour ailists + character gallery + portals + MP init."""
+    from .anim_characters import character_ailist_chunks, character_chr_props, _character_pad_first
+    from .anim_catalog import hub_signpost_entries
+    from .anim_characters import character_ailist_base
 
-    props = list(mapdef.props) + parade_chr_props() + character_chr_props()
+    # Portal trigger characters helper
+    def _portal_chr_props() -> list[Chr]:
+        from .anim_characters import MAIN_CHARACTER_ENTRIES, _character_chr_first
+        chr_id = _character_chr_first() + len(MAIN_CHARACTER_ENTRIES)
+        aid = character_ailist_base() + len(MAIN_CHARACTER_ENTRIES)
+        pad_id = getattr(mapdef, "portal_guard_pad", None)
+        if pad_id is None or pad_id >= len(mapdef.pads):
+            return []
+        return [
+            _chr_prop(
+                chrnum=chr_id,
+                pad=pad_id,
+                ailist=aid,
+            ),
+            _chr_prop(
+                chrnum=chr_id + 1,
+                pad=pad_id,
+                ailist=aid + 1,
+            )
+        ]
+
+    # Portal AI lists helper
+    def _portal_ailist_chunks() -> list[tuple[bytes, int]]:
+        from .anim_characters import MAIN_CHARACTER_ENTRIES
+        aid = character_ailist_base() + len(MAIN_CHARACTER_ENTRIES)
+        code_teleport = _build_portal_teleport_ailist(mapdef)
+        code_message = _build_portal_message_ailist(mapdef)
+        return [
+            (code_teleport, aid),
+            (code_message, aid + 1)
+        ]
+
+    char_props = []
+    if len(mapdef.pads) > _character_pad_first():
+        char_props = character_chr_props()
+
+    props = list(mapdef.props) + parade_chr_props(mapdef) + char_props + _portal_chr_props()
     props_bin = b"".join(p.pack() for p in props) + struct.pack(">I", 0x34)
 
     intro_bin = b"".join(cmd.pack() for cmd in mapdef.intro) + struct.pack(">I", 12)
 
-    ailist_chunks: list[tuple[bytes, int]] = [(_mp_init_ailist(), AILIST_MP_INIT)]
+    ailist_chunks: list[tuple[bytes, int]] = [(_mp_init_ailist(mapdef), AILIST_MP_INIT)]
     for slot in range(NUM_GRID_SLOTS):
+        if PAD_PARADE_FIRST + slot >= len(mapdef.pads):
+            break
         anim_index = SHOWCASE_ANIMS[slot][1]
         ailist_chunks.append(
             (_build_single_anim_loop_ailist(anim_index), AILIST_PARADE_BASE + slot)
         )
-    ailist_chunks.extend(_tour_ailist_chunks())
-    ailist_chunks.extend(character_ailist_chunks())
+    if PAD_SPECIAL_TOUR < len(mapdef.pads):
+        ailist_chunks.extend(_tour_ailist_chunks())
+    if len(mapdef.pads) > _character_pad_first():
+        ailist_chunks.extend(character_ailist_chunks())
+    pad_id = getattr(mapdef, "portal_guard_pad", None)
+    if pad_id is not None and pad_id < len(mapdef.pads):
+        ailist_chunks.extend(_portal_ailist_chunks())
 
     ptr_props = 0x20
     ptr_intro = ptr_props + len(props_bin)

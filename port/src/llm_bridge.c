@@ -12,8 +12,19 @@
 #include "config.h"
 #include "llm_bridge.h"
 #include "llm_internal.h"
+#include "voice_pipeline_stub.h"
 #include "system.h"
 #include "utils.h"
+#include "game/hudmsg.h"
+#include "constants.h"
+#include "game/chr.h"
+#include "game/chraction.h"
+#include "game/player.h"
+#include "game/playermgr.h"
+#include "game/atan2f.h"
+#include "bss.h"
+#include "data.h"
+#include "types.h"
 
 #if PLATFORM_POSIX
 #include <arpa/inet.h>
@@ -31,6 +42,15 @@ static s32 g_LlmActionTtlMs = 1500;
 
 static struct LlmPlayerPad g_LlmPlayerPads[LLM_MAX_PLAYERS];
 static struct LlmBotInput g_LlmBotInputs[LLM_MAX_BOT_SLOTS];
+
+struct LlmAgentSayPending {
+	s16 chrnum;
+	char text[LLM_AGENT_SAY_CAP];
+	u8 face_player;
+	u8 pending;
+};
+
+static struct LlmAgentSayPending g_LlmAgentSayPending;
 
 char g_LlmObserveJson[LLM_OBSERVE_CAP];
 s32 g_LlmObserveLen = 0;
@@ -221,6 +241,44 @@ static f32 llmJsonParseFloat(const char *start, const char *end)
 	return (f32)atof(tmp);
 }
 
+static s32 llmJsonCopyString(const char *start, const char *end, char *out, s32 outCap)
+{
+	const char *p;
+	s32 outLen = 0;
+
+	if (!out || outCap <= 0) {
+		return 0;
+	}
+	out[0] = '\0';
+
+	if (!start || !end || end <= start || *start != '"') {
+		return 0;
+	}
+
+	p = start + 1;
+	while (p < end && *p && *p != '"' && outLen + 1 < outCap) {
+		if (*p == '\\' && (p + 1) < end) {
+			p++;
+			if (*p == 'n') {
+				out[outLen++] = '\n';
+			} else if (*p == 't') {
+				out[outLen++] = '\t';
+			} else if (*p == '"') {
+				out[outLen++] = '"';
+			} else if (*p == '\\') {
+				out[outLen++] = '\\';
+			} else {
+				out[outLen++] = *p;
+			}
+			p++;
+			continue;
+		}
+		out[outLen++] = *p++;
+	}
+	out[outLen] = '\0';
+	return outLen > 0;
+}
+
 static u16 llmParseButtonName(const char *name, s32 len)
 {
 	char tmp[16];
@@ -307,6 +365,129 @@ static void llmParsePlayerObject(const char *objStart, const char *objEnd)
 
 	pad.active = 1;
 	g_LlmPlayerPads[0] = pad;
+}
+
+static void llmParseAgentObject(const char *objStart, const char *objEnd)
+{
+	const char *vstart;
+	const char *vend;
+	s16 chrnum = -1;
+	char sayText[LLM_AGENT_SAY_CAP];
+	s32 facePlayer = 0;
+
+	sayText[0] = '\0';
+
+	if (llmJsonFindKey(objStart, "chrnum", &vstart, &vend)) {
+		s32 val = -1;
+		llmJsonParseInt(vstart, vend, &val);
+		chrnum = (s16)val;
+	}
+	if (llmJsonFindKey(objStart, "say", &vstart, &vend)) {
+		llmJsonCopyString(vstart, vend, sayText, (s32)sizeof(sayText));
+	}
+	if (llmJsonFindKey(objStart, "face_player", &vstart, &vend)) {
+		llmJsonParseBool(vstart, vend, &facePlayer);
+	}
+
+	if (chrnum >= 0 && sayText[0]) {
+		llmAgentEnqueueSay(chrnum, sayText, facePlayer);
+	}
+}
+
+void llmAgentEnqueueSay(s16 chrnum, const char *text, s32 face_player)
+{
+	if (chrnum < 0 || !text || !text[0]) {
+		return;
+	}
+
+	pthread_mutex_lock(&g_LlmMutex);
+	g_LlmAgentSayPending.chrnum = chrnum;
+	strncpy(g_LlmAgentSayPending.text, text, sizeof(g_LlmAgentSayPending.text) - 1);
+	g_LlmAgentSayPending.text[sizeof(g_LlmAgentSayPending.text) - 1] = '\0';
+	g_LlmAgentSayPending.face_player = face_player ? 1 : 0;
+	g_LlmAgentSayPending.pending = 1;
+	pthread_mutex_unlock(&g_LlmMutex);
+}
+
+static struct chrdata *llmAgentChrByNum(s16 chrnum)
+{
+	s32 i;
+
+	if (chrnum < 0 || !g_ChrSlots) {
+		return NULL;
+	}
+
+	for (i = 0; i < MAX_MPCHRS; i++) {
+		struct chrdata *chr = &g_ChrSlots[i];
+
+		if (chr->chrnum == chrnum && chr->prop && (chr->prop->flags & PROPFLAG_ENABLED)) {
+			return chr;
+		}
+	}
+
+	return NULL;
+}
+
+/* Pass 19: snap agent body yaw toward the current player (/act face_player contract). */
+static void llmAgentFaceCurrentPlayer(struct chrdata *chr)
+{
+	struct player *pl;
+	f32 angle;
+
+	if (!chr || !chr->prop) {
+		return;
+	}
+
+	pl = g_Vars.currentplayer;
+	if (!pl || !pl->prop) {
+		return;
+	}
+
+	angle = atan2f(pl->prop->pos.x - chr->prop->pos.x, pl->prop->pos.z - chr->prop->pos.z);
+
+	if (angle < 0.f) {
+		angle += M_BADTAU;
+	}
+
+	chrSetRotY(chr, angle);
+	chrSetLookAngle(chr, angle);
+}
+
+static void llmApplyPendingAgentSays(void)
+{
+	struct LlmAgentSayPending pending;
+	s32 hasPending = 0;
+
+	pthread_mutex_lock(&g_LlmMutex);
+	if (g_LlmAgentSayPending.pending && g_LlmAgentSayPending.text[0]) {
+		pending = g_LlmAgentSayPending;
+		g_LlmAgentSayPending.pending = 0;
+		hasPending = 1;
+	}
+	pthread_mutex_unlock(&g_LlmMutex);
+
+	if (!hasPending) {
+		return;
+	}
+
+	/* Pass 18: HUD line; Pass 19: face_player yaw; Pass 20: voice_pipeline TTS hook. */
+	hudmsgCreate(pending.text, HUDMSGTYPE_DEFAULT);
+
+	if (pending.face_player) {
+		struct chrdata *chr = llmAgentChrByNum(pending.chrnum);
+
+		if (chr) {
+			llmAgentFaceCurrentPlayer(chr);
+		}
+	}
+
+	{
+		char voice_slug[VOICE_PIPELINE_VOICE_SLUG_MAX];
+		struct chrdata *chr = llmAgentChrByNum(pending.chrnum);
+
+		voicePipelineResolveVoiceSlug(pending.chrnum, voice_slug, (s32)sizeof(voice_slug));
+		(void)voicePipelineTrySpeakAtChr(chr, pending.chrnum, pending.text, voice_slug);
+	}
 }
 
 static void llmParseBotObject(const char *objStart, const char *objEnd)
@@ -398,6 +579,27 @@ static void llmParseActJson(const char *json)
 					p++;
 				} while (p < vend && depth > 0);
 				llmParseBotObject(objStart, p);
+			} else {
+				break;
+			}
+		}
+	}
+
+	if (llmJsonFindKey(json, "agents", &vstart, &vend) && *vstart == '[') {
+		const char *p = vstart + 1;
+		while (p < vend && *p != ']') {
+			while (p < vend && (*p == ' ' || *p == ',' || *p == '\n' || *p == '\r')) {
+				p++;
+			}
+			if (*p == '{') {
+				const char *objStart = p;
+				s32 depth = 0;
+				do {
+					if (*p == '{') depth++;
+					else if (*p == '}') depth--;
+					p++;
+				} while (p < vend && depth > 0);
+				llmParseAgentObject(objStart, p);
 			} else {
 				break;
 			}
@@ -681,10 +883,12 @@ void llmBridgeShutdown(void)
 void llmBridgeTick(void)
 {
 	if (!g_LlmEnabled) {
+		llmApplyPendingAgentSays();
 		return;
 	}
 
 	llmExpireActions();
+	llmApplyPendingAgentSays();
 	llmBridgeBuildObservation();
 }
 

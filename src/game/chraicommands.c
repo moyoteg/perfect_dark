@@ -53,7 +53,191 @@
 #include "types.h"
 
 #ifndef PLATFORM_N64
+#include "bootmp.h"
 #include "game/mplayer/mplayer.h"
+#include "office_service_bridge.h"
+#include "llm_bridge.h"
+#include "game/menu.h"
+#include "data.h"
+#include "input.h"
+#include <PR/os_cont.h>
+
+/* Pass 15/18: push persisted DM tail via /act say seam when async walk-up completes. */
+void officeDmHudRefreshTick(void)
+{
+	s32 i;
+	const char *tail;
+
+	if (!agentOfficeHubAnyActive()) {
+		return;
+	}
+
+	for (i = 0; i < MAX_MPCHRS; i++) {
+		struct chrdata *chr = &g_ChrSlots[i];
+
+		if (chr->chrnum < 0 || !chr->prop || (chr->prop->flags & PROPFLAG_ENABLED) == 0) {
+			continue;
+		}
+
+		if (chrIsTargetAimingAtMe(chr)) {
+			if (officeServiceBridgeTryConsumeDmHudRefresh(chr->chrnum, &tail)) {
+				llmAgentEnqueueSay(chr->chrnum, tail, 1);
+			}
+			return;
+		}
+	}
+
+	officeServiceBridgeClearDmHudWait();
+}
+
+/* Pass 22: visor pause keyboard compose — SDL text input while pause menu is open. */
+void officeVisorComposeInputTick(void)
+{
+	const char *hud_line;
+
+	if (!agentOfficeHubAnyActive()) {
+		officeServiceBridgeVisorComposeCancelInput();
+		return;
+	}
+
+	if (!officeServiceBridgeVisorComposeInputActive()) {
+		return;
+	}
+
+	if (!menuIsDialogOpen(&g_SoloMissionPauseMenuDialog)
+			&& !menuIsDialogOpen(&g_CiMenuViaPauseMenuDialog)) {
+		officeServiceBridgeVisorComposeCancelInput();
+		return;
+	}
+
+	officeServiceBridgeVisorComposeInputStep(&hud_line);
+	if (hud_line && hud_line[0]) {
+		hudmsgCreate((char *)hud_line, HUDMSGTYPE_DEFAULT);
+	}
+}
+
+/* Pass 35: Security desk Z-target connector approve/deny while aiming at Security agent. */
+static s32 officeSecurityInputJustPressed(u32 player, u32 contbtn)
+{
+	static u32 prev[MAX_PLAYERS];
+	s32 now;
+	s32 edge;
+
+	if (player >= MAX_PLAYERS) {
+		return 0;
+	}
+
+	now = inputButtonPressed((s32)player, contbtn);
+	edge = now && !(prev[player] & contbtn);
+	if (now) {
+		prev[player] |= contbtn;
+	} else {
+		prev[player] &= ~contbtn;
+	}
+	return edge;
+}
+
+void officeSecurityConnectorTick(void)
+{
+	s32 i;
+	const char *feedback;
+	u32 player;
+
+	if (!agentOfficeHubAnyActive()) {
+		officeServiceBridgeClearSecurityConnectorWait();
+		return;
+	}
+
+	if (officeServiceBridgeTryConsumeSecurityConnectorFeedback(&feedback)) {
+		hudmsgCreate((char *)feedback, HUDMSGTYPE_DEFAULT);
+	}
+
+	if (!officeServiceBridgeSecurityConnectorPending()
+			|| officeServiceBridgeSecurityConnectorBusy()) {
+		officeServiceBridgeClearSecurityConnectorWait();
+		return;
+	}
+
+	player = g_Vars.currentplayernum;
+	if (player >= MAX_PLAYERS) {
+		return;
+	}
+
+	for (i = 0; i < MAX_MPCHRS; i++) {
+		struct chrdata *chr = &g_ChrSlots[i];
+
+		if (chr->chrnum < 0 || !chr->prop || (chr->prop->flags & PROPFLAG_ENABLED) == 0) {
+			continue;
+		}
+
+		if (chrIsTargetAimingAtMe(chr)) {
+			if (officeSecurityInputJustPressed(player, L_CBUTTONS)) {
+				officeServiceBridgeSecurityConnectorCycle(-1);
+				feedback = officeServiceBridgeSecurityConnectorSelectedHud();
+				if (feedback && feedback[0]) {
+					hudmsgCreate((char *)feedback, HUDMSGTYPE_DEFAULT);
+				}
+			} else if (officeSecurityInputJustPressed(player, R_CBUTTONS)) {
+				officeServiceBridgeSecurityConnectorCycle(1);
+				feedback = officeServiceBridgeSecurityConnectorSelectedHud();
+				if (feedback && feedback[0]) {
+					hudmsgCreate((char *)feedback, HUDMSGTYPE_DEFAULT);
+				}
+			} else if (officeSecurityInputJustPressed(player, Z_TRIG)) {
+				officeServiceBridgeSecurityConnectorSubmit(1);
+			} else if (officeSecurityInputJustPressed(player, B_BUTTON)) {
+				officeServiceBridgeSecurityConnectorSubmit(0);
+			}
+			return;
+		}
+	}
+
+	officeServiceBridgeClearSecurityConnectorWait();
+}
+
+void officeCommsConnectorTick(void)
+{
+	s32 i;
+	const char *feedback;
+	u32 player;
+
+	if (!agentOfficeHubAnyActive()) {
+		officeServiceBridgeClearCommsConnectorWait();
+		return;
+	}
+
+	if (officeServiceBridgeTryConsumeCommsConnectorFeedback(&feedback)) {
+		hudmsgCreate((char *)feedback, HUDMSGTYPE_DEFAULT);
+	}
+
+	if (!officeServiceBridgeCommsConnectorStageReady()
+			|| officeServiceBridgeCommsConnectorBusy()) {
+		officeServiceBridgeClearCommsConnectorWait();
+		return;
+	}
+
+	player = g_Vars.currentplayernum;
+	if (player >= MAX_PLAYERS) {
+		return;
+	}
+
+	for (i = 0; i < MAX_MPCHRS; i++) {
+		struct chrdata *chr = &g_ChrSlots[i];
+
+		if (chr->chrnum < 0 || !chr->prop || (chr->prop->flags & PROPFLAG_ENABLED) == 0) {
+			continue;
+		}
+
+		if (chrIsTargetAimingAtMe(chr)) {
+			if (officeSecurityInputJustPressed(player, Z_TRIG)) {
+				officeServiceBridgeCommsConnectorStageSubmit();
+			}
+			return;
+		}
+	}
+
+	officeServiceBridgeClearCommsConnectorWait();
+}
 #endif
 
 /**
@@ -4354,7 +4538,8 @@ bool aiDuplicateChr(void)
 bool aiShowHudmsg(void)
 {
 	u8 *cmd = g_Vars.ailist + g_Vars.aioffset;
-	char *text = langGet(cmd[4] | (cmd[3] << 8));
+	u32 text_id = cmd[4] | (cmd[3] << 8);
+	char *text = langGet(text_id);
 	struct chrdata *chr = chrFindById(g_Vars.chrdata, cmd[2]);
 
 	g_Vars.aioffset += 5;
@@ -4363,6 +4548,40 @@ bool aiShowHudmsg(void)
 	if (text == NULL || text[0] == '\0') {
 		return false;
 	}
+
+#ifndef PLATFORM_N64
+	{
+		const char *summary = officeServiceBridgeConsoleSummaryText(text_id, text);
+		if (summary != text) {
+			text = (char *)summary;
+	} else {
+			/* Pass 9: walk-up DM only on Z-target (aiming), not Security proximity greet. */
+			if (g_Vars.chrdata && chrIsTargetAimingAtMe(g_Vars.chrdata)) {
+				const char *dm_tail = officeServiceBridgeAgentExamineText(text_id, text);
+				if (dm_tail != text) {
+					text = (char *)dm_tail;
+					/* Pass 35: track Security connector HUD for Z-trigger/B approve-deny tick. */
+					if (officeServiceBridgeSecurityConnectorPending()
+							&& g_Vars.chrdata->chrnum >= 0) {
+						officeServiceBridgeTrackSecurityConnectorWait(
+								g_Vars.chrdata->chrnum, text_id);
+					/* Pass 37: track Comms connector stage HUD for Z-trigger stage tick. */
+					} else if (officeServiceBridgeCommsConnectorStageReady()
+							&& g_Vars.chrdata->chrnum >= 0) {
+						officeServiceBridgeTrackCommsConnectorWait(
+								g_Vars.chrdata->chrnum, text_id);
+					} else if (g_Vars.chrdata->chrnum >= 0) {
+						/* Pass 15: cold cache — track agent for HUD refresh when async walk-up completes. */
+						officeServiceBridgeTrackDmHudWait(g_Vars.chrdata->chrnum, text_id);
+					}
+				} else if (g_Vars.chrdata->chrnum >= 0) {
+					/* Pass 15: cold cache — track agent for HUD refresh when async walk-up completes. */
+					officeServiceBridgeTrackDmHudWait(g_Vars.chrdata->chrnum, text_id);
+				}
+			}
+		}
+	}
+#endif
 
 	u32 prevplayernum = g_Vars.currentplayernum;
 	u32 playernum = g_Vars.currentplayernum;

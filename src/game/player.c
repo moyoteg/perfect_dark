@@ -26,6 +26,7 @@
 #include "game/player.h"
 #ifndef PLATFORM_N64
 #include "system.h"
+#include "bootmp.h"
 #endif
 #include "game/mplayer/mplayer.h"
 #include "data.h"
@@ -228,17 +229,34 @@ f32 playerSnapSpawnGroundY(f32 spawny, f32 groundy)
 		return groundy;
 	}
 
-	/* dataDyne G5 depo: lobby pads at Y≈35; trust retail pad height when cdFindGround
-	 * hits a lower floor in the same XY column (agent_office lobby hub). */
+	/* dataDyne G5 depo: meeting-room corridor pads at Y≈27; trust retail pad height
+	 * when cdFindGround hits a lower floor in the same XY column (agent_office). */
 	if (g_Vars.stagenum == STAGE_AGENT_OFFICE
 			&& groundy > -100000.0f
 			&& groundy < spawny - 10.0f) {
 		return spawny;
 	}
 
-	/* CI dish: legacy upper-briefing pads (Y≈460) mark sofa height, not walkable floor.
-	 * Lobby hub uses Y≈35 spawns; keep this guard for any high pad fallbacks. */
-	if (g_Vars.stagenum == STAGE_AGENT_OFFICE_CI
+	/* CI dish: foyer/corridor pads at Y≈35 — cdFindGround often returns Y≈0 in the
+	 * same XY column (multi-floor dish). Trust retail pad height like G5 depo. */
+	if (agentOfficeHubUsesCiPads()
+			&& groundy > -100000.0f
+			&& spawny < 100.0f
+			&& groundy < spawny - 10.0f) {
+		return spawny;
+	}
+
+	/* CI dish: office desk pads (Y≈360) — trust retail chr height when ground is the
+	 * walkable floor one level below (same pattern as G5 lobby). */
+	if (agentOfficeHubUsesCiPads()
+			&& groundy > -100000.0f
+			&& spawny >= 200.0f && spawny <= 400.0f
+			&& groundy < spawny - 10.0f) {
+		return spawny;
+	}
+
+	/* CI dish: upper-briefing pads (Y≈460) mark sofa height, not walkable floor. */
+	if (agentOfficeHubUsesCiPads()
 			&& groundy > -100000.0f
 			&& spawny > 300.0f
 			&& groundy < spawny - 40.0f) {
@@ -2609,9 +2627,23 @@ void playerPause(s32 root)
 	}
 }
 
+/**
+ * Agent-office stages boot via MP setup (mplayerisrunning) but default launch is
+ * peaceful solo explore — route Escape/Start to the visor pause menu, not MP rankings.
+ */
+bool playerShouldUseSoloPauseMenu(void)
+{
+	if (!g_Vars.mplayerisrunning) {
+		return true;
+	}
+
+	return STAGE_IS_AGENT_OFFICE(g_Vars.stagenum);
+}
+
 void playerUnpause(void)
 {
-	if (g_Vars.currentplayer->pausemode == PAUSEMODE_PAUSED) {
+	if (g_Vars.currentplayer->pausemode == PAUSEMODE_PAUSED
+			|| (STAGE_IS_AGENT_OFFICE(g_Vars.stagenum) && lvIsPaused())) {
 		lvSetPaused(false);
 		musicEndMenu();
 		g_Vars.currentplayer->pausemode = PAUSEMODE_UNPAUSED;
@@ -3488,7 +3520,25 @@ void playerTickTeleport(f32 *aspectratio)
 	}
 
 	// State 3: TELEPORTSTATE_WHITE
-	// Wait indefinitely for AI scripting to progress it to state 4
+	// Transition immediately to exiting state after relocating player
+	if (g_Vars.currentplayer->teleportstate == TELEPORTSTATE_WHITE) {
+		if (g_Vars.currentplayer->teleportpad) {
+			struct pad pad;
+			RoomNum rooms[2];
+			padUnpack(g_Vars.currentplayer->teleportpad, PADFIELD_POS | PADFIELD_LOOK | PADFIELD_ROOM, &pad);
+			float theta = atan2f(pad.look.x, pad.look.z);
+			rooms[0] = pad.room;
+			rooms[1] = -1;
+			if (g_Vars.currentplayer->prop && g_Vars.currentplayer->prop->chr) {
+				chrMoveToPos(g_Vars.currentplayer->prop->chr, &pad.pos, rooms, theta, true);
+				playerResetBond(&g_Vars.currentplayer->bond2, &pad.pos);
+				g_Vars.currentplayer->vv_ground = pad.pos.y;
+				g_Vars.currentplayer->vv_manground = pad.pos.y;
+			}
+			g_Vars.currentplayer->teleportstate = TELEPORTSTATE_EXITING;
+			g_Vars.currentplayer->teleporttime = 0;
+		}
+	}
 
 	// State 4: TELEPORTSTATE_EXITING
 	// Adjust aspect ratio over 48 ticks, but with slightly faster
@@ -3662,7 +3712,7 @@ void playerTick(bool arg0)
 					if (g_Vars.currentplayer->isdead == false
 							&& g_Vars.currentplayer->pausemode == PAUSEMODE_UNPAUSED
 							&& (buttons & START_BUTTON)) {
-						if (g_Vars.mplayerisrunning == false) {
+						if (playerShouldUseSoloPauseMenu()) {
 							playerPause(MENUROOT_MAINMENU);
 						} else {
 							mpPushPauseDialog();
@@ -3951,7 +4001,7 @@ void playerTick(bool arg0)
 #endif
 
 				if (pause) {
-					if (g_Vars.mplayerisrunning == false) {
+					if (playerShouldUseSoloPauseMenu()) {
 						playerPause(MENUROOT_MAINMENU);
 					} else {
 						mpPushPauseDialog();

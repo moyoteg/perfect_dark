@@ -136,7 +136,7 @@ static MenuItemHandlerResult menuhandlerMouseLockMode(s32 operation, struct menu
 	case MENUOP_GETOPTIONTEXT:
 		return (intptr_t)opts[data->dropdown.value];
 	case MENUOP_SET:
-		inputSetMouseLockMode(data->checkbox.value);
+		inputSetMouseLockMode(data->dropdown.value);
 		break;
 	case MENUOP_GETSELECTEDINDEX:
 		data->dropdown.value = inputGetMouseLockMode();

@@ -1261,22 +1261,102 @@
     },
     {
         "id": "L_DISH_126",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "Security - corridor secure.\nBadge visible, please.\n",
+        "gb": "Security - corridor secure.\nBadge visible, please.\n",
+        "jp": "Security - corridor secure.\nBadge visible, please.\n",
+        "it": "Security - corridor secure.\nBadge visible, please.\n",
+        "fr": "Security - corridor secure.\nBadge visible, please.\n",
+        "de": "Security - corridor secure.\nBadge visible, please.\n",
+        "es": "Security - corridor secure.\nBadge visible, please.\n"
     },
     {
         "id": "L_DISH_127",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "North Portal: Animation districts\n",
+        "gb": "North Portal: Animation districts\n",
+        "jp": "North Portal: Animation districts\n",
+        "it": "North Portal: Animation districts\n",
+        "fr": "North Portal: Animation districts\n",
+        "de": "North Portal: Animation districts\n",
+        "es": "North Portal: Animation districts\n"
+    },
+    {
+        "id": "L_DISH_128",
+        "en": "Southwest Portal: Props gallery\n",
+        "gb": "Southwest Portal: Props gallery\n",
+        "jp": "Southwest Portal: Props gallery\n",
+        "it": "Southwest Portal: Props gallery\n",
+        "fr": "Southwest Portal: Props gallery\n",
+        "de": "Southwest Portal: Props gallery\n",
+        "es": "Southwest Portal: Props gallery\n"
+    },
+    {
+        "id": "L_DISH_129",
+        "en": "WSW Portal: Solo campaign world\n",
+        "gb": "WSW Portal: Solo campaign world\n",
+        "jp": "WSW Portal: Solo campaign world\n",
+        "it": "WSW Portal: Solo campaign world\n",
+        "fr": "WSW Portal: Solo campaign world\n",
+        "de": "WSW Portal: Solo campaign world\n",
+        "es": "WSW Portal: Solo campaign world\n"
+    },
+    {
+        "id": "L_DISH_130",
+        "en": "West Portal: Object catalog\n",
+        "gb": "West Portal: Object catalog\n",
+        "jp": "West Portal: Object catalog\n",
+        "it": "West Portal: Object catalog\n",
+        "fr": "West Portal: Object catalog\n",
+        "de": "West Portal: Object catalog\n",
+        "es": "West Portal: Object catalog\n"
+    },
+    {
+        "id": "L_DISH_131",
+        "en": "East Portal: Combat Simulator world\n",
+        "gb": "East Portal: Combat Simulator world\n",
+        "jp": "East Portal: Combat Simulator world\n",
+        "it": "East Portal: Combat Simulator world\n",
+        "fr": "East Portal: Combat Simulator world\n",
+        "de": "East Portal: Combat Simulator world\n",
+        "es": "East Portal: Combat Simulator world\n"
+    },
+    {
+        "id": "L_DISH_132",
+        "en": "Northwest Portal: True scale models\n",
+        "gb": "Northwest Portal: True scale models\n",
+        "jp": "Northwest Portal: True scale models\n",
+        "it": "Northwest Portal: True scale models\n",
+        "fr": "Northwest Portal: True scale models\n",
+        "de": "Northwest Portal: True scale models\n",
+        "es": "Northwest Portal: True scale models\n"
+    },
+    {
+        "id": "L_DISH_133",
+        "en": "Southeast Portal: Character gallery\n",
+        "gb": "Southeast Portal: Character gallery\n",
+        "jp": "Southeast Portal: Character gallery\n",
+        "it": "Southeast Portal: Character gallery\n",
+        "fr": "Southeast Portal: Character gallery\n",
+        "de": "Southeast Portal: Character gallery\n",
+        "es": "Southeast Portal: Character gallery\n"
+    },
+    {
+        "id": "L_DISH_134",
+        "en": "Northeast Portal: Developer annex\n",
+        "gb": "Northeast Portal: Developer annex\n",
+        "jp": "Northeast Portal: Developer annex\n",
+        "it": "Northeast Portal: Developer annex\n",
+        "fr": "Northeast Portal: Developer annex\n",
+        "de": "Northeast Portal: Developer annex\n",
+        "es": "Northeast Portal: Developer annex\n"
+    },
+    {
+        "id": "L_DISH_135",
+        "en": "Teleporting...\n",
+        "gb": "Teleporting...\n",
+        "jp": "Teleporting...\n",
+        "it": "Teleporting...\n",
+        "fr": "Teleporting...\n",
+        "de": "Teleporting...\n",
+        "es": "Teleporting...\n"
     }
 ]

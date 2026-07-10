@@ -4188,7 +4188,12 @@ void fileLoad(u8 *dst, u32 allocationlen, romptr_t *romaddrptr, struct fileinfo 
 #endif
 
 			dmaExec(scratch, *romaddrptr, romsize);
-			result = rzipInflate(scratch, dst, buffer);
+			if (scratch[0] == 0x11 && (scratch[1] == 0x72 || scratch[1] == 0x73)) {
+				result = rzipInflate(scratch, dst, buffer);
+			} else {
+				memmove(dst, scratch, romsize);
+				result = romsize;
+			}
 
 #if VERSION < VERSION_NTSC_1_0
 			if (result == 0) {
@@ -4297,7 +4302,7 @@ u32 fileGetInflatedSize(s32 filenum, u32 loadtype)
 	CRASH();
 #endif
 
-	return 0;
+	return romdataFileGetEstimatedSize(fileGetRomSize(filenum), loadtype);
 }
 
 void *fileLoadToNew(s32 filenum, u32 method, u32 loadtype)

@@ -217,6 +217,11 @@ void htbCreateUplink(void)
 		NULL,                   // dualweapon
 	};
 
+	if (g_Vars.stagenum == STAGE_TEST_UFF) {
+		template.base.modelnum = MODEL_CHRFALCON2;
+		template.weaponnum = WEAPON_FALCON2;
+	}
+
 	struct prop *prop = g_Vars.activeprops;
 	struct defaultobj *obj;
 	s32 padnum;
@@ -245,10 +250,20 @@ void htbCreateUplink(void)
 		var800869ec->hidden |= OBJHFLAG_DELETING;
 		var800869ec->hidden2 |= OBJH2FLAG_CANREGEN;
 		padnum = var800869ec->pad;
-	} else if (g_ScenarioData.htm.numpads > 0) {
-		padnum = g_ScenarioData.htm.padnums[rngRandom() % g_ScenarioData.htm.numpads];
 	} else {
-		padnum = 0;
+		s32 fallback_pad = 1;
+		prop = g_Vars.activeprops;
+		while (prop) {
+			if (prop->type == PROPTYPE_OBJ) {
+				struct defaultobj *obj = prop->obj;
+				if (obj->pad > 0) {
+					fallback_pad = obj->pad;
+					break;
+				}
+			}
+			prop = prop->next;
+		}
+		padnum = fallback_pad;
 	}
 
 	g_HtmUplinkObj = template;
@@ -274,6 +289,9 @@ void htmInitProps(void)
 
 	osSyncPrintf("HackThatMacInitProps -> Start : %d Bank Pads\n", data->numterminals);
 
+	s32 fallback_pads[100];
+	s32 num_fallback = 0;
+
 	while (prop) {
 		if (prop->type == PROPTYPE_OBJ) {
 			struct defaultobj *obj = prop->obj;
@@ -284,6 +302,9 @@ void htmInitProps(void)
 					htmAddPad(obj->pad);
 				}
 			}
+			if (obj->pad > 0 && num_fallback < 100) {
+				fallback_pads[num_fallback++] = obj->pad;
+			}
 		}
 
 		prop = prop->next;
@@ -293,22 +314,29 @@ void htmInitProps(void)
 	osSyncPrintf("HackThatMacInitProps -> Mid : %d Bank Pads\n", data->numpads);
 	osSyncPrintf("HackThatMacInitProps -> Generating %d random box pads from %d in the bank\n", htmNumProps(), data->numpads);
 
-	data->numterminals = 0;
+	if (data->numpads == 0) {
+		for (i = 0; i < htmNumProps(); i++) {
+			data->terminals[i].padnum = (num_fallback > 0) ? fallback_pads[i % num_fallback] : 1;
+		}
+		data->numterminals = htmNumProps();
+	} else {
+		data->numterminals = 0;
 
-	// @bug: This should be < htmNumProps() - 1 to account for the data uplink,
-	// or just < HTM_NUM_TERMINALS. If HTM_NUM_TERMINALS is set to 7 then it
-	// will overflow the array.
-	while (data->numterminals < htmNumProps()) {
-		s32 padnum;
+		// @bug: This should be < htmNumProps() - 1 to account for the data uplink,
+		// or just < HTM_NUM_TERMINALS. If HTM_NUM_TERMINALS is set to 7 then it
+		// will overflow the array.
+		while (data->numterminals < htmNumProps()) {
+			s32 padnum;
 
-		do {
-			rand = rngRandom() % data->numpads;
-			padnum = data->padnums[rand];
-		} while (padnum <= 0);
+			do {
+				rand = rngRandom() % data->numpads;
+				padnum = data->padnums[rand];
+			} while (padnum <= 0);
 
-		data->terminals[data->numterminals].padnum = padnum;
-		data->numterminals++;
-		data->padnums[rand] = -1;
+			data->terminals[data->numterminals].padnum = padnum;
+			data->numterminals++;
+			data->padnums[rand] = -1;
+		}
 	}
 
 	osSyncPrintf("HackThatMacInitProps -> %d/%d Random box pads generated - Listing\n", data->numterminals, htmNumProps());
@@ -318,7 +346,11 @@ void htmInitProps(void)
 	}
 
 	for (i = 0; i < HTM_NUM_TERMINALS; i++) {
-		data->terminals[i].prop = scenarioCreateObj(MODEL_GOODPC, data->terminals[i].padnum, 0.2f,
+		s16 modelnum = MODEL_GOODPC;
+		if (g_Vars.stagenum == STAGE_TEST_UFF) {
+			modelnum = MODEL_CHRFALCON2;
+		}
+		data->terminals[i].prop = scenarioCreateObj(modelnum, data->terminals[i].padnum, 0.2f,
 				OBJFLAG_FALL | OBJFLAG_INVINCIBLE | OBJFLAG_FORCENOBOUNCE,
 				OBJFLAG2_IMMUNETOGUNFIRE | OBJFLAG2_IMMUNETOEXPLOSIONS,
 				OBJFLAG3_HTMTERMINAL | OBJFLAG3_INTERACTABLE);

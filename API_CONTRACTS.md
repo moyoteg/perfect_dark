@@ -35,14 +35,15 @@ All servers bind **`127.0.0.1` only**. Non-localhost `Origin` headers receive **
     "path": "/absolute/path/to/build/pd.arm64",
     "built": true
   },
-  "tools": [ /* toolCard[] — see §1.8 */ ],
+  "tools": [ /* toolCard[] — core_wrap tier; see §1.8 */ ],
+  "moreTools": [ /* toolCard[] — optional_companion tier, built only; see §1.8 */ ],
   "actionGroups": [ /* actionGroup[] — see §1.9 */ ],
   "docs": [ /* docLink[] — see §1.10 */ ],
   "manifestBuiltAt": "2026-07-02T01:23:45Z"
 }
 ```
 
-**Partial failure** (repo unresolved): `tools`, `actionGroups`, `docs` empty arrays; optional top-level `"error": "message"`.
+**Partial failure** (repo unresolved): `tools`, `moreTools`, `actionGroups`, `docs` empty arrays; optional top-level `"error": "message"`.
 
 ### 1.2 `kit:launch-app`
 
@@ -57,9 +58,9 @@ All servers bind **`127.0.0.1` only**. Non-localhost `Origin` headers receive **
 | Condition | Payload |
 |-----------|---------|
 | Success (`.app` exists) | `{ ok: true, path: "/…/PD Anim Lab.app" }` |
-| Cooldown active | `{ ok: true, skipped: true, reason: "cooldown" }` |
+| Cooldown active | `{ ok: true, skipped: true, reason: "cooldown" }` — logged as `decision: deny_cooldown`, `scenario_id: KH-04` |
 | Dev script fallback | `{ ok: true, path: "…/scripts/launch-….sh", devMode: true }` |
-| Not built | `{ ok: false, error: "… is not built. Run: ./scripts/…" }` |
+| Not built | `{ ok: false, error: "… is not built. Run: …" }` — logged as `launch_route: failed_not_built`, `scenario_id: KH-05` |
 | `open` failure | `{ ok: false, error: "<system message>" }` |
 
 **Resolution order for `appPath`:**
@@ -130,7 +131,7 @@ Opens file via `shell.openPath(docPath)` where `docPath = join(repoRoot, docs[].
 
 Alias for `kit:run-action('buildApps')` → `./scripts/build-pd-kit.sh --skip-game --apps-only`.
 
-### 1.8 `toolCard` object (in `kit:get-info.tools[]`)
+### 1.8 `toolCard` object (in `kit:get-info.tools[]` or `moreTools[]`)
 
 | Field | Type | Semantics |
 |-------|------|-----------|
@@ -139,12 +140,15 @@ Alias for `kit:run-action('buildApps')` → `./scripts/build-pd-kit.sh --skip-ga
 | `shortTitle` | string | Hub card heading |
 | `description` | string | Card body |
 | `category` | string | `"authoring"` \| `"companion"` |
+| `hubSurfaceTier` | string | `"core_wrap"` (in `tools[]`) \| `"optional_companion"` (in `moreTools[]`) |
 | `optional` | boolean | Missing build is non-fatal |
 | `built` | boolean | `.app` exists **or** dev script available |
 | `devMode` | boolean | No `.app`; launching via `devLaunchScript` |
 | `wrapped` | boolean | Copy exists under hub `Resources/Apps/` |
 | `path` | string | Resolved `.app` or dev script path |
 | `buildScript` | string \| null | Hint for rebuild |
+
+**Visibility:** `tools[]` lists every `kitHub.wraps` entry. `moreTools[]` lists `kitHub.moreTools` entries **only when `built === true`**. Normative rules: [`docs/spec/KIT_HUB.md`](docs/spec/KIT_HUB.md).
 
 ### 1.9 `actionGroup` object
 

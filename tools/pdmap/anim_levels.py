@@ -79,7 +79,7 @@ _ISLAND_NAME_PROP_SCALE = 0x0380  # tall portal-style name marker per level isla
 _STAGETABLE_PATH = Path(__file__).resolve().parents[2] / "src" / "game" / "stagetable.c"
 
 # Stages omitted from all worlds (menu / self).
-_EXCLUDE_SYMBOLS = frozenset({"STAGE_ANIMLAB"})
+_EXCLUDE_SYMBOLS = frozenset({"STAGE_ANIMLAB", "STAGE_PARADE"})
 
 # Category palette — UI + floor carpet tints.
 CATEGORY_META: dict[str, dict[str, str]] = {
@@ -758,46 +758,45 @@ def megaworld_district_room_tiles(
     arena_colour: int,
 ) -> list[dict[str, Any]]:
     """Collision + carpet tiles for the level megaworld prop district room."""
-    from .builders import tile_quad
+    from .builders import tile_large_floor, _append_disjoint_carpet
 
     plan = megaworld_plan()
-    tiles: list[dict[str, Any]] = []
     bounds = megaworld_bounds()
-    tiles.append(
-        tile_quad(
-            bounds["minX"],
-            bounds["minZ"],
-            bounds["maxX"],
-            bounds["maxZ"],
-            y=y,
-            floorcolour=arena_colour,
-        )
+    tiles: list[dict[str, Any]] = tile_large_floor(
+        bounds["minX"],
+        bounds["minZ"],
+        bounds["maxX"],
+        bounds["maxZ"],
+        y=y,
+        floorcolour=arena_colour,
     )
 
+    occupied: list[tuple[float, float, float, float]] = []
+
     for isl in plan["islands"]:
-        tiles.append(
-            tile_quad(
-                isl.x - isl.half_x,
-                isl.z - isl.half_z,
-                isl.x + isl.half_x,
-                isl.z + isl.half_z,
-                y=marker_y,
-                floorcolour=isl.floor_colour,
-                floortype="carpet",
-            )
+        _append_disjoint_carpet(
+            tiles,
+            occupied,
+            isl.x - isl.half_x,
+            isl.z - isl.half_z,
+            isl.x + isl.half_x,
+            isl.z + isl.half_z,
+            y=marker_y,
+            floorcolour=isl.floor_colour,
+            floortype="carpet",
         )
 
     for bridge in plan["bridges"]:
-        tiles.append(
-            tile_quad(
-                bridge.x0,
-                bridge.z0,
-                bridge.x1,
-                bridge.z1,
-                y=marker_y,
-                floorcolour=_world_corridor_colour(bridge.world),
-                floortype="carpet",
-            )
+        _append_disjoint_carpet(
+            tiles,
+            occupied,
+            bridge.x0,
+            bridge.z0,
+            bridge.x1,
+            bridge.z1,
+            y=marker_y,
+            floorcolour=_world_corridor_colour(bridge.world),
+            floortype="carpet",
         )
     return tiles
 

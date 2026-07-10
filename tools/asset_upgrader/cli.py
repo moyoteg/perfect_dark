@@ -342,9 +342,9 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--force", action="store_true", help="Ignore stage guards")
         p.add_argument(
             "--backend",
-            choices=("local", "openai"),
+            choices=("local", "openai", "mlx"),
             default="local",
-            help="local=free on-device enhance (default); openai=paid API",
+            help="local=free on-device enhance (default); openai=paid API; mlx=Apple Silicon local MLX Core",
         )
         if name == "upgrade":
             p.add_argument("--model", default="gpt-image-1", help="OpenAI image model")
@@ -368,7 +368,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--path", action="append", default=["mods/mod_allinone"])
     p_run.add_argument("--limit", type=int, default=0)
     p_run.add_argument("--deploy-dir", default=str(repo_root() / "mods" / "mod_upgraded"))
-    p_run.add_argument("--backend", choices=("local", "openai"), default="local")
+    p_run.add_argument("--backend", choices=("local", "openai", "mlx"), default="local")
     p_run.add_argument("--model", default="gpt-image-1")
     p_run.add_argument("--prompt", default=DEFAULT_PROMPT)
     p_run.add_argument("--upscale-to", type=int, default=1024)

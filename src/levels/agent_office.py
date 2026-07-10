@@ -1,12 +1,12 @@
 # Virtual Agent Office — dataDyne G5 Building (retail depo geometry).
 #
-# Pre-mission lobby hub: player spawns on the retail guard-foyer pad (PAD_DEPO_0080),
-# eight virtual agents ring the open lobby (Y≈35), Z-target for status lines, and
-# use (Z) on the PD console in the west lobby (PAD_DEPO_0006) for a room overview.
+# Player spawns on meeting-room corridor pads (PAD_DEPO_003D primary, alts 003E/008F,
+# Y≈27); eight virtual agents in the holograph meeting room. Z-target for status lines;
+# (Z) on PD console.
 #
 # Geometry: retail bg_depo seg/tiles/pads from ROM (SKIP_* flags).
 # Setup: dedicated STAGE_AGENT_OFFICE (0x83) → Ump_setupagent_officeZ.
-# Doors: retail depo doors (deactivated/static; tools/pdmap/depo_retail_doors.py).
+# Doors: retail depo doors (mp_unlock + sibling remapped; tools/pdmap/depo_retail_doors.py).
 #
 # Deploy:  python3 tools/pdmap.py build agent_office --deploy
 # Play:    ./scripts/play-agent-office.sh
@@ -39,7 +39,7 @@ def build() -> MapDef:
     # Full retail pad graph (indices match setupdepo / bg_depo_padsZ).
     load_retail_pads(g, RETAIL_STAGE, default_room=-1)
 
-    # Player spawns — retail lobby hub (Y≈35); no door transit to reach agents.
+    # Player spawns — meeting-room corridor (PAD_DEPO_003D primary; alts 003E, 008F).
     g.add_intro(Spawn(pad=PAD_BRIEFING_ENTRY))
     g.add_intro(Spawn(pad=PAD_PLAYER_SPAWN_ALT))
     g.add_intro(Spawn(pad=PAD_PLAYER_SPAWN_LOBBY))

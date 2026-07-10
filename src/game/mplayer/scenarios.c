@@ -36,6 +36,7 @@
 #include "lib/collision.h"
 #include "data.h"
 #include "types.h"
+#include "system.h"
 
 /**
  * There are six multiplayer scenarios:
@@ -1014,10 +1015,21 @@ struct prop *scenarioCreateObj(s32 modelnum, s16 padnum, f32 arg2, u32 flags, u3
 		0,                      // tiles
 	};
 
-	struct defaultobj *obj = mempAlloc(ALIGN16(sizeof(struct defaultobj)), MEMPOOL_STAGE);
+	s32 size = sizeof(struct defaultobj);
+	if (modelnum == MODEL_MULTI_AMMO_CRATE) {
+		size = sizeof(struct multiammocrateobj);
+	}
+
+	struct defaultobj *obj = mempAlloc(ALIGN16(size), MEMPOOL_STAGE);
+	memset(obj, 0, size);
 	*obj = template;
 
 	obj->modelnum = modelnum;
+	if (modelnum == MODEL_MULTI_AMMO_CRATE) {
+		obj->type = OBJTYPE_MULTIAMMOCRATE;
+	} else {
+		obj->type = OBJTYPE_BASIC;
+	}
 	obj->pad = padnum;
 	obj->flags = flags;
 	obj->flags2 = flags2;
@@ -1026,8 +1038,10 @@ struct prop *scenarioCreateObj(s32 modelnum, s16 padnum, f32 arg2, u32 flags, u3
 	obj->hidden2 &= ~OBJHFLAG_DELETING;
 
 	setupCreateObject(obj, 123);
-	propActivate(obj->prop);
-	propEnable(obj->prop);
+	if (obj->prop) {
+		propActivate(obj->prop);
+		propEnable(obj->prop);
+	}
 
 	return obj->prop;
 }

@@ -19,7 +19,7 @@ source "$SCRIPT_DIR/pd-kit-common.sh"
 ELECTRON_DIR="$PD_KIT_REPO_ROOT/tools/pd_kit/electron"
 RELEASE_DIR="$PD_KIT_RELEASE_DIR"
 APP_NAME="${PD_KIT_APP_HUB%.app}"
-APP_BUNDLE="$RELEASE_DIR/${APP_NAME}.app"
+APP_BUNDLE="$PD_KIT_REPO_ROOT/${APP_NAME}.app"
 BUILD_DIR="$PD_KIT_REPO_ROOT/.tmp-map-editor-app-build"
 WRAPPED_DIR_NAME="Apps"
 SYMLINK_AT_ROOT=1
@@ -164,16 +164,8 @@ main() {
 	copy_manifest
 	sign_app
 
-	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
-		kit_symlink_app "${APP_NAME}.app"
-		kit_prune_repo_root_app_clutter
-	fi
-
 	printf '\nBuilt kit hub app:\n  %s\n' "$APP_BUNDLE"
 	printf 'Wrapped tools live under:\n  %s/Contents/Resources/%s/\n' "$APP_BUNDLE" "$WRAPPED_DIR_NAME"
-	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
-		printf '  %s -> %s\n' "$PD_KIT_REPO_ROOT/${APP_NAME}.app" "$APP_BUNDLE"
-	fi
 }
 
 main "$@"

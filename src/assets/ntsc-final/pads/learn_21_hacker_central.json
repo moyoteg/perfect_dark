@@ -9,13 +9,13 @@
 			],
 			"dir": [
 				0.0,
-				1.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"up": [
 				0.0,
-				0.0,
-				-1.0
+				1.0,
+				0.0
 			],
 			"xmin": -100.0,
 			"xmax": 100.0,
@@ -42,13 +42,79 @@
 			],
 			"dir": [
 				0.0,
-				1.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"up": [
 				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_LEARN_21_HACKER_CENTRAL_0002",
+			"pos": [
 				0.0,
-				-1.0
+				10.0,
+				0.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
+			],
+			"xmin": -100.0,
+			"xmax": 100.0,
+			"ymin": -100.0,
+			"ymax": 100.0,
+			"zmin": -100.0,
+			"zmax": 100.0,
+			"aiwaitlift": false,
+			"aionlift": false,
+			"aiwalkdirect": false,
+			"aidrop": false,
+			"aicrouch": false,
+			"aiignorey": false,
+			"aiduck": false,
+			"liftnum": 0,
+			"room": 1
+		},
+		{
+			"id": "PAD_LEARN_21_HACKER_CENTRAL_0003",
+			"pos": [
+				0.0,
+				10.0,
+				500.0
+			],
+			"dir": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"up": [
+				0.0,
+				1.0,
+				0.0
 			],
 			"xmin": -100.0,
 			"xmax": 100.0,
@@ -76,6 +142,16 @@
 					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0001",
 					"flag4000": false,
 					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0003",
+					"flag4000": false,
+					"flag8000": false
 				}
 			],
 			"waygroup": "WAYGROUP_LEARN_21_HACKER_CENTRAL_0001"
@@ -86,6 +162,60 @@
 			"neighbours": [
 				{
 					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0002",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0003",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_LEARN_21_HACKER_CENTRAL_0001"
+		},
+		{
+			"id": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0002",
+			"pad": "PAD_LEARN_21_HACKER_CENTRAL_0002",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0003",
+					"flag4000": false,
+					"flag8000": false
+				}
+			],
+			"waygroup": "WAYGROUP_LEARN_21_HACKER_CENTRAL_0001"
+		},
+		{
+			"id": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0003",
+			"pad": "PAD_LEARN_21_HACKER_CENTRAL_0003",
+			"neighbours": [
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0000",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0001",
+					"flag4000": false,
+					"flag8000": false
+				},
+				{
+					"waypoint": "WAYPOINT_LEARN_21_HACKER_CENTRAL_0002",
 					"flag4000": false,
 					"flag8000": false
 				}

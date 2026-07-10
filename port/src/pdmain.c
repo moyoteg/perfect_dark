@@ -167,6 +167,7 @@ struct stageallocation g_StageAllocations8Mb[] = {
 	{ STAGE_ANIMLAB,       "-ml0 -me0 -mgfx768 -mvtx512 -ma8192"             },
 	{ STAGE_AGENT_OFFICE,  "-ml0 -me0 -mgfx110 -mgfxtra80 -mvtx100 -ma700" },
 	{ STAGE_AGENT_OFFICE_CI, "-ml0 -me0 -mgfx120 -mvtx100 -ma400"          },
+	{ STAGE_AGENT_OFFICE_LAB, "-ml0 -me0 -mgfx768 -mvtx512 -ma8192"        },
 	{ STAGE_TEST_OLD,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
 	{ STAGE_DUEL,          "-ml0 -me0 -mgfx120 -mvtx100 -ma700"            },
 	{ STAGE_TEST_LAM,      "-ml0 -me0 -mgfx120 -mvtx98 -ma400"             },
@@ -204,6 +205,7 @@ struct stageallocation g_StageAllocations8Mb[] = {
 	{ STAGE_EXTRA24,       "-ml0 -me0 -mgfx200 -mvtx200 -ma400"            }, // Rogue
 	{ STAGE_EXTRA25,       "-ml0 -me0 -mgfx120 -mvtx200 -ma400"            }, // Paradox
 	{ STAGE_EXTRA26,       "-ml0 -me0 -mgfx200 -mvtx200 -ma400"            }, // War Colors
+	{ STAGE_PARADE,        "-ml0 -me0 -mgfx768 -mvtx512 -ma8192"             },
 #endif
 	{ 0,                   "-ml0 -me0 -mgfx120 -mvtx98 -ma300"             },
 };
@@ -569,6 +571,25 @@ void mainLoop(void)
 			if (sysArgCheck("--scenario-4")) g_MpSetup.scenario = 4;
 			if (sysArgCheck("--scenario-5")) g_MpSetup.scenario = 5;
 			mpReset();
+		}
+
+		// Dynamic Mod Switcher
+		if (g_Vars.mplayerisrunning || g_Vars.coopplayernum >= 0 || g_Vars.antiplayernum >= 0) {
+			if (g_StageNum == STAGE_TEST_LAM ||
+				g_StageNum == 0x10 ||
+				g_StageNum == 0x07 ||
+				g_StageNum == 0x14 ||
+				g_StageNum == 0x49) {
+				g_ModNum = MOD_GEX;
+			} else if (g_StageNum == STAGE_24) {
+				g_ModNum = MOD_KAKARIKO;
+			} else if (g_StageNum == STAGE_TEST_MP7) {
+				g_ModNum = MOD_DARKNOON;
+			} else {
+				g_ModNum = MOD_NORMAL;
+			}
+		} else {
+			g_ModNum = MOD_NORMAL;
 		}
 
 		gfxReset();

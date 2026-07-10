@@ -1,10 +1,10 @@
-"""Virtual agent office — dataDyne G5 (depo) retail geometry with lobby-hub NPCs.
+"""Virtual agent office — dataDyne G5 (depo) retail geometry with holograph meeting room.
 
-Pre-mission lobby hub (retail guard-foyer pads at Y≈35): eight friendly virtual
-agents stand in an open briefing circle reachable without opening doors. Z-target
-any agent for a throttled status line; use (Z) on the tagged PD console in the
-west lobby (PAD_DEPO_0006) for a room overview. Player spawns on the retail lobby
-patrol pad (PAD_DEPO_0080).
+Eight friendly virtual agents stand in the retail holograph briefing room (south wing,
+Y≈27) where Cassandra's meeting takes place in the single-player mission. Z-target any
+agent for a throttled status line; use (Z) on the tagged PD console at the meeting-room
+doorway (PAD_DEPO_0062) for a room overview. Player spawns on the corridor pads leading
+into the meeting room (PAD_DEPO_003D / 003E).
 
 Uses the same setup packing pattern as ``anim_parade`` (custom ailists + MP init
 0x1000). Examine ailists reuse unused ``LANGBANK_DEPO`` string slots (see
@@ -34,7 +34,11 @@ from .anim_parade import (
     _mp_init_ailist,
 )
 from .depo_retail_doors import agent_office_depo_doors, depo_door_inventory
-from .props import Chr, MultiMonitor, Tag
+from .depo_retail_office_props import (
+    agent_office_depo_office_props,
+    meeting_furniture_inventory,
+)
+from .props import Chr, MultiMonitor, SingleMonitor, Tag
 
 # --- Retail model / flag constants (src/include/constants.h) -----------------
 MODEL_PD_CONSOLE = 0x00B2
@@ -59,6 +63,7 @@ HEAD_RANDOM = 0xFFFF
 
 CHRFLAG1_DOINGIDLEANIMATION = 0x00000100
 SPAWNFLAG_DONTSHOOTME = 0x00000800
+SPAWNFLAG_FIXEDHEIGHT = 0x00004000
 TEAM_NONCOMBAT = 0x80
 
 # Chr refs for ailist examine / console scripts (constants.h).
@@ -86,36 +91,41 @@ CHR_AGENT_FIRST = 0x31
 AILIST_AGENT_BASE = 0x0401
 AILIST_CONSOLE_MONITOR = 0x1002
 
-# Retail depo lobby — open foyer before the holograph meeting wing (Y≈35).
-# Doors stay deactivated for CPU; briefing happens in the walkable lobby ring.
-PAD_LOBBY_PATROL = 0x0080  # Retail guard patrol — mission lobby hub (2612, 35, 340)
-PAD_LOBBY_NORTH = 0x0009  # Intro corridor (2312, 35, 440)
-PAD_LOBBY_WEST_A = 0x0060  # (2077, 35, -320)
-PAD_LOBBY_WEST_B = 0x007E  # (2072, 35, -340)
-PAD_LOBBY_WEST_C = 0x0006  # West console alcove (1953, 35, -456)
-PAD_LOBBY_SOUTH_A = 0x0061  # (2535, 35, -320)
-PAD_LOBBY_SOUTH_B = 0x007F  # (2472, 35, -340)
-PAD_LOBBY_SOUTH_C = 0x009E  # (2294, 50, -192)
-PAD_LOBBY_EAST = 0x0008  # (2692, 35, -466)
-PAD_LOBBY_NE = 0x00BE  # (2888, 35, -458)
+# Meeting-room corridor — player spawns leading into holograph briefing (Y≈27).
+PAD_MEETING_CORRIDOR_W = 0x003D  # West corridor into meeting room (2403, 27, 3165)
+PAD_MEETING_CORRIDOR_E = 0x003E  # East approach corridor (3131, 27, 3160)
+PAD_MEETING_CORRIDOR_S = 0x008F  # South approach corridor (2646, 27, 1990)
 
-# MP quick-start picks among every intro Spawn — all lobby Y≈35 (no door transit).
-# SPEC_AUDIT F1: spawn pads must NOT reuse any agent pad, or the player materializes
-# on top of an agent. Old alts 0x09/0x61 were the Orchestrator/Ops desks — repointed.
-# The only clear Y=35 lobby-floor pad is 0x0007 (2301,35,-458, south ring); entrance-
-# side pads near 0x80 are Y=27 (lower level, unsafe). So: entrance + one clear ring pad.
-PAD_LOBBY_SPAWN_CLEAR = 0x0007  # (2301,35,-458) empty south-ring pad — no agent here
-PAD_PLAYER_SPAWN = PAD_LOBBY_PATROL          # 0x80 primary — entrance (2612,35,340)
-PAD_PLAYER_SPAWN_ALT = PAD_LOBBY_SPAWN_CLEAR # clear ring pad (verify walkable — V-1)
-PAD_PLAYER_SPAWN_LOBBY = PAD_PLAYER_SPAWN    # 2nd entrance spawn (safe; avoids agent pads)
+# Legacy lobby pads (retail setupdepo.c intro[] — not used for Agent Office player spawn).
+PAD_LOBBY_ENTRY = 0x0083  # Retail intro spawn (2605, 35, -1243)
+PAD_LOBBY_GRID_A = 0x0002  # Entrance foyer grid (2694, 35, -1368)
+PAD_LOBBY_EAST = 0x0080  # East lobby connector (2612, 35, 340)
+
+# Holograph meeting room — agent briefing pads (Y≈27, south wing).
+PAD_MEETING_CONSOLE = 0x0062  # Doorway PD console (2971, 27, 2880)
+
+PAD_MEETING_DIRECTOR = 0x0088  # (2971, 27, 2811)
+PAD_MEETING_ORCHESTRATOR = 0x0089  # (3080, 27, 2749)
+PAD_MEETING_RESEARCH = 0x0064  # (2971, 27, 2520)
+PAD_MEETING_CODE = 0x0063  # (2971, 27, 2720)
+PAD_MEETING_QA = 0x008A  # (2524, 27, 2807)
+PAD_MEETING_SECURITY = 0x008B  # (2389, 27, 2753)
+# Ops chr pad — retail cinema north chr (Blonde 0x0087); chair tag 0x4a → G5BIGCHAIR @ 0x00F8.
+PAD_MEETING_OPS = 0x0087  # (2651, 27, 3115)
+PAD_MEETING_OPS_CHAIR = 0x00F8  # (2754, 27, 3070) — furniture pad only (tag 0x4a)
+PAD_MEETING_OPS_CONSOLE = 0x0087  # PD console co-located with Ops chr pad
+# Comms moved off Ops chr pad to east corridor approach (was 0x0087).
+PAD_MEETING_COMMS = 0x003E  # (3131, 27, 3160)
+
+PAD_PLAYER_SPAWN = PAD_MEETING_CORRIDOR_W
+PAD_PLAYER_SPAWN_ALT = PAD_MEETING_CORRIDOR_E
+PAD_PLAYER_SPAWN_LOBBY = PAD_MEETING_CORRIDOR_S
 PAD_BRIEFING_ENTRY = PAD_PLAYER_SPAWN
 
-# Tagged PD console — west lobby (reachable from spawn without doors).
-PAD_INTERACT_CONSOLE = PAD_LOBBY_WEST_C
+PAD_INTERACT_CONSOLE = PAD_MEETING_CONSOLE
 
-# Briefing circle centre for layout docs / facing notes.
-TABLE_CENTER_X = 2450
-TABLE_CENTER_Z = 50
+TABLE_CENTER_X = 2750
+TABLE_CENTER_Z = 2850
 
 # LANGBANK_DEPO (0x0c) string indices — unused retail slots + one thematic reuse.
 LANGBANK_DEPO = 0x0C
@@ -128,6 +138,8 @@ L_DEPO_053 = (LANGBANK_DEPO << 9) | 53
 L_DEPO_061 = (LANGBANK_DEPO << 9) | 61
 L_DEPO_066 = (LANGBANK_DEPO << 9) | 66
 L_DEPO_067 = (LANGBANK_DEPO << 9) | 67
+# Pass 10: dedicated Security proximity greet (distinct from L_DEPO_066 examine/status).
+L_DEPO_068 = (LANGBANK_DEPO << 9) | 68
 
 # Examine cooldown — ~3 s at 60 Hz (matches setupdepo msg ailists).
 EXAMINE_COOLDOWN_TICKS = 180
@@ -139,12 +151,22 @@ EXAMINE_COOLDOWN_TICKS = 180
 # journal/agent_office/LLM_CONVERSATION_LAYER.md).
 GREET_RANGE = 400
 
-# Parade-style anim flags: slow tick + lock root at pad.
+CHRANIMFLAG_PAUSEATEND = 0x04
 CHRANIMFLAG_SLOWUPDATE = 0x10
 CHRANIMFLAG_LOCKPOS = 0x40
 _AGENT_ANIM_FLAGS = CHRANIMFLAG_SLOWUPDATE | CHRANIMFLAG_LOCKPOS
+# Retail GAILIST_BUSY sitting — root motion snaps to chair tag (no LOCKPOS).
+_SITTING_ANIM_FLAGS = CHRANIMFLAG_PAUSEATEND | CHRANIMFLAG_SLOWUPDATE
 _START_FIRST = 0xFFFF
 _END_NATURAL = 0xFFFF
+
+IDLEACTION_STANDING = 0x01
+IDLEACTION_SITTING_TYPING = 0x02
+IDLEACTION_SITTING_DORMANT = 0x03
+SPECIALDIE_ONCHAIR = 0x06
+
+# Retail cinema chair tags (setupdepo.c Cassandra / Blonde colleagues).
+CHAIR_TAG_G5_BIG = 0x4A
 
 
 @dataclass(frozen=True)
@@ -158,90 +180,99 @@ class VirtualAgentSpec:
     anim_index: int
     status_text: int
     doing_idle: bool = False
+    fixed_height: bool = False
+    chair: int = 0xFFFF
+    naturalanim: int = 0
+    anim_flags: int = _AGENT_ANIM_FLAGS
+    anim_speed: int = 16
     facing_note: str = ""
     # Optional one-shot proximity line (lang id). None → examine-only (unchanged).
     greet_text: int | None = None
 
 
-# Lobby briefing ring — retail foyer pads at Y≈35 (no holograph-room doors needed).
+# Holograph meeting room — retail mission pads with mixed briefing animations.
 VIRTUAL_AGENTS: tuple[VirtualAgentSpec, ...] = (
     VirtualAgentSpec(
         "Director",
-        PAD_LOBBY_NE,
+        PAD_MEETING_DIRECTOR,
         BODY_CARRINGTON,
         HEAD_RANDOM,
         ANIM_TALKING_0231,
         L_DEPO_004,
-        facing_note="NE lobby — faces briefing circle",
+        facing_note="meeting table — executive briefing",
     ),
     VirtualAgentSpec(
         "Orchestrator",
-        PAD_LOBBY_NORTH,
+        PAD_MEETING_ORCHESTRATOR,
         BODY_JONATHAN,
         HEAD_RANDOM,
         ANIM_STANDING_TYPE_ONE_HAND,
         L_DEPO_005,
-        facing_note="north corridor — coordinates threads",
+        facing_note="east side — coordinates threads",
     ),
     VirtualAgentSpec(
         "Research",
-        PAD_LOBBY_EAST,
+        PAD_MEETING_RESEARCH,
         BODY_OFFICEWORKER,
         HEAD_RANDOM,
         ANIM_OPERATE_0204,
         L_DEPO_006,
-        facing_note="east wing — analysis terminal",
+        facing_note="south terminal — analysis lane",
     ),
     VirtualAgentSpec(
         "Code",
-        PAD_LOBBY_WEST_A,
+        PAD_MEETING_CODE,
         BODY_OFFICEWORKER2,
         HEAD_RANDOM,
         ANIM_OPERATE_0205,
         L_DEPO_007,
-        facing_note="west inner — implementation lane",
+        facing_note="centre terminal — implementation",
     ),
     VirtualAgentSpec(
         "QA",
-        PAD_LOBBY_WEST_B,
+        PAD_MEETING_QA,
         BODY_DARK_COMBAT,
         HEAD_RANDOM,
         ANIM_OPERATE_0206,
         L_DEPO_008,
-        facing_note="west outer — verification harness",
+        facing_note="west side — verification harness",
     ),
     VirtualAgentSpec(
         "Security",
-        PAD_LOBBY_SOUTH_C,
+        PAD_MEETING_SECURITY,
         BODY_G5_GUARD,
         HEAD_RANDOM,
-        ANIM_IDLE,
+        ANIM_STANDING_TYPE_ONE_HAND,
         L_DEPO_066,
         doing_idle=True,
-        facing_note="south entry — guard stand",
-        # Entrance greeter: fires a one-shot line when the player walks up (reuses
-        # its own status string — swap for a dedicated greeting/VO line, or the
-        # live LLM utterance, without touching the ailist).
-        greet_text=L_DEPO_066,
+        fixed_height=True,
+        naturalanim=IDLEACTION_STANDING,
+        facing_note="west entry — guard stand",
+        greet_text=L_DEPO_068,
     ),
     VirtualAgentSpec(
         "Ops",
-        PAD_LOBBY_SOUTH_A,
+        PAD_MEETING_OPS,
         BODY_TRENT,
         HEAD_RANDOM,
         ANIM_SITTING_TYPING,
         L_DEPO_067,
         doing_idle=True,
-        facing_note="south inner — deploy pipeline",
+        fixed_height=True,
+        chair=CHAIR_TAG_G5_BIG,
+        naturalanim=IDLEACTION_SITTING_TYPING,
+        anim_flags=_SITTING_ANIM_FLAGS,
+        anim_speed=0,
+        facing_note="north desk — deploy pipeline (chair 0x4a @ 0x00F8)",
     ),
     VirtualAgentSpec(
         "Comms",
-        PAD_LOBBY_SOUTH_B,
+        PAD_MEETING_COMMS,
         BODY_OFFICEWORKER2,
         HEAD_RANDOM,
         ANIM_TALKING_003D,
         L_DEPO_053,
-        facing_note="south outer — comms / status channel",
+        facing_note="north-east — comms / status channel",
     ),
 )
 
@@ -284,26 +315,32 @@ def _cmd_if_distance_to_target_gt(distance: int, label: int) -> bytes:
     return struct.pack(">HHB", 0x0053, (distance // 10) & 0xFFFF, label & 0xFF)
 
 
-def _cmd_agent_chr_do_animation(anim_index: int) -> bytes:
+def _cmd_agent_chr_do_animation(
+    anim_index: int,
+    anim_flags: int = _AGENT_ANIM_FLAGS,
+    anim_speed: int = 16,
+) -> bytes:
     return struct.pack(
         ">HHHHBBBb",
         0x000B,
         anim_index & 0xFFFF,
         _START_FIRST,
         _END_NATURAL,
-        _AGENT_ANIM_FLAGS,
-        16,
+        anim_flags & 0xFF,
+        anim_speed & 0xFF,
         CHR_SELF,
         2,
     )
 
 
-def _build_agent_briefing_ailist(
-    anim_index: int, status_text: int, greet_text: int | None = None
-) -> bytes:
-    """Loop one briefing animation; Z-target shows a throttled HUD status line.
+def _cmd_set_chr_special_death_animation(chr: int, specialdie: int) -> bytes:
+    return struct.pack(">HBB", 0x01A0, chr & 0xFF, specialdie & 0xFF)
 
-    When ``greet_text`` is set, the agent also fires a one-shot proximity line the
+
+def _build_agent_briefing_ailist(spec: VirtualAgentSpec) -> bytes:
+    """Loop a briefing animation; Z-target shows a throttled HUD status line.
+
+    When ``spec.greet_text`` is set, the agent also fires a one-shot proximity line the
     moment the player crosses inside ``GREET_RANGE``, latching in a "wait until far"
     loop until the player leaves before it can greet again. When ``greet_text`` is
     ``None`` the emitted bytecode is byte-for-byte identical to the examine-only
@@ -312,6 +349,8 @@ def _build_agent_briefing_ailist(
     """
     code = bytearray()
     code += _cmd_set_self_chrflag(0)
+    if spec.chair != 0xFFFF:
+        code += _cmd_set_chr_special_death_animation(CHR_SELF, SPECIALDIE_ONCHAIR)
 
     outer = 0x10
     wait_lbl = 0x11
@@ -322,12 +361,14 @@ def _build_agent_briefing_ailist(
     greet_wait_far_lbl = 0x31
 
     code += _cmd_label(outer)
-    code += _cmd_agent_chr_do_animation(anim_index)
+    code += _cmd_agent_chr_do_animation(
+        spec.anim_index, spec.anim_flags, spec.anim_speed
+    )
     code += _cmd_label(wait_lbl)
     code += _cmd_chr_toggle_p1p2(CHR_SELF)
     code += _cmd_set_target_chr(CHR_P1P2)
     code += _cmd_if_target_aiming_at_me(msg_lbl)
-    if greet_text is not None:
+    if spec.greet_text is not None:
         code += _cmd_if_distance_to_target_lt(GREET_RANGE, greet_lbl)
     code += _cmd_if_chr_stopped(next_lbl)
     code += _cmd_yield()
@@ -336,18 +377,18 @@ def _build_agent_briefing_ailist(
     code += _cmd_goto_first(outer)
 
     code += _cmd_label(msg_lbl)
-    code += _cmd_show_hudmsg(CHR_P1P2, status_text)
+    code += _cmd_show_hudmsg(CHR_P1P2, spec.status_text)
     code += _cmd_restart_timer()
     code += _cmd_label(cooldown_lbl)
     code += _cmd_if_timer_gt(EXAMINE_COOLDOWN_TICKS, wait_lbl)
     code += _cmd_yield()
     code += _cmd_goto_first(cooldown_lbl)
 
-    if greet_text is not None:
+    if spec.greet_text is not None:
         # One-shot greeting: show the line, then hold in a "wait until the player
         # leaves GREET_RANGE" loop that re-arms by jumping back to wait_lbl.
         code += _cmd_label(greet_lbl)
-        code += _cmd_show_hudmsg(CHR_P1P2, greet_text)
+        code += _cmd_show_hudmsg(CHR_P1P2, spec.greet_text)
         code += _cmd_label(greet_wait_far_lbl)
         code += _cmd_chr_toggle_p1p2(CHR_SELF)
         code += _cmd_set_target_chr(CHR_P1P2)
@@ -392,9 +433,12 @@ def agent_chr_props() -> list[Chr]:
     base_ailist = agent_office_ailist_base()
     for offset, spec in enumerate(VIRTUAL_AGENTS):
         flags2 = CHRFLAG1_DOINGIDLEANIMATION if spec.doing_idle else 0
+        spawnflags = SPAWNFLAG_BASICGUARD | SPAWNFLAG_DONTSHOOTME
+        if spec.fixed_height:
+            spawnflags |= SPAWNFLAG_FIXEDHEIGHT
         props.append(
             Chr(
-                spawnflags=SPAWNFLAG_BASICGUARD | SPAWNFLAG_DONTSHOOTME,
+                spawnflags=spawnflags,
                 chrnum=CHR_AGENT_FIRST + offset,
                 pad=spec.pad,
                 body=spec.body,
@@ -408,10 +452,10 @@ def agent_chr_props() -> list[Chr]:
                 flags2=flags2,
                 team=TEAM_NONCOMBAT,
                 squadron=SQUADRON_01,
-                chair=0xFFFF,
+                chair=spec.chair,
                 convtalk=0,
                 tude=0,
-                naturalanim=0,
+                naturalanim=spec.naturalanim,
                 yvisang=0,
                 teamscandist=0,
             )
@@ -419,13 +463,52 @@ def agent_chr_props() -> list[Chr]:
     return props
 
 
-def agent_office_std_props() -> list:
-    """Tagged interactable console in the west lobby briefing ring."""
+def agent_office_meeting_terminal_props() -> list:
+    """PD consoles at operate / typing chr pads (retail geometry has chairs only)."""
     std_flags = (
         OBJFLAG_FALL
-        | OBJFLAG_XTOPADBOUNDS
-        | OBJFLAG_YTOPADBOUNDS
-        | OBJFLAG_ZTOPADBOUNDS
+        | OBJFLAG_00000100
+        | OBJFLAG_IGNOREFLOORCOLOUR
+    )
+    return [
+        SingleMonitor(
+            image=3,
+            scale=0x0100,
+            model=MODEL_PD_CONSOLE,
+            pad=PAD_MEETING_CODE,
+            flags=std_flags,
+        ),
+        SingleMonitor(
+            image=3,
+            scale=0x0100,
+            model=MODEL_PD_CONSOLE,
+            pad=PAD_MEETING_RESEARCH,
+            flags=std_flags,
+        ),
+        SingleMonitor(
+            image=3,
+            scale=0x0100,
+            model=MODEL_PD_CONSOLE,
+            pad=PAD_MEETING_QA,
+            flags=std_flags,
+        ),
+        SingleMonitor(
+            image=3,
+            scale=0x0100,
+            model=MODEL_PD_CONSOLE,
+            pad=PAD_MEETING_OPS_CONSOLE,
+            flags=std_flags,
+        ),
+    ]
+
+
+def agent_office_std_props() -> list:
+    """Tagged interactable console at the meeting-room doorway."""
+    # Do not use TOPADBOUNDS here: PAD_DEPO_0062 has a generic 200 u bbox, which
+    # setupCreateObject stretches to a huge console. Retail uses PAD_DEPO_00D0 with
+    # a console-sized pad; we keep scale 0x0100 only at the meeting-room pad.
+    std_flags = (
+        OBJFLAG_FALL
         | OBJFLAG_00000100
         | OBJFLAG_IGNOREFLOORCOLOUR
     )
@@ -450,10 +533,7 @@ def agent_office_std_props() -> list:
 def agent_ailist_chunks() -> list[tuple[bytes, int]]:
     base = agent_office_ailist_base()
     chunks: list[tuple[bytes, int]] = [
-        (
-            _build_agent_briefing_ailist(spec.anim_index, spec.status_text, spec.greet_text),
-            base + offset,
-        )
+        (_build_agent_briefing_ailist(spec), base + offset)
         for offset, spec in enumerate(VIRTUAL_AGENTS)
     ]
     chunks.append((_build_console_monitor_ailist(L_DEPO_061), AILIST_CONSOLE_MONITOR))
@@ -465,6 +545,8 @@ def pack_agent_office_setup(mapdef) -> bytes:
     props = (
         list(mapdef.props)
         + agent_office_depo_doors()
+        + agent_office_depo_office_props()
+        + agent_office_meeting_terminal_props()
         + agent_office_std_props()
         + agent_chr_props()
     )
@@ -513,21 +595,21 @@ def agent_office_layout_payload() -> dict:
         "stage": "STAGE_G5BUILDING",
         "retailGeometry": "depo",
         "description": (
-            "dataDyne G5 pre-mission lobby — eight virtual agents in an open briefing "
-            "circle on retail foyer pads (no doors required). Z-target any agent for a "
-            "status line; use (Z) on the PD console in the west lobby for a room overview."
+            "dataDyne G5 — player spawns on meeting-room corridor pads "
+            "(PAD_DEPO_003D / 003E / 008F, Y≈27); eight virtual agents in the holograph "
+            "briefing room. Z-target any agent for a status line; use (Z) on the PD console "
+            "at the meeting-room doorway."
         ),
         "tableCenter": {"x": TABLE_CENTER_X, "z": TABLE_CENTER_Z},
-        "lobbyBriefingPads": [
-            PAD_LOBBY_PATROL,
-            PAD_LOBBY_NORTH,
-            PAD_LOBBY_WEST_A,
-            PAD_LOBBY_WEST_B,
-            PAD_LOBBY_SOUTH_A,
-            PAD_LOBBY_SOUTH_B,
-            PAD_LOBBY_SOUTH_C,
-            PAD_LOBBY_EAST,
-            PAD_LOBBY_NE,
+        "meetingRoomPads": [
+            PAD_MEETING_DIRECTOR,
+            PAD_MEETING_ORCHESTRATOR,
+            PAD_MEETING_RESEARCH,
+            PAD_MEETING_CODE,
+            PAD_MEETING_QA,
+            PAD_MEETING_SECURITY,
+            PAD_MEETING_OPS,
+            PAD_MEETING_COMMS,
         ],
         "playerSpawnPads": [
             PAD_BRIEFING_ENTRY,
@@ -538,10 +620,17 @@ def agent_office_layout_payload() -> dict:
         "retailDoors": {
             "count": len(depo_door_inventory()),
             "source": (
-                "src/setups/setupdepo.c — all retail doors, sibling cleared, "
-                "OBJFLAG_DEACTIVATED (static render; doorTick skipped)"
+                "src/setups/setupdepo.c — all retail doors, mp_unlock + sibling remapped "
+                "(closed at init; normal doorTick; open/close via Z)"
             ),
             "models": _door_model_summary(),
+        },
+        "retailMeetingFurniture": {
+            "count": len(meeting_furniture_inventory()),
+            "source": (
+                "src/setups/setupdepo.c — G5SMALLCHAIR/G5BIGCHAIR @ pads 0x00F2–0x00F8 "
+                "+ chair tags 0x4a/0x4b (cinema briefing)"
+            ),
         },
         "agents": [
             {

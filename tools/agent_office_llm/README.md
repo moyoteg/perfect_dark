@@ -36,18 +36,55 @@ and `/act` accepting `agents[].say`. Until then the director falls back to scann
 From Perfect Dark Kit, open **Agent Office**, then use **Start Live Director**. The same
 start/stop actions are also exposed in the Kit Hub's **Scenarios & Launch** section.
 
+## Run as the Projex / PragChat host service
+
+This is the ASAP integration path: Projex keeps PragChat and project management as the
+primary host, while Perfect Dark is the 3D spatial tab over the same Office Service
+state.
+
+```bash
+./scripts/start-agent-office-service-api.sh
+curl http://127.0.0.1:8791/health
+curl http://127.0.0.1:8791/pragchat/manifest
+curl http://127.0.0.1:8791/pragchat/snapshot
+./scripts/start-agent-office-service-api.sh --stop
+```
+
+Projex / PragChat should load `GET /pragchat/manifest` for the system prompt and
+resource definitions, then poll or subscribe against `GET /pragchat/snapshot` for
+channels, agent DMs, threads, approvals, tasks, events, and fleet status. The same
+service also exposes the direct control-plane routes:
+
+| Route | Purpose |
+|-------|---------|
+| `GET /agents`, `GET /agents/:id` | Inspect the 3D/PragChat agent roster |
+| `GET /tasks`, `GET /tasks/:id` | Inspect assigned work |
+| `POST /dispatch` | Create an agent task from PragChat or Projex project UI |
+| `POST /tasks/:id/perform` | Run/stage connector actions for a task |
+| `GET /approvals`, `GET /approvals/:id` | Render human-present approval cards |
+| `POST /approvals/:id/approve`, `POST /approvals/:id/deny` | Resolve staged write actions |
+| `POST /slack/ingest` | Ingest Slack-style messages into the Office event bus |
+| `GET /events`, `POST /events` | Replay or append shared world/chat events |
+| `GET /fleet` | Show blocked/ready agent status |
+
+Keep this as one state core: PragChat, Projex project views, and the Perfect Dark office
+must all read/write through this service rather than maintaining separate task,
+approval, or audit stores.
+
 ## Layout
 
 | Path | Role |
 |------|------|
 | `office_director.py` | Perception, proximity engine (hysteresis + view cone), brain dispatch, act payloads, dry-run |
+| `office_service_api.py` | Local HTTP entrypoint for Projex/PragChat host integration |
 | `characters/<slug>/brain.json` | Per-agent persona, chrnum binding, voice slug, knowledge (knows/withholds) |
 | `service/` | **Office Service** — the control-plane core (VISION §6): tasks, event bus, connector gateway, dispatch/approvals |
 
 ## Office Service (`service/`)
 
 The persistent control plane the 3D client drives (VISION_AND_PRODUCT.md §6). Pure stdlib,
-in-memory, fully unit-tested (`tests/test_office_service.py`, 11/11 including director C3):
+in-memory, unit-tested by `tests/test_office_service.py` and
+`tests/test_office_service_http_api.py`:
 
 | Module | Role |
 |--------|------|
@@ -55,6 +92,8 @@ in-memory, fully unit-tested (`tests/test_office_service.py`, 11/11 including di
 | `event_bus.py` | Append-only, replayable world event bus (§6.6) |
 | `connectors.py` | Connector Gateway — per-agent/per-tool **autonomy** (`suggest`/`ask-approval`/`act`) + **audit**; Slack/PagerDuty/GitHub stubs mirroring MCP shapes (§5) |
 | `office_service.py` | Dispatch, the human-present **approval** gate, Slack round-trip, fleet status (§3, §6) |
+| `http_api.py` | Stdlib JSON API + PragChat manifest/snapshot projection for Projex |
+| `account_pool/` | **Account pooling** — typed lease lifecycle for LLM/connector credentials ([`ACCOUNT_POOL_SPEC.md`](../../journal/agent_office/ACCOUNT_POOL_SPEC.md)) |
 
 ```python
 from service import Agent, Autonomy, ConnectorGateway, OfficeService
@@ -76,5 +115,6 @@ Swap the stub `.call` bodies in `connectors.py` for real MCP invocations to go l
 - **C1** engine: `/observe` `agents[]` pass in `port/src/llm_observe.c` — **written** (needs build)
 - **C2** engine: `/act` `agents[].say` → `hudmsgCreate` in `port/src/llm_bridge.c` — **written** (needs build)
 - **C3** brain: llm-play backend replies + director→Office Service utterance dispatch — **written** (`--llm`)
-- **C4** voice: wire `listen_player` / `speak` to `voice_pipeline/` (ASR in, TTS out)
-- **C5** memory + `face_player` + world events; real MCP connectors behind the gateway (Slack first)
+- **C4** host: Projex/PragChat Office Service API + manifest/snapshot — **written**
+- **C5** voice: wire `listen_player` / `speak` to `voice_pipeline/` (ASR in, TTS out)
+- **C6** memory + `face_player` + world events; real MCP connectors behind the gateway (Slack first)

@@ -144,12 +144,25 @@ function emitRunState(running) {
 
 function runSnapshotRefresh(config) {
   const python = resolvePython(config);
-  const script = path.join(config.repoRoot, 'tools', 'asset_upgrader.py');
-  const proc = spawn(python, [script, 'snapshot', '--workdir', config.workdir], {
+  const script = path.join(config.repoRoot, 'tools/asset_upgrader.py');
+
+  const catalogArgs = [script, 'catalog', '--path', config.modPath];
+  if (config.includeBase) {
+    catalogArgs.push('--path', 'src/assets/ntsc-final/textures');
+  }
+
+  const catalogProc = spawn(python, catalogArgs, {
     cwd: config.repoRoot,
     env: process.env,
   });
-  proc.on('close', () => emitSnapshot(config));
+
+  catalogProc.on('close', () => {
+    const proc = spawn(python, [script, 'snapshot', '--workdir', config.workdir], {
+      cwd: config.repoRoot,
+      env: process.env,
+    });
+    proc.on('close', () => emitSnapshot(config));
+  });
 }
 
 function startPipeline(config) {
@@ -173,6 +186,8 @@ function startPipeline(config) {
   ];
   if (config.limit > 0) args.push('--limit', String(config.limit));
   if (config.dryRun) args.push('--dry-run');
+  if (config.noResume) args.push('--no-resume');
+  if (config.includeBase) args.push('--path', 'src/assets/ntsc-final/textures');
   if (config.prompt) args.push('--prompt', config.prompt);
 
   emitLog(`$ ${python} ${args.join(' ')}`);

@@ -1,5 +1,48 @@
 # Virtual Agent Office — Session Notes (2026-07-02)
 
+**2026-07-04 update — Slack mirror Phase 1 (workspace config + channels)**
+
+Progressive Slack mirroring plan: [`SLACK_MIRROR_ROADMAP.md`](./SLACK_MIRROR_ROADMAP.md) (8 phases, 0–7).
+
+**Shipped Phase 1:**
+- Shared config: `journal/agent_office/workspace_config.json` (member + workspace location + Slack-shaped `channels[]`)
+- Module: `tools/agent_office_llm/service/workspace_config.py`
+- Office Service REST: `GET/POST /workspace/config`, `GET /slack/channels`
+- Electron: **Channels** panel; auto-sync on profile/workspace change via IPC
+- Tests: `tests/test_workspace_config.py`, extended `tests/test_office_service_http_api.py`
+
+**Next:** Phase 2 — channel unread + lobby console `#general` ticker wired to service events.
+
+---
+
+**2026-07-04 update — Workspace model (Slack analogy)**
+
+Product direction: onboarding that asks users to **create a Perfect Dark agent profile** before
+entering the office is intentional — analogous to joining a Slack workspace (workspace = office
+location; your profile = member identity; team agents = NPCs at desks).
+
+**Documented in [`SPEC.md`](./SPEC.md) §1 Workspace model.** Electron launcher now has a
+minimal **Your agent profile** form (display name + codename → `localStorage`); **Enter Office**
+requires a display name. Profile is not yet wired to in-game identity or Office Service.
+
+**Gaps for future work:** pass human agent to Office Service / Projex host; in-game callsign
+HUD; avatar or chr binding; workspace membership persistence beyond localStorage.
+
+---
+
+**2026-07-04 update — CI visor/pause fix + Fresh Lobby architecture**
+
+User reported Escape still showed no visor and no proper return to gameplay on CI (`0x84`) despite prior `menu.c`/`player.c` hudpiece patches. Root cause: peaceful agent-office boots via **MP quick-start** (`mplayerisrunning` + `normmplayerisrunning` both true). Retail solo/CI lobby keeps `normmplayerisrunning=false`, which drives `var8009dfc0` / `menuisactive` / gunmem for visor render and resume.
+
+**Shipped fixes:**
+
+1. **CI Fresh Lobby (recommended):** `--boot-stage 0x26 --agent-office-ci-lobby --profile 0` — true solo `STAGE_CITRAINING` with `Ump_setupagent_office_ciZ` injected in `setup.c`. Native visor, pause, and PC interact. Script: `scripts/play-agent-office-ci-lobby.sh`. Electron: *Carrington Institute (Fresh / Lobby)*.
+2. **Legacy `0x84` path:** after `setupLoadFiles`, peaceful `--solo` clears `normmplayerisrunning` (`lv.c` + `bootmp.c`) while keeping MP setup for agents/spawns.
+
+Verified boot log: `Ump_setupagent_office_ciZ` loads on stage 26; spawn `(637,360,923)` Jo's office; PID healthy ~8% CPU.
+
+---
+
 Comprehensive record of the Virtual Agent Office work session: two retail-geometry MP maps,
 eight friendly NPC agents with Z-target examine, lobby-console interact, Electron launcher,
 retail door/lift props (static), and the stability fixes required to ship lobby mode.
@@ -556,3 +599,241 @@ ailist regression test green; `lang.c` sentinel block well-formed; `stagetable.c
 untouched (no `g_Stages` size regression). **Still needs an in-engine rebuild + play** to
 confirm menu names, new strings, and the Security proximity greeter (macOS `cmake` build —
 not run here). Not committed.
+
+---
+
+## Follow-up session (2026-07-04) — CI door sibling crash fix + rebuild/relaunch
+
+**Problem:** CI map (`agent_office_ci`, stage `0x84`) SIGSEGV in `doorsCalcFrac` — retail
+`door.sibling` offsets assumed the full `setupdish.c` props[] layout; door-only MP packs
+walked garbage pointers when siblings targeted omitted chr/std/lift props.
+
+**Fixes applied (pdmap packer, uncommitted):**
+
+| File | Change |
+|------|--------|
+| `tools/pdmap/setup_c_preprocess.py` | **New** — resolve `#if VERSION` branches for ntsc-final parsing (avoids duplicate doors on version-guarded pads). |
+| `tools/pdmap/retail_door_siblings.py` | **New** — remap retail sibling offsets door-to-door within packed lists; `validate_packed_door_siblings()` for build-time checks. |
+| `tools/pdmap/ci_retail_doors.py` | Remap siblings via `prepare_agent_office_doors()` instead of zeroing; MP-unlock all flat doors; use preprocessed setup lines. |
+| `tools/pdmap/ci_retail_lifts.py` | Preprocessed setup lines; unlock lift-car doors (internal sibling offsets stay intact within lift assemblies). |
+| `tools/pdmap/ci_retail_office_props.py` | Filter extraneous lobby-lift desk/monitor props (`0x0226`–`0x022D` excluded). |
+| `tools/pdmap/validate.py` | Build-time sibling validation for `agent_office` and `agent_office_ci`. |
+
+**Validation:** `analyze_setup_door_siblings('dish')` → 0 bad siblings / 63 doors.
+`validate_packed_door_siblings()` on full CI props → **0 errors** (71 doors).
+
+**Rebuild + relaunch (2026-07-04 ~14:35 local):**
+
+1. `cmake --build build -j8` — rebuilt `build/pd.arm64` (C sources had local changes).
+2. `./scripts/play-agent-office-ci.sh --force` — killed stale PID, rebuilt/deployed
+   `agent_office_ci` → `Ump_setupagent_office_ciZ`, launched stage `0x84`.
+3. Stability check: direct `nohup ./build/pd.arm64 … --boot-stage 0x84` ran **30+ s**
+   with spawn complete, **no SIGSEGV**, no `doorsCalcFrac` fault, no premature shutdown.
+
+**Outcome:** CI boots successfully with remapped door siblings. Relaunch command:
+
+```bash
+./scripts/play-agent-office-ci.sh --force
+```
+
+Log: `journal/agent_office_ci/.last_launch.log`. Not committed.
+
+---
+
+## Follow-up session (2026-07-04) — CI floating lobby console fix
+
+**Problem:** Grey metallic cabinet/console (`MODEL_CIHUB`) floating mid-air in the north-lobby
+corridor (blue reflective floor, `PAD_DISH_0017` alcove). Screenshot matched the tagged agent
+console, not retail desk PCs (`0x0226`–`0x022D` — those are already excluded by
+`ci_retail_office_props.py`).
+
+**Root cause:** `agent_office_ci_std_props()` packed the interact `MultiMonitor` with
+`OBJFLAG_*TOPADBOUNDS`, but `PAD_DISH_0017` has a generic ±100 u bbox (same pitfall as G5
+`PAD_DEPO_0062`). `setupCreateObject` scales the console to that volume and it hangs in open
+corridor space instead of sitting on the floor.
+
+**Fix:** `tools/pdmap/agent_office_ci.py` — drop TOPADBOUNDS on the lobby console; keep
+`OBJFLAG_FALL | OBJFLAG_00000100 | OBJFLAG_IGNOREFLOORCOLOUR` (mirrors G5
+`agent_office_std_props()`).
+
+| Prop | Pad | Model | Fix |
+|------|-----|-------|-----|
+| `MultiMonitor` (tagged agent console) | `0x0017` (`-100, 35, 128`) | `MODEL_CIHUB` | Removed `OBJFLAG_X/Y/ZTOPADBOUNDS` |
+
+**Validation:** `python3 scripts/validate-door-siblings.py` → OK (CI + G5).  
+`python3 tools/pdmap.py validate agent_office_ci` → OK (retail pad warnings only).
+
+**Rebuild + relaunch (2026-07-04 ~14:39 local):**
+
+1. `python3 tools/pdmap.py build agent_office_ci --deploy`
+2. `./scripts/play-agent-office-ci.sh --force` → PID 43647, stage `0x84`
+3. `journal/agent_office_ci/.last_launch.log`: setup loaded, spawn `(637,360,923)`, no SIGSEGV
+
+**Outcome:** Console flags now `0x00000501` (was `0x000005E1`). Not committed.
+
+---
+
+## Follow-up session (2026-07-04) — Visor pause + lobby console interact
+
+**Problem:** In agent-office solo explore (`--solo`, stages `0x83`/`0x84`/`0x85`), **Escape** opened the
+MP pause scoreboard (or nothing useful) instead of the visor / Perfect Menu. **(Z)** on the tagged
+lobby console only showed a throttled HUD overview line — not retail CI-lobby PC interaction
+(`g_CiMenuViaPcMenuDialog`).
+
+**Root cause:**
+
+1. Agent-office maps boot through MP setup (`g_Vars.mplayerisrunning == true`), so `bondmove.c`
+   routed Escape/Start to `mpPushPauseDialog()` instead of `playerPause(MENUROOT_MAINMENU)`.
+2. Retail CI lobby PC uses tag `0x47` handled only on `STAGE_CITRAINING` in `propobjGetCiTagId()`.
+   Agent-office consoles use custom tag `OBJ_AGENT_CONSOLE` (`0x20`) with monitor ailist HUD only.
+
+**Fix (C engine — no map redeploy required):**
+
+| File | Change |
+|------|--------|
+| `src/include/constants.h` | `STAGE_IS_AGENT_OFFICE()`, `OBJ_AGENT_CONSOLE` |
+| `src/game/player.c` | `playerShouldUseSoloPauseMenu()`; eyespy/slayer pause paths |
+| `src/game/bondmove.c` | Escape/Start → solo pause on agent-office stages |
+| `src/game/mainmenu.c` | `soloChoosePauseDialog()` — G5 → solo visor; CI/Lab → CI Perfect Menu pause |
+| `src/game/propobj.c` | `(Z)` on tagged console → `g_CiMenuViaPcMenuDialog` on agent-office stages |
+| `journal/agent_office/SPEC.md` | US-3 / US-3b acceptance criteria |
+
+**Validation (2026-07-04 ~14:44 local):**
+
+1. `cmake --build build --target pd -j8` → OK
+2. `./scripts/play-agent-office-ci.sh --force` → PID 51214, stage `0x84`, no crash in log tail
+
+**Manual checks:** Escape → visor/Perfect Menu pause; Z on north-lobby CIHUB → Perfect Menu.
+
+**Also test:** `./scripts/play-agent-office.sh --force` (G5 `0x83`), `./scripts/play-agent-office-lab.sh --force` (`0x85`).
+
+**Outcome:** Not committed.
+
+---
+
+## Follow-up session (2026-07-04) — Visor missing + dark screen after unpause
+
+**Problem:** After the Escape→solo-pause routing fix, **Escape** opened the Perfect Menu but **without
+the visor overlay** (3D hudpiece / Joanna model). Closing pause (Escape again) and moving again
+left a **dark viewport** — world rendering skipped while menu gfx state was stale.
+
+**Root cause:**
+
+1. Agent-office hubs boot via MP setup (`g_Vars.mplayerisrunning == true`). `menuReset()` only
+   allocated the hudpiece (`FILE_GHUDPIECE`) when `!mplayerisrunning`, so solo visor pause had
+   menu text + blur but no 3D visor frame.
+2. Solo pause uses `MENUROOT_MAINMENU` + `MENUBG_BLUR`, which sets `var8009dfc0` and
+   `g_MenuData.unk5d4`. The hudpiece teardown path in `menuRender()` only removes the piece when
+   `g_MenuData.root != MENUROOT_MAINMENU`, so after closing pause `unk5d4` / `menuisactive` could
+   stick — `lv.c` then hit the `var8009dfc0 && !menuisactive` branch (viewport edges only).
+
+Retail solo missions avoid both issues: `mplayerisrunning == false` (hudpiece init) and pause
+teardown runs on mission end / stage change.
+
+**Fix (C engine):**
+
+| File | Change |
+|------|--------|
+| `src/game/menu.c` | `menuReset()` — also init hudpiece + menu model pool on `STAGE_IS_AGENT_OFFICE` |
+| `src/game/menu.c` | `func0f0fa6ac()` — on agent-office unpause, clear `unk5d4` / hudpiece flags |
+| `src/game/player.c` | `playerUnpause()` — also clear `lvIsPaused()` on agent-office stages |
+
+**Validation (2026-07-04 ~14:50 local):**
+
+1. `cmake --build build --target pd -j8` → OK
+2. `./scripts/play-agent-office-ci.sh --force` → relaunched stage `0x84`, PID 66468
+
+**Manual checks:** Escape → blurred game + visor frame + Perfect Menu; Escape/Start to close →
+world visible, movement restored (no dark screen). Repeat on G5 (`play-agent-office.sh`) and Lab
+(`play-agent-office-lab.sh`).
+
+**Outcome:** Not committed.
+
+---
+
+## Follow-up session (2026-07-04) — Visor missing + dark screen after unpause
+
+**Problem:** After the Escape→solo-pause routing fix, **Escape** opened the Perfect Menu but **without
+the visor overlay** (3D hudpiece / Joanna model). Closing pause (Escape again) and moving again
+left a **dark viewport** — world rendering skipped while menu gfx state was stale.
+
+**Root cause:**
+
+1. Agent-office hubs boot via MP setup (`g_Vars.mplayerisrunning == true`). `menuReset()` only
+   allocated the hudpiece (`FILE_GHUDPIECE`) when `!mplayerisrunning`, so solo visor pause had
+   menu text + blur but no 3D visor frame.
+2. Solo pause uses `MENUROOT_MAINMENU` + `MENUBG_BLUR`, which sets `var8009dfc0` and
+   `g_MenuData.unk5d4`. The hudpiece teardown path in `menuRender()` only removes the piece when
+   `g_MenuData.root != MENUROOT_MAINMENU`, so after closing pause `unk5d4` / `menuisactive` could
+   stick — `lv.c` then hit the `var8009dfc0 && !menuisactive` branch (viewport edges only).
+
+Retail solo missions avoid both issues: `mplayerisrunning == false` (hudpiece init) and pause
+teardown runs on mission end / stage change.
+
+**Fix (C engine):**
+
+| File | Change |
+|------|--------|
+| `src/game/menu.c` | `menuReset()` — also init hudpiece + menu model pool on `STAGE_IS_AGENT_OFFICE` |
+| `src/game/menu.c` | `func0f0fa6ac()` — on agent-office unpause, clear `unk5d4` / hudpiece flags |
+| `src/game/player.c` | `playerUnpause()` — also clear `lvIsPaused()` on agent-office stages |
+
+**Validation (2026-07-04 ~14:50 local):**
+
+1. `cmake --build build --target pd -j8` → OK
+2. `./scripts/play-agent-office-ci.sh --force` → relaunched stage `0x84`
+
+**Manual checks:** Escape → blurred game + visor frame + Perfect Menu; Escape/Start to close →
+world visible, movement restored (no dark screen). Repeat on G5 (`play-agent-office.sh`) and Lab
+(`play-agent-office-lab.sh`).
+
+**Outcome:** Not committed.
+
+**2026-07-04:** Rebuilt `Virtual Agent Office.app` + Kit Hub after adding **Carrington Institute (Fresh / Lobby)** (`ci_lobby`) to agent-office Electron; release + wrapped bundles grep-clean.
+
+**2026-07-04:** Rebuilt Virtual Agent Office + Kit Hub after agent-profile panel (display name gates Enter Office); strings in release + wrapped app.asar.
+
+## Follow-up session (2026-07-04) — CI Fresh Lobby doorInit sibling SIGSEGV
+
+**Problem:** `pd.arm64` SIGSEGV at load on **CI Fresh Lobby** (`--boot-stage 0x26 --agent-office-ci-lobby`):
+`door0f068c04` → `func0f068fc8` → `propCalculateShadeInfo` → `doorInit` → `setupCreateDoor`.
+Fault address `0x0001100000000017` — walking `sibling->sibling` during init shade calc with an
+unconverted packed offset (or non-door target) cast to `doorobj *`.
+
+**Root cause:** `setupCreateDoor()` resolved only the **current** door's sibling before
+`doorInit()`. `door0f068c04()` walks the full sibling ring during init shade setup; links
+further around the ring still held packed cmd offsets until those doors were created → garbage
+pointer deref. Fresh Lobby (`STAGE_CITRAINING` + `Ump_setupagent_office_ciZ`) hits this on first
+load; stage `0x84` could survive depending on creation order. Packer sibling remap was already
+valid (`validate-door-siblings.py` → 0 errors); runtime resolution order was the bug.
+
+**Fixes applied (uncommitted):**
+
+| File | Change |
+|------|--------|
+| `src/game/setup.c` | **`setupResolveAllDoorSiblings()`** — pre-pass resolves every door sibling to a `doorobj *` (or NULL if target cmd is not `OBJTYPE_DOOR`) before the props loop; called after optional `setupMarkLiftDoors()`. |
+| `src/game/setup.c` | **`setupResolveOneDoorSibling()`** — shared resolver with `LOG_WARNING` on bad targets; `setupCreateDoor()` uses fallback only when pre-pass skipped. |
+| `src/game/propobj.c` | **`door0f068c04()`** — guard sibling ring walk: require `OBJTYPE_DOOR` + live `prop` before following `sibling->sibling`. |
+
+**Validation:**
+
+```bash
+python3 scripts/validate-door-siblings.py          # OK (CI 71 doors, G5 47 doors)
+python3 tools/pdmap.py validate agent_office_ci    # OK
+python3 tools/pdmap.py build agent_office_ci --deploy
+cmake --build build --target pd -j8
+```
+
+**Stability (2026-07-04 ~15:06 local):**
+
+| Path | Args | Result (12 s after spawn) |
+|------|------|---------------------------|
+| **CI Fresh Lobby** (crashed before) | `--boot-stage 0x26 --agent-office-ci-lobby` | **ALIVE** — spawn `(637,360,923)`, no SIGSEGV |
+| CI explore | `--boot-stage 0x84 --solo --scenario-0` | **ALIVE** — spawn OK |
+
+Logs: `journal/agent_office_ci/.crash_test_lobby.log`, `.crash_test_ci.log`.
+
+**Outcome:** Not committed. Relaunch: `./scripts/play-agent-office-ci-lobby.sh --force` and
+`./scripts/play-agent-office-ci.sh --force`.
+
+**2026-07-04 — Pass 6 (DM panel bundles):** Renderer has Direct messages panel (`tools/agent-office-electron/renderer/index.html`); rebuilt `./scripts/build-agent-office-electron.sh` + `./scripts/build-pd-kit-launcher-electron.sh` — `strings` on release VAO and Kit-wrapped VAO `app.asar` both contain `Direct messages` (bundles updated y/y).

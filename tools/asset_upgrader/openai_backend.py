@@ -113,7 +113,6 @@ class OpenAIImageUpgrader:
             raise RuntimeError("OpenAI response did not include image data")
 
         out_img = Image.open(io.BytesIO(out_bytes)).convert("RGBA")
-        out_img = out_img.resize((width, height), Image.Resampling.LANCZOS)
         dst.parent.mkdir(parents=True, exist_ok=True)
         out_img.save(dst)
         return {

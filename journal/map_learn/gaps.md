@@ -1,10 +1,10 @@
-# Map learn gaps (20260701T175918Z)
+# Map learn gaps (20260709T171951Z)
 
 Doc coverage: **100.0%**
 
 ## Action items
 
-_No gaps detected this run._
+- [pipeline fail] Level module office_learn_01_door failed to load: Level module office_learn_01_door has no build() function
 
 ## Next probe targets
 

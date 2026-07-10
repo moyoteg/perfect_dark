@@ -907,7 +907,8 @@ static void import_texture(int i, int tile, bool importReplacement) {
         } else if (siz == G_IM_SIZ_8b) {
             import_texture_ci8(tile, loaded_texture, importReplacement);
         } else {
-            sysFatalError("Bad size for CI texture in tile %d: %02x", tile, siz);
+            printf("WARNING: Bad size for CI texture in tile %d: %02x (bypassing crash, falling back to CI8)\n", tile, siz);
+            import_texture_ci8(tile, loaded_texture, importReplacement);
         }
     } else if (fmt == G_IM_FMT_I) {
         if (siz == G_IM_SIZ_4b) {

@@ -122,6 +122,60 @@ class MapDef:
     def add_intro(self, cmd):
         self.intro.append(cmd)
 
+    @classmethod
+    def from_json(cls, data: dict) -> 'MapDef':
+        """Fully reconstruct a MapDef object from serialized JSON dict."""
+        g = cls(data["name"])
+
+        # 1. Attributes/Flags
+        for k, v in data.get("flags", {}).items():
+            setattr(g, k, v)
+
+        # 2. Pads
+        for p in data.get("pads", []):
+            pad_kwargs = {k: v for k, v in p.items() if k not in ("index", "x", "y", "z")}
+            # Strip classification keys that are not Pad parameters
+            pad_kwargs.pop("type", None)
+            pad_kwargs.pop("weapon", None)
+            pad_kwargs.pop("ammoType", None)
+            pad_kwargs.pop("scenario", None)
+            pad_kwargs.pop("team", None)
+            # If dir or up are arrays, expand them
+            if "dir" in pad_kwargs:
+                d = pad_kwargs.pop("dir")
+                pad_kwargs.update(dir_x=d[0], dir_y=d[1], dir_z=d[2])
+            if "up" in pad_kwargs:
+                u = pad_kwargs.pop("up")
+                pad_kwargs.update(up_x=u[0], up_y=u[1], up_z=u[2])
+            g.add_pad(index=p["index"], x=p["x"], y=p["y"], z=p["z"], **pad_kwargs)
+
+        # 3. Props
+        from . import props as P
+        for prop in data.get("props", []):
+            p_type = prop["type"]
+            kwargs = {k: v for k, v in prop.items() if k != "type"}
+            prop_cls = getattr(P, p_type)
+            g.add_prop(prop_cls(**kwargs))
+
+        # 4. Intro
+        from . import intro as I
+        for cmd in data.get("intro", []):
+            c_type = cmd["type"]
+            kwargs = {k: v for k, v in cmd.items() if k != "type"}
+            cmd_cls = getattr(I, c_type)
+            g.add_intro(cmd_cls(**kwargs))
+
+        # 5. Covers
+        for cover in data.get("covers", []):
+            c_kwargs = {k: v for k, v in cover.items() if k not in ("x", "y", "z")}
+            if "dir" in c_kwargs:
+                d = c_kwargs.pop("dir")
+                c_kwargs.update(dir_x=d[0], dir_y=d[1], dir_z=d[2])
+            g.add_cover(x=cover["x"], z=cover["z"], y=cover.get("y", 10.0), **c_kwargs)
+
+        g.custom_waypoints = data.get("waypoints", [])
+        return g
+
     def pack_pads_json(self) -> dict:
         name_upper = self.name.upper()
         json_pads = []
@@ -153,17 +207,25 @@ class MapDef:
         # symmetric, so we explicitly add the reciprocal edge for every link.
         K_NEAREST = 6
         adjacency = {p.index: set() for p in self.pads}
-        for p1 in self.pads:
-            distances = []
-            for p2 in self.pads:
-                if p1 != p2:
-                    dist = ((p2.x - p1.x) ** 2 + (p2.z - p1.z) ** 2) ** 0.5
-                    distances.append((dist, p2.index))
-            distances.sort()
-            for _dist, j in distances[:K_NEAREST]:
-                # Add the edge in both directions to keep the graph symmetric.
-                adjacency[p1.index].add(j)
-                adjacency[j].add(p1.index)
+        if getattr(self, "custom_waypoints", None):
+            for item in self.custom_waypoints:
+                pad_idx = item["pad"]
+                for n_idx in item.get("neighbours", []):
+                    # Add edge in both directions to keep the graph symmetric
+                    adjacency[pad_idx].add(n_idx)
+                    adjacency[n_idx].add(pad_idx)
+        else:
+            for p1 in self.pads:
+                distances = []
+                for p2 in self.pads:
+                    if p1 != p2:
+                        dist = ((p2.x - p1.x) ** 2 + (p2.z - p1.z) ** 2) ** 0.5
+                        distances.append((dist, p2.index))
+                distances.sort()
+                for _dist, j in distances[:K_NEAREST]:
+                    # Add the edge in both directions to keep the graph symmetric.
+                    adjacency[p1.index].add(j)
+                    adjacency[j].add(p1.index)
 
         waypoints = []
         room_waygroups = {}
@@ -222,6 +284,11 @@ class MapDef:
             from .agent_office_ci import pack_agent_office_ci_setup
 
             return pack_agent_office_ci_setup(self)
+
+        if getattr(self, "agent_office_lab", False):
+            from .agent_office_lab import pack_agent_office_lab_setup
+
+            return pack_agent_office_lab_setup(self)
 
         props_bin = b"".join(p.pack() for p in self.props) + struct.pack(">I", 0x34)
         intro_bin = b"".join(cmd.pack() for cmd in self.intro) + struct.pack(">I", 12)
@@ -289,6 +356,13 @@ class MapDef:
 
 def load_level_module(name: str):
     level_path = os.path.join(ROOT, "src", "levels", f"{name}.py")
+    if not os.path.exists(level_path) and name.endswith("_map"):
+        fallback_name = name[:-4]
+        fallback_path = os.path.join(ROOT, "src", "levels", f"{fallback_name}.py")
+        if os.path.exists(fallback_path):
+            name = fallback_name
+            level_path = fallback_path
+
     if not os.path.exists(level_path):
         raise FileNotFoundError(f"Level module not found: {level_path}")
 
@@ -302,9 +376,22 @@ def load_level_module(name: str):
     return mod
 
 
-def run_tool(tool: str, json_path: str):
+def run_tool(tool: str, json_path: str, *, timeout_seconds: float | None = None):
+    from .domain import pdmap_build_timeout_seconds
+
     env = dict(os.environ, ROMID=ROMID)
-    subprocess.run([sys.executable, tool, json_path], cwd=ROOT, env=env, check=True)
+    timeout = (
+        timeout_seconds
+        if timeout_seconds is not None
+        else pdmap_build_timeout_seconds()
+    )
+    subprocess.run(
+        [sys.executable, tool, json_path],
+        cwd=ROOT,
+        env=env,
+        check=True,
+        timeout=timeout,
+    )
 
 
 def compile_tiles(name: str, tiles_json_path: str):

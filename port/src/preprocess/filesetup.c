@@ -1056,7 +1056,7 @@ static u32 convertPaths(u8 *dst, u8 *src)
 	}
 
 	// extra pointer for the end marker
-	return (u32)((u8*)dstpath - dst + sizeof(uintptr_t));
+	return (u32)((u8*)dstpath - dst + sizeof(struct path));
 }
 
 static u32 convertPads(struct path *dstpaths, u8 *dst, u8 *src, u32 dstpos)
@@ -1097,7 +1097,7 @@ static u32 convertAiLists(u8* dst, u8* src)
 		srcailist++;
 	}
 
-	return (u32)((u8 *)dstailist - dst + sizeof(uintptr_t));
+	return (u32)((u8 *)dstailist - dst + sizeof(struct ailist));
 }
 
 static u32 convertLists(u8 *dst, u8 *src, u32 dstpos, u32 src_ofs)

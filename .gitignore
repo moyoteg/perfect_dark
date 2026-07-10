@@ -66,6 +66,10 @@ journal/uff_viewer/.last_*
 journal/uff_viewer/.map-creator-loop.pid
 journal/agent_office/.boot_test*.log
 journal/agent_office/.last_*
+journal/agent_office/workspace_config.json
+journal/agent_office/dm_threads.json
+journal/agent_office/slack_oauth.json
+journal/agent_office/office_service_state.json
 journal/map_learn/.last_*
 journal/map_learn/.learn-loop.*
 journal/map_learn/.loop-internal.log

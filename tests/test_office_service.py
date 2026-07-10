@@ -16,7 +16,7 @@ from service import (  # noqa: E402
     Agent, Autonomy, TaskStatus, ApprovalStatus,
     ConnectorGateway, OfficeService, PolicyError,
 )
-from service.connectors import slack_stub, pagerduty_stub, github_stub  # noqa: E402
+from service.connectors import slack_stub, slack_connector, pagerduty_stub, github_stub  # noqa: E402
 
 
 def _office():
@@ -120,6 +120,102 @@ def test_multi_step_plan_resumes_after_approval():
     assert sent and sent[-1]["text"] == "on it"
 
 
+def test_connector_slack_live_post_after_approval_when_token_installed():
+    """Pass 32: approved slack.post_message calls chat.postMessage when OAuth bot token installed."""
+    import json
+    import os
+    import tempfile
+    import threading
+    import time
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from pathlib import Path
+
+    from service.slack_oauth import SlackOAuthInstallState, SlackOAuthInstallStatus, save_slack_oauth  # noqa: WPS433
+
+    captured: list[dict] = []
+
+    class _Handler(BaseHTTPRequestHandler):
+        def do_POST(self) -> None:  # noqa: N802
+            length = int(self.headers.get("Content-Length") or "0")
+            raw = self.rfile.read(length)
+            captured.append(json.loads(raw.decode("utf-8")))
+            body = json.dumps({"ok": True, "ts": "8888.0001", "channel": "C_LIVE"}).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *_args: object) -> None:
+            return
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    post_url = f"http://127.0.0.1:{server.server_address[1]}/chat.postMessage"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        oauth_path = Path(tmp) / "slack_oauth.json"
+        os.environ["AGENT_OFFICE_SLACK_OAUTH"] = str(oauth_path)
+        os.environ["SLACK_CHAT_POST_URL"] = post_url
+        save_slack_oauth(
+            SlackOAuthInstallState(
+                status=SlackOAuthInstallStatus.INSTALLED,
+                team_id="T_LIVE",
+                team_name="Live Team",
+                bot_user_id="U_BOT",
+                scopes=("chat:write",),
+                installed_at=time.time(),
+                token_hint="live",
+            ),
+            bot_token="xoxb-live-token",
+            repo_root=tmp,
+        )
+        try:
+            gw = ConnectorGateway()
+            stub_sent: list[dict] = []
+            gw.register(slack_connector(stub_sent, repo_root=tmp))
+            gw.register(pagerduty_stub())
+            gw.register(github_stub())
+            svc = OfficeService(gw)
+            svc.add_agent(Agent(id="comms", role="Comms", chrnum=0x38, tools=["slack"],
+                                autonomy={"slack": Autonomy.ASK_APPROVAL}))
+
+            t = svc.dispatch("comms", "post release note")
+            svc.perform(t, [{"connector": "slack", "action": "post_message",
+                             "args": {"channel": "#release", "text": "Shipped."}}])
+            assert t.status == TaskStatus.AWAITING_APPROVAL
+            assert not captured and not stub_sent
+
+            svc.approve(svc.pending_approvals()[0].id, decided_by="security")
+            assert t.status == TaskStatus.DONE
+            assert captured == [{"channel": "#release", "text": "Shipped."}]
+            assert stub_sent == []
+            assert any(a.action == "post_message" and a.human and a.result == "ok" for a in gw.audit)
+        finally:
+            os.environ.pop("AGENT_OFFICE_SLACK_OAUTH", None)
+            os.environ.pop("SLACK_CHAT_POST_URL", None)
+
+    server.shutdown()
+    thread.join(timeout=2)
+    server.server_close()
+
+
+def test_connector_slack_stub_when_no_token():
+    """Pass 32: without OAuth token, connector post_message stays offline stub."""
+    gw = ConnectorGateway()
+    sent: list[dict] = []
+    gw.register(slack_connector(sent))
+    svc = OfficeService(gw)
+    svc.add_agent(Agent(id="comms", role="Comms", chrnum=0x38, tools=["slack"],
+                        autonomy={"slack": Autonomy.ASK_APPROVAL}))
+    t = svc.dispatch("comms", "offline reply")
+    svc.perform(t, [{"connector": "slack", "action": "post_message",
+                     "args": {"channel": "#general", "text": "Local only."}}])
+    svc.approve(svc.pending_approvals()[0].id)
+    assert sent == [{"channel": "#general", "text": "Local only."}]
+
+
 def test_slack_round_trip_flags_comms_and_logs_event():
     svc, gw, _ = _office()
     svc.ingest_slack({"channel": "#eng", "text": "@you prod status?", "mention": True})
@@ -197,6 +293,80 @@ def test_director_dispatch_context_preserves_utterance_and_reply():
     assert task.context["role"] == "Director"
     assert task.context["chrnum"] == 0x31
     assert "agent_reply" in task.context
+
+
+def test_director_proximity_appends_shared_dm_thread():
+    """Pass 9: proximity engage appends human + agent lines to dm_threads sidecar."""
+    import os
+    import tempfile
+    from pathlib import Path
+
+    import office_director as od
+
+    from service.dm_threads import DmThreadReadStatus, dm_thread_read_outcome  # noqa: WPS433
+    from service.workspace_config import merge_workspace_config  # noqa: WPS433
+
+    with tempfile.TemporaryDirectory() as tmp:
+        os.environ["AGENT_OFFICE_WORKSPACE_CONFIG"] = str(Path(tmp) / "workspace_config.json")
+        os.environ["AGENT_OFFICE_DM_THREADS"] = str(Path(tmp) / "dm_threads.json")
+        try:
+            merge_workspace_config(
+                {"location_key": "g5", "member": {"display_name": "Joanna Dark"}},
+                repo_root=tmp,
+            )
+            brains = {"Director": od.AgentBrain({"slug": "director", "role": "Director"})}
+            director = od.OfficeDirector(
+                brains,
+                client=None,
+                input_provider=lambda: "fleet status?",
+                repo_root=tmp,
+            )
+            director.step(od.DRY_FIXTURE)
+            read = dm_thread_read_outcome("director", repo_root=tmp)
+            assert read.status == DmThreadReadStatus.FOUND
+            assert read.thread is not None
+            messages = read.thread["messages"]
+            assert len(messages) >= 2
+            assert messages[0]["from"] == "human"
+            assert messages[0]["text"] == "fleet status?"
+            assert messages[1]["from"] == "agent"
+            assert messages[1]["text"]
+        finally:
+            os.environ.pop("AGENT_OFFICE_WORKSPACE_CONFIG", None)
+            os.environ.pop("AGENT_OFFICE_DM_THREADS", None)
+
+
+def test_electron_connector_approval_renderer_wiring_present():
+    """Pass 34: Electron Comms stage + Director desk connector approval UI."""
+    app_js = (REPO / "tools/agent-office-electron/renderer/app.js").read_text(encoding="utf-8")
+    index_html = (REPO / "tools/agent-office-electron/renderer/index.html").read_text(encoding="utf-8")
+    styles_css = (REPO / "tools/agent-office-electron/renderer/styles.css").read_text(encoding="utf-8")
+    assert "getConnectorApprovals" in app_js
+    assert "renderConnectorApprovals" in app_js
+    assert "submitConnectorStage" in app_js
+    assert "approveConnectorApproval" in app_js
+    assert "connectorApprovalBusy" in app_js
+    assert 'id="connectorStageForm"' in index_html
+    assert 'id="connectorApprovalSection"' in index_html
+    assert 'id="connectorApprovalList"' in index_html
+    assert ".connector-approval-card" in styles_css
+    assert ".connector-stage-form" in styles_css
+
+
+def test_electron_connector_approval_ipc_wiring_present():
+    """Pass 34: main + preload expose connector approval IPC."""
+    preload = (REPO / "tools/agent-office-electron/preload.js").read_text(encoding="utf-8")
+    main_js = (REPO / "tools/agent-office-electron/main.js").read_text(encoding="utf-8")
+    assert "getConnectorApprovals" in preload
+    assert "approveConnectorApproval" in preload
+    assert "denyConnectorApproval" in preload
+    assert "dispatchConnectorTask" in preload
+    assert "office:get-connector-approvals" in main_js
+    assert "office:approve-connector-approval" in main_js
+    assert "office:deny-connector-approval" in main_js
+    assert "office:dispatch-connector-task" in main_js
+    assert "/approvals" in main_js
+    assert "/dispatch" in main_js
 
 
 if __name__ == "__main__":

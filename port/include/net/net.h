@@ -110,6 +110,10 @@ extern s32 g_NetMode;
 extern s32 g_NetJoinLatch;
 extern s32 g_NetHostLatch;
 
+/* Headless net match automation (--net-auto-start --net-stage N). */
+extern s32 g_NetAutoStartLatch;
+extern s32 g_NetAutoStage;
+
 // net frame, ticks at 60 fps, starts at 0 when the server is started
 extern u32 g_NetTick;
 extern u32 g_NetNextSyncId;
@@ -134,6 +138,7 @@ extern struct netbuf g_NetMsgRel;
 const char *netFormatClientAddr(const struct netclient *cl);
 
 void netInit(void);
+void netMaybeAutoStartMatch(void);
 s32 netDisconnect(void);
 void netStartFrame(void);
 void netEndFrame(void);

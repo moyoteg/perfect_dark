@@ -633,7 +633,14 @@ char *mpMenuTextPlacementWithSuffix(struct menuitem *item)
 		L_MPMENU_275, // "12th"
 	};
 
-	return langGet(suffixes[g_PlayerConfigsArray[g_MpPlayerNum].base.placement]);
+	s32 placement = g_PlayerConfigsArray[g_MpPlayerNum].base.placement;
+	if (placement < 0) {
+		placement = 0;
+	} else if (placement > 11) {
+		placement = 11;
+	}
+
+	return langGet(suffixes[placement]);
 }
 
 MenuItemHandlerResult mpPlacementMenuHandler(s32 operation, struct menuitem *item, union handlerdata *data)

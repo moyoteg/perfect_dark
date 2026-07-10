@@ -51,6 +51,23 @@
       ],
       "verified_by": "probe_doc_coverage"
     },
+    "doc_15edf8a19ef7c517": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/129)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 129
+      },
+      "id": "doc_15edf8a19ef7c517",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
     "doc_1635ffdcdb68b210": {
       "category": "doc",
       "claim": "Documentation covers topic 'pads' (spawn Y above floor)",
@@ -142,6 +159,23 @@
         "total": 89
       },
       "id": "doc_55aa0a141ef8ed96",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
+    "doc_5c9f6bae9e5adc04": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/130)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 130
+      },
+      "id": "doc_5c9f6bae9e5adc04",
       "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
       "tags": [
         "doc-coverage",
@@ -533,6 +567,23 @@
       ],
       "verified_by": "probe_doc_coverage"
     },
+    "doc_d596c5904adb4291": {
+      "category": "doc",
+      "claim": "Learned-claim substring coverage: 0.0% (0/128)",
+      "confidence": 1.0,
+      "evidence": {
+        "documented": 0,
+        "ratio": 0.0,
+        "total": 128
+      },
+      "id": "doc_d596c5904adb4291",
+      "source": "docs/MAP_MAKING_WIKI.md + docs/MAP_CREATION.md",
+      "tags": [
+        "doc-coverage",
+        "claim-metric"
+      ],
+      "verified_by": "probe_doc_coverage"
+    },
     "doc_db07878b0600c405": {
       "category": "doc",
       "claim": "Required-topic doc coverage: 100.0% (10/10)",
@@ -634,21 +685,6 @@
       ],
       "verified_by": "probe_doc_coverage"
     },
-    "engine_04d16a2795f23f0d": {
-      "category": "engine",
-      "claim": "files.h defines 189 FILE_BG_* asset constants",
-      "confidence": 1.0,
-      "evidence": {
-        "count": 189
-      },
-      "id": "engine_04d16a2795f23f0d",
-      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/include/files.h",
-      "tags": [
-        "registration",
-        "files.h"
-      ],
-      "verified_by": "probe_engine_wiring"
-    },
     "engine_05d7a07b18aa300a": {
       "category": "engine",
       "claim": "pdmap register emits four C wiring snippets to journal/map_learn/register_<name>.md",
@@ -734,13 +770,28 @@
       "claim": "stagetable.c maps STAGE_* ids to five bgdata file ids per stage",
       "confidence": 1.0,
       "evidence": {
-        "stage_symbol_refs": 90
+        "stage_symbol_refs": 93
       },
       "id": "engine_4dc2432d735ec0d5",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/stagetable.c",
       "tags": [
         "registration",
         "stagetable"
+      ],
+      "verified_by": "probe_engine_wiring"
+    },
+    "engine_8d6fa434946cbf63": {
+      "category": "engine",
+      "claim": "files.h defines 192 FILE_BG_* asset constants",
+      "confidence": 1.0,
+      "evidence": {
+        "count": 192
+      },
+      "id": "engine_8d6fa434946cbf63",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/include/files.h",
+      "tags": [
+        "registration",
+        "files.h"
       ],
       "verified_by": "probe_engine_wiring"
     },
@@ -828,7 +879,7 @@
       "claim": "g_MpArenas[] in setup.c lists Combat Simulator menu entries",
       "confidence": 1.0,
       "evidence": {
-        "arena_row_refs": 92
+        "arena_row_refs": 95
       },
       "id": "engine_f471ce6be58e5c40",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/game/mplayer/setup.c",
@@ -1127,7 +1178,7 @@
       "evidence": {
         "intro": 21,
         "pads": 15,
-        "props": 2
+        "props": 1
       },
       "id": "pipeline_17ca1c08d74952b1",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_12_testarena_fixture.py",
@@ -1144,7 +1195,7 @@
       "evidence": {
         "intro": 17,
         "pads": 12,
-        "props": 3
+        "props": 2
       },
       "id": "pipeline_1848031201fc967c",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_10_full_arena.py",
@@ -1168,6 +1219,23 @@
       "tags": [
         "level-module",
         "learn_11_y_autocorrect"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_1d47dcec237f95a8": {
+      "category": "pipeline",
+      "claim": "Level module agent_office: 259 pads, box_arena=False, custom_tiles=False",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 3,
+        "pads": 259,
+        "props": 0
+      },
+      "id": "pipeline_1d47dcec237f95a8",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/agent_office.py",
+      "tags": [
+        "level-module",
+        "agent_office"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -1289,7 +1357,7 @@
       "evidence": {
         "intro": 21,
         "pads": 17,
-        "props": 4
+        "props": 2
       },
       "id": "pipeline_36e58d2227ae68e7",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_16_my_arena_registered.py",
@@ -1313,23 +1381,6 @@
       "tags": [
         "level-module",
         "learn_23_bot_four_cap"
-      ],
-      "verified_by": "probe_level_modules"
-    },
-    "pipeline_3e181c1026e93492": {
-      "category": "pipeline",
-      "claim": "Level module learn_21_hacker_central: 2 pads, box_arena=True, custom_tiles=True",
-      "confidence": 1.0,
-      "evidence": {
-        "intro": 10,
-        "pads": 2,
-        "props": 0
-      },
-      "id": "pipeline_3e181c1026e93492",
-      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_21_hacker_central.py",
-      "tags": [
-        "level-module",
-        "learn_21_hacker_central"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -1381,23 +1432,6 @@
       ],
       "verified_by": "probe_level_modules"
     },
-    "pipeline_577d663696947dad": {
-      "category": "pipeline",
-      "claim": "Level module animlab: 21 pads, box_arena=True, custom_tiles=True",
-      "confidence": 1.0,
-      "evidence": {
-        "intro": 9,
-        "pads": 21,
-        "props": 0
-      },
-      "id": "pipeline_577d663696947dad",
-      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/animlab.py",
-      "tags": [
-        "level-module",
-        "animlab"
-      ],
-      "verified_by": "probe_level_modules"
-    },
     "pipeline_584aec2a066cf984": {
       "category": "pipeline",
       "claim": "Learn curriculum: 31 steps, 31/31 validate OK",
@@ -1414,21 +1448,38 @@
       ],
       "verified_by": "probe_curriculum_integration"
     },
+    "pipeline_5e4b8fbac7e319ed": {
+      "category": "pipeline",
+      "claim": "Level module matrix_battle_64: 160 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 72,
+        "pads": 160,
+        "props": 96
+      },
+      "id": "pipeline_5e4b8fbac7e319ed",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/matrix_battle_64.py",
+      "tags": [
+        "level-module",
+        "matrix_battle_64"
+      ],
+      "verified_by": "probe_level_modules"
+    },
     "pipeline_5eadd9a910bb28ec": {
       "category": "pipeline",
       "claim": "--test-map boots with mod_allinone (5s timeout, SDL=default)",
       "confidence": 1.0,
       "evidence": {
-        "boot_detected": false,
+        "boot_detected": true,
         "boot_hints": {
-          "bg_uff": false,
+          "bg_uff": true,
           "boot_stage": false,
-          "loaded_externally": false,
+          "loaded_externally": true,
           "stage_test_uff": false
         },
         "returncode": null,
         "sdl_driver": "default",
-        "stderr_tail": " function: glMultiTexCoordP4uiv\nERROR: GL: could not find function: glNormalP3ui\nERROR: GL: could not find function: glNormalP3uiv\nERROR: GL: could not find function: glColorP3ui\nERROR: GL: could not find function: glColorP3uiv\nERROR: GL: could not find function: glColorP4ui\nERROR: GL: could not find function: glColorP4uiv\nERROR: GL: could not find function: glSecondaryColorP3ui\nERROR: GL: could not find function: glSecondaryColorP3uiv\nWARNING: GL: using core profile or ES, watch out for errors\n",
+        "stderr_tail": "L: could not find function: glColorP4ui\nERROR: GL: could not find function: glColorP4uiv\nERROR: GL: could not find function: glSecondaryColorP3ui\nERROR: GL: could not find function: glSecondaryColorP3uiv\nWARNING: GL: using core profile or ES, watch out for errors\nWARNING: Battle64 spawn: allocated_bots=8 maxsimulants=60 MPFEATURE_8BOTS=1\nWARNING: spawn: stage=4d pos=(1000,0,-1000) ground=0 room=1 pads=16 team=-1\nERROR: FATAL: overflow when trying to preprocess a bg room, size 8320 newsize 91808\n",
         "timed_out": true
       },
       "id": "pipeline_5eadd9a910bb28ec",
@@ -1446,13 +1497,30 @@
       "evidence": {
         "intro": 9,
         "pads": 2,
-        "props": 1
+        "props": 0
       },
       "id": "pipeline_603c954d153fbedc",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_04_ammo.py",
       "tags": [
         "level-module",
         "learn_04_ammo"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_64638cf2c82cd8ad": {
+      "category": "pipeline",
+      "claim": "Level module learn_21_hacker_central: 4 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 10,
+        "pads": 4,
+        "props": 0
+      },
+      "id": "pipeline_64638cf2c82cd8ad",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_21_hacker_central.py",
+      "tags": [
+        "level-module",
+        "learn_21_hacker_central"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -1518,6 +1586,31 @@
         "learn_24_mpweapon_loadout"
       ],
       "verified_by": "probe_level_modules"
+    },
+    "pipeline_717528b30fc6428c": {
+      "category": "pipeline",
+      "claim": "plan_registration('learn_scratch') emits 7 C wiring snippets",
+      "confidence": 1.0,
+      "evidence": {
+        "already_registered": false,
+        "snippets": [
+          "env_c",
+          "files_h",
+          "lang_c_bank",
+          "lang_c_get",
+          "list_c",
+          "setup_c",
+          "stagetable"
+        ],
+        "stage_const": "STAGE_LEARN_SCRATCH  /* assign 0x86 in constants.h */"
+      },
+      "id": "pipeline_717528b30fc6428c",
+      "source": "tools/pdmap/register.py:plan_registration",
+      "tags": [
+        "registration",
+        "codegen"
+      ],
+      "verified_by": "probe_register_codegen"
     },
     "pipeline_79737fb20738023f": {
       "category": "pipeline",
@@ -1586,6 +1679,23 @@
       ],
       "verified_by": "probe_pipeline_contract"
     },
+    "pipeline_880de5d3d4b08e21": {
+      "category": "pipeline",
+      "claim": "Level module learn_32_office_door: 5 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 12,
+        "pads": 5,
+        "props": 0
+      },
+      "id": "pipeline_880de5d3d4b08e21",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_32_office_door.py",
+      "tags": [
+        "level-module",
+        "learn_32_office_door"
+      ],
+      "verified_by": "probe_level_modules"
+    },
     "pipeline_8e4c93b0ecdc4f94": {
       "category": "pipeline",
       "claim": "Fixture minimal_map 2.json builds cleanly via from-json pipeline",
@@ -1603,27 +1713,39 @@
       ],
       "verified_by": "probe_fixtures"
     },
-    "pipeline_924c7f1d27d2e898": {
+    "pipeline_933ee27331221b9e": {
       "category": "pipeline",
-      "claim": "plan_registration('learn_scratch') emits 4 C wiring snippets",
+      "claim": "Level module matrix_battle_sentry_inf: 180 pads, box_arena=True, custom_tiles=True",
       "confidence": 1.0,
       "evidence": {
-        "already_registered": false,
-        "snippets": [
-          "files_h",
-          "list_c",
-          "setup_c",
-          "stagetable"
-        ],
-        "stage_const": "STAGE_LEARN_SCRATCH  /* assign 0x83 in constants.h */"
+        "intro": 72,
+        "pads": 180,
+        "props": 116
       },
-      "id": "pipeline_924c7f1d27d2e898",
-      "source": "tools/pdmap/register.py:plan_registration",
+      "id": "pipeline_933ee27331221b9e",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/matrix_battle_sentry_inf.py",
       "tags": [
-        "registration",
-        "codegen"
+        "level-module",
+        "matrix_battle_sentry_inf"
       ],
-      "verified_by": "probe_register_codegen"
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_95b25fddc4c1502c": {
+      "category": "pipeline",
+      "claim": "Level module agent_office_lab: 32 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 3,
+        "pads": 32,
+        "props": 0
+      },
+      "id": "pipeline_95b25fddc4c1502c",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/agent_office_lab.py",
+      "tags": [
+        "level-module",
+        "agent_office_lab"
+      ],
+      "verified_by": "probe_level_modules"
     },
     "pipeline_979d3dca2eaad759": {
       "category": "pipeline",
@@ -1655,7 +1777,10 @@
           "stagetable.c": true
         },
         "snippets": [
+          "env_c",
           "files_h",
+          "lang_c_bank",
+          "lang_c_get",
           "list_c",
           "setup_c",
           "stagetable"
@@ -1676,7 +1801,7 @@
       "evidence": {
         "intro": 11,
         "pads": 5,
-        "props": 2
+        "props": 1
       },
       "id": "pipeline_9f2189524e46807b",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_13_fixture_compact.py",
@@ -1693,13 +1818,64 @@
       "evidence": {
         "intro": 21,
         "pads": 17,
-        "props": 4
+        "props": 2
       },
       "id": "pipeline_9f37b877c078ca75",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_25_boot_stage.py",
       "tags": [
         "level-module",
         "learn_25_boot_stage"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_a109c45f8779e121": {
+      "category": "pipeline",
+      "claim": "Level module animlab: 1154 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 17,
+        "pads": 1154,
+        "props": 941
+      },
+      "id": "pipeline_a109c45f8779e121",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/animlab.py",
+      "tags": [
+        "level-module",
+        "animlab"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_a13b24d9d4832c0e": {
+      "category": "pipeline",
+      "claim": "Level module conker_war_sentry_inf: 295 pads, box_arena=False, custom_tiles=False",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 72,
+        "pads": 295,
+        "props": 76
+      },
+      "id": "pipeline_a13b24d9d4832c0e",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/conker_war_sentry_inf.py",
+      "tags": [
+        "level-module",
+        "conker_war_sentry_inf"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_a374f88217152a71": {
+      "category": "pipeline",
+      "claim": "Level module agent_office_ci: 650 pads, box_arena=False, custom_tiles=False",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 3,
+        "pads": 650,
+        "props": 0
+      },
+      "id": "pipeline_a374f88217152a71",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/agent_office_ci.py",
+      "tags": [
+        "level-module",
+        "agent_office_ci"
       ],
       "verified_by": "probe_level_modules"
     },
@@ -1736,6 +1912,35 @@
         "minimal_map.json"
       ],
       "verified_by": "probe_fixtures"
+    },
+    "pipeline_b8cfd616b6823a57": {
+      "category": "pipeline",
+      "claim": "Box-arena modules without SEG_SCRIPT (procedural seg): 45",
+      "confidence": 1.0,
+      "evidence": {
+        "count": 45,
+        "modules": [
+          "agent_office_lab",
+          "animlab",
+          "csim",
+          "edit_play_1782849221",
+          "edit_play_1782849718",
+          "edit_play_1782851214",
+          "edit_play_1782851648",
+          "edit_play_1782852555",
+          "learn_01_spawn",
+          "learn_02_four_spawns",
+          "learn_03_weapon",
+          "learn_04_ammo"
+        ]
+      },
+      "id": "pipeline_b8cfd616b6823a57",
+      "source": "tools/pdmap/pipeline.py:build_from_spec",
+      "tags": [
+        "seg",
+        "box"
+      ],
+      "verified_by": "probe_seg_script_inventory"
     },
     "pipeline_bb6060102985b077": {
       "category": "pipeline",
@@ -1788,35 +1993,6 @@
       ],
       "verified_by": "probe_level_modules"
     },
-    "pipeline_c42ec25982bcf755": {
-      "category": "pipeline",
-      "claim": "Box-arena modules without SEG_SCRIPT (procedural seg): 40",
-      "confidence": 1.0,
-      "evidence": {
-        "count": 40,
-        "modules": [
-          "animlab",
-          "csim",
-          "edit_play_1782849221",
-          "edit_play_1782849718",
-          "edit_play_1782851214",
-          "edit_play_1782851648",
-          "edit_play_1782852555",
-          "learn_01_spawn",
-          "learn_02_four_spawns",
-          "learn_03_weapon",
-          "learn_04_ammo",
-          "learn_05_loadout"
-        ]
-      },
-      "id": "pipeline_c42ec25982bcf755",
-      "source": "tools/pdmap/pipeline.py:build_from_spec",
-      "tags": [
-        "seg",
-        "box"
-      ],
-      "verified_by": "probe_seg_script_inventory"
-    },
     "pipeline_c459ba8058ad9ba9": {
       "category": "pipeline",
       "claim": "Level module learn_03_weapon: 2 pads, box_arena=True, custom_tiles=True",
@@ -1851,6 +2027,23 @@
       ],
       "verified_by": "probe_level_modules"
     },
+    "pipeline_c749969bb82fff7e": {
+      "category": "pipeline",
+      "claim": "Level module matrix_battle_sentry: 180 pads, box_arena=True, custom_tiles=True",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 72,
+        "pads": 180,
+        "props": 116
+      },
+      "id": "pipeline_c749969bb82fff7e",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/matrix_battle_sentry.py",
+      "tags": [
+        "level-module",
+        "matrix_battle_sentry"
+      ],
+      "verified_by": "probe_level_modules"
+    },
     "pipeline_d2fc95abee40609f": {
       "category": "pipeline",
       "claim": "Level module uff: 58 pads, box_arena=True, custom_tiles=True",
@@ -1875,7 +2068,7 @@
       "evidence": {
         "intro": 9,
         "pads": 3,
-        "props": 2
+        "props": 1
       },
       "id": "pipeline_d6652ceee36e2f81",
       "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/learn_20_overlap_pads.py",
@@ -1971,6 +2164,37 @@
       ],
       "verified_by": "probe_level_modules"
     },
+    "pipeline_faea66632568093c": {
+      "category": "pipeline",
+      "claim": "Level module office_learn_01_door failed to load: Level module office_learn_01_door has no build() function",
+      "confidence": 0.0,
+      "evidence": {},
+      "id": "pipeline_faea66632568093c",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/office_learn_01_door.py",
+      "tags": [
+        "level-module",
+        "office_learn_01_door",
+        "error"
+      ],
+      "verified_by": "probe_level_modules"
+    },
+    "pipeline_fd3830f2cd17e99c": {
+      "category": "pipeline",
+      "claim": "Level module war_colors_conker: 219 pads, box_arena=False, custom_tiles=False",
+      "confidence": 1.0,
+      "evidence": {
+        "intro": 52,
+        "pads": 219,
+        "props": 29
+      },
+      "id": "pipeline_fd3830f2cd17e99c",
+      "source": "/Users/moigutierrez/Library/Mobile Documents/com~apple~CloudDocs/Work/Personal/Games/perfect_dark_jonaeru_aio/src/levels/war_colors_conker.py",
+      "tags": [
+        "level-module",
+        "war_colors_conker"
+      ],
+      "verified_by": "probe_level_modules"
+    },
     "pipeline_fe4f467f6762b076": {
       "category": "pipeline",
       "claim": "Level module learn_18_register_scratch: 1 pads, box_arena=True, custom_tiles=True",
@@ -1991,9 +2215,9 @@
   },
   "meta": {
     "doc_coverage_ratio": 1.0,
-    "gap_count": 0,
-    "iteration": 26,
-    "last_run": "20260701T175918Z"
+    "gap_count": 1,
+    "iteration": 29,
+    "last_run": "20260709T171951Z"
   },
   "version": 1
 }

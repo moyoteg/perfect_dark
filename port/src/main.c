@@ -19,6 +19,7 @@
 #include "console.h"
 #include "utils.h"
 #include "llm_bridge.h"
+#include "office_service_bridge.h"
 #include "net/net.h"
 
 u32 g_OsMemSize = 0;
@@ -93,6 +94,7 @@ static void cleanup(void)
 	inputSaveBinds();
 	configSave(CONFIG_PATH);
 	llmBridgeShutdown();
+	officeServiceBridgeShutdown();
 	videoShutdown();
 	crashShutdown();
 	// TODO: actually shut down all subsystems
@@ -125,6 +127,7 @@ int main(int argc, const char **argv)
 	}
 
 	llmBridgeInit();
+	officeServiceBridgeInit();
 	atexit(cleanup);
 
 	bootCreateSched();

@@ -12,9 +12,17 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..core import ROOT
+from ..domain import (
+    BuildOutcome,
+    PdmapFailureKind,
+    PdmapFailureRecovery,
+    PdmapLifecycleEvent,
+    emit_lifecycle_event,
+    new_run_id,
+)
 from ..from_json import EditorMapSpec, validate_level_name
 from ..level_codegen import render_level_module
-from ..pipeline import build_from_spec
+from ..pipeline import build_from_spec, run_map_pipeline
 from ..validate import validate_mapdef
 
 LEARN_DIR = os.path.join(ROOT, "journal", "map_learn")
@@ -850,9 +858,23 @@ class StepResult:
 
 
 def validate_curriculum(*, verbose: bool = False) -> list[StepResult]:
-    """Validate every curriculum map (MapDef + optional build dry-run)."""
+    """Validate every curriculum map (MapDef + optional build dry-run).
+
+    Collect-all: every step is checked even when earlier steps fail.
+    Emits one ``curriculum_validate_started`` / ``curriculum_validate_completed``
+    pair with shared ``run_id``, ``step_count``, and a ``failures`` summary list.
+    """
+    steps = curriculum_steps()
+    rid = new_run_id()
+    emit_lifecycle_event(
+        PdmapLifecycleEvent.CURRICULUM_VALIDATE_STARTED,
+        run_id=rid,
+        operation="curriculum_validate",
+        step_count=len(steps),
+    )
+
     results: list[StepResult] = []
-    for step in curriculum_steps():
+    for step in steps:
         if not os.path.exists(step.json_path):
             results.append(StepResult(step.step, step.name, False, ["JSON missing — run generate"]))
             continue
@@ -878,32 +900,111 @@ def validate_curriculum(*, verbose: bool = False) -> list[StepResult]:
         )
         ok = not errors
         results.append(StepResult(step.step, step.name, ok, errors, warnings))
+
+    failures = [
+        {
+            "step": r.step,
+            "name": r.name,
+            "errors": r.errors,
+        }
+        for r in results
+        if not r.ok
+    ]
+    outcome = "ok" if not failures else "failed"
+    recovery_class = (
+        PdmapFailureKind.NONE.value
+        if not failures
+        else PdmapFailureRecovery.USER_ACTION_REQUIRED.value
+    )
+    emit_lifecycle_event(
+        PdmapLifecycleEvent.CURRICULUM_VALIDATE_COMPLETED,
+        run_id=rid,
+        operation="curriculum_validate",
+        step_count=len(steps),
+        failure_count=len(failures),
+        failures=failures,
+        outcome=outcome,
+        recovery_class=recovery_class,
+    )
     return results
 
 
-def build_curriculum(*, deploy: bool = False, mod_key: str = "mod_allinone") -> list[StepResult]:
-    """Build all curriculum maps (deploy-as own name, not uff — use play script for uff)."""
+def build_curriculum_step(
+    step: int | CurriculumStep,
+    *,
+    deploy: bool = False,
+    run_id: str | None = None,
+    mod_key: str = "mod_allinone",
+    skip_validate: bool = False,
+    verbose: bool = False,
+) -> "MapPipelineOutcome":
+    """Build one curriculum step with typed lifecycle logs and shared run_id."""
+    from ..domain import MapPipelineOutcome
     from ..play import MOD_CHOICES
 
+    if isinstance(step, int):
+        matches = [s for s in curriculum_steps() if s.step == step]
+        if not matches:
+            raise ValueError(f"Unknown curriculum step {step}")
+        step = matches[0]
+
+    rid = run_id or new_run_id()
     mod_dirs = None
     if deploy:
         mod_path = os.path.join(ROOT, MOD_CHOICES[mod_key], "files", "bgdata")
         mod_dirs = [mod_path]
 
+    return run_map_pipeline(
+        step.name,
+        deploy=deploy,
+        seg=True,
+        run_id=rid,
+        scenario_id=f"curriculum_step_{step.step:02d}",
+        mod_dirs=mod_dirs,
+        skip_validate=skip_validate,
+        verbose=verbose,
+    )
+
+
+def build_curriculum(*, deploy: bool = False, mod_key: str = "mod_allinone") -> list[StepResult]:
+    """Build all curriculum maps via ``run_map_pipeline`` per step.
+
+    Fail-fast: stops on the first step whose pipeline outcome is not ``.ok``.
+    Each step emits ``curriculum_build_step`` with the shared parent ``run_id``
+    and per-step ``scenario_id`` (``curriculum_step_NN``).
+    """
+    rid = new_run_id()
     results: list[StepResult] = []
     for step in curriculum_steps():
-        with open(step.json_path, encoding="utf-8") as fp:
-            data = json.load(fp)
-        spec = EditorMapSpec.from_json(data, deploy_name=step.name)
-        errors, warnings = build_from_spec(
-            spec,
+        pipeline = build_curriculum_step(
+            step,
             deploy=deploy,
-            want_seg=True,
-            seg_mode=step.seg_mode,
-            mod_dirs=mod_dirs,
+            run_id=rid,
+            mod_key=mod_key,
+            skip_validate=False,
             verbose=False,
         )
-        results.append(StepResult(step.step, step.name, not errors, errors, warnings))
+        errors = list(pipeline.build.errors if pipeline.build else ())
+        if pipeline.validation and not pipeline.validation.ok:
+            errors = list(pipeline.validation.errors)
+        if pipeline.deploy and not pipeline.deploy.ok:
+            errors.append(pipeline.deploy.error_message or "Deploy failed")
+        warnings = list(pipeline.build.warnings if pipeline.build else ())
+        ok = pipeline.ok
+        results.append(StepResult(step.step, step.name, ok, errors, warnings))
+        emit_lifecycle_event(
+            PdmapLifecycleEvent.CURRICULUM_BUILD_STEP,
+            run_id=rid,
+            operation="curriculum_build",
+            step=step.step,
+            asset_name=step.name,
+            scenario_id=f"curriculum_step_{step.step:02d}",
+            outcome="ok" if ok else "failed",
+            error_count=len(errors),
+            warning_count=len(warnings),
+        )
+        if not ok:
+            break
     return results
 
 

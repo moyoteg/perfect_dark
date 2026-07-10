@@ -27,6 +27,8 @@
 #include "console.h"
 #include "mixer.h"
 #include "llm_bridge.h"
+#include "office_service_bridge.h"
+#include "game/chraicommands.h"
 #include "net/net.h"
 
 /*
@@ -303,6 +305,13 @@ void schedEndFrame(OSSched *sc)
 
 	inputUpdate();
 	llmBridgeTick();
+	officeServiceBridgeTick();
+#ifndef PLATFORM_N64
+	officeDmHudRefreshTick();
+	officeVisorComposeInputTick();
+	officeSecurityConnectorTick();
+	officeCommsConnectorTick();
+#endif
 	conTick();
 
 	const bool newKey = inputKeyPressed(VK_F9);

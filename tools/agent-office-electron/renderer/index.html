@@ -14,18 +14,120 @@
           <p class="eyebrow" id="eyebrow">Perfect Dark · Virtual Agent Office</p>
           <h1>Virtual Agent Office</h1>
           <p id="subtitle" class="subtitle">
-            Pre-mission lobby hub — deploy and explore virtual agent briefings at G5 or CI.
+            Slack-style agent workspaces in Perfect Dark — pick an office, create your agent profile, then walk the floor.
           </p>
         </div>
         <div class="hero-badge" aria-hidden="true">VA</div>
       </header>
 
+      <section class="panel profile-panel" aria-labelledby="profileTitle">
+        <h2 id="profileTitle">Your agent profile</h2>
+        <p class="muted small">
+          Like joining a Slack workspace — set who you are before entering the office. Saved on this Mac only for now.
+        </p>
+        <div class="profile-fields">
+          <label class="field-label" for="agentDisplayName">Display name</label>
+          <input id="agentDisplayName" class="profile-input" type="text" maxlength="48" autocomplete="name" placeholder="Joanna Dark" />
+          <label class="field-label" for="agentCodename">Codename <span class="muted">(optional)</span></label>
+          <input id="agentCodename" class="profile-input" type="text" maxlength="24" autocomplete="off" placeholder="Falcon" />
+        </div>
+        <p id="profileStatus" class="profile-status muted small" role="status"></p>
+      </section>
+
       <section class="panel location-panel">
-        <label for="locationSelect" class="location-label">Location</label>
-        <select id="locationSelect" class="location-select" aria-label="Office location">
+        <label for="locationSelect" class="location-label">Workspace</label>
+        <select id="locationSelect" class="location-select" aria-label="Office workspace">
           <option value="g5">dataDyne G5 Building</option>
           <option value="ci">Carrington Institute</option>
+          <option value="ci_lobby">Carrington Institute (Fresh / Lobby)</option>
+          <option value="lab">Office Lab / Matrix</option>
         </select>
+      </section>
+
+      <section class="panel slack-panel" aria-labelledby="slackTitle">
+        <div class="channels-head">
+          <div>
+            <h2 id="slackTitle">Comms desk · Slack</h2>
+            <p id="slackIntegrationStatus" class="muted small" role="status">Checking integration…</p>
+          </div>
+        </div>
+        <p class="muted small">
+          Connect a Slack workspace for the Comms agent integration path. Opens Slack in your browser; return here when done.
+        </p>
+        <div class="slack-actions">
+          <button id="slackConnectBtn" type="button" class="primary small">Connect Slack</button>
+          <button id="slackDisconnectBtn" type="button" class="ghost small" hidden>Disconnect</button>
+        </div>
+        <form id="slackOutboundForm" class="slack-outbound-compose" hidden aria-label="Post to Slack channel">
+          <label for="slackOutboundChannel" class="visually-hidden">Slack channel</label>
+          <input id="slackOutboundChannel" type="text" maxlength="80" placeholder="#general" autocomplete="off" />
+          <label for="slackOutboundText" class="visually-hidden">Message</label>
+          <input id="slackOutboundText" type="text" maxlength="4000" placeholder="Post to Slack as Comms…" autocomplete="off" />
+          <button id="slackOutboundSend" type="submit" class="small primary">Post</button>
+        </form>
+        <p id="slackOutboundStatus" class="muted small slack-outbound-status" role="status" hidden></p>
+        <form id="connectorStageForm" class="connector-stage-form" aria-label="Stage Slack write for agent approval">
+          <p class="muted small">Stage a Comms agent write — requires Director desk approval before posting.</p>
+          <label for="connectorStageIntent" class="visually-hidden">Task intent</label>
+          <input id="connectorStageIntent" type="text" maxlength="200" placeholder="Intent (e.g. reply to marketing)" autocomplete="off" />
+          <label for="connectorStageChannel" class="visually-hidden">Slack channel</label>
+          <input id="connectorStageChannel" type="text" maxlength="80" placeholder="#general" autocomplete="off" />
+          <label for="connectorStageText" class="visually-hidden">Message to stage</label>
+          <input id="connectorStageText" type="text" maxlength="4000" placeholder="Message for agent approval…" autocomplete="off" />
+          <button id="connectorStageSend" type="submit" class="small ghost">Stage for approval</button>
+        </form>
+        <p id="connectorStageStatus" class="muted small connector-stage-status" role="status" hidden></p>
+      </section>
+
+      <section class="panel security-panel" id="securityDeskPanel" aria-labelledby="securityTitle" hidden>
+        <div class="channels-head">
+          <div>
+            <h2 id="securityTitle">Security desk · Token approval</h2>
+            <p id="securityApprovalStatus" class="muted small" role="status">No pending approval</p>
+          </div>
+        </div>
+        <p class="muted small">
+          Human-present approval before Slack bot token use. Walk to the Security agent desk in-game, or approve here.
+        </p>
+        <dl id="securityApprovalDetails" class="security-details" aria-label="Pending approval card"></dl>
+        <div class="security-actions">
+          <button id="securityApproveBtn" type="button" class="primary small">Approve token use</button>
+          <button id="securityDenyBtn" type="button" class="danger small">Deny</button>
+        </div>
+      </section>
+
+      <section class="panel channels-panel" aria-labelledby="channelsTitle">
+        <div class="channels-head">
+          <div>
+            <h2 id="channelsTitle">Channels</h2>
+            <p id="channelWorkspaceLabel" class="muted small">Pick a workspace</p>
+          </div>
+          <p id="channelSyncStatus" class="channel-sync muted small" role="status">Not signed in</p>
+        </div>
+        <p class="muted small">
+          Slack-shaped channel list for this office — each row maps to a walkable space in-game.
+        </p>
+        <ul id="channelList" class="channel-list" aria-label="Workspace channels"></ul>
+      </section>
+
+      <section class="panel dm-panel" aria-labelledby="dmTitle">
+        <div class="channels-head">
+          <div>
+            <h2 id="dmTitle">Direct messages</h2>
+            <p id="dmSyncStatus" class="muted small" role="status">Walk-up threads from in-game Z-target</p>
+          </div>
+        </div>
+        <ul id="dmList" class="channel-list" aria-label="Agent direct messages"></ul>
+        <div id="dmDetail" class="dm-detail" hidden>
+          <h3 id="dmDetailTitle" class="dm-detail-title">Thread</h3>
+          <p id="dmDetailStatus" class="muted small" role="status"></p>
+          <ul id="dmMessageList" class="dm-message-list" aria-label="DM message tail"></ul>
+          <form id="dmComposeForm" class="dm-compose" hidden>
+            <label for="dmComposeInput" class="visually-hidden">Reply to agent</label>
+            <input id="dmComposeInput" type="text" maxlength="500" placeholder="Type a message…" autocomplete="off" />
+            <button id="dmComposeSend" type="submit" class="small primary">Send</button>
+          </form>
+        </div>
       </section>
 
       <section class="game-bar">
@@ -37,13 +139,23 @@
       </section>
 
       <section class="actions">
-        <button id="playSoloBtn" type="button" class="primary large">
+        <button id="playSoloBtn" type="button" class="primary large" disabled>
           <span class="btn-title">Enter Office</span>
-          <span class="btn-hint">Deploy map + solo explore</span>
+          <span id="playSoloHint" class="btn-hint">Create your agent profile first</span>
         </button>
         <div class="secondary-row">
           <button id="deployOnlyBtn" type="button">Deploy Only</button>
           <button id="withBotsBtn" type="button">With Combat Sims</button>
+        </div>
+        <div class="options-row" style="margin-top: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="fastRunCheckbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);" />
+            <label for="fastRunCheckbox" style="font-size: 13px; color: var(--muted); cursor: pointer; user-select: none;">Enable Fast Running (Anim Lab & Offices)</label>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="disableTexturesCheckbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);" />
+            <label for="disableTexturesCheckbox" style="font-size: 13px; color: var(--muted); cursor: pointer; user-select: none;">Disable Textures (Anim Lab)</label>
+          </div>
         </div>
       </section>
 
@@ -63,11 +175,23 @@
           <button id="stopDirectorBtn" type="button" class="danger" disabled>Stop Director</button>
           <button id="revealDirectorLogBtn" type="button" class="ghost">Reveal Director Log</button>
         </div>
+        <div id="connectorApprovalSection" class="connector-approval-section" hidden aria-labelledby="connectorApprovalTitle">
+          <div class="channels-head">
+            <div>
+              <h3 id="connectorApprovalTitle">Connector approvals</h3>
+              <p id="connectorApprovalStatus" class="muted small" role="status">No pending approvals</p>
+            </div>
+          </div>
+          <p class="muted small">
+            Human-present approval for agent write actions staged via the connector gateway — approve here or walk to Security in-game.
+          </p>
+          <ul id="connectorApprovalList" class="connector-approval-list" aria-label="Pending connector approvals"></ul>
+        </div>
       </section>
 
       <section class="panel">
-        <h2>Virtual Agents</h2>
-        <p id="agentsBlurb" class="muted small">Friendly NPCs in an open retail lobby — Z-target for status lines, no doors required.</p>
+        <h2>Team agents</h2>
+        <p id="agentsBlurb" class="muted small">NPC teammates at desks in this workspace — Z-target for status lines; you walk the floor as your agent profile.</p>
         <ul id="agentList" class="agent-list"></ul>
       </section>
 

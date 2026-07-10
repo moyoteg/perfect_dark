@@ -472,7 +472,23 @@ void bzero(void *ptr, size_t size)
 
 void bcopy(const void *src, void *dst, size_t n)
 {
-	memcpy(dst, src, n);
+	uintptr_t src_addr = (uintptr_t)src;
+	uintptr_t dst_addr = (uintptr_t)dst;
+	if (n > 0 && (src_addr & 15) != 0) {
+		size_t align_bytes = 16 - (src_addr & 15);
+		if (align_bytes > n) {
+			align_bytes = n;
+		}
+		for (size_t i = 0; i < align_bytes; i++) {
+			((u8 *)dst_addr)[i] = ((const u8 *)src_addr)[i];
+		}
+		src_addr += align_bytes;
+		dst_addr += align_bytes;
+		n -= align_bytes;
+	}
+	if (n > 0) {
+		memcpy((void *)dst_addr, (const void *)src_addr, n);
+	}
 }
 
 s32 bcmp(const void *s1, const void *s2, size_t n)

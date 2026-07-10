@@ -170,7 +170,6 @@ th { position: sticky; top: 0; background: #121722; color: var(--muted); z-index
   width: 56px;
   height: 56px;
   object-fit: contain;
-  image-rendering: pixelated;
   background: repeating-conic-gradient(#1a2030 0% 25%, #121722 0% 50%) 50% / 12px 12px;
   border-radius: 8px;
   border: 1px solid var(--panel-border);
@@ -254,8 +253,16 @@ th { position: sticky; top: 0; background: #121722; color: var(--muted); z-index
 .compare-img {
   max-width: 100%;
   max-height: 420px;
-  image-rendering: pixelated;
   object-fit: contain;
+}
+
+.original-rendering {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.enhanced-rendering {
+  image-rendering: auto;
 }
 
 .compare-overlay-section {

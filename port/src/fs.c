@@ -367,6 +367,47 @@ s32 fsFileLoadTo(const char *name, void *dst, u32 dstSize)
 	return size;
 }
 
+static inline u32 read_be32(const u8 *p) {
+	return ((u32)p[0] << 24) | ((u32)p[1] << 16) | ((u32)p[2] << 8) | p[3];
+}
+static inline u16 read_be16(const u8 *p) {
+	return ((u16)p[0] << 8) | p[1];
+}
+
+static void *extract_elf_section(void *buf, u32 *size) {
+	u8 *data = (u8 *)buf;
+	if (*size < 52) return buf;
+	u32 shoff = read_be32(data + 32);
+	u16 shnum = read_be16(data + 48);
+	u16 shstrndx = read_be16(data + 50);
+
+	if (shoff + shstrndx * 40 + 40 > *size) return buf;
+
+	u32 shstr_hdr_offset = shoff + shstrndx * 40;
+	u32 shstr_offset = read_be32(data + shstr_hdr_offset + 16);
+
+	for (int i = 0; i < shnum; i++) {
+		u32 hdr_offset = shoff + i * 40;
+		if (hdr_offset + 40 > *size) continue;
+		u32 name_idx = read_be32(data + hdr_offset);
+		if (shstr_offset + name_idx >= *size) continue;
+		const char *name = (const char *)(data + shstr_offset + name_idx);
+		if (strcmp(name, ".data") == 0 || strcmp(name, ".rodata") == 0) {
+			u32 data_offset = read_be32(data + hdr_offset + 16);
+			u32 data_size = read_be32(data + hdr_offset + 20);
+			if (data_offset + data_size > *size) continue;
+			void *new_buf = sysMemZeroAlloc(data_size + 1);
+			if (new_buf) {
+				memcpy(new_buf, data + data_offset, data_size);
+				*size = data_size;
+				sysMemFree(buf);
+				return new_buf;
+			}
+		}
+	}
+	return buf;
+}
+
 void *fsFileLoad(const char *name, u32 *outSize)
 {
 	const char *fullName = fsFullPath(name);
@@ -389,6 +430,7 @@ void *fsFileLoad(const char *name, u32 *outSize)
 	}
 
 	void *buf = NULL;
+	u32 finalSize = size;
 	if (size) {
 		buf = sysMemZeroAlloc(size + 1); // sick hack for a free null terminator
 		if (!buf) {
@@ -397,12 +439,15 @@ void *fsFileLoad(const char *name, u32 *outSize)
 			return NULL;
 		}
 		fread(buf, 1, size, f);
+		if (size >= 4 && ((u8 *)buf)[0] == 0x7f && ((u8 *)buf)[1] == 'E' && ((u8 *)buf)[2] == 'L' && ((u8 *)buf)[3] == 'F') {
+			buf = extract_elf_section(buf, &finalSize);
+		}
 	}
 
 	fclose(f);
 
 	if (outSize) {
-		*outSize = size;
+		*outSize = finalSize;
 	}
 
 	return buf;

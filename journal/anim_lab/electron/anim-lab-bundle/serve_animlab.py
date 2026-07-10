@@ -731,7 +731,20 @@ class AnimLabHandler(BaseHTTPRequestHandler):
             _json_response(self, 200, {"ok": True, "games": alive})
             return
 
-        if path == "/api/catalog":
+        if path in ("/api/catalog", "/api/parade/layout"):
+            if path == "/api/parade/layout":
+                try:
+                    from tools.pdmap.anim_catalog import parade_layout_payload
+
+                    payload = parade_layout_payload()
+                except Exception as exc:
+                    _log_traceback(f"GET /api/parade/layout failed: {exc}")
+                    _json_response(self, 500, {"ok": False, "error": str(exc)})
+                    return
+                payload["ok"] = True
+                _json_response(self, 200, payload)
+                return
+
             include_stubs = (query.get("stubs") or ["0"])[0].lower() in ("1", "true", "yes")
             try:
                 payload = full_catalog_payload(include_stubs=include_stubs)

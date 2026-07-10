@@ -12,6 +12,13 @@ bool bootMpShouldApplyBootStageQuickStart(s32 stagenum);
 void bootMpApplySentryCliFlags(void);
 void bootMpApplyQuickStartSetup(s32 stagenum);
 
+/* Virtual Agent Office: fresh CI lobby (--agent-office-ci-lobby) and peaceful MP solo. */
+bool agentOfficeCiLobbyActive(void);
+bool agentOfficeHubUsesCiPads(void);
+bool agentOfficeHubUsesG5Pads(void);
+bool agentOfficeHubAnyActive(void);
+bool agentOfficePeacefulSoloActive(void);
+
 #endif
 
 #endif

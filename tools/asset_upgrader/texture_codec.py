@@ -11,7 +11,16 @@ import zlib
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from PIL import Image
+
+def _pil_image():
+    """Lazy PIL import so decode-only callers need not install Pillow."""
+    try:
+        from PIL import Image
+    except ImportError as exc:  # pragma: no cover
+        raise ImportError(
+            "Pillow is required for PNG import/export (pip install Pillow)"
+        ) from exc
+    return Image
 
 # Mirror src/include/constants.h TEXFORMAT_* values.
 TEXFORMAT_RGBA32 = 0x00
@@ -204,23 +213,32 @@ def rgba_to_palette_entry(r: int, g: int, b: int, a: int, format_id: int) -> int
     return (r5 << 11) | (g5 << 6) | (b5 << 1) | a1
 
 
-def indices_to_image(asset: TextureAsset, mip_index: int = 0) -> Image.Image:
+def asset_to_rgba_bytes(asset: TextureAsset, mip_index: int = 0) -> tuple[int, int, bytes]:
+    """Return ``(width, height, rgba_bytes)`` for a decoded mip level."""
     mip = asset.mips[mip_index]
     if mip.rgba:
-        return Image.frombytes("RGBA", (mip.width, mip.height), mip.rgba)
-    img = Image.new("RGBA", (mip.width, mip.height))
-    px = img.load()
+        return mip.width, mip.height, bytes(mip.rgba)
+    out = bytearray(mip.width * mip.height * 4)
     indices = mip.indices
-    for y in range(mip.height):
-        row_base = y * mip.width
-        for x in range(mip.width):
-            idx = indices[row_base + x]
-            px[x, y] = palette_entry_to_rgba(asset.palette[idx], asset.format_id)
-    return img
+    for i, idx in enumerate(indices[: mip.width * mip.height]):
+        r, g, b, a = palette_entry_to_rgba(asset.palette[idx], asset.format_id)
+        base = i * 4
+        out[base] = r
+        out[base + 1] = g
+        out[base + 2] = b
+        out[base + 3] = a
+    return mip.width, mip.height, bytes(out)
 
 
-def image_to_indices(image: Image.Image, asset: TextureAsset) -> tuple[list[int], list[int]]:
+def indices_to_image(asset: TextureAsset, mip_index: int = 0):
+    Image = _pil_image()
+    width, height, rgba = asset_to_rgba_bytes(asset, mip_index)
+    return Image.frombytes("RGBA", (width, height), rgba)
+
+
+def image_to_indices(image, asset: TextureAsset) -> tuple[list[int], list[int]]:
     """Quantize an RGBA image back into palette entries and per-pixel indices."""
+    Image = _pil_image()
     image = image.convert("RGBA")
     max_colours = len(asset.palette)
     if max_colours < 2:
@@ -500,6 +518,7 @@ def asset_to_png(asset: TextureAsset, out_path: str) -> None:
 
 
 def png_to_asset(asset: TextureAsset, png_path: str) -> bytes:
+    Image = _pil_image()
     image = Image.open(png_path).convert("RGBA")
     if image.size != (asset.width, asset.height):
         image = image.resize((asset.width, asset.height), Image.Resampling.LANCZOS)

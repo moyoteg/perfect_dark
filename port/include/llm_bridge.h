@@ -10,6 +10,14 @@ struct chrdata;
 #define LLM_MAX_BOT_SLOTS 8
 #define LLM_MAX_PLAYERS   4
 #define LLM_DEFAULT_PORT  8780
+#define LLM_AGENT_SAY_CAP 512
+
+/* Office agents (non-combat NPCs) occupy chrnums 0x31..0x38 (director..comms),
+ * matching CHR_AGENT_FIRST in tools/pdmap/agent_office.py and the voice-slug table
+ * in voice_pipeline_stub.c. They live in g_ChrSlots but not g_MpNumChrs, so /observe
+ * serialises them in a dedicated "agents" array (C1 seam, VISION §6 VC-P1/VC-F1). */
+#define LLM_AGENT_CHRNUM_FIRST 0x31
+#define LLM_AGENT_CHRNUM_LAST  0x38
 
 struct LlmPlayerPad {
 	s8 stick_x;
@@ -39,6 +47,9 @@ struct LlmBotInput {
 void llmBridgeInit(void);
 void llmBridgeShutdown(void);
 void llmBridgeTick(void);
+
+/* Pass 18: queue agent utterance for HUD apply on next tick (/act agents[].say seam). */
+void llmAgentEnqueueSay(s16 chrnum, const char *text, s32 face_player);
 
 s32 llmBridgeIsEnabled(void);
 s32 llmBridgeGetPlayerMask(void);

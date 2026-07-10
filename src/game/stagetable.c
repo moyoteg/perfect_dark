@@ -7,7 +7,7 @@
 // When adding or removing items from this table you must also update the
 // STAGEINDEX constants in constants.h.
 // NOTE: extra fields have been appended to stagetableentry in the PC port
-struct stagetableentry g_Stages[92] = {
+struct stagetableentry g_Stages[94] = {
 	//       id,                  ?, lia, liw, lih, ?, bg,               tiles,              pads,              setup,           mpsetp,             ?                0x18,            0x1c, ?, ?,  ?, 0x24,      0x28,   ?,   ?,   ?  ?  alarm                   extragunmem
 	/*0x00*/ STAGE_MAIANSOS,      2, 255, 100, 100, 0, FILE_BG_LUE_SEG,  FILE_BG_LUE_TILES,  FILE_BG_SEV_PADS,  FILE_USETUPSEV,  FILE_UMP_SETUPSEV,  1,                1,   100,             0, 0, -1, 255, 0x3e19999a, -1,  400, 0,   1, SFX_ALARM_DEFAULT,      0,
 	/*0x01*/ STAGE_TEST_SILO,     2, 255, 100, 100, 0, FILE_BG_OAT_SEG,  FILE_BG_OAT_TILES,  FILE_BG_OAT_PADS,  FILE_USETUPSILO, FILE_UMP_SETUPSILO, 1,                1,   100,             0, 0, -1, 255, 0x3e19999a, 700, 800, 400, 1, SFX_ALARM_DEFAULT,      0,
@@ -106,6 +106,8 @@ struct stagetableentry g_Stages[92] = {
 	/*0x07ec*/ STAGE_ANIMLAB, 2, 255, 100, 100, 0, FILE_BG_ANIMLAB_SEG, FILE_BG_ANIMLAB_TILES, FILE_BG_ANIMLAB_PADS, FILE_USETUPANIMLAB, FILE_UMP_SETUPANIMLAB, 1, 1, 100, 0, 0, -1, 255, 0x3e19999a, -1, 400, 0, 1, SFX_ALARM_DEFAULT, 0,
 	/*0x07f1*/ STAGE_AGENT_OFFICE, 2, 255, 100, 100, 0, FILE_BG_DEPO_SEG, FILE_BG_DEPO_TILES, FILE_BG_DEPO_PADS, FILE_USETUPAGENT_OFFICE, FILE_UMP_SETUPAGENT_OFFICE, 1, 1, 100, 0, 0, -1, 255, 0x3e19999a, -1, 400, 0, 1, SFX_ALARM_2, 0,
 	/*0x07f3*/ STAGE_AGENT_OFFICE_CI, 2, 255, 100, 100, 0, FILE_BG_DISH_SEG, FILE_BG_DISH_TILES, FILE_BG_DISH_PADS, FILE_USETUPAGENT_OFFICE_CI, FILE_UMP_SETUPAGENT_OFFICE_CI, 1, 1, 100, 0, 0, -1, 255, 0x3e19999a, -1, 400, 0, 1, SFX_ALARM_DEFAULT, 0,
+	/*0x07f5*/ STAGE_AGENT_OFFICE_LAB, 2, 255, 100, 100, 0, FILE_BG_AGENT_OFFICE_LAB_SEG, FILE_BG_AGENT_OFFICE_LAB_TILES, FILE_BG_AGENT_OFFICE_LAB_PADS, FILE_USETUPAGENT_OFFICE_LAB, FILE_UMP_SETUPAGENT_OFFICE_LAB, 1, 1, 100, 0, 0, -1, 255, 0x3e19999a, -1, 400, 0, 1, SFX_ALARM_DEFAULT, 0,
+	/*0x07fa*/ STAGE_PARADE, 2, 255, 100, 100, 0, FILE_BG_PARADE_SEG, FILE_BG_PARADE_TILES, FILE_BG_PARADE_PADS, FILE_USETUPPARADE, FILE_UMP_SETUPPARADE, 1, 1, 100, 0, 0, -1, 255, 0x3e19999a, -1, 400, 0, 1, SFX_ALARM_DEFAULT, 0,
 #endif
 };
 

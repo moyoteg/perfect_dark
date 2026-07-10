@@ -329,6 +329,11 @@
       "path": "API_CONTRACTS.md"
     },
     {
+      "key": "kitHubSpec",
+      "title": "Kit Hub Spec",
+      "path": "docs/spec/KIT_HUB.md"
+    },
+    {
       "key": "kitReadme",
       "title": "Kit Guide",
       "path": "PERFECT_DARK_KIT.md"

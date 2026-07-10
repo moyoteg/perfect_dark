@@ -620,6 +620,8 @@ function createWindow(url) {
 
   buildApplicationMenu(mainWindow);
   bindEditorShortcuts(mainWindow.webContents);
+  mainWindow.webContents.session.clearCache().catch(() => {});
+
   mainWindow.loadURL(url);
   mainWindow.on('closed', () => {
     mainWindow = null;

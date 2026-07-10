@@ -448,4 +448,8 @@
 
 void propDecrementSoundCount(struct prop *prop);
 
+#ifndef PLATFORM_N64
+void officeDmHudRefreshTick(void);
+#endif
+
 #endif

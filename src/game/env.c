@@ -129,6 +129,7 @@ struct nofogenvironment g_NoFogEnvironments[] = {
 	{ STAGE_G5BUILDING,    15, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0x50280a),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 1 },
 	{ STAGE_AGENT_OFFICE,  15, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0x50280a),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 1 },
 	{ STAGE_AGENT_OFFICE_CI, 15, 10000,  0,  0,  0, RGB(0x65b2ff), SUNS(suns_ci),      0, RGB(0xffffff),  5000,   0, 0, RGB(0x000000),      0,    0, 0, 1 },
+	{ STAGE_AGENT_OFFICE_LAB, 10, 48000, 0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
 	{ STAGE_AIRFORCEONE,   15, 20000,   0,  0,  0, RGB(0x001040), NO_SUNS,            1, RGB(0xffffff),  5000,   0, 1, RGB(0xffffff),  -5000,    2, 0, 1 },
 	{ STAGE_MP_RAVINE,     15, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            1, RGB(0x50280a),  5000,   0, 0, RGB(0x000000), -31000,    0, 0, 1 },
 	{ STAGE_AIRBASE,       15, 20000,   0,  0,  0, RGB(0x001040), SUNS(suns_airbase), 1, RGB(0xffffff),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 1 },
@@ -139,6 +140,8 @@ struct nofogenvironment g_NoFogEnvironments[] = {
 	{ STAGE_MP_COMPLEX,    15, 10000,   0,  0,  0, RGB(0x020000), NO_SUNS,            1, RGB(0x82aac8),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
 	{ STAGE_TEST_UFF,      10, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
 	{ STAGE_MY_ARENA,      10, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
+	{ STAGE_PARADE,      10, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
+
 	{ STAGE_TESTARENA,     10, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
 	{ STAGE_ANIMLAB,       10, 48000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },
 	{ STAGE_TEST_OLD,      15, 30000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0x1e1e1e),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },

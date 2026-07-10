@@ -91,6 +91,18 @@ When built, companions appear under hub **More tools** (collapsed) and are copie
 | `pd-kit.sh validate [level …]` | Run `pdmap validate` (default: `my_arena testarena`) |
 | `pd-kit.sh play [--test-map] [--mod MOD]` | Launch game with mod |
 
+### Netplay (`port-net-mods/kit` branch only)
+
+Experimental Combat Sim netplay is merged from upstream `port-net`. Smoke tests and learnings live in [`docs/NETPLAY_TEST_LOG.md`](docs/NETPLAY_TEST_LOG.md). Operator guide: [`docs/netplay.md`](docs/netplay.md).
+
+```bash
+./scripts/netplay-smoke.sh
+./build/pd.arm64 --host --port 27100 --moddir mods/mod_allinone
+./build/pd.arm64 --connect HOST_IP --port 27100 --moddir mods/mod_allinone
+```
+
+All players must share the same build, ROM, and `mods/mod_allinone` assets.
+
 ## Install order (from scratch)
 
 1. Clone repo, checkout branch/tag.

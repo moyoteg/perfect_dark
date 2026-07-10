@@ -33,6 +33,7 @@ void playerStopAudioForPause(void);
 void playerTickPauseMenu(void);
 void playerPause(s32 root);
 void playerUnpause(void);
+bool playerShouldUseSoloPauseMenu(void);
 Gfx *player0f0baf84(Gfx *gdl);
 Gfx *playerDrawFade(Gfx *gdl, u32 r, u32 g, u32 b, f32 frac);
 Gfx *playerDrawStoredFade(Gfx *gdl);

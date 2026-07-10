@@ -97,6 +97,7 @@ class CharacterGalleryEntry:
     group: str
     hint: str
     idle_anim: int = _ANIM_IDLE_STAND
+    gesture_anim: str = "ANIM_TALKING"
 
 
 # Canonical story / MP roster — Joanna outfits, allies, villains, faction guards.
@@ -108,6 +109,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DARK_COMBAT,
         "joanna",
         "Default Joanna Dark combat suit",
+        gesture_anim="ANIM_DRAW_GUN",
     ),
     CharacterGalleryEntry(
         "joanna_trench",
@@ -116,6 +118,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DARK_COMBAT,
         "joanna",
         "CI trench coat disguise",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "joanna_frock",
@@ -124,6 +127,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DARK_FROCK,
         "joanna",
         "Villa / social frock outfit",
+        gesture_anim="ANIM_YAWN",
     ),
     CharacterGalleryEntry(
         "joanna_snow",
@@ -132,6 +136,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DARK_SNOW,
         "joanna",
         "Alaska snow gear",
+        gesture_anim="ANIM_SNIPER_SETUP",
     ),
     CharacterGalleryEntry(
         "joanna_lab",
@@ -140,6 +145,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DARK_COMBAT,
         "joanna",
         "Infiltration lab coat",
+        gesture_anim="ANIM_OPERATE_0204",
     ),
     CharacterGalleryEntry(
         "joanna_af1",
@@ -148,6 +154,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DARK_COMBAT,
         "joanna",
         "Air Force One mission outfit",
+        gesture_anim="ANIM_OPERATE_0221",
     ),
     CharacterGalleryEntry(
         "elvis",
@@ -156,6 +163,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_ELVIS,
         "allies",
         "Maian protector Elvis",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "the_king",
@@ -164,6 +172,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_THEKING,
         "allies",
         "Elvis as The King",
+        gesture_anim="ANIM_SITTING_0265",
     ),
     CharacterGalleryEntry(
         "carrington",
@@ -172,6 +181,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_CARRINGTON,
         "allies",
         "Daniel Carrington",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "jonathan",
@@ -180,6 +190,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_JONATHAN,
         "allies",
         "Jonathan Darkstein",
+        gesture_anim="ANIM_DRAW_GUN",
     ),
     CharacterGalleryEntry(
         "cassandra",
@@ -188,6 +199,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_CASSANDRA,
         "allies",
         "Cassandra de Vries",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "dr_caroll",
@@ -196,6 +208,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "allies",
         "Dr. Caroll (datadyne AI)",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "maian",
@@ -204,6 +217,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_MAIAN_S,
         "allies",
         "Maian military",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "trent",
@@ -212,6 +226,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_TRENT,
         "allies",
         "Trent Easton",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "mr_blonde",
@@ -220,6 +235,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_MRBLONDE,
         "villains",
         "Trent's enforcer",
+        gesture_anim="ANIM_DRAW_GUN",
     ),
     CharacterGalleryEntry(
         "dd_shock",
@@ -228,6 +244,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_DDSHOCK,
         "villains",
         "dataDyne shock trooper",
+        gesture_anim="ANIM_KNEEL",
     ),
     CharacterGalleryEntry(
         "skedar",
@@ -236,6 +253,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "villains",
         "Skedar warrior (head embedded in body rig)",
+        gesture_anim="ANIM_YAWN",
     ),
     CharacterGalleryEntry(
         "skedar_king",
@@ -244,6 +262,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "villains",
         "Skedar ruler",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "president",
@@ -252,6 +271,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_PRESIDENT,
         "villains",
         "US President",
+        gesture_anim="ANIM_TALKING",
     ),
     CharacterGalleryEntry(
         "biotech",
@@ -260,6 +280,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_BIOTECH,
         "villains",
         "dataDyne biotech guard",
+        gesture_anim="ANIM_OPERATE_0204",
     ),
     CharacterGalleryEntry(
         "a51_guard",
@@ -268,6 +289,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "guards",
         "Area 51 security",
+        gesture_anim="ANIM_KNEEL",
     ),
     CharacterGalleryEntry(
         "nsa_lackey",
@@ -276,6 +298,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "guards",
         "NSA operative",
+        gesture_anim="ANIM_OPERATE_0205",
     ),
     CharacterGalleryEntry(
         "g5_guard",
@@ -284,6 +307,7 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "guards",
         "G5 Building security",
+        gesture_anim="ANIM_DRAW_GUN",
     ),
     CharacterGalleryEntry(
         "pelagic_guard",
@@ -292,13 +316,15 @@ MAIN_CHARACTER_ENTRIES: tuple[CharacterGalleryEntry, ...] = (
         HEAD_RANDOM,
         "guards",
         "Deep sea lab guard",
+        gesture_anim="ANIM_THROW_GRENADE",
     ),
 )
 
 
 def _character_pad_first() -> int:
     """First pad index after parade tour + all static props."""
-    return PARADE_PROPS_PAD_FIRST + len(all_parade_prop_specs())
+    from .anim_props import all_parade_prop_specs, _num_dynamic_parade_pads
+    return PARADE_PROPS_PAD_FIRST + len(all_parade_prop_specs()) + _num_dynamic_parade_pads()
 
 
 def _character_chr_first() -> int:
@@ -424,12 +450,69 @@ def character_chr_props() -> list[Chr]:
 
 
 def character_ailist_chunks() -> list[tuple[bytes, int]]:
-    """Per-character idle loop ailists (placed after tour chain)."""
+    """Per-character proximity-reacting AI lists."""
+    import struct
+    from .anim_catalog import _index_by_id
+    from .anim_parade import (
+        _cmd_set_self_chrflag,
+        _cmd_chr_do_animation,
+        _cmd_yield,
+        _cmd_goto_first,
+        _cmd_label,
+        _cmd_if_chr_stopped,
+        _cmd_endlist,
+        CHRCFLAG_NOSHADOW,
+        CHRCFLAG_NEVERSLEEP,
+    )
+
+    anim_indices = _index_by_id()
     base = character_ailist_base()
     chunks: list[tuple[bytes, int]] = []
+
     for i, entry in enumerate(MAIN_CHARACTER_ENTRIES):
-        code = _build_single_anim_loop_ailist(entry.idle_anim)
-        chunks.append((code, base + i))
+        idle_idx = entry.idle_anim
+        gest_name = entry.gesture_anim
+        gest_idx = anim_indices.get(gest_name, 0)
+
+        # Build proximity reaction script
+        code = bytearray()
+
+        # Set self flags: no shadow, don't sleep
+        code += _cmd_set_self_chrflag(CHRCFLAG_NOSHADOW | CHRCFLAG_NEVERSLEEP)
+
+        idle_lbl = 0x10
+        react_lbl = 0x11
+        wait_lbl = 0x12
+
+        # Label 10: Play idle animation
+        code += _cmd_label(idle_lbl)
+        code += _cmd_chr_do_animation(idle_idx)
+
+        # Proximity loop: yield, check if player is close (within 200 units, cutoff=20)
+        code += _cmd_label(wait_lbl)
+        code += _cmd_yield()
+
+        # If player (CHR_BOND=0xF8) is within 200 units, jump to reaction
+        code += struct.pack(">H H B B", 0x0056, 20, 0xF8, react_lbl)
+
+        # If idle animation stopped, replay it
+        code += _cmd_if_chr_stopped(idle_lbl)
+        code += _cmd_goto_first(wait_lbl)
+
+        # Label 11: Play signature gesture animation
+        code += _cmd_label(react_lbl)
+        code += _cmd_chr_do_animation(gest_idx)
+
+        # Wait for gesture animation to finish
+        gest_wait = 0x13
+        code += _cmd_label(gest_wait)
+        code += _cmd_yield()
+        code += _cmd_if_chr_stopped(idle_lbl)
+        code += _cmd_goto_first(gest_wait)
+
+        code += _cmd_endlist()
+        chunks.append((bytes(code), base + i))
+
     return chunks
 
 

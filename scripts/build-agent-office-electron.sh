@@ -55,7 +55,16 @@ install_built_app() {
 	out_dir="$(cd "$ELECTRON_DIR" && cd "$out_dir" && pwd)"
 
 	local built=""
-	if [[ -d "$out_dir/mac" ]]; then
+	local arch_dir="mac"
+	case "$(uname -m)" in
+	arm64 | aarch64) arch_dir="mac-arm64" ;;
+	x86_64) arch_dir="mac" ;;
+	esac
+	# Prefer native arch output (electron-builder writes mac-arm64 on Apple Silicon).
+	if [[ -d "$out_dir/$arch_dir" ]]; then
+		built="$(find "$out_dir/$arch_dir" -maxdepth 1 -name '*.app' -print -quit 2>/dev/null || true)"
+	fi
+	if [[ -z "$built" && -d "$out_dir/mac" ]]; then
 		built="$(find "$out_dir/mac" -maxdepth 1 -name '*.app' -print -quit 2>/dev/null || true)"
 	fi
 	if [[ -z "$built" && -d "$out_dir" ]]; then
@@ -101,6 +110,7 @@ main() {
 	echo "Building ${APP_NAME}.app with electron-builder ..."
 	npm run build
 	install_built_app
+	kit_sync_wrapped_app "${APP_NAME}.app"
 
 	rm -f "$REPO_ROOT/${APP_NAME}.app"
 	if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then

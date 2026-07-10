@@ -105,7 +105,15 @@ function mapCardBadges(mapDef) {
 }
 
 async function launchMapCard(mapDef, card, launchBtn) {
-  const options = readCardOptions(card, mapDef);
+  const options = readCardOptions(card, mapDef) || {};
+  const fastRunCheckbox = document.getElementById('fastRunCheckbox');
+  if (fastRunCheckbox) {
+    options.fastRun = fastRunCheckbox.checked;
+  }
+  const disableTexturesCheckbox = document.getElementById('disableTexturesCheckbox');
+  if (disableTexturesCheckbox) {
+    options.disableTextures = disableTexturesCheckbox.checked;
+  }
   setStatus(`Launching ${mapDef.title}…`, '');
   showActionOutput('');
   launchBtn.disabled = true;

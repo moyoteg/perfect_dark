@@ -572,7 +572,7 @@ PARADE_ZONE_COLS = 6
 PARADE_ZONE_ROWS = 5  # 6×5 = 30 guards per sub-zone
 PARADE_ZONE_SPACING_X = 200.0
 PARADE_ZONE_SPACING_Z = 200.0
-PARADE_ZONE_HALF = 90.0  # floor marker half-size (~half cell spacing)
+PARADE_ZONE_HALF = 70.0  # floor marker half-size (~half cell spacing)
 # Legacy aliases — per-zone grid spacing.
 PARADE_PREFERRED_COLS = PARADE_ZONE_COLS
 PARADE_SPACING_X = PARADE_ZONE_SPACING_X
@@ -796,7 +796,7 @@ PARADE_SPECIAL_HINT = (
 )
 
 # Hub portal ring — eight coloured arches at 800 u from spawn (room 1 wayfinding).
-PARADE_HUB_SIGNPOST_RADIUS = 800.0
+PARADE_HUB_SIGNPOST_RADIUS = 1500.0
 PARADE_HUB_PORTAL_RADIUS = PARADE_HUB_SIGNPOST_RADIUS
 PARADE_HUB_SIGNPOST_COLOUR = "#fbbf24"
 
@@ -891,7 +891,7 @@ def hub_signpost_entries() -> list[dict[str, Any]]:
         "SW": 5 * math.pi / 4,
         "WSW": 7 * math.pi / 8,
         "W": -math.pi / 2,
-        "NW": -3 * math.pi / 4,
+        "NW": -math.pi / 4,
     }
     entries: list[dict[str, Any]] = []
     for compass, label, tx, tz, colour, hint_dir in wings:

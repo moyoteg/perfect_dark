@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 import time
@@ -42,6 +43,17 @@ TICK_HZ = 6.0
 
 # Role order matches VIRTUAL_AGENTS in tools/pdmap/agent_office.py (chrnum = base+offset).
 ROLE_ORDER = ["Director", "Orchestrator", "Research", "Code", "QA", "Security", "Ops", "Comms"]
+# Maps in-world role labels to Office Service agent ids (shared with Z-target DM threads).
+ROLE_TO_AGENT_ID: dict[str, str] = {
+    "Director": "director",
+    "Orchestrator": "orchestrator",
+    "Research": "research",
+    "Code": "code",
+    "QA": "qa",
+    "Security": "security",
+    "Ops": "ops",
+    "Comms": "comms",
+}
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_LLM_PLAY_DIR = Path(__file__).resolve().parents[3] / "llm-play"
 MAX_REPLY_CHARS = 180
@@ -164,6 +176,7 @@ class AgentBrain:
         repo_root: Path = REPO_ROOT,
         max_memory_turns: int = 6,
         persist_memory: bool = True,
+        account_pool: Optional[Any] = None,
     ) -> None:
         self.slug = profile["slug"]
         self.role = profile.get("role", self.slug)
@@ -171,6 +184,7 @@ class AgentBrain:
         self.voice_slug = profile.get("voice_slug", self.slug)
         self.knowledge = profile.get("knowledge", {})
         self.backend = backend
+        self.account_pool = account_pool
         self.max_memory_turns = max_memory_turns
         self.persist_memory = persist_memory
         self.memory_file = self._resolve_memory_file(profile.get("memory_file"), repo_root)
@@ -186,7 +200,7 @@ class AgentBrain:
         player_text = (player_said or "").strip()
         if self.backend is not None:
             try:
-                raw = self.backend.generate(self._system_prompt(), self._user_prompt(player_text))
+                raw = self._generate_with_optional_lease(self._system_prompt(), self._user_prompt(player_text))
                 line = self._extract_reply(raw)
             except Exception as e:  # noqa: BLE001 - live brain failures fall back visibly in logs
                 print(f"[brain failed] {self.role}: {e}")
@@ -196,6 +210,28 @@ class AgentBrain:
 
         self._remember(player_text or "[approach]", line)
         return line
+
+    def _generate_with_optional_lease(self, system_prompt: str, user_prompt: str) -> str:
+        """Lease an account per utterance when account_pool is configured (Pass 4 stub)."""
+        pool = self.account_pool
+        if pool is None:
+            return self.backend.generate(system_prompt, user_prompt)  # type: ignore[union-attr]
+
+        from service.account_pool import (  # noqa: WPS433 — lazy import keeps dry-run deps light
+            AccountAllocationRequest,
+            AccountPoolScenario,
+            lease_account,
+        )
+
+        request = AccountAllocationRequest(
+            pool_id=pool.pool_id,
+            requester=f"brain:{self.role}",
+            purpose="engage_player",
+            scenario_id=AccountPoolScenario.ONE_POOL_ONE_ACCOUNT.value,
+        )
+        with lease_account(pool, request) as _lease:
+            # TODO(Pass 13): bind leased credentials to backend factory / secret_ref.
+            return self.backend.generate(system_prompt, user_prompt)  # type: ignore[union-attr]
 
     def _system_prompt(self) -> str:
         """Constrain free-form character prompts to the bridge's HUD-safe JSON reply."""
@@ -339,6 +375,7 @@ class OfficeDirector:
         service: Optional[Any] = None,
         role_ids: Optional[dict[str, str]] = None,
         input_provider: InputProvider = listen_player,
+        repo_root: Path | str | None = None,
     ) -> None:
         self.brains = brains          # role -> brain
         self.client = client
@@ -346,9 +383,49 @@ class OfficeDirector:
         # C3: optional Office Service — engaging an agent dispatches a Task into the
         # control plane (VISION §6). role_ids maps a role ("Ops") to a service agent id.
         self.service = service
-        self.role_ids = role_ids or {}
+        self.role_ids = {**ROLE_TO_AGENT_ID, **(role_ids or {})}
+        self.repo_root = Path(repo_root) if repo_root else REPO_ROOT
         self.last_task: dict[str, str] = {}   # role -> last dispatched task id
         self.input_provider = input_provider
+
+    def _persist_proximity_dm(
+        self,
+        role: str,
+        human_text: Optional[str],
+        agent_reply: str,
+    ) -> None:
+        """Append proximity engage lines to the shared dm_threads sidecar (Pass 9)."""
+        aid = self.role_ids.get(role)
+        if not aid or not agent_reply.strip():
+            return
+        try:
+            from service.dm_threads import (  # noqa: WPS433 — optional Office Service seam
+                DmThreadAppendStatus,
+                dm_thread_append_outcome,
+            )
+
+            utterance = (human_text or "").strip() or "[proximity approach]"
+            human_outcome = dm_thread_append_outcome(
+                aid,
+                from_role="human",
+                text=utterance,
+                repo_root=str(self.repo_root),
+                stub_reply=False,
+            )
+            if human_outcome.status != DmThreadAppendStatus.APPENDED:
+                print(f"[dm append skipped] {role}: {human_outcome.status}")
+                return
+            agent_outcome = dm_thread_append_outcome(
+                aid,
+                from_role="agent",
+                text=agent_reply.strip(),
+                repo_root=str(self.repo_root),
+                stub_reply=False,
+            )
+            if agent_outcome.status != DmThreadAppendStatus.APPENDED:
+                print(f"[dm agent line skipped] {role}: {agent_outcome.status}")
+        except Exception as e:  # noqa: BLE001 — DM persistence must not break engage loop
+            print(f"[dm append failed] {role}: {e}")
 
     def step(self, obs: dict[str, Any]) -> list[dict[str, Any]]:
         """One perceive→engage→act cycle. Returns act payloads (also POSTed if live)."""
@@ -374,6 +451,8 @@ class OfficeDirector:
                             self.client.act(act)
                         except Exception as e:  # noqa: BLE001
                             print(f"[act failed] {e}")
+                    # Pass 9: share proximity engage with Z-target DM threads.
+                    self._persist_proximity_dm(ag.role, said, line)
                     # C3: turn the engagement into a control-plane Task.
                     if self.service is not None:
                         aid = self.role_ids.get(ag.role)
@@ -431,12 +510,17 @@ def load_brains(
     backend: Optional[BrainBackend] = None,
     repo_root: Path = REPO_ROOT,
     persist_memory: bool = True,
+    account_pool: Optional[Any] = None,
 ) -> dict[str, AgentBrain]:
     brains: dict[str, AgentBrain] = {}
     for bj in sorted(chars_dir.glob("*/brain.json")):
         profile = json.loads(bj.read_text())
         brains[profile.get("role", profile["slug"])] = AgentBrain(
-            profile, backend=backend, repo_root=repo_root, persist_memory=persist_memory
+            profile,
+            backend=backend,
+            repo_root=repo_root,
+            persist_memory=persist_memory,
+            account_pool=account_pool,
         )
     return brains
 
@@ -468,6 +552,7 @@ def main() -> None:
     dry_mode = bool(args.dry_run or not args.url)
     chars_dir = Path(args.characters) if args.characters else Path(__file__).parent / "characters"
     backend = None
+    account_pool = None
     if args.llm:
         backend = make_llm_backend(
             args.backend,
@@ -475,7 +560,23 @@ def main() -> None:
         )
         print(f"LLM enabled: {backend.name}")
 
-    brains = load_brains(chars_dir, backend=backend, persist_memory=(args.persist_memory or not dry_mode))
+    # Pass 4: optional account pool — disabled unless AGENT_OFFICE_ACCOUNT_POOL=1.
+    if os.environ.get("AGENT_OFFICE_ACCOUNT_POOL", "").strip():
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from service.account_pool import bootstrap_llm_pool_from_env  # noqa: WPS433
+
+        account_pool = bootstrap_llm_pool_from_env(run_id="director-cli")
+        if account_pool is not None:
+            print(f"Account pool enabled: {account_pool.pool_id}")
+        else:
+            print("[account pool] AGENT_OFFICE_ACCOUNT_POOL set but no credentials discovered")
+
+    brains = load_brains(
+        chars_dir,
+        backend=backend,
+        persist_memory=(args.persist_memory or not dry_mode),
+        account_pool=account_pool,
+    )
     print(f"Loaded {len(brains)} brain(s): {', '.join(brains) or '(none — add characters/<slug>/brain.json)'}")
     input_provider: InputProvider = (lambda: args.utterance) if args.utterance is not None else listen_player
 

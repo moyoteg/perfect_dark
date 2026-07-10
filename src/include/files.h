@@ -2045,19 +2045,30 @@
 #define FILE_UMP_SETUPAGENT_OFFICE   0x07f2
 #define FILE_USETUPAGENT_OFFICE_CI   0x07f3
 #define FILE_UMP_SETUPAGENT_OFFICE_CI 0x07f4
+#define FILE_BG_AGENT_OFFICE_LAB_SEG       0x07f5
+#define FILE_BG_AGENT_OFFICE_LAB_TILES     0x07f6
+#define FILE_BG_AGENT_OFFICE_LAB_PADS      0x07f7
+#define FILE_USETUPAGENT_OFFICE_LAB        0x07f8
+#define FILE_UMP_SETUPAGENT_OFFICE_LAB     0x07f9
+
+#define FILE_BG_PARADE_SEG       0x07fa
+#define FILE_BG_PARADE_TILES     0x07fb
+#define FILE_BG_PARADE_PADS      0x07fc
+#define FILE_USETUPPARADE         0x07fd
+#define FILE_UMP_SETUPPARADE      0x07fe
 
 #if VERSION >= VERSION_JPN_FINAL
 #ifdef PLATFORM_N64
-#define NUM_FILES 2021
+#define NUM_FILES 2026
 #else
-#define NUM_FILES 2037 // PD Plus Mod (+ 4) + custom arenas (+ 15) + agent_office (+ 2) + agent_office_ci (+ 2)
+#define NUM_FILES 2047 // PD Plus Mod (+ 4) + custom arenas (+ 15) + agent_office (+ 2) + agent_office_ci (+ 2) + agent_office_lab (+ 5)
 #endif
 #elif VERSION >= VERSION_NTSC_1_0
 #ifdef PLATFORM_N64
-#define NUM_FILES 2019
+#define NUM_FILES 2024
 #else
-#define NUM_FILES 2037 // PD Plus Mod (+ 4) + custom arenas (+ 15) + agent_office (+ 2) + agent_office_ci (+ 2)
+#define NUM_FILES 2047 // PD Plus Mod (+ 4) + custom arenas (+ 15) + agent_office (+ 2) + agent_office_ci (+ 2) + agent_office_lab (+ 5)
 #endif
 #else
-#define NUM_FILES 2018
+#define NUM_FILES 2023
 #endif

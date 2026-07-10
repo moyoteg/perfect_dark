@@ -13,6 +13,7 @@ import os
 import re
 
 from .props import Door
+from .retail_door_siblings import remap_door_siblings, retail_door_cmd_indices
 
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 _SETUP_DEPO = os.path.join(_ROOT, "src", "setups", "setupdepo.c")
@@ -32,39 +33,12 @@ OBJFLAG2_LOCKEDBACK = 0x10000000
 DOORTYPE_SLIDING = 0
 DOORTYPE_SWINGING = 5
 DOORTYPE_LASER = 11
+DOORTYPE_VERTICAL = 6
 
-# Mission-only doors — keep retail flags (deactivated / scripted).
+# Mission-only doors — still unlocked for agent-office free roam (may need scripts to move).
 MODEL_G5SAFEDOOR = 0x009D
 MODEL_G5_ESCDOORUP = 0x00A8
 MODEL_G5_ESCDOORDOWN = 0x00AA
-
-# Holograph meeting-room north corridor (retail tag 0x3a; PAD_DEPO_00B5/00B6).
-MODEL_DOOR4A_G5 = 0x009A
-MODEL_DOOR4B_G5 = 0x009B
-PAD_MEETING_ROOM_ENTRY_A = 0x00B5
-PAD_MEETING_ROOM_ENTRY_B = 0x00B6
-
-# South briefing doorway pair — retail keeps these deactivated; reactivating blocks
-# the PAD_DEPO_008F corridor into the holograph room (double-door symptom).
-PAD_MEETING_ROOM_SOUTH_A = 0x00AA
-PAD_MEETING_ROOM_SOUTH_B = 0x00AB
-
-# Laser grid pads on lobby → meeting-room corridor (retail OBJ_LASER_* tags).
-_LASER_GRID_PADS = frozenset(range(0x00D1, 0x00E1))
-
-_MEETING_ROOM_ENTRY_MODELS = frozenset({MODEL_DOOR4A_G5, MODEL_DOOR4B_G5})
-_MEETING_ROOM_ENTRY_PADS = frozenset({PAD_MEETING_ROOM_ENTRY_A, PAD_MEETING_ROOM_ENTRY_B})
-_MEETING_ROOM_SOUTH_ENTRY_PADS = frozenset(
-    {PAD_MEETING_ROOM_SOUTH_A, PAD_MEETING_ROOM_SOUTH_B}
-)
-
-_MISSION_ONLY_MODELS = frozenset(
-    {
-        MODEL_G5SAFEDOOR,
-        MODEL_G5_ESCDOORUP,
-        MODEL_G5_ESCDOORDOWN,
-    }
-)
 
 
 def _load_c_constants(path: str) -> dict[str, int]:
@@ -102,14 +76,12 @@ def _eval_c_int(expr: str, consts: dict[str, int]) -> int:
         if name.isdigit():
             return name
         if name.startswith("PAD_DEPO_"):
-            # PAD_DEPO_009C → 156 (pad index in retail depo graph).
             return str(int(name.rsplit("_", 1)[-1], 16))
         if name not in consts:
             raise KeyError(name)
         return str(consts[name])
 
     resolved = re.sub(r"0x[0-9a-fA-F]+|0X[0-9a-fA-F]+|\d+|[A-Za-z_][A-Za-z0-9_]*", replace_token, expr)
-    # Only allow safe arithmetic/bitwise tokens after substitution.
     if not re.fullmatch(r"[\d\s|+\-()]+", resolved):
         raise ValueError(f"unsupported expression: {expr!r} → {resolved!r}")
     return int(eval(resolved, {"__builtins__": {}}, {}))  # noqa: S307 — controlled input
@@ -167,49 +139,22 @@ def _parse_door_args(args: str, consts: dict[str, int]) -> dict:
 
 
 def _mp_unlock_door_fields(fields: dict) -> dict:
-    """Return a copy with MP-friendly door flags (openable without mission scripts).
-
-    Retail depo blocks the meeting-room corridor with:
-    - 16 ``DOORTYPE_LASER`` beams (pads 0x00D1–0x00E0) that stay closed until
-      laser-switch ailists call ``open_door(OBJ_LASER_*)``;
-    - ``MODEL_DOOR4A/B_G5`` at pads 0x00B5/0x00B6 (tag 0x3a) and ``MODEL_DOOR2_G5``
-      at pads 0x00AA/0x00AB on the south briefing doorway — all scripted in
-      retail; MP free-roam deactivates them so the player can enter the room.
-    """
+    """Return a copy with MP-friendly door flags — all doors openable without mission scripts."""
     out = dict(fields)
     doortype = out["doortype"]
-    model = out["model"]
-    pad = out["pad"]
 
-    # Escape / safe doors stay scripted.
-    if model in _MISSION_ONLY_MODELS:
-        return out
+    out["flags"] &= ~(OBJFLAG_DEACTIVATED | OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN)
+    out["flags2"] &= ~(OBJFLAG2_LOCKEDFRONT | OBJFLAG2_LOCKEDBACK)
+    out["keyflags"] = 0
 
     if doortype == DOORTYPE_LASER:
-        # Deactivate laser beams — retail KEEPOPEN + CANNOT_ACTIVATE blocks passage
-        # and cannot be opened without mission laser-switch scripts.
-        out["flags"] |= OBJFLAG_DEACTIVATED
-        out["flags"] &= ~(OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN)
+        # Retail laser grids block the meeting-room corridor until mission scripts fire.
+        # Strip KEEPOPEN/CANNOT_ACTIVATE so the player can walk through after interact.
         return out
 
-    # South briefing doorway — retail already deactivated; do not reactivate.
-    if pad in _MEETING_ROOM_SOUTH_ENTRY_PADS:
-        out["flags"] |= OBJFLAG_DEACTIVATED
-        out["flags"] &= ~(OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN)
+    if doortype in (DOORTYPE_SLIDING, DOORTYPE_SWINGING, DOORTYPE_VERTICAL):
         return out
 
-    # North corridor DOOR4 pair — remove collision for MP briefing free-roam.
-    if model in _MEETING_ROOM_ENTRY_MODELS or pad in _MEETING_ROOM_ENTRY_PADS:
-        out["flags"] |= OBJFLAG_DEACTIVATED
-        out["flags"] &= ~(OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN)
-        out["flags2"] &= ~(OBJFLAG2_LOCKEDFRONT | OBJFLAG2_LOCKEDBACK)
-        out["keyflags"] = 0
-        return out
-
-    if doortype in (DOORTYPE_SLIDING, DOORTYPE_SWINGING):
-        out["flags"] &= ~OBJFLAG_DEACTIVATED
-        out["flags2"] &= ~(OBJFLAG2_LOCKEDFRONT | OBJFLAG2_LOCKEDBACK)
-        out["keyflags"] = 0
     return out
 
 
@@ -254,24 +199,19 @@ def depo_door_inventory() -> list[dict]:
 
 
 def prepare_agent_office_doors(doors: list[Door]) -> list[Door]:
-    """Prepare retail door props for agent-office MP setups.
+    """MP-unlocked retail doors with remapped sibling indices for door-only packs.
 
-    Agent office packs ``door(...)`` props only (no tags/chrs between pairs). Retail
-    ``sibling`` offsets assume the full ``setup*.c`` props[] layout and can corrupt
-    ``doorsCalcFrac`` sibling walks. Clear them — paired leaves still render.
-
-    Do **not** MP-unlock here: ``mp_unlock=True`` activates dozens of automatic doors
-    whose ``doorTick``/``doorsCalcFrac`` work pegs CPU and freezes the game. Deactivated
-    doors keep collision; the briefing rooms are already open in retail layouts.
+    Retail ``sibling`` offsets assume the full ``setupdepo.c`` props[] layout; remap
+    before pack so ``doorsCalcFrac`` resolves valid door pairs (no mesh explosion).
+    Doors spawn closed and open/close normally via (Z); ``mp_unlock`` strips locks only.
     """
-    for door in doors:
-        door.sibling = 0
-        # Briefing rooms are open in retail layouts; keep every door static.
-        door.flags |= OBJFLAG_DEACTIVATED
-        door.flags &= ~(OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN)
-    return doors
+    consts = _load_c_constants(_CONSTANTS_H)
+    cmd_indices = retail_door_cmd_indices(
+        _SETUP_DEPO, parse_door_args=_parse_door_args, consts=consts
+    )
+    return remap_door_siblings(doors, cmd_indices)
 
 
 def agent_office_depo_doors() -> list[Door]:
-    """All retail depo doors — static/deactivated (no ``doorTick`` CPU load)."""
-    return prepare_agent_office_doors(parse_setupdepo_doors(mp_unlock=False))
+    """All retail depo doors — unlocked, siblings remapped, openable."""
+    return prepare_agent_office_doors(parse_setupdepo_doors(mp_unlock=True))

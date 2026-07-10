@@ -64,7 +64,7 @@ def validate_mapdef(
         # room=-1 matches retail pads (setupPreparePads auto-binds floor room).
         if p.room < -1:
             errors.append(f"Pad {p.index}: invalid room {p.room}")
-        if not allow_negative_y and p.y <= 0.0:
+        if not allow_negative_y and not anim_parade and p.y <= 0.0:
             errors.append(
                 f"Pad {p.index}: Y={p.y} is at/below the floor; the ground "
                 f"search will reject the floor and the player will fall through "

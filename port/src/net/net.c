@@ -6,6 +6,8 @@
 #include "platform.h"
 #include "net/netenet.h"
 #include "net/net.h"
+#include "net/net_automation.h"
+#include "net/net_join_lifecycle.h"
 #include "net/netbuf.h"
 #include "net/netmsg.h"
 #include "types.h"
@@ -34,6 +36,9 @@ s32 g_NetMode = NETMODE_NONE;
 
 s32 g_NetHostLatch = false;
 s32 g_NetJoinLatch = false;
+
+s32 g_NetAutoStartLatch = false;
+s32 g_NetAutoStage = -1;
 
 u32 g_NetServerUpdateRate = 1;
 u32 g_NetServerInRate = 128 * 1024;
@@ -111,7 +116,7 @@ static s32 netParseAddr(ENetAddress *out, const char *str)
 		return false;
 	}
 
-	const s32 portval = port ? atoi(port) : NET_DEFAULT_PORT;
+	const s32 portval = port ? atoi(port) : g_NetServerPort;
 	if (portval < 0 || portval > 0xFFFF) {
 		return false;
 	}
@@ -437,6 +442,9 @@ void netInit(void)
 		g_NetHostLatch = true;
 	}
 
+	netAutomationInitFromCli(g_NetHostLatch);
+	netJoinLifecycleInitFromCli();
+
 	g_NetInit = true;
 }
 
@@ -533,13 +541,25 @@ s32 netStartClient(const char *addr)
 
 	if (!netParseAddr(&g_NetRemoteAddr, addr)) {
 		sysLogPrintf(LOG_ERROR, "NET: `%s` is not a valid address", addr);
+		netJoinLifecycleOnConnectFailed(
+			NET_JOIN_FAILURE_INVALID_ADDRESS,
+			0,
+			0,
+			"address_parse_failed");
 		return -2;
 	}
+
+	netJoinLifecycleOnConnectAttempt(addr, g_NetRemoteAddr.port);
 
 	memset(&g_NetLocalAddr, 0, sizeof(g_NetLocalAddr));
 	g_NetHost = enet_host_create(&g_NetLocalAddr, 1, NETCHAN_COUNT, g_NetClientInRate, g_NetClientOutRate, 0);
 	if (!g_NetHost) {
 		sysLogPrintf(LOG_ERROR, "NET: could not create ENet host");
+		netJoinLifecycleOnConnectFailed(
+			NET_JOIN_FAILURE_ENET_HOST_FAILED,
+			g_NetRemoteAddr.port,
+			0,
+			"enet_host_create_failed");
 		return -3;
 	}
 
@@ -560,6 +580,11 @@ s32 netStartClient(const char *addr)
 	g_NetLocalClient->peer = enet_host_connect(g_NetHost, &g_NetRemoteAddr, NETCHAN_COUNT, NET_PROTOCOL_VER);
 	if (!g_NetLocalClient->peer) {
 		sysLogPrintf(LOG_WARNING, "NET: could not connect to %s", addr);
+		netJoinLifecycleOnConnectFailed(
+			NET_JOIN_FAILURE_PEER_ALLOC_FAILED,
+			g_NetRemoteAddr.port,
+			0,
+			"enet_host_connect_failed");
 		enet_host_destroy(g_NetHost);
 		g_NetHost = NULL;
 		return -4;
@@ -725,6 +750,7 @@ static void netServerEvReceive(struct netclient *cl)
 static void netClientEvConnect(const u32 data)
 {
 	sysLogPrintf(LOG_NOTE, "NET: connected to server, sending CLC_AUTH");
+	netJoinLifecycleOnConnectSucceeded(g_NetRemoteAddr.port);
 
 	g_NetLocalClient->state = CLSTATE_AUTH;
 
@@ -737,7 +763,14 @@ static void netClientEvConnect(const u32 data)
 
 static void netClientEvDisconnect(const u32 reason)
 {
+	const NetJoinFailureKind failure_kind = netJoinClassifyDisconnect(reason);
+
 	sysLogPrintf(LOG_CHAT, "NET: disconnected from server: %s (%u)", netGetDisconnectReason(reason), reason);
+	netJoinLifecycleOnConnectFailed(
+		failure_kind,
+		g_NetRemoteAddr.port,
+		reason,
+		netGetDisconnectReason(reason));
 	netDisconnect();
 }
 
@@ -807,6 +840,14 @@ void netStartFrame(void)
 	++g_NetTick;
 
 	const bool isClient = (g_NetMode == NETMODE_CLIENT);
+	if (isClient && g_NetLocalClient && g_NetLocalClient->state == CLSTATE_CONNECTING) {
+		if (netJoinLifecycleJoinDeadlineExceeded(g_NetTick, g_NetLocalClient->state)) {
+			if (g_NetLocalClient->peer) {
+				enet_peer_disconnect(g_NetLocalClient->peer, DISCONNECT_TIMEOUT);
+			}
+		}
+	}
+
 	s32 polled = false;
 	ENetEvent ev = { .type = ENET_EVENT_TYPE_NONE };
 	while (!polled) {

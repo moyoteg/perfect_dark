@@ -14,6 +14,8 @@ CONSTANTS_H = os.path.join(ROOT, "src", "include", "constants.h")
 STAGETABLE = os.path.join(ROOT, "src", "game", "stagetable.c")
 SETUP_C = os.path.join(ROOT, "src", "game", "mplayer", "setup.c")
 LIST_C = os.path.join(ROOT, "src", "assets", ROMID, "files", "list.c")
+ENV_C = os.path.join(ROOT, "src", "game", "env.c")
+LANG_C = os.path.join(ROOT, "src", "game", "lang.c")
 
 
 @dataclass
@@ -24,6 +26,8 @@ class RegistrationPlan:
     file_ids: dict[str, int]
     already_registered: bool
     snippets: dict[str, str]
+    textid: int
+    label: str
 
     def render_markdown(self) -> str:
         lines = [
@@ -55,6 +59,19 @@ class RegistrationPlan:
             self.snippets["setup_c"],
             "```",
             "",
+            "## 5. `src/game/env.c` (`g_StagesEnv[]`)",
+            "",
+            "```c",
+            self.snippets["env_c"],
+            "```",
+            "",
+            "## 6. `src/game/lang.c` (`langGet` & `langGetBank`)",
+            "",
+            "```c",
+            self.snippets["lang_c_get"],
+            self.snippets["lang_c_bank"],
+            "```",
+            "",
             "> After editing, run `make -j8` and `pdmap build {name} --deploy`.",
             "> For quick test without menu registration, use `--deploy-as uff` instead.",
             "",
@@ -76,6 +93,22 @@ def _next_file_id() -> int:
     return base
 
 
+def _resolve_textid(name: str) -> tuple[int, str]:
+    """Find textid for a stage name. Returns (textid, label)."""
+    text = _read(LANG_C)
+    label = " ".join(word.capitalize() for word in name.split("_"))
+
+    # Check if stage name already exists in lang.c
+    m = re.search(r'if\s*\(textid\s*==\s*(0x7[0-9A-Fa-f]{3})\)\s*return\s*"' + re.escape(label) + r'";', text)
+    if m:
+        return int(m.group(1), 16), label
+
+    ids = [int(match.group(0), 16) for match in re.finditer(r"0x7[0-9A-Fa-f]{3}", text)]
+    ids = [x for x in ids if x != 0x7FFE]
+    val = min(ids) - 1 if ids else 0x7FFF
+    return val, label
+
+
 def _resolve_stage_const(name: str) -> tuple[str, int]:
     """Return (STAGE_FOO symbol, hex value) for constants.h / stagetable."""
     text = _read(CONSTANTS_H)
@@ -83,7 +116,7 @@ def _resolve_stage_const(name: str) -> tuple[str, int]:
     target = f"STAGE_{name.upper()}"
     for const, val in existing:
         if const == target:
-            return target, int(val, 16)
+            return const, int(val, 16)
     ids = [int(val, 16) for _, val in existing]
     # Custom pdmap arenas: ids may exceed STAGE_TITLE (0x5c) — engine uses
     # STAGE_IS_MENU(), not a numeric cutoff, for title/boot/credits only.
@@ -116,6 +149,8 @@ def plan_registration(name: str) -> RegistrationPlan:
     ump_id = seg_id + 4
 
     stage_const = _next_stage_id(name)
+    stage_sym = stage_const.split()[0]
+    textid, label = _resolve_textid(name)
 
     files_h = (
         f"#define FILE_BG_{upper}_SEG       {seg_id:#06x}\n"
@@ -134,13 +169,16 @@ def plan_registration(name: str) -> RegistrationPlan:
     )
 
     stagetable = (
-        f"/*{seg_id:#06x}*/ {stage_const.split()[0]}, 2, 255, 100, 100, 0, "
+        f"/*{seg_id:#06x}*/ {stage_sym}, 2, 255, 100, 100, 0, "
         f"FILE_BG_{upper}_SEG, FILE_BG_{upper}_TILES, FILE_BG_{upper}_PADS, "
         f"FILE_USETUP{upper}, FILE_UMP_SETUP{upper}, "
         f"1, 1, 100, 0, 0, -1, 255, 0x3e19999a, -1, 400, 0, 1, SFX_ALARM_DEFAULT, 0,"
     )
 
-    setup_c = f"{{ {stage_const.split()[0]}, 0, 0x7FFF }}, // {name} custom arena"
+    setup_c = f"{{ {stage_sym}, 0, {textid:#06x} }}, // {label}"
+    env_c = f"\t{{ {stage_sym},      10, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 }},"
+    lang_c_get = f"\tif (textid == {textid:#06x}) return \"{label}\";"
+    lang_c_bank = f"\tcase {stage_sym}:      bank = LANGBANK_UFF; break;"
 
     return RegistrationPlan(
         name=name,
@@ -159,7 +197,12 @@ def plan_registration(name: str) -> RegistrationPlan:
             "list_c": list_c,
             "stagetable": stagetable,
             "setup_c": setup_c,
+            "env_c": env_c,
+            "lang_c_get": lang_c_get,
+            "lang_c_bank": lang_c_bank,
         },
+        textid=textid,
+        label=label,
     )
 
 
@@ -297,5 +340,35 @@ def apply_registration(name: str) -> list[str]:
         with open(SETUP_C, "w", encoding="utf-8") as fp:
             fp.write(new_setup)
         changed.append(SETUP_C)
+
+    # 5. Patch env.c
+    env_row = plan.snippets["env_c"] + "\n"
+    env_text = _read(ENV_C)
+    env_anchor = "\t{ STAGE_MY_ARENA,      10, 10000,   0,  0,  0, RGB(0x000000), NO_SUNS,            0, RGB(0xcccccc),  5000,   0, 0, RGB(0x000000),  -5000,    0, 0, 0 },"
+    new_env = _patch_insert_after(
+        env_text, env_anchor, env_row, marker=stage_sym
+    )
+    if new_env != env_text:
+        with open(ENV_C, "w", encoding="utf-8") as fp:
+            fp.write(new_env)
+        changed.append(ENV_C)
+
+    # 6. Patch lang.c
+    lang_text = _read(LANG_C)
+    lang_get_row = plan.snippets["lang_c_get"] + "\n"
+    lang_get_anchor = "\tif (textid == 0x7FFC) return \"Test Arena\";"
+    new_lang = _patch_insert_after(
+        lang_text, lang_get_anchor, lang_get_row, marker=f"== {plan.textid:#06x}"
+    )
+
+    lang_bank_row = plan.snippets["lang_c_bank"] + "\n"
+    lang_bank_anchor = "\tcase STAGE_TESTARENA:     bank = LANGBANK_UFF; break;"
+    new_lang = _patch_insert_after(
+        new_lang, lang_bank_anchor, lang_bank_row, marker=stage_sym
+    )
+    if new_lang != lang_text:
+        with open(LANG_C, "w", encoding="utf-8") as fp:
+            fp.write(new_lang)
+        changed.append(LANG_C)
 
     return changed

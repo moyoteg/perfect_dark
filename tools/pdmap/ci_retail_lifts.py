@@ -19,6 +19,7 @@ from .ci_retail_doors import (
     _parse_door_args,
 )
 from .props import Door, Lift, LiftDoor, Prop
+from .setup_c_preprocess import iter_setup_c_lines
 
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 _SETUP_DISH = os.path.join(_ROOT, "src", "setups", "setupdish.c")
@@ -85,58 +86,57 @@ def parse_setupdish_lift_assemblies() -> list[list[Prop]]:
     doors_needed = 0
     lift_doors_needed = 0
 
-    with open(_SETUP_DISH, encoding="utf-8", errors="replace") as fh:
-        for line in fh:
-            stripped = line.rstrip()
-            lift_m = _LIFT_LINE.match(stripped)
-            if lift_m:
-                fields = _parse_lift_args(lift_m.group(1), consts)
-                current = [
-                    Lift(
-                        scale=fields["scale"],
-                        model=fields["model"],
-                        pad=fields["pad"],
-                        flags=fields["flags"],
-                        flags2=fields["flags2"],
-                        flags3=fields["flags3"],
-                        maxdamage=fields["maxdamage"],
-                        pad1=fields["pad1"],
-                        pad2=fields["pad2"],
-                        pad3=fields["pad3"],
-                        pad4=fields["pad4"],
-                        door1=fields["door1"],
-                        door2=fields["door2"],
-                        door3=fields["door3"],
-                        door4=fields["door4"],
-                        accel=fields["accel"],
-                        maxspeed=fields["maxspeed"],
-                        unk84=fields["unk84"],
-                    )
-                ]
-                doors_needed = 4
-                lift_doors_needed = 0
-                continue
+    for line in iter_setup_c_lines(_SETUP_DISH):
+        stripped = line.rstrip()
+        lift_m = _LIFT_LINE.match(stripped)
+        if lift_m:
+            fields = _parse_lift_args(lift_m.group(1), consts)
+            current = [
+                Lift(
+                    scale=fields["scale"],
+                    model=fields["model"],
+                    pad=fields["pad"],
+                    flags=fields["flags"],
+                    flags2=fields["flags2"],
+                    flags3=fields["flags3"],
+                    maxdamage=fields["maxdamage"],
+                    pad1=fields["pad1"],
+                    pad2=fields["pad2"],
+                    pad3=fields["pad3"],
+                    pad4=fields["pad4"],
+                    door1=fields["door1"],
+                    door2=fields["door2"],
+                    door3=fields["door3"],
+                    door4=fields["door4"],
+                    accel=fields["accel"],
+                    maxspeed=fields["maxspeed"],
+                    unk84=fields["unk84"],
+                )
+            ]
+            doors_needed = 4
+            lift_doors_needed = 0
+            continue
 
-            if current is None:
-                continue
+        if current is None:
+            continue
 
-            door_m = _DOOR_LINE.match(stripped)
-            if door_m and doors_needed > 0:
-                current.append(Door(**_parse_door_args(door_m.group(1), consts)))
-                doors_needed -= 1
-                if doors_needed == 0:
-                    lift_doors_needed = 4
-                continue
+        door_m = _DOOR_LINE.match(stripped)
+        if door_m and doors_needed > 0:
+            current.append(Door(**_parse_door_args(door_m.group(1), consts)))
+            doors_needed -= 1
+            if doors_needed == 0:
+                lift_doors_needed = 4
+            continue
 
-            lift_door_m = _LIFT_DOOR_LINE.match(stripped)
-            if lift_door_m and lift_doors_needed > 0:
-                args = _parse_lift_door_args(lift_door_m.group(1), consts)
-                current.append(LiftDoor(**args))
-                lift_doors_needed -= 1
-                if lift_doors_needed == 0:
-                    assemblies.append(current)
-                    current = None
-                continue
+        lift_door_m = _LIFT_DOOR_LINE.match(stripped)
+        if lift_door_m and lift_doors_needed > 0:
+            args = _parse_lift_door_args(lift_door_m.group(1), consts)
+            current.append(LiftDoor(**args))
+            lift_doors_needed -= 1
+            if lift_doors_needed == 0:
+                assemblies.append(current)
+                current = None
+            continue
 
     if current is not None:
         raise ValueError("incomplete lift assembly at end of setupdish.c")
@@ -145,18 +145,20 @@ def parse_setupdish_lift_assemblies() -> list[list[Prop]]:
 
 
 def prepare_agent_office_lifts(assemblies: list[list[Prop]]) -> list[Prop]:
-    """Static retail lifts — deactivate car doors so ``doorTick`` stays idle."""
+    """Retail lift assemblies — unlock car doors; internal sibling offsets stay intact."""
     flat: list[Prop] = []
     for block in assemblies:
         for prop in block:
             if isinstance(prop, Door):
-                prop.sibling = 0
-                prop.flags |= OBJFLAG_DEACTIVATED
-                prop.flags &= ~(OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN)
+                prop.flags &= ~(
+                    OBJFLAG_DEACTIVATED | OBJFLAG_CANNOT_ACTIVATE | OBJFLAG_DOOR_KEEPOPEN
+                )
+                prop.flags2 &= ~0x18000000  # OBJFLAG2_LOCKEDFRONT | LOCKEDBACK
+                prop.keyflags = 0
             flat.append(prop)
     return flat
 
 
 def agent_office_ci_lifts() -> list[Prop]:
-    """Two retail CI lift assemblies (visual + collision; doors deactivated)."""
+    """Two retail CI lift assemblies (visual + collision; car doors openable)."""
     return prepare_agent_office_lifts(parse_setupdish_lift_assemblies())

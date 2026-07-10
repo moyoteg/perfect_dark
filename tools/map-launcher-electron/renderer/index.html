@@ -31,6 +31,16 @@
           <button id="refreshBtn" type="button" class="ghost">Refresh</button>
         </div>
       </section>
+      <div class="game-bar-options" style="margin: -10px auto 18px; max-width: 640px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="fastRunCheckbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);" />
+          <label for="fastRunCheckbox" style="font-size: 13px; color: var(--muted); cursor: pointer; user-select: none;">Enable Fast Running (Anim Lab & Offices)</label>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="disableTexturesCheckbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);" />
+          <label for="disableTexturesCheckbox" style="font-size: 13px; color: var(--muted); cursor: pointer; user-select: none;">Disable Textures (Anim Lab)</label>
+        </div>
+      </div>
 
       <nav class="tabs" role="tablist">
         <button type="button" class="tab active" data-tab="launcher" role="tab" aria-selected="true">

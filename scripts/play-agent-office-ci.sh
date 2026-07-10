@@ -90,6 +90,35 @@ pgrep_play() {
 	done
 }
 
+clear_stale_pid_file() {
+	if [[ ! -f "$LAST_PID" ]]; then
+		return 0
+	fi
+	local stale
+	stale="$(tr -d '[:space:]' <"$LAST_PID" 2>/dev/null || true)"
+	if [[ -z "$stale" ]]; then
+		rm -f "$LAST_PID"
+		return 0
+	fi
+	if ! ps -p "$stale" >/dev/null 2>&1; then
+		rm -f "$LAST_PID"
+	fi
+}
+
+stop_play_pid() {
+	local pid="$1"
+	[[ -n "$pid" ]] || return 0
+	log "Stopping existing PID $pid (--force)"
+	kill "$pid" 2>/dev/null || true
+	for _ in $(seq 1 8); do
+		ps -p "$pid" >/dev/null 2>&1 || return 0
+		sleep 0.25
+	done
+	log "PID $pid still alive after SIGTERM — sending SIGKILL (hung door loop?)"
+	kill -9 "$pid" 2>/dev/null || true
+	sleep 0.5
+}
+
 deploy_lang_bank() {
 	# Copy the compiled LANGBANK_DISH into the mod so agent Z-target and console
 	# strings resolve. Requires a prior `cmake --build build --target pd_headers`
@@ -121,6 +150,7 @@ fi
 
 ensure_rom
 build_launch_args
+clear_stale_pid_file
 
 existing_pid="$(pgrep_play || true)"
 if [[ -n "$existing_pid" && "$FORCE_LAUNCH" != true ]]; then
@@ -129,9 +159,7 @@ if [[ -n "$existing_pid" && "$FORCE_LAUNCH" != true ]]; then
 	exit 0
 fi
 if [[ -n "$existing_pid" && "$FORCE_LAUNCH" == true ]]; then
-	log "Stopping existing PID $existing_pid (--force)"
-	kill "$existing_pid" 2>/dev/null || true
-	sleep 1
+	stop_play_pid "$existing_pid"
 fi
 
 log "Launching: $PD ${LAUNCH_ARGS[*]}"
@@ -162,6 +190,17 @@ APPLESCRIPT
 	if [[ -n "$play_pid" ]]; then
 		echo "$play_pid" >"$LAST_PID"
 		log "Game PID $play_pid (log: $LAST_LOG)"
+		osascript >/dev/null 2>&1 <<'APPLESCRIPT' || true
+tell application "System Events"
+  repeat with i from 1 to 30
+    if exists (process "pd.arm64") then
+      tell process "pd.arm64" to set frontmost to true
+      exit repeat
+    end if
+    delay 0.2
+  end repeat
+end tell
+APPLESCRIPT
 		osascript -e 'display notification "Look for the separate Perfect Dark game window (not Terminal)." with title "Virtual Agent Office (CI)"' >/dev/null 2>&1 || true
 	else
 		log "WARNING: game PID not detected after Terminal launch — check pgrep pd.arm64 (no open -na fallback; avoids double-launch loop)"

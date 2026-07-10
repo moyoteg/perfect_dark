@@ -82,6 +82,39 @@ bool bootMpShouldApplyBootStageQuickStart(s32 stagenum)
 	return bootMpStageSupportsCombatSim(stagenum);
 }
 
+bool agentOfficeCiLobbyActive(void)
+{
+	return sysArgCheck("--agent-office-ci-lobby");
+}
+
+bool agentOfficeHubUsesCiPads(void)
+{
+	return g_Vars.stagenum == STAGE_AGENT_OFFICE_CI
+		|| (g_Vars.stagenum == STAGE_CITRAINING && agentOfficeCiLobbyActive());
+}
+
+bool agentOfficeHubUsesG5Pads(void)
+{
+	return g_Vars.stagenum == STAGE_AGENT_OFFICE
+		|| g_Vars.stagenum == STAGE_AGENT_OFFICE_LAB;
+}
+
+bool agentOfficeHubAnyActive(void)
+{
+	return agentOfficeHubUsesCiPads() || agentOfficeHubUsesG5Pads();
+}
+
+bool agentOfficePeacefulSoloActive(void)
+{
+	if (!sysArgCheck("--solo") || g_Vars.mpquickteamnumsims != 0) {
+		return false;
+	}
+
+	return g_Vars.stagenum == STAGE_AGENT_OFFICE
+		|| g_Vars.stagenum == STAGE_AGENT_OFFICE_CI
+		|| g_Vars.stagenum == STAGE_AGENT_OFFICE_LAB;
+}
+
 void bootMpApplySentryCliFlags(void)
 {
 	if (sysArgCheck("--laptop-sentry-x4")) {
@@ -133,16 +166,18 @@ void bootMpApplyQuickStartSetup(s32 stagenum)
 
 	/* Virtual Agent Office: peaceful solo explore — no MP loadout or simulant quick-team. */
 	if (sysArgCheck("--solo")
-			&& (stagenum == STAGE_AGENT_OFFICE || stagenum == STAGE_AGENT_OFFICE_CI)) {
+			&& (stagenum == STAGE_AGENT_OFFICE || stagenum == STAGE_AGENT_OFFICE_CI
+				|| stagenum == STAGE_AGENT_OFFICE_LAB)) {
 		s32 i;
 
 		g_Vars.mpquickteam = MPQUICKTEAM_PLAYERSONLY;
 		for (i = 0; i < ARRAYCOUNT(g_MpSetup.weapons); i++) {
 			g_MpSetup.weapons[i] = MPWEAPON_NONE;
 		}
-		g_MpSetup.timelimit = 0;
-		g_MpSetup.scorelimit = 0;
-		g_MpSetup.teamscorelimit = 0;
+		/* MP sliders use 0-based indices; mpApplyLimits treats 60/100/400 as unlimited. */
+		g_MpSetup.timelimit = 60;
+		g_MpSetup.scorelimit = 100;
+		g_MpSetup.teamscorelimit = 400;
 	}
 
 	simdiff = sysArgGetInt("--sim-difficulty", BOTDIFF_NORMAL);

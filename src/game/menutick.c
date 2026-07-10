@@ -334,6 +334,8 @@ void menuTick(void)
 					}
 				}
 			}
+
+			netMaybeAutoStartMatch();
 #endif
 
 			mpCalculateLockIfLastWinnerOrLoser();

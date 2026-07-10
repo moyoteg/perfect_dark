@@ -1,8 +1,8 @@
 # Anim Lab — Specification (SDD Canonical)
 
 **Status:** Active  
-**Version:** 1.1.0  
-**Last updated:** 2026-07-02  
+**Version:** 1.2.0  
+**Last updated:** 2026-07-04  
 
 ---
 
@@ -15,6 +15,7 @@
 | [`ANIMLAB_MASTER_PLAN.md`](ANIMLAB_MASTER_PLAN.md) | Layout contract — coordinates, room budget, district/tag tables, carpet palette. |
 | [`CHARACTER_ANIMATIONS.md`](CHARACTER_ANIMATIONS.md) | Animation pipeline study guide and build commands. |
 | [`MAP_DETERMINISTIC_SPEC.md`](MAP_DETERMINISTIC_SPEC.md) | pdmap/build invariants (pads, tiles, seg, validate). |
+| [`ANIMLAB_SCENARIOS.md`](ANIMLAB_SCENARIOS.md) | Structured verification scenarios and production pass log. |
 
 **Precedence:** SPEC > MASTER_PLAN > VISION for requirements and acceptance. MASTER_PLAN wins for exact coordinates and room allocation unless this document explicitly supersedes with a version bump.
 
@@ -58,7 +59,7 @@ Counts below are derived from `tools/pdmap/*.py` at build time. Re-run §11.2 au
 | CUT_* ROM clips (frames > 0) | **392** | `_cutscene_rom_count()` |
 | StdObjects (W + NW) | **352** each | `stdobject_models.json` |
 | True-scale split | **163** normal · **189** mega | `_true_scale_wing_counts()` |
-| Level islands | **91** | **25** solo · **26** MP · **40** dev |
+| Level islands | **92** | **26** solo · **26** MP · **40** dev |
 | Character mannequins | **24** | `MAIN_CHARACTER_ENTRIES` |
 | Hub props (SW) | **8** | `_gallery_grid_specs()` |
 | Corridor props (north spine) | **4** | `PARADE_CORRIDOR_COMPUTER_SPECS` |
@@ -173,6 +174,7 @@ flowchart LR
 | `anim_wayfinding.py` | Carpet routes, compass rose, gates, beacons, walk/collision audits |
 | `builders.py` | `floor_box_with_parade_zones()` — tiles, carve/restore collision |
 | `validate.py` | Mapdef + animlab collision/walk audits |
+| `animlab_validation.py` | Typed `AnimLabValidationReport` + scenario gate (`run_animlab_validation`) |
 | `anim_layout_geometry.py` | Map Editor overlay export |
 | `journal/anim_lab/anim_lab.html` | Parade UI, compass chips, spatial map, boot-stage |
 | `journal/anim_lab/serve_animlab.py` | HTTP API, build/play orchestration |
@@ -201,7 +203,7 @@ Each requirement is a single verifiable statement. Layout tables live in MASTER_
 | **N** | Animation districts | `#a78bfa` | Guard animation loops |
 | **SW** | Props gallery | `#38bdf8` | Curated furniture + vignettes |
 | **W** | Object catalog | `#0ea5e9` | 352 StdObjects @ showcase scale |
-| **WSW** | Solo world | `#f59e0b` | **25** campaign footprint islands |
+| **WSW** | Solo world | `#f59e0b` | **26** campaign footprint islands |
 | **E** | MP world | `#dc2626` | **26** MP / test MP islands |
 | **NE** | Dev annex | `#64748b` | **40** dev / GEX / mod islands |
 | **NW** | True scale | `#14b8a6` / `#0d9488` | 352 @ bbox (163 normal + 189 mega) |
@@ -269,7 +271,7 @@ Tag district model counts: MASTER_PLAN § Object catalog tag districts.
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| FR-008.1 | One footprint island emits per `stagetable.c` row except `STAGE_ANIMLAB` (**91** total). | MUST |
+| FR-008.1 | One footprint island emits per `stagetable.c` row except `STAGE_ANIMLAB` (**92** total). | MUST |
 | FR-008.2 | Solo world uses gold carpet, gate `(−4200, −5200)`, grid origin `(−15800, −8800)`. | MUST |
 | FR-008.3 | MP world uses crimson carpet, gate `(9200, −2800)`, origin `(21800, −3200)`. | MUST |
 | FR-008.4 | Dev annex uses slate carpet, gate `(5200, 3600)`, origin `(15200, 11800)`. | MUST |
@@ -277,7 +279,7 @@ Tag district model counts: MASTER_PLAN § Object catalog tag districts.
 | FR-008.6 | All island props live in tile room **18** (≤200 props). | MUST |
 | FR-008.7 | UI offers per-island **Boot stage** → `--boot-stage 0xNN`. | MUST |
 
-World split: **25** solo · **26** MP · **40** dev (`megaworld_plan()`).
+World split: **26** solo · **26** MP · **40** dev (`megaworld_plan()`).
 
 ### FR-009 — Full-tour cycler
 
@@ -294,7 +296,7 @@ World split: **25** solo · **26** MP · **40** dev (`megaworld_plan()`).
 | FR-010.2 | **9** wing gates place at district entrances (`wing_gate_entries`). | MUST |
 | FR-010.3 | Distance beacons emit every **2000 u** on routes ≥ **3000 u** (**57** beacons today). | MUST |
 | FR-010.4 | Compass rose renders at spawn (radius **170 u**, inner **28 u**). | MUST |
-| FR-010.5 | Floor rule: **Y=0** collision quad under every walkable carpet; carpet overlay at **Y=4** (`marker_y`). | MUST |
+| FR-010.5 | Floor rule: coloured carpet quads at **Y=0** (`PARADE_SEG_MARKER_Y_OFFSET = 0`); collision quads at the same Y under walkable routes — no Y=4 overlay layer. | MUST |
 | FR-010.6 | `in_game_guide_payload().walkHint` uses live level counts from `megaworld_plan()`. | MUST |
 
 ### FR-011 — Animation Lab UI
@@ -610,7 +612,7 @@ Each AC maps to its FR group. Verify with §11 release gate.
 ### AC-004 — FR-007, FR-008 (characters & levels)
 
 - **AC-004.1:** 24 distinct bodies visible on SE purple carpet.
-- **AC-004.2:** Level island count is **91** (**25** · **26** · **40**).
+- **AC-004.2:** Level island count is **92** (**26** · **26** · **40**).
 - **AC-004.3:** Each island shows stage hex label; UI boot launches retail stage.
 
 ### AC-005 — FR-010, FR-014 (wayfinding & collision)
@@ -678,10 +680,39 @@ Before marking an Anim Lab slice complete:
 
 1. `python3 tools/pdmap.py build animlab --seg --deploy --mod mod_allinone` — exit 0  
 2. `python3 tools/pdmap.py validate animlab` — **0 errors**  
-3. Content audit (§10.2) — counts match §1.2  
-4. `GET /api/health` ok; `GET /api/catalog` and `GET /api/parade/layout` return layout  
-5. Smoke: `--test-animlab` loads without SIGSEGV  
-6. UI spot-check: eight compass chips ↔ signposts  
+3. `python3 -m tools.pdmap.animlab_validation` — **`passed: true`** (see [`ANIMLAB_SCENARIOS.md`](ANIMLAB_SCENARIOS.md))  
+4. Content audit (§10.2) — counts match §1.2  
+5. `GET /api/health` ok; `GET /api/catalog` and `GET /api/parade/layout` return layout  
+6. Smoke: `--test-animlab` loads without SIGSEGV  
+7. UI spot-check: eight compass chips ↔ signposts  
+
+### 10.1.1 Structured validation interface
+
+```python
+from tools.pdmap.animlab_validation import AnimLabValidationReport, run_animlab_validation
+
+report: AnimLabValidationReport = run_animlab_validation()
+# report.collision_errors, report.walk_warnings, report.y4_tile_count_room1,
+# report.character_count, report.level_island_count, report.passed, report.evidence_lines
+```
+
+CLI: `python3 -m tools.pdmap.animlab_validation` — JSON line to stdout, summary to stderr.
+
+### 10.4 Production passes
+
+| Pass | Branch | Date | Scenario | Result | Notes |
+|------|--------|------|----------|--------|-------|
+| **1** | `port-net-mods/kit` | 2026-07-04 | `animlab_build_and_audit_passes` | **PASS** | `animlab_validation.py`; single Y=0 floor; mod=`mod_allinone`; islands=92; **blocking:** room-1 bbox half=8000 vs arena ±32000 |
+| **2** | `port-net-mods/kit` | 2026-07-04 | `animlab_build_and_audit_passes` | **PASS** | `ANIMLAB_ROOM1_HALF=32000` in `constants.h` + `bg.c`; pd rebuild; validation re-run |
+| **3** | `port-net-mods/kit` | 2026-07-04 | `pdmap_validate_animlab` | **PASS** | `validate.py` calls `run_animlab_validation()`; `pdmap validate animlab` exit 0 |
+| **4** | `port-net-mods/kit` | 2026-07-04 | `animlab_in_game_smoke` | **DOC** | Scenario 3 manual checklist in [`ANIMLAB_SCENARIOS.md`](ANIMLAB_SCENARIOS.md); `tools/pdmap/animlab_smoke.py` prints launch + checklist; automated gate unchanged |
+| **5** | `port-net-mods/kit` | 2026-07-04 | `pass_5_cross_system_release_gate` | **PASS** | `tools/release_gate.py`; account pool Scenarios 1–15 + `pdmap validate animlab`; JSON summary per subsystem |
+
+**Open questions (production passes)**
+
+| # | Question | Status |
+|---|----------|--------|
+| 1 | Does `bg.c` room-1 bbox override for `STAGE_ANIMLAB` match `parade_arena_half()` (±32000)? | **Closed Pass 2** — was 8000; now `ANIMLAB_ROOM1_HALF` |
 
 ### 10.2 Content audit
 

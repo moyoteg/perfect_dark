@@ -6,10 +6,12 @@ import subprocess
 from .core import (
     load_level_module, ROOT, MOD_DIRS
 )
-from .validate import validate_all
+from .validate import run_validation, validate_all
 from .info import info
 from .from_json import EditorMapSpec, load_editor_json
-from .pipeline import build_from_module, build_from_spec
+from .pipeline import build_from_module, build_from_spec, run_build, run_build_with_retry
+from .deploy import deploy_all, run_deploy
+from .domain import new_run_id
 from .level_codegen import render_level_module
 from .play import MOD_CHOICES, play_command, detect_pd_binary, TEST_MAP_SLOT
 
@@ -55,8 +57,9 @@ def cmd_build(args):
         seg_script_path = seg_script
 
     try:
-        errors, warnings = build_from_module(
+        outcome = run_build_with_retry(
             name,
+            scenario_id="cli_build",
             deploy=args.deploy,
             want_seg=want_seg,
             seg_script_path=seg_script_path,
@@ -68,12 +71,12 @@ def cmd_build(args):
         print(f"ERROR: build failed: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    for w in warnings:
+    for w in outcome.warnings:
         print(f"  [WARN] {w}")
-    for e in errors:
+    for e in outcome.errors:
         print(f"  [ERROR] {e}")
-    if errors:
-        print(f"Build finished with {len(errors)} validation error(s)", file=sys.stderr)
+    if not outcome.ok:
+        print(f"Build finished with {len(outcome.errors)} validation error(s)", file=sys.stderr)
         sys.exit(1)
 
     print(f"Build complete for {name}")
@@ -85,22 +88,30 @@ def cmd_info(args):
 
 def cmd_validate(args):
     print(f"Validating level: {args.name}")
-    errors, warnings = validate_all(args.name)
-    for w in warnings:
+    outcome = run_validation(args.name, scenario_id="cli_validate")
+    for w in outcome.warnings:
         print(f"  [WARN] {w}")
-    for e in errors:
+    for e in outcome.errors:
         print(f"  [ERROR] {e}")
-    if not errors and not warnings:
+    if outcome.ok and not outcome.warnings:
         print("  No issues found")
-    elif errors:
-        print(f"  {len(errors)} error(s), {len(warnings)} warning(s)")
+    elif outcome.errors:
+        print(f"  {len(outcome.errors)} error(s), {len(outcome.warnings)} warning(s)")
         sys.exit(1)
 
 
 def cmd_deploy(args):
     print(f"Deploying level: {args.name}")
-    deploy_all(args.name)
-    print("Deploy complete")
+    outcome = run_deploy(
+        args.name,
+        run_id=new_run_id(),
+        scenario_id="cli_deploy",
+        verbose=True,
+    )
+    if not outcome.ok:
+        print(outcome.error_message or "Deploy failed", file=sys.stderr)
+        sys.exit(1)
+    print(f"Deploy complete ({len(outcome.deployed_paths)} file(s))")
 
 
 def cmd_list(args):
@@ -248,6 +259,8 @@ def build_tiles_json():
 
 def cmd_from_json(args):
     """Build (and optionally play) directly from Map Editor JSON — no level module required."""
+    if getattr(args, "no_textures", False):
+        os.environ["PDMAP_DISABLE_TEXTURES"] = "1"
     try:
         data = load_editor_json(args.json_file if args.json_file != "-" else None)
     except Exception as exc:
@@ -255,6 +268,24 @@ def cmd_from_json(args):
         sys.exit(1)
 
     deploy_name = (args.deploy_as or args.name or data.get("name") or "map").strip().lower()
+
+    if getattr(args, "register", False):
+        from .register import plan_registration, apply_registration
+        try:
+            plan = plan_registration(deploy_name)
+            if not plan.already_registered:
+                print(f"Automatically registering stage: {deploy_name} (textid: {plan.textid:#06x}, label: {plan.label})")
+                changed = apply_registration(deploy_name)
+                if changed:
+                    print(f"Applied registration patches ({len(changed)} files):")
+                    for p in changed:
+                        print(f"  - {os.path.relpath(p, ROOT)}")
+            else:
+                print(f"Stage {deploy_name} is already registered.")
+        except Exception as exc:
+            print(f"ERROR during auto-registration: {exc}", file=sys.stderr)
+            sys.exit(1)
+
     try:
         spec = EditorMapSpec.from_json(data, deploy_name=deploy_name)
     except ValueError as exc:
@@ -279,6 +310,8 @@ def cmd_from_json(args):
 
     mod_dirs = [_mod_bgdata(args.mod)] if args.deploy else None
     seg_mode = args.seg_mode  # None → auto hill/empty in build_from_spec
+    # Pass 5: bind run_id when deploying so validation + deploy emit lifecycle logs.
+    pipeline_run_id = new_run_id() if args.deploy else None
 
     try:
         errors, warnings = build_from_spec(
@@ -289,6 +322,7 @@ def cmd_from_json(args):
             mod_dirs=mod_dirs,
             skip_validate=args.no_validate,
             verbose=True,
+            run_id=pipeline_run_id,
         )
     except Exception as exc:
         print(f"ERROR: build failed: {exc}", file=sys.stderr)
@@ -486,67 +520,86 @@ def main():
     p_init.add_argument("name", help="New level name")
     p_init.set_defaults(func=cmd_init)
 
+    def _register_json_parser_args(parser):
+        parser.add_argument(
+            "json_file",
+            nargs="?",
+            default="-",
+            help="Editor JSON file (default: stdin)",
+        )
+        parser.add_argument(
+            "--name",
+            help="Level name in JSON (default: JSON name field)",
+        )
+        parser.add_argument(
+            "--deploy-as",
+            help=f"Asset name for build/deploy (default: name). Use '{TEST_MAP_SLOT}' for --test-map.",
+        )
+        parser.add_argument(
+            "--mod",
+            choices=sorted(MOD_CHOICES),
+            default="mod_allinone",
+            help="Mod directory to deploy into (default: mod_allinone)",
+        )
+        parser.add_argument(
+            "--scenario",
+            type=int,
+            choices=sorted({0, 1, 2, 3, 4, 5}),
+            default=0,
+            help="MP scenario for --test-map (default: 0 Combat)",
+        )
+        parser.add_argument(
+            "--seg-mode",
+            default=None,
+            help="PDMAP_SEG_MODE for box seg (default: hill when map has KOTH anchor, else empty)",
+        )
+        parser.add_argument("--no-seg", action="store_true", help="Skip box seg build")
+        parser.add_argument(
+            "--deploy", "-d",
+            action="store_true",
+            default=True,
+            help="Deploy to mod after successful validation (default: on)",
+        )
+        parser.add_argument("--no-deploy", dest="deploy", action="store_false")
+        parser.add_argument(
+            "--no-textures",
+            action="store_true",
+            help="Disable character texture pool lookups for Anim Lab guards",
+        )
+        parser.add_argument("--no-validate", action="store_true", help="Skip post-build validation")
+        parser.add_argument(
+            "--write-level",
+            action="store_true",
+            help="Also write src/levels/<name>.py (optional; not required to play)",
+        )
+        parser.add_argument(
+            "--backup",
+            action="store_true",
+            default=True,
+            help="Backup existing level module when --write-level (default: on)",
+        )
+        parser.add_argument("--no-backup", dest="backup", action="store_false")
+        parser.add_argument(
+            "--register",
+            action="store_true",
+            help="Automatically register the stage in engine C++ source files if not already registered",
+        )
+        parser.add_argument("--play", action="store_true", help="Launch pd after build")
+        parser.add_argument("--binary", help="Path to pd binary (default: auto-detect)")
+        parser.add_argument("-v", "--verbose", action="store_true", help="Verbose build logging")
+        parser.set_defaults(func=cmd_from_json)
+
     p_json = sub.add_parser(
         "from-json",
         help="Build directly from Map Editor JSON (deterministic, no level module required)",
     )
-    p_json.add_argument(
-        "json_file",
-        nargs="?",
-        default="-",
-        help="Editor JSON file (default: stdin)",
+    _register_json_parser_args(p_json)
+
+    p_create = sub.add_parser(
+        "create",
+        help="Initialize, register, and build/deploy a new level from a Map Editor JSON",
     )
-    p_json.add_argument(
-        "--name",
-        help="Level name in JSON (default: JSON name field)",
-    )
-    p_json.add_argument(
-        "--deploy-as",
-        help=f"Asset name for build/deploy (default: name). Use '{TEST_MAP_SLOT}' for --test-map.",
-    )
-    p_json.add_argument(
-        "--mod",
-        choices=sorted(MOD_CHOICES),
-        default="mod_allinone",
-        help="Mod directory to deploy into (default: mod_allinone)",
-    )
-    p_json.add_argument(
-        "--scenario",
-        type=int,
-        choices=sorted({0, 1, 2, 3, 4, 5}),
-        default=0,
-        help="MP scenario for --test-map (default: 0 Combat)",
-    )
-    p_json.add_argument(
-        "--seg-mode",
-        default=None,
-        help="PDMAP_SEG_MODE for box seg (default: hill when map has KOTH anchor, else empty)",
-    )
-    p_json.add_argument("--no-seg", action="store_true", help="Skip box seg build")
-    p_json.add_argument(
-        "--deploy", "-d",
-        action="store_true",
-        default=True,
-        help="Deploy to mod after successful validation (default: on)",
-    )
-    p_json.add_argument("--no-deploy", dest="deploy", action="store_false")
-    p_json.add_argument("--no-validate", action="store_true", help="Skip post-build validation")
-    p_json.add_argument(
-        "--write-level",
-        action="store_true",
-        help="Also write src/levels/<name>.py (optional; not required to play)",
-    )
-    p_json.add_argument(
-        "--backup",
-        action="store_true",
-        default=True,
-        help="Backup existing level module when --write-level (default: on)",
-    )
-    p_json.add_argument("--no-backup", dest="backup", action="store_false")
-    p_json.add_argument("--play", action="store_true", help="Launch pd after build")
-    p_json.add_argument("--binary", help="Path to pd binary (default: auto-detect)")
-    p_json.add_argument("-v", "--verbose", action="store_true", help="Verbose build logging")
-    p_json.set_defaults(func=cmd_from_json)
+    _register_json_parser_args(p_create)
 
     p_learn = sub.add_parser(
         "learn",

@@ -28,6 +28,12 @@
 #include "bss.h"
 #include "lib/vi.h"
 #include "lib/joy.h"
+#ifndef PLATFORM_N64
+#include <string.h>
+#include "bootmp.h"
+#include "office_service_bridge.h"
+#include "game/hudmsg.h"
+#endif
 #include "lib/main.h"
 #include "lib/snd.h"
 #include "lib/str.h"
@@ -5234,6 +5240,70 @@ bool soloChoosePauseDialog(void)
 				menuPushRootDialog(&g_CiMenuViaPauseMenuDialog, MENUROOT_MAINMENU);
 				return true;
 			}
+		} else if (STAGE_IS_AGENT_OFFICE(g_Vars.stagenum)) {
+			/* Virtual Agent Office: visor pause like retail lobby, not MP scoreboard. */
+			if (g_Vars.stagenum == STAGE_AGENT_OFFICE) {
+				menuPushRootDialog(&g_SoloMissionPauseMenuDialog, MENUROOT_MAINMENU);
+			} else {
+				menuPushRootDialog(&g_CiMenuViaPauseMenuDialog, MENUROOT_MAINMENU);
+			}
+#ifndef PLATFORM_N64
+			/* Pass 10/14/17: unread DM stub + thread rail + scrollback on visor when Office Service is up. */
+			{
+				const char *dm_note;
+				const char *dm_rail;
+				const char *dm_scroll;
+				char rail_buf[768];
+				char scroll_buf[1024];
+				char *line;
+				char *saveptr;
+
+				officeServiceBridgeRefreshIfStale();
+				dm_note = officeServiceBridgeVisorNotificationText();
+				if (dm_note && dm_note[0]) {
+					hudmsgCreate((char *)dm_note, HUDMSGTYPE_DEFAULT);
+				}
+				dm_rail = officeServiceBridgeVisorRailText();
+				if (dm_rail && dm_rail[0]) {
+					strncpy(rail_buf, dm_rail, sizeof(rail_buf) - 1);
+					rail_buf[sizeof(rail_buf) - 1] = '\0';
+					line = strtok_r(rail_buf, "|", &saveptr);
+					while (line) {
+						if (line[0]) {
+							hudmsgCreate(line, HUDMSGTYPE_DEFAULT);
+						}
+						line = strtok_r(NULL, "|", &saveptr);
+					}
+				}
+				dm_scroll = officeServiceBridgeVisorScrollbackText();
+				if (dm_scroll && dm_scroll[0]) {
+					strncpy(scroll_buf, dm_scroll, sizeof(scroll_buf) - 1);
+					scroll_buf[sizeof(scroll_buf) - 1] = '\0';
+					line = strtok_r(scroll_buf, "|", &saveptr);
+					while (line) {
+						if (line[0]) {
+							hudmsgCreate(line, HUDMSGTYPE_DEFAULT);
+						}
+						line = strtok_r(NULL, "|", &saveptr);
+					}
+				}
+				/* Pass 21: prior compose feedback, hint, then async stub POST to top-priority agent. */
+				{
+					const char *compose_feedback;
+					const char *compose_hint;
+
+					if (officeServiceBridgeTryConsumeVisorComposeFeedback(&compose_feedback)
+							&& compose_feedback && compose_feedback[0]) {
+						hudmsgCreate((char *)compose_feedback, HUDMSGTYPE_DEFAULT);
+					}
+					compose_hint = officeServiceBridgeVisorComposeHintText();
+					if (compose_hint && compose_hint[0]) {
+						hudmsgCreate((char *)compose_hint, HUDMSGTYPE_DEFAULT);
+					}
+					officeServiceBridgeVisorComposeBeginInput();
+				}
+			}
+#endif
 		} else {
 			menuPushRootDialog(&g_SoloMissionPauseMenuDialog, MENUROOT_MAINMENU);
 		}

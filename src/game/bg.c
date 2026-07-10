@@ -853,6 +853,10 @@ Gfx *bgRenderRoomInXray(Gfx *gdl, s32 roomnum)
 		return gdl;
 	}
 
+	if (g_Rooms[roomnum].gfxdata == NULL) {
+		return gdl;
+	}
+
 	roomGetPos(roomnum, &globaldrawworldoffset);
 
 	sp54.x = player->eraserpos.x - globaldrawworldoffset.x;
@@ -1992,7 +1996,7 @@ void bgBuildTables(s32 stagenum)
 			f32 half = 5000.0f;
 
 			if (g_Vars.stagenum == STAGE_ANIMLAB) {
-				half = 8000.0f;
+				half = ANIMLAB_ROOM1_HALF;
 			}
 
 			g_Rooms[1].bbmin[0] = -half;
@@ -2174,6 +2178,31 @@ void bgTick(void)
 	s32 tickmode;
 
 	g_BgNumForceOnscreenRooms = 0;
+	if (g_Vars.stagenum == STAGE_ANIMLAB) {
+		s32 extra_rooms[] = {1, 16, 17, 18, 19, 20};
+		s32 r;
+		for (r = 0; r < 6; r++) {
+			s32 rm = extra_rooms[r];
+			if (rm < g_Vars.roomcount) {
+				g_BgForceOnscreenRooms[g_BgNumForceOnscreenRooms++] = rm;
+				if (g_Rooms[rm].loaded240 == 0) {
+					bgLoadRoom(rm);
+				}
+				g_Rooms[rm].loaded240 = 1;
+			}
+		}
+	} else if (g_Vars.stagenum == STAGE_PARADE) {
+		s32 rm;
+		for (rm = 1; rm < g_Vars.roomcount; rm++) {
+			if (rm < 350) {
+				g_BgForceOnscreenRooms[g_BgNumForceOnscreenRooms++] = rm;
+				if (g_Rooms[rm].loaded240 == 0) {
+					bgLoadRoom(rm);
+				}
+				g_Rooms[rm].loaded240 = 1;
+			}
+		}
+	}
 
 #if VERSION < VERSION_NTSC_1_0
 	bgVerifyLightSums("bg.c", 5761);
@@ -2724,6 +2753,9 @@ Gfx *bgGetNextGdlInBlock(struct roomblock *block, Gfx *start, Gfx *end)
 
 Gfx *bgGetNextGdlInLayer(s32 roomnum, Gfx *start, u32 types)
 {
+	if (g_Rooms[roomnum].gfxdata == NULL) {
+		return NULL;
+	}
 	struct roomblock *opablocks = g_Rooms[roomnum].gfxdata->opablocks;
 	struct roomblock *xlublocks = g_Rooms[roomnum].gfxdata->xlublocks;
 	Gfx *opagdl = NULL;

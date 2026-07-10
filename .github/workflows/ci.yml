@@ -29,3 +29,6 @@ jobs:
         run: |
           python3 tools/pdmap.py validate my_arena
           python3 tools/pdmap.py validate testarena
+
+      - name: Run pdmap domain test gate
+        run: ./scripts/run-pdmap-domain-tests.sh

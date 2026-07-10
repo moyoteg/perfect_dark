@@ -989,7 +989,7 @@ void bmoveProcessInput(bool allowc1x, bool allowc1y, bool allowc1buttons, bool i
 	// Pausing
 	if (g_Vars.currentplayer->isdead == false) {
 		if (g_Vars.currentplayer->pausemode == PAUSEMODE_UNPAUSED && (c1buttonsthisframe & START_BUTTON)) {
-			if (g_Vars.mplayerisrunning == false) {
+			if (playerShouldUseSoloPauseMenu()) {
 				if (g_Vars.lvframenum > 15) {
 					playerPause(MENUROOT_MAINMENU);
 				}

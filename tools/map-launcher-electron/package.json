@@ -7,23 +7,45 @@
   "private": true,
   "scripts": {
     "start": "electron .",
+    "build": "electron-builder --mac dir",
+    "build:dir": "electron-builder --mac dir",
     "curriculum-manifest": "bash scripts/generate-curriculum-manifest.sh"
   },
   "devDependencies": {
-    "electron": "^33.2.1"
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
   },
   "build": {
     "appId": "com.perfectdark.map-launcher",
     "productName": "PD Map Launcher",
     "directories": {
+      "output": "../../scripts/release/map-launcher-dist",
       "buildResources": "assets"
     },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "curriculum-manifest.json",
+      "repo-config.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../pd_kit",
+        "to": "pd_kit",
+        "filter": ["kit.json", "electron_paths.js", "electron_single_instance.js"]
+      }
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
+      "target": [{ "target": "dir", "arch": ["arm64", "x64"] }],
       "icon": "assets/MapLauncherAppIcon.icns",
+      "identity": null,
       "extendInfo": {
-        "CFBundleDisplayName": "PD Map Launcher"
+        "CFBundleDisplayName": "PD Map Launcher",
+        "LSMultipleInstancesProhibited": true
       }
-    }
+    },
+    "asar": true
   }
 }

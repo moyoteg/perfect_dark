@@ -24,6 +24,24 @@ function requireKitPaths() {
 }
 
 const kitPaths = requireKitPaths();
+const kitDomain = require(path.join(__dirname, '../kit_domain.js'));
+const {
+  KitHubSurfaceTier,
+  KIT_LAUNCH_COOLDOWN_MS,
+  resolveHubAppKeys,
+  buildKitToolCardRecord,
+  shouldExposeOptionalCompanionCard,
+  validateKitGetInfoSurface,
+  decideKitLaunchCooldown,
+  resolveKitAppLaunchRoute,
+  buildKitAppNotBuiltMessage,
+  buildKitGameLaunchArgv,
+  evaluateKitGameLaunchReadiness,
+  resolveKitActionFromManifest,
+  evaluateKitActionRunGate,
+  shouldDetachKitActionRun,
+  emitKitHubLifecycleEvent,
+} = kitDomain;
 const { bindSingleInstance } = kitPaths.requireKitModule('electron_single_instance.js');
 
 const kitManifest = kitPaths.loadManifest();
@@ -38,17 +56,24 @@ let mainWindow = null;
 let repoRoot = '';
 /** @type {Map<string, number>} */
 const launchCooldownUntil = new Map();
-const LAUNCH_COOLDOWN_MS = 1200;
 
-function log(...args) {
-  const line = `[${new Date().toISOString().slice(0, 19).replace('T', ' ')}] [kit-hub] ${args.join(' ')}`;
+function appendKitLogLine(line) {
   try {
     fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
     fs.appendFileSync(LOG_FILE, `${line}\n`, 'utf8');
   } catch {
     // ignore
   }
-  console.log(line);
+  if (line.startsWith('{')) {
+    console.log(`[kit-hub] ${line}`);
+  } else {
+    console.log(line);
+  }
+}
+
+function log(...args) {
+  const line = `[${new Date().toISOString().slice(0, 19).replace('T', ' ')}] [kit-hub] ${args.join(' ')}`;
+  appendKitLogLine(line);
 }
 
 function normalizeRepoRoot(raw) {
@@ -129,48 +154,33 @@ function readReleaseManifest() {
   return null;
 }
 
-function hubAppKeys(kind) {
-  const apps = kitManifest.apps || {};
-  const hub = apps.kitHub || {};
-  const list =
-    kind === 'more'
-      ? Array.isArray(hub.moreTools)
-        ? hub.moreTools
-        : []
-      : Array.isArray(hub.wraps)
-        ? hub.wraps
-        : [];
-  return list.filter((key) => key !== 'kitHub' && apps[key]);
-}
-
-function buildToolCard(key) {
-  const cfg = kitPaths.appConfig(key);
-  const appPath = appBundlePath(key);
-  const devMode = !appPath && devLaunchAvailable(key);
-  const wrappedPath = path.join(wrappedAppsDir(), cfg.bundleFileName);
-  return {
-    key,
-    title: cfg.productName,
-    shortTitle: cfg.shortTitle || cfg.productName,
-    description: cfg.description || '',
-    category: cfg.category || 'authoring',
-    optional: Boolean(cfg.optional),
-    built: Boolean(appPath) || devMode,
-    devMode,
-    wrapped: fs.existsSync(wrappedPath),
-    path: appPath || (devMode ? path.join(repoRoot, cfg.devLaunchScript) : ''),
-    buildScript: cfg.buildScript || cfg.devLaunchScript || null,
+function buildToolCard(appKey, hubSurfaceTier) {
+  const cfg = kitPaths.appConfig(appKey);
+  const bundlePath = appBundlePath(appKey);
+  const resolution = {
+    bundlePath: bundlePath || null,
+    devLaunchAvailable: devLaunchAvailableFor(appKey),
+    wrappedInHub: fs.existsSync(path.join(wrappedAppsDir(), cfg.bundleFileName)),
   };
+  const record = buildKitToolCardRecord(appKey, cfg, resolution, hubSurfaceTier);
+  if (record.devMode && cfg.devLaunchScript) {
+    record.path = path.join(repoRoot, cfg.devLaunchScript);
+  } else if (bundlePath) {
+    record.path = bundlePath;
+  }
+  return record;
 }
 
 function toolCards() {
-  return hubAppKeys('core').map((key) => buildToolCard(key));
+  return resolveHubAppKeys(kitManifest, KitHubSurfaceTier.CORE_WRAP).map((key) =>
+    buildToolCard(key, KitHubSurfaceTier.CORE_WRAP)
+  );
 }
 
 function moreToolCards() {
-  return hubAppKeys('more')
-    .map((key) => buildToolCard(key))
-    .filter((card) => card.built);
+  return resolveHubAppKeys(kitManifest, KitHubSurfaceTier.OPTIONAL_COMPANION)
+    .map((key) => buildToolCard(key, KitHubSurfaceTier.OPTIONAL_COMPANION))
+    .filter(shouldExposeOptionalCompanionCard);
 }
 
 function appBundlePath(appKey) {
@@ -184,16 +194,26 @@ function appBundlePath(appKey) {
   if (cfg.siblingPath) {
     candidates.push(path.resolve(repoRoot, cfg.siblingPath));
   }
+  // Prefer the newest bundle when Kit Hub wraps an older copy (e.g. Agent Office rebuild).
+  let best = '';
+  let bestMtime = 0;
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return candidate;
+    if (!fs.existsSync(candidate)) continue;
+    try {
+      const mtime = fs.statSync(candidate).mtimeMs;
+      if (mtime > bestMtime) {
+        bestMtime = mtime;
+        best = candidate;
+      }
+    } catch {
+      // skip unreadable bundle
     }
   }
-  return '';
+  return best;
 }
 
 /** True when no .app exists but kit.json lists a dev launch script in the repo. */
-function devLaunchAvailable(appKey) {
+function devLaunchAvailableFor(appKey) {
   const cfg = kitPaths.appConfig(appKey);
   if (!cfg.devLaunchScript) return false;
   return fs.existsSync(path.join(repoRoot, cfg.devLaunchScript));
@@ -266,12 +286,31 @@ function openAppBundle(appPath) {
   });
 }
 
-function launchAllowed(appKey) {
-  const now = Date.now();
-  const until = launchCooldownUntil.get(appKey) || 0;
-  if (now < until) return false;
-  launchCooldownUntil.set(appKey, now + LAUNCH_COOLDOWN_MS);
-  return true;
+function commitKitLaunchCooldown(appKey, evaluation) {
+  if (evaluation.allowed && evaluation.cooldown_until_ms) {
+    launchCooldownUntil.set(appKey, evaluation.cooldown_until_ms);
+  }
+}
+
+function emitKitAppLaunchEvent(event) {
+  emitKitHubLifecycleEvent(appendKitLogLine, {
+    operation: 'kit:launch-app',
+    ...event,
+  });
+}
+
+function emitKitGameLaunchEvent(event) {
+  emitKitHubLifecycleEvent(appendKitLogLine, {
+    operation: 'kit:launch-game',
+    ...event,
+  });
+}
+
+function emitKitActionRunEvent(event) {
+  emitKitHubLifecycleEvent(appendKitLogLine, {
+    operation: 'kit:run-action',
+    ...event,
+  });
 }
 
 function createWindow() {
@@ -302,28 +341,86 @@ function createWindow() {
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
+function buildKitGetInfoPayload() {
+  const gamePath = gameBinaryPath();
+  const tools = toolCards();
+  const moreTools = moreToolCards();
+  return {
+    name: APP_TITLE,
+    kitVersion: kitPaths.kitVersion(repoRoot),
+    portVersion: kitPaths.portVersion(repoRoot),
+    repoRoot,
+    releaseDir: releaseDir(),
+    wrappedAppsDir: wrappedAppsDir(),
+    gameBinary: {
+      path: gamePath,
+      built: fs.existsSync(gamePath),
+    },
+    tools,
+    moreTools,
+    actionGroups: actionGroups(),
+    docs: docLinks(),
+    manifestBuiltAt: readReleaseManifest()?.builtAt || null,
+  };
+}
+
+function logKitGetInfoLifecycle(startedAt, payload) {
+  const surfaceViolations = validateKitGetInfoSurface(payload.tools, payload.moreTools);
+  emitKitHubLifecycleEvent(appendKitLogLine, {
+    operation: 'kit:get-info',
+    outcome: surfaceViolations.length ? 'invariant_violation' : 'succeeded',
+    scenario_id: surfaceViolations.length ? 'KH-INV' : 'KH-02',
+    core_tool_count: payload.tools.length,
+    optional_tool_count: payload.moreTools.length,
+    game_binary_built: payload.gameBinary.built,
+    invariant_status: surfaceViolations.length ? surfaceViolations.join(';') : 'ok',
+    latency_ms: Date.now() - startedAt,
+  });
+  return surfaceViolations;
+}
+
+function runKitHubHeadlessSmoke() {
+  const startedAt = Date.now();
+  try {
+    const payload = buildKitGetInfoPayload();
+    const surfaceViolations = logKitGetInfoLifecycle(startedAt, payload);
+    const smokeOk = surfaceViolations.length === 0;
+    console.log(
+      `KIT_HUB_SMOKE_RESULT=${JSON.stringify({
+        ok: smokeOk,
+        violations: surfaceViolations,
+        core_tool_count: payload.tools.length,
+        optional_tool_count: payload.moreTools.length,
+      })}`
+    );
+    process.exitCode = smokeOk ? 0 : 1;
+  } catch (err) {
+    console.log(
+      `KIT_HUB_SMOKE_RESULT=${JSON.stringify({
+        ok: false,
+        error: err?.message || String(err),
+      })}`
+    );
+    process.exitCode = 1;
+  }
+  app.quit();
+}
+
 function registerIpc() {
   ipcMain.handle('kit:get-info', () => {
+    const startedAt = Date.now();
     try {
-      const gamePath = gameBinaryPath();
-      return {
-        name: APP_TITLE,
-        kitVersion: kitPaths.kitVersion(repoRoot),
-        portVersion: kitPaths.portVersion(repoRoot),
-        repoRoot,
-        releaseDir: releaseDir(),
-        wrappedAppsDir: wrappedAppsDir(),
-        gameBinary: {
-          path: gamePath,
-          built: fs.existsSync(gamePath),
-        },
-        tools: toolCards(),
-        moreTools: moreToolCards(),
-        actionGroups: actionGroups(),
-        docs: docLinks(),
-        manifestBuiltAt: readReleaseManifest()?.builtAt || null,
-      };
+      const payload = buildKitGetInfoPayload();
+      logKitGetInfoLifecycle(startedAt, payload);
+      return payload;
     } catch (err) {
+      emitKitHubLifecycleEvent(appendKitLogLine, {
+        operation: 'kit:get-info',
+        outcome: 'failed',
+        error_kind: 'exception',
+        reason: err?.message || String(err),
+        latency_ms: Date.now() - startedAt,
+      });
       log(`get-info failed: ${err?.message || err}`);
       return {
         name: APP_TITLE,
@@ -344,82 +441,175 @@ function registerIpc() {
   });
 
   ipcMain.handle('kit:launch-app', async (_event, appKey) => {
+    const startedAt = Date.now();
     try {
-      if (!launchAllowed(appKey)) {
+      const cooldown = decideKitLaunchCooldown(appKey, Date.now(), launchCooldownUntil, KIT_LAUNCH_COOLDOWN_MS);
+      if (!cooldown.allowed) {
+        emitKitAppLaunchEvent({
+          scenario_id: 'KH-04',
+          app_key: appKey,
+          decision: cooldown.decision,
+          reason: cooldown.reason,
+          outcome: 'skipped',
+          cooldown_remaining_ms: cooldown.cooldown_remaining_ms,
+          latency_ms: Date.now() - startedAt,
+        });
         return { ok: true, skipped: true, reason: 'cooldown' };
       }
+      commitKitLaunchCooldown(appKey, cooldown);
+
       const cfg = kitPaths.appConfig(appKey);
       const appPath = appBundlePath(appKey);
-      if (appPath) {
-        log(`Launch ${appKey}: ${appPath}`);
+      const devLaunchAvailable = devLaunchAvailableFor(appKey);
+      const route = resolveKitAppLaunchRoute(appPath, devLaunchAvailable);
+
+      if (route.route === 'launched_bundle') {
         await openAppBundle(appPath);
+        emitKitAppLaunchEvent({
+          scenario_id: 'KH-02',
+          app_key: appKey,
+          decision: 'allow_launch',
+          launch_route: route.route,
+          outcome: 'succeeded',
+          latency_ms: Date.now() - startedAt,
+        });
         return { ok: true, path: appPath };
       }
-      if (cfg.devLaunchScript) {
+
+      if (route.route === 'launched_dev_script') {
         const scriptPath = path.join(repoRoot, cfg.devLaunchScript);
-        if (fs.existsSync(scriptPath)) {
-          log(`Launch ${appKey} (dev): ${scriptPath}`);
-          const result = await runScript(cfg.devLaunchScript, [], { detached: true });
-          return { ok: result.ok, path: scriptPath, devMode: true };
-        }
+        const result = await runScript(cfg.devLaunchScript, [], { detached: true });
+        emitKitAppLaunchEvent({
+          scenario_id: 'KH-02',
+          app_key: appKey,
+          decision: 'allow_launch',
+          launch_route: route.route,
+          outcome: result.ok ? 'succeeded' : 'failed',
+          dev_mode: true,
+          error_kind: result.ok ? undefined : 'dev_script_spawn_failed',
+          latency_ms: Date.now() - startedAt,
+        });
+        return { ok: result.ok, path: scriptPath, devMode: true };
       }
-      const hint = cfg.buildScript
-        ? ` Run: ./${cfg.buildScript}`
-        : cfg.devLaunchScript
-          ? ` Run: ./${cfg.devLaunchScript}`
-          : ' Run: ./scripts/build-pd-kit.sh --apps-only';
-      return { ok: false, error: `${cfg.shortTitle || appKey} is not built.${hint}` };
+
+      const error = buildKitAppNotBuiltMessage(cfg, appKey);
+      emitKitAppLaunchEvent({
+        scenario_id: 'KH-05',
+        app_key: appKey,
+        decision: 'allow_launch',
+        launch_route: route.route,
+        outcome: 'failed',
+        error_kind: 'app_not_built',
+        reason: error,
+        recovery_action: 'build_apps',
+        latency_ms: Date.now() - startedAt,
+      });
+      return { ok: false, error };
     } catch (err) {
-      log(`Launch ${appKey} failed: ${err?.message || err}`);
+      emitKitAppLaunchEvent({
+        app_key: appKey,
+        decision: 'allow_launch',
+        outcome: 'failed',
+        error_kind: 'exception',
+        reason: err?.message || String(err),
+        latency_ms: Date.now() - startedAt,
+      });
       return { ok: false, error: err?.message || String(err) };
     }
   });
 
   ipcMain.handle('kit:launch-game', async (_event, options) => {
+    const startedAt = Date.now();
     try {
-      const mod = (options && options.mod) || 'mod_allinone';
-      const testMap = Boolean(options && options.testMap);
       const binary = gameBinaryPath();
-      if (!fs.existsSync(binary)) {
-        return { ok: false, error: `Game binary missing: ${binary}` };
+      const readiness = evaluateKitGameLaunchReadiness(fs.existsSync(binary));
+      if (!readiness.ready) {
+        const error = `Game binary missing: ${binary}`;
+        emitKitGameLaunchEvent({
+          scenario_id: 'KH-GAME-04',
+          decision: readiness.decision,
+          outcome: 'failed',
+          error_kind: readiness.error_kind,
+          recovery_action: readiness.recovery_action,
+          reason: error,
+          latency_ms: Date.now() - startedAt,
+        });
+        return { ok: false, error };
       }
-      const args = ['--moddir', path.join(repoRoot, 'mods', mod)];
-      if (testMap) args.push('--test-map');
-      log(`Launch game: ${binary} ${args.join(' ')}`);
-      const child = spawn(binary, args, {
+      const launchPlan = buildKitGameLaunchArgv(options || {}, repoRoot);
+      const child = spawn(binary, launchPlan.args, {
         cwd: repoRoot,
         detached: true,
         stdio: 'ignore',
       });
       child.unref();
-      return { ok: true, pid: child.pid, command: `${binary} ${args.join(' ')}` };
+      const command = `${binary} ${launchPlan.args.join(' ')}`;
+      emitKitGameLaunchEvent({
+        scenario_id: 'KH-GAME-01',
+        decision: readiness.decision,
+        outcome: 'succeeded',
+        mod: launchPlan.mod,
+        test_map: launchPlan.testMap,
+        pid: child.pid,
+        latency_ms: Date.now() - startedAt,
+      });
+      return { ok: true, pid: child.pid, command };
     } catch (err) {
-      log(`Launch game failed: ${err?.message || err}`);
+      emitKitGameLaunchEvent({
+        outcome: 'failed',
+        error_kind: 'exception',
+        reason: err?.message || String(err),
+        latency_ms: Date.now() - startedAt,
+      });
       return { ok: false, error: err?.message || String(err) };
     }
   });
 
   ipcMain.handle('kit:run-action', async (_event, actionKey) => {
+    const startedAt = Date.now();
     try {
-      const groups = kitManifest.actionGroups || [];
-      let action = null;
-      for (const group of groups) {
-        action = (group.actions || []).find((entry) => entry.key === actionKey);
-        if (action) break;
+      const { action, groupId } = resolveKitActionFromManifest(kitManifest, actionKey);
+      const gate = evaluateKitActionRunGate(action, fs.existsSync(gameBinaryPath()));
+      if (!gate.allowed) {
+        const error =
+          gate.error_kind === 'unknown_action_key'
+            ? `Unknown action: ${actionKey}`
+            : 'Game binary not built. Use Build Game first.';
+        emitKitActionRunEvent({
+          scenario_id: gate.error_kind === 'unknown_action_key' ? 'KH-ACTION-03' : 'KH-ACTION-04',
+          action_key: actionKey,
+          action_group_id: groupId,
+          decision: gate.decision,
+          outcome: 'failed',
+          error_kind: gate.error_kind,
+          recovery_action: gate.recovery_action,
+          reason: error,
+          latency_ms: Date.now() - startedAt,
+        });
+        return { ok: false, error };
       }
-      if (!action) {
-        return { ok: false, error: `Unknown action: ${actionKey}` };
-      }
-      if (action.requiresGame && !fs.existsSync(gameBinaryPath())) {
-        return { ok: false, error: 'Game binary not built. Use Build Game first.' };
-      }
-      log(`Run action ${actionKey}: ${action.script} ${(action.args || []).join(' ')}`);
-      if (action.longRunning && actionKey !== 'buildApps' && actionKey !== 'buildFullKit') {
-        return runScript(action.script, action.args, { detached: true });
-      }
-      return runScript(action.script, action.args);
+      const detached = shouldDetachKitActionRun(actionKey, action);
+      const result = await runScript(action.script, action.args, { detached });
+      emitKitActionRunEvent({
+        scenario_id: 'KH-ACTION-01',
+        action_key: actionKey,
+        action_group_id: groupId,
+        decision: gate.decision,
+        outcome: result.ok ? 'succeeded' : 'failed',
+        detached,
+        exit_code: result.code,
+        error_kind: result.ok ? undefined : 'script_nonzero_exit',
+        latency_ms: Date.now() - startedAt,
+      });
+      return result;
     } catch (err) {
-      log(`Run action ${actionKey} failed: ${err?.message || err}`);
+      emitKitActionRunEvent({
+        action_key: actionKey,
+        outcome: 'failed',
+        error_kind: 'exception',
+        reason: err?.message || String(err),
+        latency_ms: Date.now() - startedAt,
+      });
       return { ok: false, error: err?.message || String(err) };
     }
   });
@@ -463,21 +653,33 @@ function focusMainWindow() {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
     mainWindow.focus();
+  } else {
+    createWindow();
   }
 }
 
-if (!bindSingleInstance(app, focusMainWindow)) {
+if (process.env.KIT_HUB_SMOKE !== '1' && !bindSingleInstance(app, focusMainWindow)) {
   process.exit(0);
 }
 
 app.whenReady().then(() => {
   repoRoot = resolveRepoRoot();
+  emitKitHubLifecycleEvent(appendKitLogLine, {
+    operation: 'kit:startup',
+    scenario_id: 'KH-STARTUP-01',
+    outcome: repoRoot ? 'configuration_loaded' : 'configuration_partial',
+    repo_root_resolved: Boolean(repoRoot),
+  });
   if (!repoRoot) {
     log('WARNING: repo root not resolved — some actions will fail');
   } else {
     log(`REPO_ROOT=${repoRoot}`);
   }
   registerIpc();
+  if (process.env.KIT_HUB_SMOKE === '1') {
+    runKitHubHeadlessSmoke();
+    return;
+  }
   createWindow();
 }).catch((err) => {
   log(`Startup failed: ${err?.message || err}`);

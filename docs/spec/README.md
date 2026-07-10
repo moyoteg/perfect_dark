@@ -30,4 +30,4 @@ These specs are **not** indexed in [`SPEC.md`](../../SPEC.md) v0.4.0-map-creatio
 | [WAR_COLORS.md](WAR_COLORS.md) | Retail-slot mp13 overlay, sim caps, pad probe — optional pattern only (`R-MAP-20`) |
 | [MAP_LAUNCHER.md](MAP_LAUNCHER.md) | Electron Map Launcher UI + whitelist IDs — use `./scripts/play-learn-step.sh` for CLI curriculum |
 
-Kit Hub, Agent Office, LLM Play, and Anim Lab specs remain in [`API_CONTRACTS.md`](../../API_CONTRACTS.md) and [`ARCHITECTURE.md`](../../ARCHITECTURE.md).
+Kit Hub domain spec: [`docs/spec/KIT_HUB.md`](docs/spec/KIT_HUB.md). Agent Office, LLM Play, and Anim Lab IPC remain in [`API_CONTRACTS.md`](../../API_CONTRACTS.md) and [`ARCHITECTURE.md`](../../ARCHITECTURE.md).

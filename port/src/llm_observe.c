@@ -144,6 +144,41 @@ void llmBridgeBuildObservation(void)
 				dead ? "true" : "false");
 	}
 
+	/* C1 seam — office agents: non-combat NPC chrs (chrnum 0x31..0x38) that are not
+	 * in g_MpNumChrs, so the combat-actor loop above never sees them. The LLM director
+	 * binds these by chrnum to drive /act says + face_player, and the client reads
+	 * pos/facing for the "read the room" legibility contract (VC-P1, VC-F1). */
+	llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, "],\"agents\":[");
+
+	{
+		s32 numslots = chrsGetNumSlots();
+		s32 firstAgent = 1;
+
+		for (i = 0; i < numslots; i++) {
+			struct chrdata *chr = &g_ChrSlots[i];
+
+			if (chr->chrnum < LLM_AGENT_CHRNUM_FIRST || chr->chrnum > LLM_AGENT_CHRNUM_LAST) {
+				continue;
+			}
+			if (!llmObserveChrIsUsable(chr)) {
+				continue;
+			}
+
+			if (!firstAgent) {
+				llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, ",");
+			}
+			firstAgent = 0;
+
+			llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos,
+					"{\"chrnum\":%d,\"team\":%d,\"pos\":{\"x\":%.1f,\"y\":%.1f,\"z\":%.1f},"
+					"\"facing_deg\":%.1f}",
+					chr->chrnum,
+					chr->team,
+					chr->prop->pos.x, chr->prop->pos.y, chr->prop->pos.z,
+					chrGetRotY(chr));
+		}
+	}
+
 	llmObserveAppend(localJson, LLM_OBSERVE_CAP, &pos, "],\"events\":[]}");
 	setCurrentPlayerNum(prevplayernum);
 

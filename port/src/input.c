@@ -864,8 +864,21 @@ s32 inputReadController(s32 idx, OSContPad *npad)
 	return 0;
 }
 
+extern s32 portShouldLockMouse(void);
+extern s32 conIsOpen(void);
+
 static inline void inputUpdateMouse(void)
 {
+	if (mouseEnabled && mouseLockMode == MLOCK_AUTO) {
+		s32 wantlock = 0;
+		if ((SDL_GetKeyboardFocus() != NULL || SDL_GetMouseFocus() != NULL) && portShouldLockMouse() && !conIsOpen()) {
+			wantlock = 1;
+		}
+		if (wantlock != mouseLocked) {
+			inputLockMouse(wantlock);
+		}
+	}
+
 	s32 mx, my;
 	mouseButtons = SDL_GetMouseState(&mx, &my);
 

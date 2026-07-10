@@ -32,6 +32,13 @@ const DEPLOY_LOG = 'journal/agent_office/.last_launch.log';
 const DIRECTOR_SCRIPT = 'scripts/start-agent-office-director.sh';
 const DIRECTOR_LOG = 'journal/agent_office/office_director.log';
 const DIRECTOR_PID = 'journal/agent_office/.office_director.pid';
+const WORKSPACE_CONFIG = 'journal/agent_office/workspace_config.json';
+const OFFICE_API_PORT = process.env.AGENT_OFFICE_API_PORT || '8791';
+const OFFICE_API_BASE = `http://127.0.0.1:${OFFICE_API_PORT}`;
+/** Pass 27: Slack OAuth browser redirect lands on Office Service GET callback. */
+const SLACK_OAUTH_REDIRECT_URI = `${OFFICE_API_BASE}/slack/oauth/callback`;
+const SLACK_OAUTH_BROWSER_POLL_MS = 1500;
+const SLACK_OAUTH_BROWSER_TIMEOUT_MS = 5 * 60 * 1000;
 
 /** @type {Record<string, { id: string, label: string, eyebrow: string, bootStage: string, script: string, logDir: string, deployLog: string, pidFile: string, mapName: string, layoutImport: string }>} */
 const LOCATIONS = {
@@ -58,6 +65,31 @@ const LOCATIONS = {
     pidFile: 'journal/agent_office_ci/.last_play.pid',
     mapName: 'agent_office_ci',
     layoutImport: 'from tools.pdmap.agent_office_ci import agent_office_ci_layout_payload',
+  },
+  ci_lobby: {
+    id: 'ci_lobby',
+    label: 'Carrington Institute (Fresh / Lobby)',
+    eyebrow: 'Perfect Dark · CI retail lobby',
+    bootStage: '0x26',
+    launchMatch: '--agent-office-ci-lobby',
+    script: 'scripts/play-agent-office-ci-lobby.sh',
+    logDir: 'journal/agent_office_ci',
+    deployLog: 'journal/agent_office_ci/.last_launch_lobby.log',
+    pidFile: 'journal/agent_office_ci/.last_play_lobby.pid',
+    mapName: 'agent_office_ci',
+    layoutImport: 'from tools.pdmap.agent_office_ci import agent_office_ci_layout_payload',
+  },
+  lab: {
+    id: 'lab',
+    label: 'Office Lab / Matrix',
+    eyebrow: 'Perfect Dark · Matrix sandbox',
+    bootStage: '0x85',
+    script: 'scripts/play-agent-office-lab.sh',
+    logDir: 'journal/agent_office_lab',
+    deployLog: 'journal/agent_office_lab/.last_launch.log',
+    pidFile: 'journal/agent_office_lab/.last_play.pid',
+    mapName: 'agent_office_lab',
+    layoutImport: 'from tools.pdmap.agent_office_lab import agent_office_lab_layout_payload',
   },
 };
 
@@ -203,9 +235,529 @@ function normalizeLocation(raw) {
   return LOCATIONS[key] ? key : 'g5';
 }
 
+function workspaceConfigPath() {
+  return path.join(repoRoot, WORKSPACE_CONFIG);
+}
+
+/** Build workspace config via Python helper (keeps channel map in sync with Office Service). */
+function buildWorkspaceConfigPy(locationKey, displayName, codename) {
+  const py = `
+import json, sys
+sys.path.insert(0, "tools/agent_office_llm")
+from service.workspace_config import build_workspace_config, save_workspace_config
+loc = sys.argv[1]
+name = sys.argv[2]
+code = sys.argv[3]
+cfg = build_workspace_config(loc, name, code)
+path = save_workspace_config(cfg)
+print(json.dumps({"ok": True, "path": str(path), "config": cfg}))
+`;
+  try {
+    const raw = execFileSync('python3', ['-c', py, locationKey, displayName, codename || ''], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      env: { ...process.env, PD_REPO_ROOT: repoRoot },
+      maxBuffer: 256 * 1024,
+    });
+    return JSON.parse(raw.trim());
+  } catch (err) {
+    log(`Workspace config build failed: ${err}`);
+    return { ok: false, error: String(err) };
+  }
+}
+
+function loadWorkspaceConfigFile() {
+  const full = workspaceConfigPath();
+  if (!fs.existsSync(full)) {
+    return { ok: false, error: 'Workspace config not found' };
+  }
+  try {
+    const config = JSON.parse(fs.readFileSync(full, 'utf8'));
+    return { ok: true, path: WORKSPACE_CONFIG, config };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+function saveWorkspaceConfig(locationKey, displayName, codename) {
+  if (!repoRoot) {
+    return { ok: false, error: 'Repo root not resolved' };
+  }
+  const name = String(displayName || '').trim();
+  if (!name) {
+    return { ok: false, error: 'display_name is required' };
+  }
+  return buildWorkspaceConfigPy(normalizeLocation(locationKey), name, String(codename || '').trim());
+}
+
+/** Pass 26: Slack OAuth install status from Office Service. */
+async function fetchSlackOAuthStatus() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/status`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 27: begin Slack OAuth with browser redirect_uri on Office Service. */
+async function beginSlackOAuthInstall() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/begin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ redirect_uri: SLACK_OAUTH_REDIRECT_URI }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 25/26: POST callback — retained for headless tests and manual curl completion. */
+async function completeSlackOAuthInstall(code, state) {
+  const codeText = String(code || '').trim();
+  const stateText = String(state || '').trim();
+  if (!codeText || !stateText) {
+    return { ok: false, error: 'code and state are required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: codeText, state: stateText }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Pass 27: open Slack authorize URL in system browser; poll until GET callback completes install. */
+async function connectSlackOAuthBrowser() {
+  const begin = await beginSlackOAuthInstall();
+  if (!begin.ok) {
+    return begin;
+  }
+  const authUrl = String(begin.authorization_url || '').trim();
+  if (!authUrl) {
+    return { ok: false, error: 'missing authorization_url from /slack/oauth/begin' };
+  }
+
+  const opened = await shell.openExternal(authUrl);
+  if (opened) {
+    return { ok: false, error: `could not open browser: ${opened}` };
+  }
+
+  const deadline = Date.now() + SLACK_OAUTH_BROWSER_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    await sleep(SLACK_OAUTH_BROWSER_POLL_MS);
+    const status = await fetchSlackOAuthStatus();
+    if (!status.ok) {
+      continue;
+    }
+    if (status.status === 'installed') {
+      return { ok: true, status: status.status, install: status };
+    }
+    if (status.status === 'awaiting_security_approval') {
+      return {
+        ok: true,
+        status: status.status,
+        awaitingSecurityApproval: true,
+        install: status,
+      };
+    }
+    if (status.status === 'revoked') {
+      return { ok: false, error: 'OAuth install was revoked before completion' };
+    }
+  }
+
+  return {
+    ok: false,
+    error: 'OAuth timed out — finish authorize in browser or retry Connect Slack',
+    pending: true,
+  };
+}
+
+/** Pass 26: revoke Slack OAuth install and revert to local-first. */
+async function disconnectSlackOAuthInstall() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/disconnect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+      signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 30: GET pending Security approval card for Slack token use. */
+async function fetchSlackOAuthSecurityApproval() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/security-approval`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    if (response.status === 404) {
+      return { ok: true, pending: false };
+    }
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, pending: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 30: Security desk approve — exchange code and complete Slack install. */
+async function approveSlackOAuthSecurity(approvalId, decidedBy = 'electron') {
+  const approvalText = String(approvalId || '').trim();
+  if (!approvalText) {
+    return { ok: false, error: 'approval_id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/security-approval/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approval_id: approvalText, decided_by: decidedBy }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 30: Security desk deny — revoke staged install without token exchange. */
+async function denySlackOAuthSecurity(approvalId, decidedBy = 'electron') {
+  const approvalText = String(approvalId || '').trim();
+  if (!approvalText) {
+    return { ok: false, error: 'approval_id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/security-approval/deny`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approval_id: approvalText, decided_by: decidedBy }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Fetch Slack-shaped channel list from Office Service (Phase 2 unread badges). */
+async function fetchSlackChannels() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/channels`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Mark a channel read via Office Service (clears unread badge). */
+async function markSlackChannelRead(channelId) {
+  const id = String(channelId || '').trim();
+  if (!id) {
+    return { ok: false, error: 'channel id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/channels/${encodeURIComponent(id)}/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** List persisted walk-up DM threads (Pass 6 sidebar stub). */
+async function fetchDmThreads() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/dm`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Fetch one agent DM thread tail (Pass 6). */
+async function fetchDmThread(agentId) {
+  const id = String(agentId || '').trim();
+  if (!id) {
+    return { ok: false, error: 'agent id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/dm/${encodeURIComponent(id)}`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Mark a DM thread read via Office Service (Pass 8 unread badges). */
+async function markDmThreadRead(agentId) {
+  const id = String(agentId || '').trim();
+  if (!id) {
+    return { ok: false, error: 'agent id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/dm/${encodeURIComponent(id)}/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 34: list connector gateway approvals from Office Service. */
+async function fetchConnectorApprovals() {
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/approvals`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, approvals: body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 34: approve pending connector action after human confirms. */
+async function approveConnectorApproval(approvalId, decidedBy = 'electron') {
+  const id = String(approvalId || '').trim();
+  if (!id) {
+    return { ok: false, error: 'approval_id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/approvals/${encodeURIComponent(id)}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decided_by: decidedBy }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, task: body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 34: deny pending connector action. */
+async function denyConnectorApproval(approvalId, decidedBy = 'electron') {
+  const id = String(approvalId || '').trim();
+  if (!id) {
+    return { ok: false, error: 'approval_id is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/approvals/${encodeURIComponent(id)}/deny`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decided_by: decidedBy }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, task: body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 34: dispatch Comms task + stage slack.post_message for human approval. */
+async function dispatchConnectorTask(agentId, intent, channel, text) {
+  const agent = String(agentId || 'comms').trim();
+  const intentText = String(intent || '').trim();
+  const channelText = String(channel || '#general').trim() || '#general';
+  const bodyText = String(text || '').trim();
+  if (!intentText) {
+    return { ok: false, error: 'intent is required' };
+  }
+  if (!bodyText) {
+    return { ok: false, error: 'message text is required' };
+  }
+  try {
+    const dispatchRes = await fetch(`${OFFICE_API_BASE}/dispatch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agent_id: agent,
+        intent: intentText,
+        created_by: 'electron',
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const task = await dispatchRes.json();
+    if (!dispatchRes.ok) {
+      return { ok: false, error: task?.error || `HTTP ${dispatchRes.status}`, status: dispatchRes.status };
+    }
+    const performRes = await fetch(`${OFFICE_API_BASE}/tasks/${encodeURIComponent(task.id)}/perform`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        actions: [{
+          connector: 'slack',
+          action: 'post_message',
+          args: { channel: channelText, text: bodyText },
+        }],
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const performed = await performRes.json();
+    if (!performRes.ok) {
+      return { ok: false, error: performed?.error || `HTTP ${performRes.status}`, status: performRes.status };
+    }
+    return {
+      ok: true,
+      task: performed,
+      staged: performed.status === 'awaiting_approval',
+    };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 33: post Comms outbound message to Slack via Office Service. */
+async function postSlackOutbound(channel, text) {
+  const channelText = String(channel || '').trim();
+  const bodyText = String(text || '').trim();
+  if (!channelText) {
+    return { ok: false, error: 'channel is required' };
+  }
+  if (!bodyText) {
+    return { ok: false, error: 'message text is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/slack/outbound/post`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel: channelText, text: bodyText }),
+      signal: AbortSignal.timeout(8000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: body?.error || `HTTP ${response.status}`,
+        status: response.status,
+        slackStatus: body?.status,
+      };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Pass 10: append human DM line from Electron compose (stub agent reply). */
+async function appendDmMessage(agentId, text) {
+  const id = String(agentId || '').trim();
+  const line = String(text || '').trim();
+  if (!id) {
+    return { ok: false, error: 'agent id is required' };
+  }
+  if (!line) {
+    return { ok: false, error: 'message text is required' };
+  }
+  try {
+    const response = await fetch(`${OFFICE_API_BASE}/dm/${encodeURIComponent(id)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: 'human', text: line, stub_reply: true }),
+      signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: body?.error || `HTTP ${response.status}`, status: response.status };
+    }
+    return { ok: true, ...body };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
 function loadOfficeLayout(locationKey) {
   const loc = LOCATIONS[normalizeLocation(locationKey)];
-  const fn = loc.id === 'g5' ? 'agent_office_layout_payload' : 'agent_office_ci_layout_payload';
+  const fn = loc.layoutImport.split(' import ')[1] || 'agent_office_layout_payload';
   const py = `
 import json
 ${loc.layoutImport}
@@ -271,7 +823,7 @@ function isProcessAlive(pid) {
   }
 }
 
-function findGamePids(bootStage) {
+function findGamePids(bootStage, launchMatch) {
   const binary = gameBinaryPath();
   const pids = [];
   try {
@@ -281,9 +833,13 @@ function findGamePids(bootStage) {
       if (!Number.isFinite(pid)) continue;
       try {
         const cmd = execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' }).trim();
-        if (cmd.includes(binary) && cmd.includes('--boot-stage') && cmd.includes(bootStage)) {
-          pids.push({ pid, command: cmd.slice(0, 200) });
+        if (!cmd.includes(binary) || !cmd.includes('--boot-stage') || !cmd.includes(bootStage)) {
+          continue;
         }
+        if (launchMatch && !cmd.includes(launchMatch)) {
+          continue;
+        }
+        pids.push({ pid, command: cmd.slice(0, 200) });
       } catch {
         // skip
       }
@@ -304,14 +860,40 @@ function readPidFile(relativePath) {
   }
 }
 
+function clearStalePidFile(relativePath, lastPid) {
+  if (!lastPid || isProcessAlive(lastPid)) return;
+  try {
+    fs.unlinkSync(path.join(repoRoot, relativePath));
+  } catch {
+    // ignore missing/stale pid file
+  }
+}
+
+function processCpuPercent(pid) {
+  try {
+    const raw = execFileSync('ps', ['-p', String(pid), '-o', '%cpu='], { encoding: 'utf8' }).trim();
+    const value = parseFloat(raw);
+    return Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Hung CI/G5 boots often sit at ~100% CPU in doorsCalcFrac when setup doors are corrupt. */
+function isLikelyHungGamePid(pid) {
+  if (!pid || !isProcessAlive(pid)) return false;
+  return processCpuPercent(pid) >= 90;
+}
+
 function getGameStatus(locationKey) {
   const loc = LOCATIONS[normalizeLocation(locationKey)];
   const lastPid = readPidFile(loc.pidFile);
-  const running = findGamePids(loc.bootStage);
+  clearStalePidFile(loc.pidFile, lastPid);
+  const running = findGamePids(loc.bootStage, loc.launchMatch);
   const lastAlive = isProcessAlive(lastPid);
   return {
     location: loc.id,
-    lastPid,
+    lastPid: lastAlive ? lastPid : null,
     lastAlive,
     running,
     binary: gameBinaryPath(),
@@ -448,24 +1030,36 @@ function tailLog(relativePath, lineCount, mapName) {
 function killGame(locationKey) {
   const status = getGameStatus(locationKey);
   const killed = [];
+  const pids = new Set();
 
-  if (status.lastPid && status.lastAlive) {
+  if (status.lastPid && status.lastAlive) pids.add(status.lastPid);
+  for (const entry of status.running) pids.add(entry.pid);
+
+  for (const pid of pids) {
     try {
-      process.kill(status.lastPid, 'SIGTERM');
-      killed.push(status.lastPid);
+      process.kill(pid, 'SIGTERM');
+      killed.push(pid);
     } catch {
       // ignore
     }
   }
 
-  for (const entry of status.running) {
-    if (killed.includes(entry.pid)) continue;
+  // Hung door-loop boots may ignore SIGTERM; escalate so relaunch is not blocked.
+  for (const pid of pids) {
+    if (!isProcessAlive(pid)) continue;
     try {
-      process.kill(entry.pid, 'SIGTERM');
-      killed.push(entry.pid);
+      process.kill(pid, 'SIGKILL');
+      if (!killed.includes(pid)) killed.push(pid);
     } catch {
       // ignore
     }
+  }
+
+  const loc = LOCATIONS[normalizeLocation(locationKey)];
+  try {
+    fs.unlinkSync(path.join(repoRoot, loc.pidFile));
+  } catch {
+    // ignore stale/missing pid file
   }
 
   log(`Kill game pids: ${killed.join(', ') || '(none)'}`);
@@ -495,7 +1089,7 @@ function registerIpc() {
     };
   });
 
-  ipcMain.handle('office:launch', async (_event, mode, locationKey) => {
+  ipcMain.handle('office:launch', async (_event, mode, locationKey, options) => {
     const location = normalizeLocation(locationKey);
     const loc = LOCATIONS[location];
     const launchKey = `${location}:${mode}`;
@@ -508,30 +1102,46 @@ function registerIpc() {
       return { ok: false, error: `Game binary missing: ${gameBinaryPath()}. Run make -j8 first.` };
     }
 
-    // Never auto-relaunch: if the game is already alive for this map, require Quit first.
+    let hungPid = null;
+    // Never auto-relaunch a healthy game; kill and replace hung boots (100% CPU door loops).
     if (mode !== 'deploy-only') {
       const existing = getGameStatus(location);
-      const alreadyRunning = Boolean(
-        (existing.lastPid && existing.lastAlive) ||
-          (existing.running && existing.running.length > 0),
-      );
-      if (alreadyRunning) {
-        const pid =
-          existing.running?.[0]?.pid ||
-          (existing.lastAlive ? existing.lastPid : null);
-        return {
-          ok: true,
-          alreadyRunning: true,
-          game: existing,
-          error: undefined,
-          message: `Game already running (PID ${pid}). Use Quit Game before launching again.`,
-        };
+      const runningPid = existing.running?.[0]?.pid || (existing.lastAlive ? existing.lastPid : null);
+      hungPid = runningPid && isLikelyHungGamePid(runningPid) ? runningPid : null;
+      if (hungPid) {
+        log(`Hung game PID ${hungPid} (~100% CPU) — force-killing before relaunch`);
+        killGame(location);
+      } else {
+        const alreadyRunning = Boolean(
+          (existing.lastPid && existing.lastAlive) ||
+            (existing.running && existing.running.length > 0),
+        );
+        if (alreadyRunning) {
+          const pid =
+            existing.running?.[0]?.pid ||
+            (existing.lastAlive ? existing.lastPid : null);
+          return {
+            ok: true,
+            alreadyRunning: true,
+            game: existing,
+            error: undefined,
+            message: `Game already running (PID ${pid}). Use Quit Game before launching again.`,
+          };
+        }
       }
     }
 
     const args = [];
     if (mode === 'deploy-only') args.push('--no-play');
     if (mode === 'with-bots') args.push('--with-bots');
+    if (hungPid) args.push('--force');
+    if (options && options.fastRun) args.push('--fast-run');
+
+    if (options && options.disableTextures) {
+      process.env.PDMAP_DISABLE_TEXTURES = '1';
+    } else {
+      delete process.env.PDMAP_DISABLE_TEXTURES;
+    }
 
     launchInFlight.add(launchKey);
     log(`Launch location=${location} mode=${mode} args=${args.join(' ')}`);
@@ -581,6 +1191,67 @@ function registerIpc() {
     shell.showItemInFolder(resolved);
     return { ok: true };
   });
+
+  ipcMain.handle('office:get-workspace-config', () => loadWorkspaceConfigFile());
+
+  ipcMain.handle('office:save-workspace-config', (_event, payload) => {
+    const locationKey = normalizeLocation(payload?.locationKey || payload?.location);
+    const displayName = String(payload?.displayName || '').trim();
+    const codename = String(payload?.codename || '').trim();
+    return saveWorkspaceConfig(locationKey, displayName, codename);
+  });
+
+  ipcMain.handle('office:get-slack-channels', () => fetchSlackChannels());
+
+  ipcMain.handle('office:mark-channel-read', (_event, channelId) => markSlackChannelRead(channelId));
+
+  ipcMain.handle('office:get-dm-threads', () => fetchDmThreads());
+
+  ipcMain.handle('office:get-dm-thread', (_event, agentId) => fetchDmThread(agentId));
+
+  ipcMain.handle('office:mark-dm-read', (_event, agentId) => markDmThreadRead(agentId));
+
+  ipcMain.handle('office:append-dm-message', (_event, agentId, text) => appendDmMessage(agentId, text));
+
+  ipcMain.handle('office:get-slack-oauth-status', () => fetchSlackOAuthStatus());
+
+  ipcMain.handle('office:begin-slack-oauth', () => beginSlackOAuthInstall());
+
+  ipcMain.handle('office:connect-slack-oauth-browser', () => connectSlackOAuthBrowser());
+
+  ipcMain.handle('office:complete-slack-oauth', (_event, code, state) =>
+    completeSlackOAuthInstall(code, state),
+  );
+
+  ipcMain.handle('office:disconnect-slack-oauth', () => disconnectSlackOAuthInstall());
+
+  ipcMain.handle('office:get-slack-oauth-security-approval', () => fetchSlackOAuthSecurityApproval());
+
+  ipcMain.handle('office:approve-slack-oauth-security', (_event, approvalId) =>
+    approveSlackOAuthSecurity(approvalId),
+  );
+
+  ipcMain.handle('office:deny-slack-oauth-security', (_event, approvalId) =>
+    denySlackOAuthSecurity(approvalId),
+  );
+
+  ipcMain.handle('office:post-slack-outbound', (_event, channel, text) =>
+    postSlackOutbound(channel, text),
+  );
+
+  ipcMain.handle('office:get-connector-approvals', () => fetchConnectorApprovals());
+
+  ipcMain.handle('office:approve-connector-approval', (_event, approvalId) =>
+    approveConnectorApproval(approvalId),
+  );
+
+  ipcMain.handle('office:deny-connector-approval', (_event, approvalId) =>
+    denyConnectorApproval(approvalId),
+  );
+
+  ipcMain.handle('office:dispatch-connector-task', (_event, agentId, intent, channel, text) =>
+    dispatchConnectorTask(agentId, intent, channel, text),
+  );
 }
 
 function createWindow() {

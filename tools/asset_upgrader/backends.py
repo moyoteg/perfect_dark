@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from tools.asset_upgrader.local_backend import LocalTextureUpgrader
 from tools.asset_upgrader.openai_backend import DEFAULT_PROMPT, OpenAIImageUpgrader
+from tools.asset_upgrader.mlx_backend import MLXCoreImageUpgrader
 
 
-def create_upgrader(args) -> LocalTextureUpgrader | OpenAIImageUpgrader:
+def create_upgrader(args) -> LocalTextureUpgrader | OpenAIImageUpgrader | MLXCoreImageUpgrader:
     backend = getattr(args, "backend", "local")
     dry_run = bool(getattr(args, "dry_run", False))
 
@@ -19,10 +20,17 @@ def create_upgrader(args) -> LocalTextureUpgrader | OpenAIImageUpgrader:
             dry_run=dry_run,
         )
 
+    if backend == "mlx":
+        return MLXCoreImageUpgrader(
+            model=getattr(args, "model", "RealESRGAN_x4plus") or "RealESRGAN_x4plus",
+            dry_run=dry_run,
+        )
+
     if backend == "local":
         return LocalTextureUpgrader(
             scale=getattr(args, "local_scale", 4),
             dry_run=dry_run,
         )
 
-    raise ValueError(f"unknown backend {backend!r}; use 'local' or 'openai'")
+    raise ValueError(f"unknown backend {backend!r}; use 'local', 'openai', or 'mlx'")
+

@@ -284,6 +284,26 @@ bool currentPlayerIsMenuOpenInSoloOrMp(void)
 	return false;
 }
 
+s32 portShouldLockMouse(void)
+{
+	if (g_Vars.stagenum == STAGE_TITLE 
+		|| g_Vars.stagenum == STAGE_BOOTPAKMENU 
+		|| g_Vars.stagenum == STAGE_CREDITS 
+		|| g_Vars.stagenum == STAGE_4MBMENU) {
+		return 0;
+	}
+
+	if (!g_Vars.currentplayer || !g_Vars.currentplayerstats) {
+		return 0;
+	}
+
+	if (currentPlayerIsMenuOpenInSoloOrMp()) {
+		return 0;
+	}
+
+	return 1;
+}
+
 bool func0f0f0c68(void)
 {
 	if (g_MenuData.bg || g_MenuData.nextbg != 255) {
@@ -3958,7 +3978,11 @@ void menuReset(void)
 		g_MissionConfig.pdmode = false;
 	}
 
-	if (!g_Vars.mplayerisrunning) {
+	/*
+	 * Agent-office hubs boot via MP setup (mplayerisrunning) but Escape uses the
+	 * solo visor pause menu — still need hudpiece + menu model pools allocated.
+	 */
+	if (!g_Vars.mplayerisrunning || STAGE_IS_AGENT_OFFICE(g_Vars.stagenum)) {
 		s32 max = 0;
 
 		if (g_Vars.stagenum == STAGE_CITRAINING) {
@@ -3967,6 +3991,10 @@ void menuReset(void)
 
 		if (g_Vars.stagenum == STAGE_4MBMENU) {
 			max = 4;
+		}
+
+		if (STAGE_IS_AGENT_OFFICE(g_Vars.stagenum)) {
+			max = 1;
 		}
 
 		for (i = 0; i < max; i++) {
@@ -4696,6 +4724,19 @@ void func0f0fa6ac(void)
 	case MENUROOT_TRAINING:
 		playerUnpause();
 		g_PlayersWithControl[0] = true;
+
+		/*
+		 * Solo visor pause keeps MENUROOT_MAINMENU after dialogs close; the
+		 * hudpiece removal path never runs for that root, so unk5d4/menuisactive
+		 * can stick and leave var8009dfc0-style blank frames after unpause.
+		 */
+		if (STAGE_IS_AGENT_OFFICE(g_Vars.stagenum)) {
+			g_MenuData.unk5d4 = 0;
+			g_MenuData.unk5d5_05 = false;
+			g_MenuData.hudpiece.removingpiece = false;
+			g_MenuData.hudpiece.reverseanim = false;
+		}
+		break;
 	}
 }
 

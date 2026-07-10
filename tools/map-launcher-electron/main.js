@@ -9,7 +9,27 @@ const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const { spawn, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { bindSingleInstance } = require('../pd_kit/electron_single_instance.js');
+
+/**
+ * Resolve kit helpers in both layouts:
+ * - Dev: tools/map-launcher-electron → ../pd_kit/
+ * - Packaged: Contents/Resources/pd_kit/ (extraResources)
+ */
+function requireKitModule(moduleName) {
+  const candidates = [
+    path.join(__dirname, '..', 'pd_kit', moduleName),
+    path.join(process.resourcesPath || '', 'pd_kit', moduleName),
+    path.join(__dirname, '..', '..', '..', 'tools', 'pd_kit', moduleName),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return require(candidate);
+    }
+  }
+  throw new Error(`Perfect Dark Kit module not found: ${moduleName}`);
+}
+
+const { bindSingleInstance } = requireKitModule('electron_single_instance.js');
 
 const APP_TITLE = 'PD Map Launcher';
 const LOG_FILE_NAME = 'map-launcher.log';
@@ -512,6 +532,16 @@ function resolveWarColorsSimOptions(opts) {
 function buildScriptArgs(mapDef, options) {
   const args = [...(mapDef.scriptArgs || [])];
   let opts = options || {};
+
+  if (opts.fastRun) {
+    args.push('--fast-run');
+  }
+
+  if (opts.disableTextures) {
+    process.env.PDMAP_DISABLE_TEXTURES = '1';
+  } else {
+    delete process.env.PDMAP_DISABLE_TEXTURES;
+  }
 
   if (mapDef.id === 'war-colors-sentry') {
     opts = resolveWarColorsSimOptions(opts);

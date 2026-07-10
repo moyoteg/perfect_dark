@@ -57,7 +57,10 @@ from .museum_layout import (
 from .anim_interactions import INTERACTION_CONTEXT
 from .anim_parade import PAD_SPECIAL_TOUR
 from .core import MapDef
-from .props import StdObject
+from .props import StdObject, Prop
+
+_HUB_PORTAL_TAGS = []
+_RETURN_PORTAL_TAGS = []
 
 # Stock stdobject flags — values from src/include/constants.h (runtime obj->flags).
 OBJFLAG_FALL = 0x00000001
@@ -70,6 +73,7 @@ OBJFLAG_INVINCIBLE = 0x00020000
 OBJFLAG2_NOFALL = 0x00000100
 OBJFLAG2_IMMUNETOGUNFIRE = 0x00004000
 OBJFLAG3_PUSHABLE = 0x00000001
+OBJFLAG3_INTERACTABLE = 0x00010000
 
 # StdObject extrascale → runtime multiplier is extrascale / 256 (see setupCreateObject).
 # Retail furniture/desks/chairs/crates/consoles use 0x0100 (1.0×). 0x0200 is for plant spikes etc.
@@ -84,6 +88,8 @@ MODEL_LAB_MAINFRAME = 0x00BE
 MODEL_CI_DESK = 0x0161
 MODEL_A51_CRATE1 = 0x0020
 MODEL_A51_CRATE2 = 0x0021
+MODEL_WINDOW = 0x0004
+MODEL_DOOR2_G5 = 0x007D
 
 # Wayfinding prop scales — portal arches must dominate the spawn skyline.
 HUB_PORTAL_PROP_SCALE = 0x0400
@@ -95,7 +101,7 @@ BEACON_PROP_SCALE = 0x0220
 _COMPASS_SIGNPOST_MODELS: dict[str, int] = {
     "N": MODEL_LAB_MAINFRAME,
     "SW": MODEL_A51_CRATE1,
-    "WSW": MODEL_A51_CRATE2,
+    "S": MODEL_A51_CRATE2,
     "W": MODEL_DOORCONSOLE,
     "E": MODEL_CI_DESK,
     "NW": MODEL_LAB_TABLE,
@@ -173,18 +179,119 @@ class ParadePropSpec:
     z: float
     district: str
     hint: str
-    kind: str = "hub"  # plaza | hub | corridor | vignette | museum | signpost
+    kind: str = "hub"  # plaza | hub | corridor | vignette | museum | signpost | door
     tag: str = "misc"
     flags: int = _STD_OBJECT_FLAGS
     flags2: int = _PARADE_OBJ_FLAGS2
     flags3: int = OBJFLAG3_PUSHABLE
     scale: int = _PROP_SCALE_DEFAULT
     room: int = PARADE_PROPS_ROOM
+    tag_id: int = 0
+    dir_x: float = 0.0
+    dir_y: float = 0.0
+    dir_z: float = -1.0
+    up_x: float | None = None
+    up_y: float | None = None
+    up_z: float | None = None
+    xmin: float | None = None
+    xmax: float | None = None
+    ymin: float | None = None
+    ymax: float | None = None
+    zmin: float | None = None
+    zmax: float | None = None
 
 
 def _spawn_plaza_specs() -> tuple[ParadePropSpec, ...]:
-    """Spawn plaza is intentionally empty — props live in the southwest gallery."""
-    return ()
+    """Glass-walled room centered at (0.0, -1200.0) containing the combat sims."""
+    return (
+        # North wall: Window
+        ParadePropSpec(
+            "Glass Room N Window",
+            MODEL_WINDOW,
+            0.0,
+            -900.0,
+            "plaza",
+            "Transparent north window",
+            kind="plaza",
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        ),
+        # West wall: Window
+        ParadePropSpec(
+            "Glass Room W Window",
+            MODEL_WINDOW,
+            -300.0,
+            -1200.0,
+            "plaza",
+            "Transparent west window",
+            kind="plaza",
+            dir_x=-1.0,
+            dir_y=0.0,
+            dir_z=0.0,
+        ),
+        # East wall: Window
+        ParadePropSpec(
+            "Glass Room E Window",
+            MODEL_WINDOW,
+            300.0,
+            -1200.0,
+            "plaza",
+            "Transparent east window",
+            kind="plaza",
+            dir_x=1.0,
+            dir_y=0.0,
+            dir_z=0.0,
+        ),
+        # South wall: Sliding Door
+        ParadePropSpec(
+            "Glass Room Door",
+            MODEL_DOOR2_G5,
+            0.0,
+            -1500.0,
+            "plaza",
+            "Trapped combat sims door",
+            kind="door",
+            dir_x=0.0,
+            dir_y=1.0,
+            dir_z=0.0,
+            up_x=0.0,
+            up_y=0.0,
+            up_z=-1.0,
+            xmin=-83.0,
+            xmax=83.0,
+            ymin=-333.0,
+            ymax=333.0,
+            zmin=-10.0,
+            zmax=220.0,
+        ),
+        # South-west wall segment: Window
+        ParadePropSpec(
+            "Glass Room SW Window",
+            MODEL_WINDOW,
+            -200.0,
+            -1500.0,
+            "plaza",
+            "Transparent southwest window",
+            kind="plaza",
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        ),
+        # South-east wall segment: Window
+        ParadePropSpec(
+            "Glass Room SE Window",
+            MODEL_WINDOW,
+            200.0,
+            -1500.0,
+            "plaza",
+            "Transparent southeast window",
+            kind="plaza",
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        ),
+    )
 
 
 def _gallery_grid_specs() -> tuple[ParadePropSpec, ...]:
@@ -471,23 +578,52 @@ def _museum_packed_placements() -> tuple[dict[str, Any], ...]:
 
 @lru_cache(maxsize=1)
 def _hub_signpost_specs() -> tuple[ParadePropSpec, ...]:
-    """Eight coloured portal arches at 800 u — one per major wing."""
+    """Eight portal left pillars at 800 u — one per major wing."""
     specs: list[ParadePropSpec] = []
-    for sign in hub_signpost_entries():
+    import math
+
+    compass_angle: dict[str, float] = {
+        "N": 0.0,
+        "NE": math.pi / 4,
+        "E": math.pi / 2,
+        "SE": 3 * math.pi / 4,
+        "S": math.pi,
+        "SW": 5 * math.pi / 4,
+        "W": -math.pi / 2,
+        "NW": -math.pi / 4,
+    }
+
+    global _HUB_PORTAL_TAGS
+    _HUB_PORTAL_TAGS.clear()
+    _PORTAL_TAG_START = 0x20
+
+    for i, sign in enumerate(hub_signpost_entries()):
         compass = str(sign["compass"])
-        model = _COMPASS_SIGNPOST_MODELS.get(compass, MODEL_DOORCONSOLE)
+        ang = compass_angle.get(compass, 0.0)
+        perp_ang = ang + math.pi / 2
+
+        # Left Pillar coordinate
+        lx = float(sign["x"]) + 75.0 * math.sin(perp_ang)
+        lz = float(sign["z"]) + 75.0 * math.cos(perp_ang)
+
+        model = MODEL_LAB_MAINFRAME
+        tag_id = _PORTAL_TAG_START + i
+        _HUB_PORTAL_TAGS.append((tag_id, sign))
+
         specs.append(
             ParadePropSpec(
-                f"Portal · {compass} {sign['label'][:28]}",
+                f"Portal L · {compass} {sign['label'][:28]}",
                 model,
-                float(sign["x"]),
-                float(sign["z"]),
+                lx,
+                lz,
                 "portal",
                 str(sign["hint"]),
                 kind="portal",
                 flags=_MUSEUM_OBJECT_FLAGS,
                 flags2=_MUSEUM_OBJECT_FLAGS2,
+                flags3=OBJFLAG3_INTERACTABLE,
                 scale=HUB_PORTAL_PROP_SCALE,
+                tag_id=tag_id,
             )
         )
     return tuple(specs)
@@ -498,10 +634,17 @@ def _wing_gate_marker_specs() -> tuple[ParadePropSpec, ...]:
     """Console/crate gate markers at each major wing entrance."""
     from .anim_wayfinding import wing_gate_entries
 
+    global _RETURN_PORTAL_TAGS
+    _RETURN_PORTAL_TAGS.clear()
+    _RETURN_TAG_START = 0x40
+
     specs: list[ParadePropSpec] = []
-    for gate in wing_gate_entries():
+    for i, gate in enumerate(wing_gate_entries()):
         gid = str(gate["id"])
-        model = _GATE_MARKER_MODELS.get(gid, MODEL_DOORCONSOLE)
+        model = MODEL_LAB_MAINFRAME
+        tag_id = _RETURN_TAG_START + i
+        _RETURN_PORTAL_TAGS.append((tag_id, gate))
+
         specs.append(
             ParadePropSpec(
                 f"Gate · {gate['label'][:32]}",
@@ -513,7 +656,9 @@ def _wing_gate_marker_specs() -> tuple[ParadePropSpec, ...]:
                 kind="gate",
                 flags=_MUSEUM_OBJECT_FLAGS,
                 flags2=_MUSEUM_OBJECT_FLAGS2,
-                scale=GATE_MARKER_SCALE,
+                flags3=OBJFLAG3_INTERACTABLE,
+                scale=0x0100,
+                tag_id=tag_id,
             )
         )
     return tuple(specs)
@@ -752,6 +897,16 @@ def all_parade_prop_specs() -> tuple[ParadePropSpec, ...]:
     )
 
 
+@lru_cache(maxsize=1)
+def _num_dynamic_parade_pads() -> int:
+    """Count Leaf 2 sliding doors and portal right pillars."""
+    count = 0
+    for spec in all_parade_prop_specs():
+        if getattr(spec, "kind", None) in ("door", "portal"):
+            count += 1
+    return count
+
+
 PARADE_PROPS_FLOOR_COLOUR = _hex_to_floor_colour("#38bdf8")
 PARADE_MUSEUM_FLOOR_COLOUR = _hex_to_floor_colour(PARADE_MUSEUM_COLOUR)
 PARADE_TRUE_SCALE_FLOOR_COLOUR = _hex_to_floor_colour(PARADE_TRUE_SCALE_COLOUR)
@@ -863,29 +1018,191 @@ def parade_true_scale_markers(*, pad_y: float = 10.0) -> list[dict[str, Any]]:
 
 def add_parade_props(mapdef: MapDef, *, pad_y: float = 10.0) -> None:
     """Register all prop pads and StdObject props on *mapdef*."""
+    import math
+
+    compass_angle: dict[str, float] = {
+        "N": 0.0,
+        "NE": math.pi / 4,
+        "E": math.pi / 2,
+        "SE": 3 * math.pi / 4,
+        "S": math.pi,
+        "SW": 5 * math.pi / 4,
+        "W": -math.pi / 2,
+        "NW": -math.pi / 4,
+    }
+
+    dynamic_pad_calls = []
+    total_specs = len(all_parade_prop_specs())
+
     for i, spec in enumerate(all_parade_prop_specs()):
         pad = PARADE_PROPS_PAD_FIRST + i
-        mapdef.add_pad(
-            index=pad,
-            x=spec.x,
-            y=pad_y,
-            z=spec.z,
-            room=spec.room,
-            dir_x=0.0,
-            dir_y=0.0,
-            dir_z=-1.0,
-        )
-        mapdef.add_prop(
-            StdObject(
-                scale=spec.scale,
-                model=spec.model,
-                pad=pad,
-                flags=spec.flags,
-                flags2=spec.flags2,
-                flags3=spec.flags3,
-            )
-        )
+        pad_kwargs = {}
+        for field in ("up_x", "up_y", "up_z", "xmin", "xmax", "ymin", "ymax", "zmin", "zmax"):
+            val = getattr(spec, field, None)
+            if val is not None:
+                pad_kwargs[field] = val
 
+        if getattr(spec, "kind", None) == "door":
+            # For double sliding door, spawn two offset pads and two door objects
+            ux = getattr(spec, "up_x", 0.0)
+            uy = getattr(spec, "up_y", 0.0)
+            uz = getattr(spec, "up_z", -1.0)
+            
+            # Leaf 1 (Left/first)
+            mapdef.add_pad(
+                index=pad,
+                x=spec.x - 109.0 * ux,
+                y=pad_y - 109.0 * uy,
+                z=spec.z - 109.0 * uz,
+                room=spec.room,
+                dir_x=getattr(spec, "dir_x", 0.0),
+                dir_y=getattr(spec, "dir_y", 0.0),
+                dir_z=getattr(spec, "dir_z", -1.0),
+                **pad_kwargs,
+            )
+            # Leaf 2 (Right/second) - queued for dynamic section at the end
+            pad2 = PARADE_PROPS_PAD_FIRST + total_specs + len(dynamic_pad_calls)
+            
+            pad2_kwargs = pad_kwargs.copy()
+            pad2_kwargs["up_x"] = -ux
+            pad2_kwargs["up_y"] = -uy
+            pad2_kwargs["up_z"] = -uz
+            dynamic_pad_calls.append((
+                pad2,
+                spec.x + 109.0 * ux,
+                pad_y + 109.0 * uy,
+                spec.z + 109.0 * uz,
+                spec.room,
+                getattr(spec, "dir_x", 0.0),
+                getattr(spec, "dir_y", 0.0),
+                getattr(spec, "dir_z", -1.0),
+                pad2_kwargs,
+            ))
+
+            if getattr(spec, "tag_id", 0) != 0:
+                from .props import Tag
+                mapdef.add_prop(Tag(spec.tag_id, 1))
+
+            from .props import Door
+            mapdef.add_prop(
+                Door(
+                    maxfrac=0x0000f333,
+                    perimfrac=0x00010000,
+                    accel=0x0001AAAA,
+                    decel=0x0001AAAA,
+                    maxspeed=0x00000CCC,
+                    doorflags=0x0000000c,
+                    doortype=0,
+                    keyflags=0,
+                    autoclosetime=0x00000258,
+                    unk88=0x012c0320,
+                    sibling=1, # Links to the next door (Leaf 2)
+                    unkc4=0x00000300,
+                    scale=spec.scale,
+                    model=spec.model,
+                    pad=pad,
+                    flags=spec.flags,
+                    flags2=spec.flags2,
+                    flags3=spec.flags3,
+                )
+            )
+            mapdef.add_prop(
+                Door(
+                    maxfrac=0x0000f333,
+                    perimfrac=0x00010000,
+                    accel=0x0001AAAA,
+                    decel=0x0001AAAA,
+                    maxspeed=0x00000CCC,
+                    doorflags=0x0000000c,
+                    doortype=0,
+                    keyflags=0,
+                    autoclosetime=0x00000258,
+                    unk88=0x012c0320,
+                    sibling=-1, # Links to the previous door (Leaf 1)
+                    unkc4=0,
+                    scale=spec.scale,
+                    model=spec.model,
+                    pad=pad2,
+                    flags=spec.flags,
+                    flags2=spec.flags2,
+                    flags3=spec.flags3,
+                )
+            )
+        else:
+            mapdef.add_pad(
+                index=pad,
+                x=spec.x,
+                y=pad_y,
+                z=spec.z,
+                room=spec.room,
+                dir_x=getattr(spec, "dir_x", 0.0),
+                dir_y=getattr(spec, "dir_y", 0.0),
+                dir_z=getattr(spec, "dir_z", -1.0),
+                **pad_kwargs,
+            )
+            if getattr(spec, "tag_id", 0) != 0:
+                from .props import Tag
+                mapdef.add_prop(Tag(spec.tag_id, 1))
+            mapdef.add_prop(
+                StdObject(
+                    scale=spec.scale,
+                    model=spec.model,
+                    pad=pad,
+                    flags=spec.flags,
+                    flags2=spec.flags2,
+                    flags3=spec.flags3,
+                )
+            )
+
+        # If it's a portal spec, also spawn the flanking Right Pillar
+        if getattr(spec, "kind", None) == "portal":
+            try:
+                compass = spec.label.split(" · ")[1].split(" ")[0]
+                ang = compass_angle.get(compass, 0.0)
+                perp_ang = ang + math.pi / 2
+
+                rx = spec.x - 150.0 * math.sin(perp_ang)
+                rz = spec.z - 150.0 * math.cos(perp_ang)
+
+                # Register a new dynamic pad for the right pillar at the end
+                right_pad = PARADE_PROPS_PAD_FIRST + total_specs + len(dynamic_pad_calls)
+                dynamic_pad_calls.append((
+                    right_pad,
+                    rx,
+                    pad_y,
+                    rz,
+                    spec.room,
+                    0.0,
+                    0.0,
+                    -1.0,
+                    {},
+                ))
+                mapdef.add_prop(
+                    StdObject(
+                        scale=spec.scale,
+                        model=spec.model,
+                        pad=right_pad,
+                        flags=spec.flags,
+                        flags2=spec.flags2,
+                        flags3=spec.flags3,
+                    )
+                )
+            except Exception as e:
+                print(f"  [WARN] Failed to parse portal properties for spec '{spec.label}': {e}")
+
+    # Append all dynamic pads sequentially at the end to keep pad array indices contiguous
+    for p_idx, p_x, p_y, p_z, p_room, p_dx, p_dy, p_dz, p_kwargs in dynamic_pad_calls:
+        mapdef.add_pad(
+            index=p_idx,
+            x=p_x,
+            y=p_y,
+            z=p_z,
+            room=p_room,
+            dir_x=p_dx,
+            dir_y=p_dy,
+            dir_z=p_dz,
+            **p_kwargs,
+        )
 
 def parade_props_layout_payload() -> dict[str, Any]:
     """Spawn plaza + props yard summary for docs and anim_lab.html."""

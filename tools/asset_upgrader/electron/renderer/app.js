@@ -20,6 +20,8 @@ const els = {
   limit: document.getElementById('limit'),
   sleep: document.getElementById('sleep'),
   dryRun: document.getElementById('dryRun'),
+  noResume: document.getElementById('noResume'),
+  includeBase: document.getElementById('includeBase'),
   prompt: document.getElementById('prompt'),
   pickModBtn: document.getElementById('pickModBtn'),
   searchInput: document.getElementById('searchInput'),
@@ -67,6 +69,8 @@ function readForm() {
     limit: Number(els.limit.value) || 0,
     sleep: Number(els.sleep.value) || 0,
     dryRun: els.dryRun.checked,
+    noResume: els.noResume.checked,
+    includeBase: els.includeBase.checked,
     prompt: els.prompt.value.trim(),
   };
 }
@@ -75,19 +79,44 @@ function applyConfig(config) {
   els.modPath.value = config.modPath || 'mods/mod_allinone';
   els.deployDir.value = config.deployDir || 'mods/mod_upgraded';
   els.backend.value = config.backend || 'local';
-  els.model.value = config.model || 'gpt-image-1';
+  
+  // Set default model based on selected backend if model is empty or default
+  if (config.model) {
+    els.model.value = config.model;
+  } else if (config.backend === 'mlx') {
+    els.model.value = 'RealESRGAN_x4plus';
+  } else if (config.backend === 'openai') {
+    els.model.value = 'gpt-image-1';
+  } else {
+    els.model.value = '';
+  }
+  
   els.limit.value = config.limit || 0;
   els.sleep.value = config.sleep ?? 1;
   els.dryRun.checked = Boolean(config.dryRun);
+  els.noResume.checked = Boolean(config.noResume);
+  els.includeBase.checked = Boolean(config.includeBase);
   els.prompt.value = config.prompt || '';
   syncBackendFields();
 }
 
 function syncBackendFields() {
-  const openai = els.backend.value === 'openai';
-  els.model.disabled = !openai;
+  const backend = els.backend.value;
+  const openai = backend === 'openai';
+  const mlx = backend === 'mlx';
+
+  els.model.disabled = !openai && !mlx;
   els.sleep.disabled = !openai;
   els.prompt.disabled = !openai;
+
+  // Auto-switch defaults when changing select input if using placeholder values
+  if (mlx && (els.model.value === 'gpt-image-1' || !els.model.value)) {
+    els.model.value = 'RealESRGAN_x4plus';
+  } else if (openai && (els.model.value === 'RealESRGAN_x4plus' || !els.model.value)) {
+    els.model.value = 'gpt-image-1';
+  } else if (!openai && !mlx) {
+    els.model.value = '';
+  }
 }
 
 function stageClass(stage) {
@@ -102,10 +131,10 @@ function fileUrl(absPath) {
   return `file://${encodeURI(normalized)}?t=${Date.now()}`;
 }
 
-function thumbHtml(path, label) {
-  if (!path) return `<span class="thumb empty" title="${label} missing">—</span>`;
+function thumbHtml(path, label, extraClass = '') {
+  if (!path) return `<span class="thumb empty ${extraClass}" title="${label} missing">—</span>`;
   const src = fileUrl(path);
-  return `<img class="thumb" src="${src}" alt="${label}" title="Click row to compare" />`;
+  return `<img class="thumb ${extraClass}" src="${src}" alt="${label}" title="Click row to compare" />`;
 }
 
 function filterAssets(assets) {
@@ -143,8 +172,10 @@ function renderSnapshot(snapshot) {
   const rows = visibleAssets.slice(0, maxRows);
 
   els.assetRows.innerHTML = rows.map((asset, index) => {
-    const before = thumbHtml(asset.extracted_png, 'Original');
-    const after = thumbHtml(asset.upgraded_png, 'Enhanced');
+    const hasExtracted = asset.stage !== 'pending';
+    const hasUpgraded = ['upgraded', 'encoded', 'deployed'].includes(asset.stage);
+    const before = thumbHtml(hasExtracted ? asset.extracted_png : null, 'Original', 'original-rendering');
+    const after = thumbHtml(hasUpgraded ? asset.upgraded_png : null, 'Enhanced', 'enhanced-rendering');
     return `<tr data-index="${index}" class="asset-row" tabindex="0">
       <td><code>${asset.texture_id || asset.key}</code></td>
       <td>${asset.mod_name || 'base'}</td>
@@ -184,8 +215,10 @@ function openCompare(index) {
   if (index < 0 || index >= visibleAssets.length) return;
   compareIndex = index;
   const asset = visibleAssets[index];
-  const beforeSrc = fileUrl(asset.extracted_png);
-  const afterSrc = fileUrl(asset.upgraded_png);
+  const hasExtracted = asset.stage !== 'pending';
+  const hasUpgraded = ['upgraded', 'encoded', 'deployed'].includes(asset.stage);
+  const beforeSrc = hasExtracted ? fileUrl(asset.extracted_png) : '';
+  const afterSrc = hasUpgraded ? fileUrl(asset.upgraded_png) : '';
 
   els.compareTitle.textContent = `Texture ${asset.texture_id || asset.key}`;
   els.compareMeta.textContent = [
@@ -226,6 +259,8 @@ async function init() {
   els.backend.addEventListener('change', syncBackendFields);
 
   els.refreshBtn.addEventListener('click', async () => {
+    const options = readForm();
+    await window.upgraderAPI.saveConfig(options);
     const next = await window.upgraderAPI.refreshSnapshot();
     renderSnapshot(next);
   });

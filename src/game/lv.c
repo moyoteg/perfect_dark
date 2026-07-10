@@ -40,6 +40,9 @@
 #include "game/inv.h"
 #include "game/lang.h"
 #include "game/lv.h"
+#ifndef PLATFORM_N64
+#include "bootmp.h"
+#endif
 #include "game/menu.h"
 #include "game/mplayer/mplayer.h"
 #include "game/mplayer/scenarios.h"
@@ -384,6 +387,15 @@ void lvReset(s32 stagenum)
 	modelmgrReset();
 	psReset();
 	setupLoadFiles(stagenum);
+#ifndef PLATFORM_N64
+	/*
+	 * Peaceful agent-office MP boot (--solo, 0 sims) still needs Ump_setup* for
+	 * agents/spawns, but normmplayerisrunning breaks visor pause + resume viewport.
+	 */
+	if (agentOfficePeacefulSoloActive()) {
+		g_Vars.normmplayerisrunning = false;
+	}
+#endif
 	scenarioReset();
 	varsReset();
 	propsReset();
@@ -462,7 +474,7 @@ void lvReset(s32 stagenum)
 		/* Animation Lab: one-time compass HUD at spawn — eight portal ring + three level worlds. */
 		if (g_Vars.stagenum == STAGE_ANIMLAB) {
 			hudmsgCreateWithFlags(
-				"Anim Lab: N=districts SW=objects W=catalog E=MP(26) WSW=Solo(23) SE=chars NE=dev NW=true-scale",
+				"Anim Lab: N=districts SW=objects W=catalog E=MP(26) S=Solo(23) SE=chars NE=dev NW=true-scale",
 				HUDMSGTYPE_DEFAULT,
 				HUDMSGFLAG_ONLYIFALIVE | HUDMSGFLAG_NOWRAP | HUDMSGFLAG_ALLOWDUPES);
 		}

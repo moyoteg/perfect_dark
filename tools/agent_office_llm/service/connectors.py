@@ -9,6 +9,7 @@ testable offline; swap the `.call` body for a real MCP invocation in production.
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
@@ -114,7 +115,24 @@ class ConnectorGateway:
 # Stub connectors — mirror real MCP shapes; replace `.call` bodies in production.
 # --------------------------------------------------------------------------
 def slack_stub(sent_sink: list[dict] | None = None) -> Connector:
-    """Comms agent's Slack. read_threads (read), post_message (write)."""
+    """Offline stub Slack connector — always records post_message to sent_sink."""
+    return slack_connector(sent_sink, force_stub=True)
+
+
+def slack_connector(
+    sent_sink: list[dict] | None = None,
+    *,
+    repo_root: str | None = None,
+    force_stub: bool = False,
+) -> Connector:
+    """Comms agent's Slack. read_threads (read), post_message (write).
+
+    When OAuth bot token is installed (Pass 32), approved post_message actions call
+    slack_outbound_post_outcome → real chat.postMessage. Without a token, falls back
+    to the offline stub (append to sent_sink) so tests and local-first dev unchanged.
+    """
+    from .slack_api import SlackOutboundPostStatus, slack_bot_token_installed, slack_outbound_post_outcome
+
     inbox = [
         {"channel": "#eng", "text": "@you can you review the vault-log PR?", "mention": True},
         {"channel": "#marketing", "text": "when does the feature ship?", "mention": False},
@@ -126,7 +144,26 @@ def slack_stub(sent_sink: list[dict] | None = None) -> Connector:
                 "mentions_of_you": sum(1 for m in inbox if m["mention"])}
 
     def post_message(args: dict) -> Any:
-        msg = {"channel": args.get("channel", "#general"), "text": args.get("text", "")}
+        channel = str(args.get("channel") or "#general").strip()
+        text = str(args.get("text") or "").strip()
+        if not force_stub and slack_bot_token_installed(repo_root):
+            post_url = os.environ.get("SLACK_CHAT_POST_URL", "").strip() or None
+            outcome = slack_outbound_post_outcome(
+                channel=channel,
+                text=text,
+                repo_root=repo_root,
+                post_url=post_url,
+            )
+            if outcome.status == SlackOutboundPostStatus.POSTED:
+                return {
+                    "posted": True,
+                    "channel": outcome.channel,
+                    "text": outcome.text,
+                    "slack_ts": outcome.slack_ts,
+                    "live": True,
+                }
+            raise RuntimeError(outcome.error or outcome.status.value)
+        msg = {"channel": channel, "text": text}
         sent.append(msg)
         return {"posted": True, **msg}
 

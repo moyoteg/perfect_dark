@@ -7,7 +7,7 @@
         "it": "Che schifo!\n",
         "fr": "Super suicidaire\n",
         "de": "Suizidal\n",
-        "es": "El más Suicida\n"
+        "es": "El m\u00e1s Suicida\n"
     },
     {
         "id": "L_MPMENU_001",
@@ -15,9 +15,9 @@
         "gb": "Who Needs Ammo?\n",
         "jp": "Who Needs Ammo?\n",
         "it": "Servono munizioni?\n",
-        "fr": "Munitions? Où?\n",
+        "fr": "Munitions? O\u00f9?\n",
         "de": "Muni?\n",
-        "es": "¿Y la munición?\n"
+        "es": "\u00bfY la munici\u00f3n?\n"
     },
     {
         "id": "L_MPMENU_002",
@@ -25,7 +25,7 @@
         "gb": "Least Shielded\n",
         "jp": "Who Needs Armor?\n",
         "it": "Protezione minima\n",
-        "fr": "Le moins protégé\n",
+        "fr": "Le moins prot\u00e9g\u00e9\n",
         "de": "Schilde?\n",
         "es": "Menor Escudo\n"
     },
@@ -35,8 +35,8 @@
         "gb": "Best Protected\n",
         "jp": "Best Protected\n",
         "it": "Protezione massima\n",
-        "fr": "Le mieux protégé\n",
-        "de": "Bestgeschützt\n",
+        "fr": "Le mieux prot\u00e9g\u00e9\n",
+        "de": "Bestgesch\u00fctzt\n",
         "es": "Mejor Protegido\n"
     },
     {
@@ -45,9 +45,9 @@
         "gb": "Marksmanship\n",
         "jp": "Marksmanship\n",
         "it": "Precisione di tiro\n",
-        "fr": "Tireur d'élite\n",
+        "fr": "Tireur d'\u00e9lite\n",
         "de": "Treffsicher\n",
-        "es": "Mejor Puntería\n"
+        "es": "Mejor Punter\u00eda\n"
     },
     {
         "id": "L_MPMENU_005",
@@ -57,7 +57,7 @@
         "it": "Professionale\n",
         "fr": "Le plus pro\n",
         "de": "Professionell\n",
-        "es": "El más Profesional\n"
+        "es": "El m\u00e1s Profesional\n"
     },
     {
         "id": "L_MPMENU_006",
@@ -66,8 +66,8 @@
         "jp": "Most Deadly\n",
         "it": "Micidiale\n",
         "fr": "Le plus meurtrier\n",
-        "de": "Gefährlich\n",
-        "es": "El más Mortífero\n"
+        "de": "Gef\u00e4hrlich\n",
+        "es": "El m\u00e1s Mort\u00edfero\n"
     },
     {
         "id": "L_MPMENU_007",
@@ -77,7 +77,7 @@
         "it": "Innocuo\n",
         "fr": "Le plus inoffensif\n",
         "de": "Harmlos\n",
-        "es": "El más Inofensivo\n"
+        "es": "El m\u00e1s Inofensivo\n"
     },
     {
         "id": "L_MPMENU_008",
@@ -85,9 +85,9 @@
         "gb": "Most Cowardly\n",
         "jp": "Most Cowardly\n",
         "it": "Codardo\n",
-        "fr": "Le plus pétochard\n",
+        "fr": "Le plus p\u00e9tochard\n",
         "de": "Feig\n",
-        "es": "El más Cobarde\n"
+        "es": "El m\u00e1s Cobarde\n"
     },
     {
         "id": "L_MPMENU_009",
@@ -97,7 +97,7 @@
         "it": "Disperato\n",
         "fr": "Le plus dingue\n",
         "de": "Verzweifelt\n",
-        "es": "El más Frenético\n"
+        "es": "El m\u00e1s Fren\u00e9tico\n"
     },
     {
         "id": "L_MPMENU_010",
@@ -107,7 +107,7 @@
         "it": "Lodevole\n",
         "fr": "Le plus loyal\n",
         "de": "Ehrenhaft\n",
-        "es": "El más Honorable\n"
+        "es": "El m\u00e1s Honorable\n"
     },
     {
         "id": "L_MPMENU_011",
@@ -124,20 +124,20 @@
         "en": "Shortest Life\n",
         "gb": "Shortest Life\n",
         "jp": "Shortest Life\n",
-        "it": "Vita più breve\n",
-        "fr": "Durée de vie Mini\n",
+        "it": "Vita pi\u00f9 breve\n",
+        "fr": "Dur\u00e9e de vie Mini\n",
         "de": "Eintagsfliege\n",
-        "es": "La Vida más Corta\n"
+        "es": "La Vida m\u00e1s Corta\n"
     },
     {
         "id": "L_MPMENU_013",
         "en": "Longest Life\n",
         "gb": "Longest Life\n",
         "jp": "Longest Life\n",
-        "it": "Vita più lunga\n",
-        "fr": "Duréede vie Maxi\n",
+        "it": "Vita pi\u00f9 lunga\n",
+        "fr": "Dur\u00e9ede vie Maxi\n",
         "de": "Methusalem\n",
-        "es": "La Vida más Larga\n"
+        "es": "La Vida m\u00e1s Larga\n"
     },
     {
         "id": "L_MPMENU_014",
@@ -167,7 +167,7 @@
         "it": "Colpo quadruplo\n",
         "fr": "Quadruple frag\n",
         "de": "Quadro-Treffer\n",
-        "es": "Cuádruple Muerte\n"
+        "es": "Cu\u00e1druple Muerte\n"
     },
     {
         "id": "L_MPMENU_017",
@@ -175,7 +175,7 @@
         "gb": "Game Setup\n",
         "jp": "Game Setup\n",
         "it": "Impostazioni gioco\n",
-        "fr": "Paramètres jeu\n",
+        "fr": "Param\u00e8tres jeu\n",
         "de": "Spiel-Einstellungen\n",
         "es": "Conf. de Juego\n"
     },
@@ -187,7 +187,7 @@
         "it": "Carica impostazioni\n",
         "fr": "Charger param.\n",
         "de": "Laden\n",
-        "es": "Cargar Parám.\n"
+        "es": "Cargar Par\u00e1m.\n"
     },
     {
         "id": "L_MPMENU_019",
@@ -195,7 +195,7 @@
         "gb": "Scenario\n",
         "jp": "Scenario\n",
         "it": "Ambientaz.\n",
-        "fr": "Scénario\n",
+        "fr": "Sc\u00e9nario\n",
         "de": "Szenario\n",
         "es": "Escenario\n"
     },
@@ -205,7 +205,7 @@
         "gb": "Arena\n",
         "jp": "Arena\n",
         "it": "Scena\n",
-        "fr": "Arènes\n",
+        "fr": "Ar\u00e8nes\n",
         "de": "Arena\n",
         "es": "Arena\n"
     },
@@ -247,7 +247,7 @@
         "it": "Limiti\n",
         "fr": "Limites\n",
         "de": "Limits\n",
-        "es": "Límites\n"
+        "es": "L\u00edmites\n"
     },
     {
         "id": "L_MPMENU_025",
@@ -267,7 +267,7 @@
         "it": "Salva impostazioni\n",
         "fr": "Sauver param.\n",
         "de": "Speichern\n",
-        "es": "Guardar Parám.\n"
+        "es": "Guardar Par\u00e1m.\n"
     },
     {
         "id": "L_MPMENU_027",
@@ -327,7 +327,7 @@
         "it": "Svantaggi\n",
         "fr": "Handicap\n",
         "de": "Handicap\n",
-        "es": "Hándicap\n"
+        "es": "H\u00e1ndicap\n"
     },
     {
         "id": "L_MPMENU_033",
@@ -357,7 +357,7 @@
         "it": "Statistiche\n",
         "fr": "Statistiques\n",
         "de": "Statistik\n",
-        "es": "Estadísticas\n"
+        "es": "Estad\u00edsticas\n"
     },
     {
         "id": "L_MPMENU_036",
@@ -375,7 +375,7 @@
         "gb": "Drop Out\n",
         "jp": "Drop Out\n",
         "it": "Esci\n",
-        "fr": "Arrêter\n",
+        "fr": "Arr\u00eater\n",
         "de": "Abbruch\n",
         "es": "Abandonar\n"
     },
@@ -425,7 +425,7 @@
         "gb": "Team Names\n",
         "jp": "Team Names\n",
         "it": "Nomi squadre\n",
-        "fr": "Noms équipes\n",
+        "fr": "Noms \u00e9quipes\n",
         "de": "Team-Namen\n",
         "es": "Nombres de Equipo\n"
     },
@@ -467,7 +467,7 @@
         "it": "Ultimo vincit.\n",
         "fr": "Vainq.\n",
         "de": "Letzt. Gewinner\n",
-        "es": "Úl. Ganador\n"
+        "es": "\u00dal. Ganador\n"
     },
     {
         "id": "L_MPMENU_047",
@@ -477,7 +477,7 @@
         "it": "Ultimo perden.\n",
         "fr": "Perd.\n",
         "de": "Letzt. Verlierer\n",
-        "es": "Úl. Perdedor\n"
+        "es": "\u00dal. Perdedor\n"
     },
     {
         "id": "L_MPMENU_048",
@@ -486,7 +486,7 @@
         "jp": "Random\n",
         "it": "A caso\n",
         "fr": "Hasard\n",
-        "de": "zufällig\n",
+        "de": "zuf\u00e4llig\n",
         "es": "Aleatorio\n"
     },
     {
@@ -497,7 +497,7 @@
         "it": "Sfida\n",
         "fr": "Challenge\n",
         "de": "Challenge\n",
-        "es": "Desafío\n"
+        "es": "Desaf\u00edo\n"
     },
     {
         "id": "L_MPMENU_050",
@@ -507,7 +507,7 @@
         "it": "Sfide di lotta\n",
         "fr": "Challenges combat\n",
         "de": "Kampf-Challenge\n",
-        "es": "Desafíos de Combate\n"
+        "es": "Desaf\u00edos de Combate\n"
     },
     {
         "id": "L_MPMENU_051",
@@ -517,7 +517,7 @@
         "it": "Interrompi la sfida\n",
         "fr": "Abandonner Challenge\n",
         "de": "Challenge abbrechen\n",
-        "es": "Abortar Desafío\n"
+        "es": "Abortar Desaf\u00edo\n"
     },
     {
         "id": "L_MPMENU_052",
@@ -536,8 +536,8 @@
         "jp": "Are you sure you want\nto abort the game?\n",
         "it": "Desideri veramente\ninterrompere il gioco?\n",
         "fr": "Voulez-vous vraiment\nabandonner la partie?\n",
-        "de": "Möchten Sie wirklich\nabbrechen?\n",
-        "es": "¿Estás seguro de que\nquieres abortar el juego?\n"
+        "de": "M\u00f6chten Sie wirklich\nabbrechen?\n",
+        "es": "\u00bfEst\u00e1s seguro de que\nquieres abortar el juego?\n"
     },
     {
         "id": "L_MPMENU_054",
@@ -556,7 +556,7 @@
         "jp": "Cancel\n",
         "it": "Annulla\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -586,7 +586,7 @@
         "jp": "Cancel\n",
         "it": "Annulla\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -595,7 +595,7 @@
         "gb": "Team Names\n",
         "jp": "Team Names\n",
         "it": "Nomi squadre\n",
-        "fr": "Noms équipes\n",
+        "fr": "Noms \u00e9quipes\n",
         "de": "Team-Namen\n",
         "es": "Nombres de Equipo\n"
     },
@@ -606,7 +606,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -615,8 +615,8 @@
         "gb": "Change Team Name\n",
         "jp": "Change Team Name\n",
         "it": "Cambia nomi squadre\n",
-        "fr": "Changer nom équipe\n",
-        "de": "Team-Name ändern\n",
+        "fr": "Changer nom \u00e9quipe\n",
+        "de": "Team-Name \u00e4ndern\n",
         "es": "Cambiar Nombre Eq.\n"
     },
     {
@@ -644,10 +644,10 @@
         "en": "Multiple Tunes\n",
         "gb": "Multiple Tunes\n",
         "jp": "Multiple Tunes\n",
-        "it": "Più brani\n",
+        "it": "Pi\u00f9 brani\n",
         "fr": "Musiques multiples\n",
         "de": "Multiple Sound\n",
-        "es": "Múltiples Melodías\n"
+        "es": "M\u00faltiples Melod\u00edas\n"
     },
     {
         "id": "L_MPMENU_065",
@@ -656,7 +656,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -667,7 +667,7 @@
         "it": "Brani multipli\n",
         "fr": "Musiques multiples\n",
         "de": "Multiple Sounds\n",
-        "es": "Múltiples Melodías\n"
+        "es": "M\u00faltiples Melod\u00edas\n"
     },
     {
         "id": "L_MPMENU_067",
@@ -676,7 +676,7 @@
         "jp": "Random\n",
         "it": "A caso\n",
         "fr": "Hasard\n",
-        "de": "zufällig\n",
+        "de": "zuf\u00e4llig\n",
         "es": "Aleatorio\n"
     },
     {
@@ -686,8 +686,8 @@
         "jp": "Select Tunes\n",
         "it": "Seleziona brani\n",
         "fr": "Choix musiques\n",
-        "de": "Wähle Sounds\n",
-        "es": "Elegir Melodías\n"
+        "de": "W\u00e4hle Sounds\n",
+        "es": "Elegir Melod\u00edas\n"
     },
     {
         "id": "L_MPMENU_069",
@@ -696,8 +696,8 @@
         "jp": "Select Tune\n",
         "it": "Seleziona brano\n",
         "fr": "Choix musique\n",
-        "de": "Wähle Sound\n",
-        "es": "Elegir Melodía\n"
+        "de": "W\u00e4hle Sound\n",
+        "es": "Elegir Melod\u00eda\n"
     },
     {
         "id": "L_MPMENU_070",
@@ -705,7 +705,7 @@
         "gb": "Team Control\n",
         "jp": "Team Control\n",
         "it": "Comandi squadra\n",
-        "fr": "Manip. équipe\n",
+        "fr": "Manip. \u00e9quipe\n",
         "de": "Team-Steuerung\n",
         "es": "Controles de Equipo\n"
     },
@@ -715,8 +715,8 @@
         "gb": "Teams Enabled\n",
         "jp": "Teams Enabled\n",
         "it": "Squadre attivate\n",
-        "fr": "Equipes activées\n",
-        "de": "Teams ermächtigt\n",
+        "fr": "Equipes activ\u00e9es\n",
+        "de": "Teams erm\u00e4chtigt\n",
         "es": "Equipos Activados\n"
     },
     {
@@ -746,7 +746,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -765,7 +765,7 @@
         "gb": "Two Teams\n",
         "jp": "Two Teams\n",
         "it": "Due squadre\n",
-        "fr": "Deux équipes\n",
+        "fr": "Deux \u00e9quipes\n",
         "de": "Zwei Teams\n",
         "es": "Dos Equipos\n"
     },
@@ -775,7 +775,7 @@
         "gb": "Three Teams\n",
         "jp": "Three Teams\n",
         "it": "Tre squadre\n",
-        "fr": "Trois équipes\n",
+        "fr": "Trois \u00e9quipes\n",
         "de": "Drei Teams\n",
         "es": "Tres Equipos\n"
     },
@@ -785,7 +785,7 @@
         "gb": "Four Teams\n",
         "jp": "Four Teams\n",
         "it": "Quattro squadre\n",
-        "fr": "Quatre équipes\n",
+        "fr": "Quatre \u00e9quipes\n",
         "de": "Vier Teams\n",
         "es": "Cuatro Equipos\n"
     },
@@ -795,9 +795,9 @@
         "gb": "Maximum Teams\n",
         "jp": "Maximum Teams\n",
         "it": "Squadre al massimo\n",
-        "fr": "Maximum équipes\n",
+        "fr": "Maximum \u00e9quipes\n",
         "de": "Maximum Teams\n",
-        "es": "Máximo de Equipos\n"
+        "es": "M\u00e1ximo de Equipos\n"
     },
     {
         "id": "L_MPMENU_080",
@@ -826,7 +826,7 @@
         "jp": "Cancel\n",
         "it": "Annulla\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -846,8 +846,8 @@
         "jp": "Add Simulant...\n",
         "it": "Aggiungi replicanti...\n",
         "fr": "Ajouter Simulant...\n",
-        "de": "Simulant hinzufügen...\n",
-        "es": "Añadir Simulante...\n"
+        "de": "Simulant hinzuf\u00fcgen...\n",
+        "es": "A\u00f1adir Simulante...\n"
     },
     {
         "id": "L_MPMENU_085",
@@ -936,7 +936,7 @@
         "jp": "Clear All\n",
         "it": "Cancella tutto\n",
         "fr": "Effacer tout\n",
-        "de": "Alle löschen\n",
+        "de": "Alle l\u00f6schen\n",
         "es": "Despejar Todo\n"
     },
     {
@@ -946,7 +946,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -954,8 +954,8 @@
         "en": "Difficulty:\n",
         "gb": "Difficulty:\n",
         "jp": "Difficulty:\n",
-        "it": "Difficoltà:\n",
-        "fr": "Difficulté:\n",
+        "it": "Difficolt\u00e0:\n",
+        "fr": "Difficult\u00e9:\n",
         "de": "Schwierigkeit:\n",
         "es": "Dificultad:\n"
     },
@@ -986,7 +986,7 @@
         "jp": "Delete Simulant\n",
         "it": "Cancella replicante\n",
         "fr": "Effacer Simulant\n",
-        "de": "Simulant löschen\n",
+        "de": "Simulant l\u00f6schen\n",
         "es": "Borrar Simulante\n"
     },
     {
@@ -996,7 +996,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -1016,8 +1016,8 @@
         "jp": "Add Simulant\n",
         "it": "Aggiungi replicante\n",
         "fr": "Ajouter Simulant\n",
-        "de": "Simulant hinzufügen\n",
-        "es": "Añadir Simulante\n"
+        "de": "Simulant hinzuf\u00fcgen\n",
+        "es": "A\u00f1adir Simulante\n"
     },
     {
         "id": "L_MPMENU_102",
@@ -1045,7 +1045,7 @@
         "gb": "Special Simulants\n",
         "jp": "Special Simulants\n",
         "it": "Replicanti speciali\n",
-        "fr": "Simulants spéciaux\n",
+        "fr": "Simulants sp\u00e9ciaux\n",
         "de": "Spezielle Simulanten\n",
         "es": "Simulantes Especiales\n"
     },
@@ -1055,9 +1055,9 @@
         "gb": "Ready!\n",
         "jp": "Ready!\n",
         "it": "Pronti!\n",
-        "fr": "Prêt!\n",
+        "fr": "Pr\u00eat!\n",
         "de": "Fertig!\n",
-        "es": "¡Preparado!\n"
+        "es": "\u00a1Preparado!\n"
     },
     {
         "id": "L_MPMENU_106",
@@ -1077,7 +1077,7 @@
         "it": "Limiti\n",
         "fr": "Limites\n",
         "de": "Limits\n",
-        "es": "Límites\n"
+        "es": "L\u00edmites\n"
     },
     {
         "id": "L_MPMENU_108",
@@ -1105,9 +1105,9 @@
         "gb": "Restore Defaults\n",
         "jp": "Restore Defaults\n",
         "it": "Ripristina impostaz.\n",
-        "fr": "Rétablir par défaut\n",
+        "fr": "R\u00e9tablir par d\u00e9faut\n",
         "de": "Grundeinstellung\n",
-        "es": "Parámetros Iniciales\n"
+        "es": "Par\u00e1metros Iniciales\n"
     },
     {
         "id": "L_MPMENU_111",
@@ -1116,7 +1116,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -1127,7 +1127,7 @@
         "it": "No limite\n",
         "fr": "Pas de limite\n",
         "de": "Unbegr.\n",
-        "es": "Sin límite\n"
+        "es": "Sin l\u00edmite\n"
     },
     {
         "id": "L_MPMENU_113",
@@ -1155,7 +1155,7 @@
         "gb": "Arena\n",
         "jp": "Arena\n",
         "it": "Scena\n",
-        "fr": "Arènes\n",
+        "fr": "Ar\u00e8nes\n",
         "de": "Arena\n",
         "es": "Arena\n"
     },
@@ -1177,7 +1177,7 @@
         "it": "Classica\n",
         "fr": "Classique\n",
         "de": "Classic\n",
-        "es": "Clásico\n"
+        "es": "Cl\u00e1sico\n"
     },
     {
         "id": "L_MPMENU_118",
@@ -1186,7 +1186,7 @@
         "jp": "Random\n",
         "it": "A caso\n",
         "fr": "Hasard\n",
-        "de": "zufällig\n",
+        "de": "zuf\u00e4llig\n",
         "es": "Aleatorio\n"
     },
     {
@@ -1207,7 +1207,7 @@
         "it": "Condotte",
         "fr": "Conduits",
         "de": "Rohre",
-        "es": "Tuberías"
+        "es": "Tuber\u00edas"
     },
     {
         "id": "L_MPMENU_121",
@@ -1236,7 +1236,7 @@
         "jp": "Sewers",
         "it": "Fognature",
         "fr": "Egouts",
-        "de": "Kanäle",
+        "de": "Kan\u00e4le",
         "es": "Cloacas"
     },
     {
@@ -1245,9 +1245,9 @@
         "gb": "Warehouse",
         "jp": "Warehouse",
         "it": "Magazzino",
-        "fr": "Entrepôt",
+        "fr": "Entrep\u00f4t",
         "de": "Lagerhaus",
-        "es": "Almacén"
+        "es": "Almac\u00e9n"
     },
     {
         "id": "L_MPMENU_125",
@@ -1277,7 +1277,7 @@
         "it": "Area 52",
         "fr": "Secteur 52",
         "de": "Area 52",
-        "es": "Área 52"
+        "es": "\u00c1rea 52"
     },
     {
         "id": "L_MPMENU_128",
@@ -1296,7 +1296,7 @@
         "jp": "Rooftop",
         "it": "Tetto",
         "fr": "Toit",
-        "de": "Dächer",
+        "de": "D\u00e4cher",
         "es": "Tejado"
     },
     {
@@ -1354,9 +1354,9 @@
         "en": "Felicity",
         "gb": "Felicity",
         "jp": "Felicity",
-        "it": "Felicità",
-        "fr": "Félicité",
-        "de": "Glückseligkeit",
+        "it": "Felicit\u00e0",
+        "fr": "F\u00e9licit\u00e9",
+        "de": "Gl\u00fcckseligkeit",
         "es": "Felicity"
     },
     {
@@ -1366,7 +1366,7 @@
         "jp": "Random",
         "it": "A caso",
         "fr": "Hasard",
-        "de": "Zufällig",
+        "de": "Zuf\u00e4llig",
         "es": "Aleatorio"
     },
     {
@@ -1387,7 +1387,7 @@
         "it": "Premi B per annullare\n",
         "fr": "Bouton B pour annuler\n",
         "de": "Abbruch\n",
-        "es": "Botón B para cancelar\n"
+        "es": "Bot\u00f3n B para cancelar\n"
     },
     {
         "id": "L_MPMENU_139",
@@ -1397,7 +1397,7 @@
         "it": "Carica impostaz. gioco\n",
         "fr": "Charger param.\n",
         "de": "Laden\n",
-        "es": "Cargar Parámetros\n"
+        "es": "Cargar Par\u00e1metros\n"
     },
     {
         "id": "L_MPMENU_140",
@@ -1405,7 +1405,7 @@
         "gb": "%s:  Scenario: %s   Arena: %s    Simulants: %d",
         "jp": "%s:  Scenario: %s   Arena: %s    Simulants: %d",
         "it": "%s:  Ambientazione: %s   Scena: %s    Replicanti: %d",
-        "fr": "%s:  Scénario: %s   Arène: %s    Simulants: %d",
+        "fr": "%s:  Sc\u00e9nario: %s   Ar\u00e8ne: %s    Simulants: %d",
         "de": "%s:  Szenario: %s   Arena: %s    Simulanten: %d",
         "es": "%s:  Escenario: %s   Arena: %s    Simulantes: %d"
     },
@@ -1415,7 +1415,7 @@
         "gb": "Presets\n",
         "jp": "Presets\n",
         "it": "Impostazioni\n",
-        "fr": "Présélections\n",
+        "fr": "Pr\u00e9s\u00e9lections\n",
         "de": "Voreinstellungen\n",
         "es": "Predefinidos\n"
     },
@@ -1445,7 +1445,7 @@
         "gb": "Load Head...\n",
         "jp": "Load Head...\n",
         "it": "Carica testa...\n",
-        "fr": "Charger tête...\n",
+        "fr": "Charger t\u00eate...\n",
         "de": "Kopf laden...\n",
         "es": "Cargar Cabeza...\n"
     },
@@ -1456,7 +1456,7 @@
         "jp": "Statistics\n",
         "it": "Statistiche %s\n",
         "fr": "Stats pour %s\n",
-        "de": "Statistik für %s\n",
+        "de": "Statistik f\u00fcr %s\n",
         "es": "Estad. de %s\n"
     },
     {
@@ -1465,7 +1465,7 @@
         "gb": "Kills:\n",
         "jp": "Kills:\n",
         "it": "Vittime:\n",
-        "fr": "Tués:\n",
+        "fr": "Tu\u00e9s:\n",
         "de": "Treff.:\n",
         "es": "Muertes:\n"
     },
@@ -1485,9 +1485,9 @@
         "gb": "Accuracy:\n",
         "jp": "Accuracy:\n",
         "it": "Precisione:\n",
-        "fr": "Précision:\n",
+        "fr": "Pr\u00e9cision:\n",
         "de": "Genauigkeit:\n",
-        "es": "Precisión:\n"
+        "es": "Precisi\u00f3n:\n"
     },
     {
         "id": "L_MPMENU_149",
@@ -1495,7 +1495,7 @@
         "gb": "Head Shots:\n",
         "jp": "Head Shots:\n",
         "it": "Colpi al capo:\n",
-        "fr": "Tirs tête:\n",
+        "fr": "Tirs t\u00eate:\n",
         "de": "Kopftreffer:\n",
         "es": "Tiros Cabeza:\n"
     },
@@ -1515,9 +1515,9 @@
         "gb": "Damage Dealt:\n",
         "jp": "Damage Dealt:\n",
         "it": "Danno arrecato:\n",
-        "fr": "Dég. infligés:\n",
+        "fr": "D\u00e9g. inflig\u00e9s:\n",
         "de": "Schaden:\n",
-        "es": "Daño Caus.:\n"
+        "es": "Da\u00f1o Caus.:\n"
     },
     {
         "id": "L_MPMENU_152",
@@ -1525,7 +1525,7 @@
         "gb": "Pain Received:\n",
         "jp": "Pain Received:\n",
         "it": "Danno subito:\n",
-        "fr": "Dég. reçus:\n",
+        "fr": "D\u00e9g. re\u00e7us:\n",
         "de": "Schmerzen:\n",
         "es": "Dolor Rec.:\n"
     },
@@ -1537,7 +1537,7 @@
         "it": "Partite giocate:\n",
         "fr": "Parties:\n",
         "de": "Spiele gesamt:\n",
-        "es": "N° Juegos:\n"
+        "es": "N\u00b0 Juegos:\n"
     },
     {
         "id": "L_MPMENU_154",
@@ -1545,7 +1545,7 @@
         "gb": "Games Won:\n",
         "jp": "Games Won:\n",
         "it": "Partite vinte:\n",
-        "fr": "Gagnées:\n",
+        "fr": "Gagn\u00e9es:\n",
         "de": "Gewinne:\n",
         "es": "J. Ganados:\n"
     },
@@ -1585,7 +1585,7 @@
         "gb": "Medals Won:\n",
         "jp": "Medals Won:\n",
         "it": "Medaglie vinte:\n",
-        "fr": "Médailles gagnées:\n",
+        "fr": "M\u00e9dailles gagn\u00e9es:\n",
         "de": "Medaillen:\n",
         "es": "Medallas Ganadas:\n"
     },
@@ -1595,9 +1595,9 @@
         "gb": "   Accuracy:\n",
         "jp": "   Accuracy:\n",
         "it": "   Precisione:\n",
-        "fr": "   Précision:\n",
+        "fr": "   Pr\u00e9cision:\n",
         "de": "   Genauigkeit:\n",
-        "es": "   Precisión:\n"
+        "es": "   Precisi\u00f3n:\n"
     },
     {
         "id": "L_MPMENU_160",
@@ -1605,7 +1605,7 @@
         "gb": "   Head Shot:\n",
         "jp": "   Head Shot:\n",
         "it": "   Colpi al capo:\n",
-        "fr": "   Tirs tête:\n",
+        "fr": "   Tirs t\u00eate:\n",
         "de": "   Kopftreffer:\n",
         "es": "   Tiros Cabeza:\n"
     },
@@ -1616,7 +1616,7 @@
         "jp": "   KillMaster:\n",
         "it": "   Campione:\n",
         "fr": "   Tueur:\n",
-        "de": "   Meisterschütze:\n",
+        "de": "   Meistersch\u00fctze:\n",
         "es": "   Mr. Muerte:\n"
     },
     {
@@ -1626,7 +1626,7 @@
         "jp": "   Survivor:\n",
         "it": "   Superstite:\n",
         "fr": "   Survivant:\n",
-        "de": "   Überlebender:\n",
+        "de": "   \u00dcberlebender:\n",
         "es": "   Superviviente:\n"
     },
     {
@@ -1637,7 +1637,7 @@
         "it": "Tuo titolo:\n",
         "fr": "Votre titre:\n",
         "de": "Ihr Titel:\n",
-        "es": "Tu Título:\n"
+        "es": "Tu T\u00edtulo:\n"
     },
     {
         "id": "L_MPMENU_164",
@@ -1646,7 +1646,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -1655,9 +1655,9 @@
         "gb": "Completed Challenges\n",
         "jp": "Completed Challenges\n",
         "it": "Sfide completate\n",
-        "fr": "Challenges complétés\n",
+        "fr": "Challenges compl\u00e9t\u00e9s\n",
         "de": "Challenges OK\n",
-        "es": "Desafíos Completados\n"
+        "es": "Desaf\u00edos Completados\n"
     },
     {
         "id": "L_MPMENU_166",
@@ -1666,7 +1666,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -1685,7 +1685,7 @@
         "gb": "Highlight Pickups\n",
         "jp": "Highlight Pickups\n",
         "it": "Mostra strumenti\n",
-        "fr": "Voir récup.\n",
+        "fr": "Voir r\u00e9cup.\n",
         "de": "Items anzeigen\n",
         "es": "Destacar Objetos\n"
     },
@@ -1705,7 +1705,7 @@
         "gb": "Highlight Teams\n",
         "jp": "Highlight Teams\n",
         "it": "Mostra squadre\n",
-        "fr": "Voir équipes\n",
+        "fr": "Voir \u00e9quipes\n",
         "de": "Teams anzeigen\n",
         "es": "Destacar Equipos\n"
     },
@@ -1726,7 +1726,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -1826,7 +1826,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -1837,7 +1837,7 @@
         "it": "Salva impostaz. gioco\n",
         "fr": "Sauver param. jeu\n",
         "de": "Speichern\n",
-        "es": "Guardar Configuración\n"
+        "es": "Guardar Configuraci\u00f3n\n"
     },
     {
         "id": "L_MPMENU_184",
@@ -1846,8 +1846,8 @@
         "jp": "Do you want to save over\nyour original game file?\n",
         "it": "Vuoi salvare sul file\ndi gioco originale?\n",
         "fr": "Ecraser votre\nfichier original?\n",
-        "de": "Möchten Sie das \nbestehende File\nüberschreiben?\n",
-        "es": "¿Quieres guardar sobre\ntu fichero original?\n"
+        "de": "M\u00f6chten Sie das \nbestehende File\n\u00fcberschreiben?\n",
+        "es": "\u00bfQuieres guardar sobre\ntu fichero original?\n"
     },
     {
         "id": "L_MPMENU_185",
@@ -1856,7 +1856,7 @@
         "jp": "Save Over Original\n",
         "it": "Salva su originale\n",
         "fr": "Ecraser fichier\n",
-        "de": "Überschreiben\n",
+        "de": "\u00dcberschreiben\n",
         "es": "Guardar Sobre Orig.\n"
     },
     {
@@ -1895,7 +1895,7 @@
         "gb": "Enter a name for your\ngame setup file:\n",
         "jp": "Enter a name for your\ngame setup file:\n",
         "it": "Digita nome per il file\nimpostazioni gioco:\n",
-        "fr": "Entrer nom pour\nfichier de paramètres:\n",
+        "fr": "Entrer nom pour\nfichier de param\u00e8tres:\n",
         "de": "Bitte benennen Sie\nIhr File:\n",
         "es": "Introduce el nombre\nde fichero de conf.:\n"
     },
@@ -1906,7 +1906,7 @@
         "jp": "Confirm\n",
         "it": "Conferma\n",
         "fr": "Confirmer\n",
-        "de": "Bestätigen\n",
+        "de": "Best\u00e4tigen\n",
         "es": "Confirmar\n"
     },
     {
@@ -1914,10 +1914,10 @@
         "en": "Your player file is\nalways saved\nautomatically.\n",
         "gb": "Your player file is\nalways saved\nautomatically.\n",
         "jp": "Your player file is\nalways saved\nautomatically.\n",
-        "it": "Il file giocatore è\nsempre salvato\nautomaticamente.\n",
-        "fr": "Fichier joueur\nest sauvé\nen auto.\n",
+        "it": "Il file giocatore \u00e8\nsempre salvato\nautomaticamente.\n",
+        "fr": "Fichier joueur\nest sauv\u00e9\nen auto.\n",
         "de": "Ihr Spieler-File wird\nimmer automatisch\ngespeichert.\n",
-        "es": "Tu fichero de jugador\nsiempre se guarda\nautomáticamente.\n"
+        "es": "Tu fichero de jugador\nsiempre se guarda\nautom\u00e1ticamente.\n"
     },
     {
         "id": "L_MPMENU_192",
@@ -1927,7 +1927,7 @@
         "it": "Salvarne una copia?\n",
         "fr": "Sauver une copie?\n",
         "de": "Kopie speichern?\n",
-        "es": "¿Guardar una copia?\n"
+        "es": "\u00bfGuardar una copia?\n"
     },
     {
         "id": "L_MPMENU_193",
@@ -1944,10 +1944,10 @@
         "en": "Yes\n",
         "gb": "Yes\n",
         "jp": "Yes\n",
-        "it": "Sì\n",
+        "it": "S\u00ec\n",
         "fr": "Oui\n",
         "de": "Ja\n",
-        "es": "Sí\n"
+        "es": "S\u00ed\n"
     },
     {
         "id": "L_MPMENU_195",
@@ -1955,7 +1955,7 @@
         "gb": "Drop Out\n",
         "jp": "Drop out\n",
         "it": "Esci\n",
-        "fr": "Arrêter\n",
+        "fr": "Arr\u00eater\n",
         "de": "Abbruch\n",
         "es": "Abandonar\n"
     },
@@ -1965,9 +1965,9 @@
         "gb": "Are you sure you\nwant to drop out?\n",
         "jp": "Are you sure you\nwant to drop out?\n",
         "it": "Desideri veramente\nuscire?\n",
-        "fr": "Voulez-vous vraiment\narrêter?\n",
-        "de": "Möchten Sie wirklich\nabbrechen?\n",
-        "es": "¿Seguro que quieres\nabandonar?\n"
+        "fr": "Voulez-vous vraiment\narr\u00eater?\n",
+        "de": "M\u00f6chten Sie wirklich\nabbrechen?\n",
+        "es": "\u00bfSeguro que quieres\nabandonar?\n"
     },
     {
         "id": "L_MPMENU_197",
@@ -1975,7 +1975,7 @@
         "gb": "Drop Out\n",
         "jp": "Drop Out\n",
         "it": "Esci\n",
-        "fr": "Arrêter\n",
+        "fr": "Arr\u00eater\n",
         "de": "Abbrechen\n",
         "es": "Abandonar\n"
     },
@@ -1986,7 +1986,7 @@
         "jp": "Cancel\n",
         "it": "Annulla\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -2004,7 +2004,7 @@
         "en": "Control Style\n",
         "gb": "Control Style\n",
         "jp": "Control Style\n",
-        "it": "Modalità comandi\n",
+        "it": "Modalit\u00e0 comandi\n",
         "fr": "Style manip.\n",
         "de": "Steuerungsart\n",
         "es": "Estilo de Control\n"
@@ -2035,7 +2035,7 @@
         "gb": "Head Roll\n",
         "jp": "Head Roll\n",
         "it": "Rotazione testa\n",
-        "fr": "Mouv. tête\n",
+        "fr": "Mouv. t\u00eate\n",
         "de": "Kopfneigung\n",
         "es": "Giro de Cabeza\n"
     },
@@ -2045,7 +2045,7 @@
         "gb": "Auto-Aim\n",
         "jp": "Auto-Aim\n",
         "it": "Mira automatica\n",
-        "fr": "Visée auto\n",
+        "fr": "Vis\u00e9e auto\n",
         "de": "Auto-Ziel\n",
         "es": "Auto-Apuntar\n"
     },
@@ -2055,7 +2055,7 @@
         "gb": "Aim Control\n",
         "jp": "Aim Control\n",
         "it": "Mirino\n",
-        "fr": "Contrôle visée\n",
+        "fr": "Contr\u00f4le vis\u00e9e\n",
         "de": "Ziel-Steuerung\n",
         "es": "C. Apuntar\n"
     },
@@ -2065,7 +2065,7 @@
         "gb": "Sight on Screen\n",
         "jp": "Sight On Screen\n",
         "it": "Vista su schermo\n",
-        "fr": "Cible à l'écran\n",
+        "fr": "Cible \u00e0 l'\u00e9cran\n",
         "de": "Screen-Anzeigen\n",
         "es": "Mirilla en Pantalla\n"
     },
@@ -2085,7 +2085,7 @@
         "gb": "Zoom Range\n",
         "jp": "Zoom Range\n",
         "it": "Area zoom\n",
-        "fr": "Portée zoom\n",
+        "fr": "Port\u00e9e zoom\n",
         "de": "Zoom-Bereich\n",
         "es": "Alcance de Zoom\n"
     },
@@ -2095,9 +2095,9 @@
         "gb": "Ammo on Screen\n",
         "jp": "Ammo On Screen\n",
         "it": "Munizioni\n",
-        "fr": "Munit. à l'écran\n",
+        "fr": "Munit. \u00e0 l'\u00e9cran\n",
         "de": "Munition anzeigen\n",
-        "es": "Munición en Pantalla\n"
+        "es": "Munici\u00f3n en Pantalla\n"
     },
     {
         "id": "L_MPMENU_210",
@@ -2107,7 +2107,7 @@
         "it": "Funzioni arma\n",
         "fr": "Fonction arme\n",
         "de": "Funktion anzeigen\n",
-        "es": "Función del Arma\n"
+        "es": "Funci\u00f3n del Arma\n"
     },
     {
         "id": "L_MPMENU_211",
@@ -2126,7 +2126,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -2167,7 +2167,7 @@
         "it": "Opzioni cartella\n",
         "fr": "Options mallette\n",
         "de": "Aktenkoffer-Optionen\n",
-        "es": "Opciones de Maletín\n"
+        "es": "Opciones de Malet\u00edn\n"
     },
     {
         "id": "L_MPMENU_217",
@@ -2185,7 +2185,7 @@
         "gb": "Pop a Cap Options\n",
         "jp": "Pop A Cap Options\n",
         "it": "Opzioni tutti contro 1\n",
-        "fr": "Options décapsuleur\n",
+        "fr": "Options d\u00e9capsuleur\n",
         "de": "Pop a Cap-Optionen\n",
         "es": "Opciones de Llevar\n"
     },
@@ -2196,7 +2196,7 @@
         "jp": "Hill Options\n",
         "it": "Opzioni colle\n",
         "fr": "Options zone\n",
-        "de": "Hügel-Optionen\n",
+        "de": "H\u00fcgel-Optionen\n",
         "es": "Opciones de Colina\n"
     },
     {
@@ -2237,7 +2237,7 @@
         "it": "Al rallentatore\n",
         "fr": "Ralenti\n",
         "de": "Zeitlupe\n",
-        "es": "Cám. Lenta\n"
+        "es": "C\u00e1m. Lenta\n"
     },
     {
         "id": "L_MPMENU_224",
@@ -2247,7 +2247,7 @@
         "it": "Accelerato\n",
         "fr": "Mouvement rapide\n",
         "de": "Zeitraffer\n",
-        "es": "Movimiento Rápido\n"
+        "es": "Movimiento R\u00e1pido\n"
     },
     {
         "id": "L_MPMENU_225",
@@ -2255,7 +2255,7 @@
         "gb": "Display Team\n",
         "jp": "Display Team\n",
         "it": "Mostra squadra\n",
-        "fr": "Afficher équipe\n",
+        "fr": "Afficher \u00e9quipe\n",
         "de": "Team anzeigen\n",
         "es": "Mostrar Equipo\n"
     },
@@ -2275,7 +2275,7 @@
         "gb": "No Auto-Aim\n",
         "jp": "No Auto-Aim\n",
         "it": "No mira autom.\n",
-        "fr": "Sans visée auto\n",
+        "fr": "Sans vis\u00e9e auto\n",
         "de": "Kein Auto-Ziel\n",
         "es": "Sin Auto-Apuntar\n"
     },
@@ -2295,7 +2295,7 @@
         "gb": "No Pickup Highlight\n",
         "jp": "No Pickup Highlight\n",
         "it": "Nascondi strumenti\n",
-        "fr": "Sans voir récup.\n",
+        "fr": "Sans voir r\u00e9cup.\n",
         "de": "Items nicht zeigen\n",
         "es": "Sin Destacar Obj.\n"
     },
@@ -2336,7 +2336,7 @@
         "jp": "Hill on Radar\n",
         "it": "Colle su radar\n",
         "fr": "Zone sur radar\n",
-        "de": "Hügel zeigen\n",
+        "de": "H\u00fcgel zeigen\n",
         "es": "Colina en el Radar\n"
     },
     {
@@ -2346,8 +2346,8 @@
         "jp": "Mobile Hill\n",
         "it": "Colle mobile\n",
         "fr": "Zone mobile\n",
-        "de": "Mobiler Hügel\n",
-        "es": "Colina Móvil\n"
+        "de": "Mobiler H\u00fcgel\n",
+        "es": "Colina M\u00f3vil\n"
     },
     {
         "id": "L_MPMENU_235",
@@ -2377,7 +2377,7 @@
         "it": "Mostra cartella\n",
         "fr": "Voir mallette\n",
         "de": "Koffer zeigen\n",
-        "es": "Destacar Maletín\n"
+        "es": "Destacar Malet\u00edn\n"
     },
     {
         "id": "L_MPMENU_238",
@@ -2396,7 +2396,7 @@
         "jp": "Back\n",
         "it": "Esci\n",
         "fr": "Retour\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Volver\n"
     },
     {
@@ -2414,10 +2414,10 @@
         "en": "On\n",
         "gb": "On\n",
         "jp": "On\n",
-        "it": "Sì\n",
+        "it": "S\u00ec\n",
         "fr": "Oui\n",
         "de": "Ein\n",
-        "es": "Sí\n"
+        "es": "S\u00ed\n"
     },
     {
         "id": "L_MPMENU_242",
@@ -2435,7 +2435,7 @@
         "gb": "Scenario\n",
         "jp": "Scenario\n",
         "it": "Ambientazione\n",
-        "fr": "Scénario\n",
+        "fr": "Sc\u00e9nario\n",
         "de": "Szenario\n",
         "es": "Escenario\n"
     },
@@ -2446,8 +2446,8 @@
         "jp": "Free for All!\n",
         "it": "Per tutti!\n",
         "fr": "Chacun pour soi!\n",
-        "de": "Frei für alle!\n",
-        "es": "¡Pelea!\n"
+        "de": "Frei f\u00fcr alle!\n",
+        "es": "\u00a1Pelea!\n"
     },
     {
         "id": "L_MPMENU_245",
@@ -2477,7 +2477,7 @@
         "it": "Tieni cartella",
         "fr": "Tenir la mallette",
         "de": "Der Koffer 1",
-        "es": "Mantén el Maletín"
+        "es": "Mant\u00e9n el Malet\u00edn"
     },
     {
         "id": "L_MPMENU_248",
@@ -2495,9 +2495,9 @@
         "gb": "Pop a Cap",
         "jp": "Pop A Cap",
         "it": "Tutti contro 1",
-        "fr": "Décapsuleur",
+        "fr": "D\u00e9capsuleur",
         "de": "Pop a Cap",
-        "es": "Tú la llevas"
+        "es": "T\u00fa la llevas"
     },
     {
         "id": "L_MPMENU_250",
@@ -2506,7 +2506,7 @@
         "jp": "King Of The Hill",
         "it": "Re del colle",
         "fr": "Roi de la zone",
-        "de": "Herr des Hügels",
+        "de": "Herr des H\u00fcgels",
         "es": "Rey de la Colina"
     },
     {
@@ -2517,7 +2517,7 @@
         "it": "Prendi la cassa",
         "fr": "Capturer la mallette",
         "de": "Der Koffer 2",
-        "es": "Captura Maletín"
+        "es": "Captura Malet\u00edn"
     },
     {
         "id": "L_MPMENU_252",
@@ -2525,8 +2525,8 @@
         "gb": "Touch That Box",
         "jp": "Touch That Box",
         "it": "Tocca quel box",
-        "fr": "Contrôle de PC",
-        "de": "Berühr die Box",
+        "fr": "Contr\u00f4le de PC",
+        "de": "Ber\u00fchr die Box",
         "es": "Toca esa Caja"
     },
     {
@@ -2547,7 +2547,7 @@
         "it": "Cartella",
         "fr": "Mallette",
         "de": "Aktenkoffer",
-        "es": "Maletín"
+        "es": "Malet\u00edn"
     },
     {
         "id": "L_MPMENU_255",
@@ -2565,7 +2565,7 @@
         "gb": "Pop",
         "jp": "Pop",
         "it": "Contro 1",
-        "fr": "Décaps.",
+        "fr": "D\u00e9caps.",
         "de": "Pop",
         "es": "Llevar"
     },
@@ -2576,7 +2576,7 @@
         "jp": "Hill",
         "it": "Colle",
         "fr": "Zone",
-        "de": "Hügel",
+        "de": "H\u00fcgel",
         "es": "Colina"
     },
     {
@@ -2617,15 +2617,15 @@
         "it": "Titolo:\n",
         "fr": "Titre:\n",
         "de": "Titel:\n",
-        "es": "Título:\n"
+        "es": "T\u00edtulo:\n"
     },
     {
         "id": "L_MPMENU_262",
         "en": "Weapon of Choice:\n",
         "gb": "Weapon of Choice:\n",
         "jp": "Weapon of Choice:\n",
-        "it": "Arma più usata:\n",
-        "fr": "Arme de prédilection:\n",
+        "it": "Arma pi\u00f9 usata:\n",
+        "fr": "Arme de pr\u00e9dilection:\n",
         "de": "Bevorzugte Waffe:\n",
         "es": "Arma Preferida:\n"
     },
@@ -2644,120 +2644,120 @@
         "en": "1st\n",
         "gb": "1st\n",
         "jp": "1st\n",
-        "it": "1°\n",
+        "it": "1\u00b0\n",
         "fr": "1er\n",
         "de": "1.\n",
-        "es": "1°\n"
+        "es": "1\u00b0\n"
     },
     {
         "id": "L_MPMENU_265",
         "en": "2nd\n",
         "gb": "2nd\n",
         "jp": "2nd\n",
-        "it": "2°\n",
-        "fr": "2ème\n",
+        "it": "2\u00b0\n",
+        "fr": "2\u00e8me\n",
         "de": "2.\n",
-        "es": "2°\n"
+        "es": "2\u00b0\n"
     },
     {
         "id": "L_MPMENU_266",
         "en": "3rd\n",
         "gb": "3rd\n",
         "jp": "3rd\n",
-        "it": "3°\n",
-        "fr": "3ème\n",
+        "it": "3\u00b0\n",
+        "fr": "3\u00e8me\n",
         "de": "3.\n",
-        "es": "3°\n"
+        "es": "3\u00b0\n"
     },
     {
         "id": "L_MPMENU_267",
         "en": "4th\n",
         "gb": "4th\n",
         "jp": "4th\n",
-        "it": "4°\n",
-        "fr": "4ème\n",
+        "it": "4\u00b0\n",
+        "fr": "4\u00e8me\n",
         "de": "4.\n",
-        "es": "4°\n"
+        "es": "4\u00b0\n"
     },
     {
         "id": "L_MPMENU_268",
         "en": "5th\n",
         "gb": "5th\n",
         "jp": "5th\n",
-        "it": "5°\n",
-        "fr": "5ème\n",
+        "it": "5\u00b0\n",
+        "fr": "5\u00e8me\n",
         "de": "5.\n",
-        "es": "5°\n"
+        "es": "5\u00b0\n"
     },
     {
         "id": "L_MPMENU_269",
         "en": "6th\n",
         "gb": "6th\n",
         "jp": "6th\n",
-        "it": "6°\n",
-        "fr": "6ème\n",
+        "it": "6\u00b0\n",
+        "fr": "6\u00e8me\n",
         "de": "6.\n",
-        "es": "6°\n"
+        "es": "6\u00b0\n"
     },
     {
         "id": "L_MPMENU_270",
         "en": "7th\n",
         "gb": "7th\n",
         "jp": "7th\n",
-        "it": "7°\n",
-        "fr": "7ème\n",
+        "it": "7\u00b0\n",
+        "fr": "7\u00e8me\n",
         "de": "7.\n",
-        "es": "7°\n"
+        "es": "7\u00b0\n"
     },
     {
         "id": "L_MPMENU_271",
         "en": "8th\n",
         "gb": "8th\n",
         "jp": "8th\n",
-        "it": "8°\n",
-        "fr": "8ème\n",
+        "it": "8\u00b0\n",
+        "fr": "8\u00e8me\n",
         "de": "8.\n",
-        "es": "8°\n"
+        "es": "8\u00b0\n"
     },
     {
         "id": "L_MPMENU_272",
         "en": "9th\n",
         "gb": "9th\n",
         "jp": "9th\n",
-        "it": "9°\n",
-        "fr": "9ème\n",
+        "it": "9\u00b0\n",
+        "fr": "9\u00e8me\n",
         "de": "9.\n",
-        "es": "9°\n"
+        "es": "9\u00b0\n"
     },
     {
         "id": "L_MPMENU_273",
         "en": "10th\n",
         "gb": "10th\n",
         "jp": "10th\n",
-        "it": "10°\n",
-        "fr": "10ème\n",
+        "it": "10\u00b0\n",
+        "fr": "10\u00e8me\n",
         "de": "10.\n",
-        "es": "10°\n"
+        "es": "10\u00b0\n"
     },
     {
         "id": "L_MPMENU_274",
         "en": "11th\n",
         "gb": "11th\n",
         "jp": "11th\n",
-        "it": "11°\n",
-        "fr": "11ème\n",
+        "it": "11\u00b0\n",
+        "fr": "11\u00e8me\n",
         "de": "11.\n",
-        "es": "11°\n"
+        "es": "11\u00b0\n"
     },
     {
         "id": "L_MPMENU_275",
         "en": "12th\n",
         "gb": "12th\n",
         "jp": "12th\n",
-        "it": "12°\n",
-        "fr": "12ème\n",
+        "it": "12\u00b0\n",
+        "fr": "12\u00e8me\n",
         "de": "12.\n",
-        "es": "12°\n"
+        "es": "12\u00b0\n"
     },
     {
         "id": "L_MPMENU_276",
@@ -2767,7 +2767,7 @@
         "it": "Classifica giocatori\n",
         "fr": "Classement joueur\n",
         "de": "Spieler-Bewertung\n",
-        "es": "Situación Jugador\n"
+        "es": "Situaci\u00f3n Jugador\n"
     },
     {
         "id": "L_MPMENU_277",
@@ -2795,9 +2795,9 @@
         "gb": "Team Ranking\n",
         "jp": "Team Ranking\n",
         "it": "Classifica squadre\n",
-        "fr": "Classement équipe\n",
+        "fr": "Classement \u00e9quipe\n",
         "de": "Team-Bewertung\n",
-        "es": "Situación Equipo\n"
+        "es": "Situaci\u00f3n Equipo\n"
     },
     {
         "id": "L_MPMENU_280",
@@ -2806,7 +2806,7 @@
         "jp": "Stats for %s",
         "it": "Statistiche %s",
         "fr": "Stats de %s",
-        "de": "Statistik für %s",
+        "de": "Statistik f\u00fcr %s",
         "es": "Estad. de %s"
     },
     {
@@ -2835,7 +2835,7 @@
         "gb": "Kills\n",
         "jp": "Inventory\n",
         "it": "Vitt.\n",
-        "fr": "Tués\n",
+        "fr": "Tu\u00e9s\n",
         "de": "Hits\n",
         "es": "Aci.\n"
     },
@@ -2915,9 +2915,9 @@
         "gb": "Are you sure?\n",
         "jp": "Cancel\n",
         "it": "Sicuro?\n",
-        "fr": "Etes-vous sûr?\n",
+        "fr": "Etes-vous s\u00fbr?\n",
         "de": "Sind Sie sicher?\n",
-        "es": "¿Estás seguro?\n"
+        "es": "\u00bfEst\u00e1s seguro?\n"
     },
     {
         "id": "L_MPMENU_292",
@@ -2926,7 +2926,7 @@
         "jp": "End Game\n",
         "it": "Annulla\n",
         "fr": "Annuler\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -2996,7 +2996,7 @@
         "jp": "Cancel\n",
         "it": "Scegli casella per modifica:\n",
         "fr": "Choose slot to edit:\n",
-        "de": "Wähle den Kopf:\n",
+        "de": "W\u00e4hle den Kopf:\n",
         "es": "Elegir slot a editar:\n"
     },
     {
@@ -3036,8 +3036,8 @@
         "jp": "to use this head?\n",
         "it": "Dove desideri usare\n",
         "fr": "Where do you want to be able\n",
-        "de": "Wo möchtest du diesen\n",
-        "es": "¿Dónde querrás usar\n"
+        "de": "Wo m\u00f6chtest du diesen\n",
+        "es": "\u00bfD\u00f3nde querr\u00e1s usar\n"
     },
     {
         "id": "L_MPMENU_304",
@@ -3097,7 +3097,7 @@
         "it": "Impostaz. macch. fotografica\n",
         "fr": "Camera Setup\n",
         "de": "Camera Setup\n",
-        "es": "Conf. Cámara\n"
+        "es": "Conf. C\u00e1mara\n"
     },
     {
         "id": "L_MPMENU_310",
@@ -3107,7 +3107,7 @@
         "it": "Inserisci la macch. fotografica\n",
         "fr": "Insert your camera into your\n",
         "de": "Insert your camera into your\n",
-        "es": "Inserta tu cámara en tu\n"
+        "es": "Inserta tu c\u00e1mara en tu\n"
     },
     {
         "id": "L_MPMENU_311",
@@ -3177,7 +3177,7 @@
         "it": "Macch. fotografica Game Boy non rilevata!\n",
         "fr": "Game Boy Camera Not Detected!\n",
         "de": "Game Boy Camera Not Detected!\n",
-        "es": "¡Cámara de Game Boy No Detectada!\n"
+        "es": "\u00a1C\u00e1mara de Game Boy No Detectada!\n"
     },
     {
         "id": "L_MPMENU_318",
@@ -3197,7 +3197,7 @@
         "it": "e riprova.\n",
         "fr": "and try again.\n",
         "de": "and try again.\n",
-        "es": "conexiones y reinténtalo.\n"
+        "es": "conexiones y reint\u00e9ntalo.\n"
     },
     {
         "id": "L_MPMENU_320",
@@ -3217,17 +3217,17 @@
         "it": "Scegli la macchina\n",
         "fr": "Choose Camera\n",
         "de": "Choose Camera\n",
-        "es": "Elegir Cámara\n"
+        "es": "Elegir C\u00e1mara\n"
     },
     {
         "id": "L_MPMENU_322",
         "en": "More than one camera detected.\n",
         "gb": "More than one camera detected.\n",
         "jp": "Please select which camera you\nwant to use\n",
-        "it": "Rilevate più macchine\n",
+        "it": "Rilevate pi\u00f9 macchine\n",
         "fr": "More than one camera detected.\n",
         "de": "More than one camera detected.\n",
-        "es": "Más de una cámara detectada.\n"
+        "es": "M\u00e1s de una c\u00e1mara detectada.\n"
     },
     {
         "id": "L_MPMENU_323",
@@ -3237,7 +3237,7 @@
         "it": "Seleziona la macchina che\nvuoi usare\n",
         "fr": "Please select which camera you\nwant to use\n",
         "de": "Please select which camera you\nwant to use\n",
-        "es": "Por favor, elige qué cámara\nquieres usar\n"
+        "es": "Por favor, elige qu\u00e9 c\u00e1mara\nquieres usar\n"
     },
     {
         "id": "L_MPMENU_324",
@@ -3287,7 +3287,7 @@
         "it": "Carica foto da macchina\n",
         "fr": "Load Picture From Camera\n",
         "de": "Load Picture From Camera\n",
-        "es": "Cargar Foto de la Cámara\n"
+        "es": "Cargar Foto de la C\u00e1mara\n"
     },
     {
         "id": "L_MPMENU_329",
@@ -3307,7 +3307,7 @@
         "it": "Carica da macchina\n",
         "fr": "Load From Camera\n",
         "de": "Load From Camera\n",
-        "es": "Cargar de la Cámara\n"
+        "es": "Cargar de la C\u00e1mara\n"
     },
     {
         "id": "L_MPMENU_331",
@@ -3317,7 +3317,7 @@
         "it": "Scegli foto:\n",
         "fr": "Choose picture to read from camera:\n",
         "de": "Choose picture to read from camera:\n",
-        "es": "Elige foto a cargar de la cámara:\n"
+        "es": "Elige foto a cargar de la c\u00e1mara:\n"
     },
     {
         "id": "L_MPMENU_332",
@@ -3347,7 +3347,7 @@
         "it": "Scatta!\n",
         "fr": "Shoot!\n",
         "de": "Shoot!\n",
-        "es": "¡Dispara!\n"
+        "es": "\u00a1Dispara!\n"
     },
     {
         "id": "L_MPMENU_335",
@@ -3381,13 +3381,13 @@
     },
     {
         "id": "L_MPMENU_338",
-        "en": "Load PerfectHead\n",
-        "gb": "Load PerfectHead\n",
-        "jp": "Insert the Controller Pak\n",
-        "it": "Carica testaPerfect\n",
-        "fr": "Load PerfectHead\n",
-        "de": "PerfectHead laden\n",
-        "es": "Cargar PerfectHead\n"
+        "en": "Grand Library\n",
+        "gb": "Grand Library\n",
+        "jp": "Grand Library\n",
+        "it": "Grand Library\n",
+        "fr": "Grand Library\n",
+        "de": "Grand Library\n",
+        "es": "Grand Library\n"
     },
     {
         "id": "L_MPMENU_339",
@@ -3416,7 +3416,7 @@
         "jp": "controller.\n",
         "it": "vuoi caricare in uno\n",
         "fr": "wish to load into any\n",
-        "de": "möchten in einen beliebigen\n",
+        "de": "m\u00f6chten in einen beliebigen\n",
         "es": "que quieres cargar en\n"
     },
     {
@@ -3614,7 +3614,7 @@
         "en": "Depth\n",
         "gb": "Depth\n",
         "jp": "OK\n",
-        "it": "Profondità\n",
+        "it": "Profondit\u00e0\n",
         "fr": "Depth\n",
         "de": "Depth\n",
         "es": "Profundidad\n"
@@ -3654,7 +3654,7 @@
         "en": "Brightness\n",
         "gb": "Brightness\n",
         "jp": "OK\n",
-        "it": "Lumninosità\n",
+        "it": "Lumninosit\u00e0\n",
         "fr": "Brightness\n",
         "de": "Brightness\n",
         "es": "Brillo\n"
@@ -3727,7 +3727,7 @@
         "it": "Desideri veramente eliminare\n",
         "fr": "Are you sure you want to\n",
         "de": "Are you sure you want to\n",
-        "es": "¿Estás seguro de que quieres\n"
+        "es": "\u00bfEst\u00e1s seguro de que quieres\n"
     },
     {
         "id": "L_MPMENU_373",
@@ -3777,7 +3777,7 @@
         "it": "Eliminare veramente\n",
         "fr": "Are you sure you want to\n",
         "de": "Are you sure you want to\n",
-        "es": "¿Estás seguro de que quieres\n"
+        "es": "\u00bfEst\u00e1s seguro de que quieres\n"
     },
     {
         "id": "L_MPMENU_378",
@@ -3837,7 +3837,7 @@
         "it": "Vuoi tenere le modifiche?\n",
         "fr": "Do you want to keep your changes?\n",
         "de": "Do you want to keep your changes?\n",
-        "es": "¿Quieres guardar tus cambios?\n"
+        "es": "\u00bfQuieres guardar tus cambios?\n"
     },
     {
         "id": "L_MPMENU_384",
@@ -3877,7 +3877,7 @@
         "it": "Le modifiche saranno memorizzate.\n",
         "fr": "Your changes will be kept in memory.\n",
         "de": "Your changes will be kept in memory.\n",
-        "es": "Tus cambios se mantendrán en la memoria.\n"
+        "es": "Tus cambios se mantendr\u00e1n en la memoria.\n"
     },
     {
         "id": "L_MPMENU_388",
@@ -3887,7 +3887,7 @@
         "it": "Vuoi salvare le modifiche\n",
         "fr": "Would you like to save your changes\n",
         "de": "Would you like to save your changes\n",
-        "es": "¿Quieres guardar tus cambios\n"
+        "es": "\u00bfQuieres guardar tus cambios\n"
     },
     {
         "id": "L_MPMENU_389",
@@ -3936,7 +3936,7 @@
         "jp": "a controller pak if you wish.\n",
         "it": "Ora puoi salvare la testa\n",
         "fr": "You can now save your head on to\n",
-        "de": "Sie können jetzt den Kopf auf\n",
+        "de": "Sie k\u00f6nnen jetzt den Kopf auf\n",
         "es": "Puedes guardar tu cabeza en el\n"
     },
     {
@@ -3954,7 +3954,7 @@
         "en": "If you want to do this, please\n",
         "gb": "If you want to do this, please\n",
         "jp": "ensure a controller pak is inserted\n",
-        "it": "Prima però accertati che\n",
+        "it": "Prima per\u00f2 accertati che\n",
         "fr": "If you want to do this, please\n",
         "de": "In diesem Fall stellen Sie bitte\n",
         "es": "Si quieres hacerlo, por favor,\n"
@@ -3967,7 +3967,7 @@
         "it": "sia inserito un Controller Pak\n",
         "fr": "ensure a controller pak is inserted\n",
         "de": "sicher, dass ein Controller Pak\n",
-        "es": "asegúrate de que el Controller Pak\n"
+        "es": "aseg\u00farate de que el Controller Pak\n"
     },
     {
         "id": "L_MPMENU_397",
@@ -3976,8 +3976,8 @@
         "jp": "Save\n",
         "it": "e scegli \"Salva\".\n",
         "fr": "and choose \"Save\".\n",
-        "de": "eingelegt ist. Wählen Sie \"Speichern\".\n",
-        "es": "está insertado y elige \"Guardar\".\n"
+        "de": "eingelegt ist. W\u00e4hlen Sie \"Speichern\".\n",
+        "es": "est\u00e1 insertado y elige \"Guardar\".\n"
     },
     {
         "id": "L_MPMENU_398",
@@ -4007,7 +4007,7 @@
         "it": "Testa completa!\n",
         "fr": "Head Complete!\n",
         "de": "Kopf wurde erstellt!\n",
-        "es": "¡Cabeza Completada!\n"
+        "es": "\u00a1Cabeza Completada!\n"
     },
     {
         "id": "L_MPMENU_401",
@@ -4026,8 +4026,8 @@
         "jp": "of the player/simulant settings menu.\n",
         "it": "selezionala dal menu personaggi delle\n",
         "fr": "select the head from the character menu\n",
-        "de": "wählen Sie ihn aus dem Charakter-Menü vom\n",
-        "es": "elige la cabeza desde el menú de personajes\n"
+        "de": "w\u00e4hlen Sie ihn aus dem Charakter-Men\u00fc vom\n",
+        "es": "elige la cabeza desde el men\u00fa de personajes\n"
     },
     {
         "id": "L_MPMENU_403",
@@ -4036,8 +4036,8 @@
         "jp": "Your Mission heads will now appear\n",
         "it": "impostazioni giocatore/replicante.\n",
         "fr": "of the player/simulant settings menu.\n",
-        "de": "Spieler/Simulanten-Einstellungs-Menü.\n",
-        "es": "en el menú de parámetros del jugador/simulante.\n"
+        "de": "Spieler/Simulanten-Einstellungs-Men\u00fc.\n",
+        "es": "en el men\u00fa de par\u00e1metros del jugador/simulante.\n"
     },
     {
         "id": "L_MPMENU_404",
@@ -4046,8 +4046,8 @@
         "jp": "in any of the missions you play.\n",
         "it": "Appariranno le teste missione\n",
         "fr": "Your Mission heads will now appear\n",
-        "de": "Die gewünschten Köpfe erscheinen nun\n",
-        "es": "Tus cabezas de Misión aparecerán en\n"
+        "de": "Die gew\u00fcnschten K\u00f6pfe erscheinen nun\n",
+        "es": "Tus cabezas de Misi\u00f3n aparecer\u00e1n en\n"
     },
     {
         "id": "L_MPMENU_405",
@@ -4057,7 +4057,7 @@
         "it": "per ogni missione giocata.\n",
         "fr": "in any of the missions you play.\n",
         "de": "in allen Missionen, die Sie spielen.\n",
-        "es": "cualquier misión que juegues.\n"
+        "es": "cualquier misi\u00f3n que juegues.\n"
     },
     {
         "id": "L_MPMENU_406",
@@ -4066,8 +4066,8 @@
         "jp": "Finish\n",
         "it": "Puoi ancora modificare la testa.\n",
         "fr": "You can now edit your head further if you wish.\n",
-        "de": "Sie können den Kopf nun noch weiter editieren.\n",
-        "es": "Puedes editar más tu cabeza si quieres.\n"
+        "de": "Sie k\u00f6nnen den Kopf nun noch weiter editieren.\n",
+        "es": "Puedes editar m\u00e1s tu cabeza si quieres.\n"
     },
     {
         "id": "L_MPMENU_407",
@@ -4147,7 +4147,7 @@
         "it": "Premi B per uscire.\n",
         "fr": "Bouton B pour Retour.\n",
         "de": "Abbruch\n",
-        "es": "Pulsa el Botón B para volver.\n"
+        "es": "Pulsa el Bot\u00f3n B para volver.\n"
     },
     {
         "id": "L_MPMENU_415",
@@ -4157,7 +4157,7 @@
         "it": "Informazioni hangar\n",
         "fr": "Hangar d'information\n",
         "de": "Hangar Information\n",
-        "es": "Información del Hangar\n"
+        "es": "Informaci\u00f3n del Hangar\n"
     },
     {
         "id": "L_MPMENU_416",
@@ -4165,7 +4165,7 @@
         "gb": "Holotraining\n",
         "jp": "Device List\n",
         "it": "Esercitazione olografica\n",
-        "fr": "Holo-entraînement\n",
+        "fr": "Holo-entra\u00eenement\n",
         "de": "Holotraining\n",
         "es": "Holoentrenamiento\n"
     },
@@ -4176,7 +4176,7 @@
         "jp": "Information\n",
         "it": "Lista strumenti\n",
         "fr": "Liste appareils\n",
-        "de": "Geräte-Liste\n",
+        "de": "Ger\u00e4te-Liste\n",
         "es": "Lista de Dispositivos\n"
     },
     {
@@ -4187,7 +4187,7 @@
         "it": "Informazioni\n",
         "fr": "Informations\n",
         "de": "Information\n",
-        "es": "Información\n"
+        "es": "Informaci\u00f3n\n"
     },
     {
         "id": "L_MPMENU_419",
@@ -4196,7 +4196,7 @@
         "jp": "Vehicles\n",
         "it": "Luoghi\n",
         "fr": "Emplacements\n",
-        "de": "Örtlichkeiten\n",
+        "de": "\u00d6rtlichkeiten\n",
         "es": "Lugares\n"
     },
     {
@@ -4205,9 +4205,9 @@
         "gb": "Vehicles\n",
         "jp": "Character Profiles\n",
         "it": "Veicoli\n",
-        "fr": "Véhicules\n",
+        "fr": "V\u00e9hicules\n",
         "de": "Fahrzeuge\n",
-        "es": "Vehículos\n"
+        "es": "Veh\u00edculos\n"
     },
     {
         "id": "L_MPMENU_421",
@@ -4227,7 +4227,7 @@
         "it": "Altre informazioni\n",
         "fr": "Autres informations\n",
         "de": "Weitere Informationen\n",
-        "es": "Información Adicional\n"
+        "es": "Informaci\u00f3n Adicional\n"
     },
     {
         "id": "L_MPMENU_423",
@@ -4235,9 +4235,9 @@
         "gb": "Training Stats\n",
         "jp": "Time Taken:\n",
         "it": "Statistiche esercitazione\n",
-        "fr": "Stats entraînement\n",
+        "fr": "Stats entra\u00eenement\n",
         "de": "Trainings-Statistik\n",
-        "es": "Estadísticas de Entrenamiento\n"
+        "es": "Estad\u00edsticas de Entrenamiento\n"
     },
     {
         "id": "L_MPMENU_424",
@@ -4245,8 +4245,8 @@
         "gb": "Time Taken:\n",
         "jp": "Completed!\n",
         "it": "Tempo impiegato:\n",
-        "fr": "Temps écoulé:\n",
-        "de": "benötigte Zeit:\n",
+        "fr": "Temps \u00e9coul\u00e9:\n",
+        "de": "ben\u00f6tigte Zeit:\n",
         "es": "Tiempo Necesitado:\n"
     },
     {
@@ -4255,9 +4255,9 @@
         "gb": "Completed!\n",
         "jp": "Failed!\n",
         "it": "Compiuto!\n",
-        "fr": "Succès!\n",
+        "fr": "Succ\u00e8s!\n",
         "de": "Abgeschlossen!\n",
-        "es": "¡Completado!\n"
+        "es": "\u00a1Completado!\n"
     },
     {
         "id": "L_MPMENU_426",
@@ -4267,7 +4267,7 @@
         "it": "Fallito!\n",
         "fr": "Echec!\n",
         "de": "Durchgefallen!\n",
-        "es": "¡Fallado!\n"
+        "es": "\u00a1Fallado!\n"
     },
     {
         "id": "L_MPMENU_427",
@@ -4296,7 +4296,7 @@
         "jp": "Abort\n",
         "it": "Annulla\n",
         "fr": "Annuler\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -4334,7 +4334,7 @@
         "en": "Age:\n",
         "gb": "Age:\n",
         "jp": "Race:\n",
-        "it": "Età:\n",
+        "it": "Et\u00e0:\n",
         "fr": "Age:\n",
         "de": "Alter:\n",
         "es": "Edad:\n"
@@ -4357,7 +4357,7 @@
         "it": "Premi B per uscire.\n",
         "fr": "Bouton B pour Retour.\n",
         "de": "Abbruch\n",
-        "es": "Pulsa el Botón B para volver.\n"
+        "es": "Pulsa el Bot\u00f3n B para volver.\n"
     },
     {
         "id": "L_MPMENU_436",
@@ -4375,8 +4375,8 @@
         "gb": "It is now safe to turn off your computer.\n",
         "jp": "Cancel\n",
         "it": "Ora puoi spegnere il computer.\n",
-        "fr": "Vous pouvez éteindre votre ordinateur en toute sécurité.\n",
-        "de": "Sie können das Gerät jetzt abschalten.\n",
+        "fr": "Vous pouvez \u00e9teindre votre ordinateur en toute s\u00e9curit\u00e9.\n",
+        "de": "Sie k\u00f6nnen das Ger\u00e4t jetzt abschalten.\n",
         "es": "Ahora es seguro apagar tu ordenador.\n"
     },
     {
@@ -4424,8 +4424,8 @@
         "en": "Difficulty\n",
         "gb": "Difficulty\n",
         "jp": "Difficulty:\n",
-        "it": "Difficoltà\n",
-        "fr": "Difficulté\n",
+        "it": "Difficolt\u00e0\n",
+        "fr": "Difficult\u00e9\n",
         "de": "Schwierigkeit\n",
         "es": "Dificultad\n"
     },
@@ -4434,8 +4434,8 @@
         "en": "Difficulty:\n",
         "gb": "Difficulty:\n",
         "jp": "Select Difficulty:\n",
-        "it": "Difficoltà:\n",
-        "fr": "Difficulté:\n",
+        "it": "Difficolt\u00e0:\n",
+        "fr": "Difficult\u00e9:\n",
         "de": "Schwierigkeit:\n",
         "es": "Dificultad:\n"
     },
@@ -4444,9 +4444,9 @@
         "en": "Select Difficulty:\n",
         "gb": "Select Difficulty:\n",
         "jp": "   \n",
-        "it": "Seleziona difficoltà:\n",
-        "fr": "Choix difficulté:\n",
-        "de": "Wählen Sie die Schwierigkeit:\n",
+        "it": "Seleziona difficolt\u00e0:\n",
+        "fr": "Choix difficult\u00e9:\n",
+        "de": "W\u00e4hlen Sie die Schwierigkeit:\n",
         "es": "Elegir Dificultad:\n"
     },
     {
@@ -4475,9 +4475,9 @@
         "gb": "Training Info\n",
         "jp": "Training Stats\n",
         "it": "Informazioni esercitazione\n",
-        "fr": "Info entraînement\n",
+        "fr": "Info entra\u00eenement\n",
         "de": "Trainings-Info\n",
-        "es": "Información de Entrenamiento\n"
+        "es": "Informaci\u00f3n de Entrenamiento\n"
     },
     {
         "id": "L_MPMENU_448",
@@ -4485,9 +4485,9 @@
         "gb": "Training Stats\n",
         "jp": "Completed!\n",
         "it": "Statistiche esercitazione\n",
-        "fr": "Stats entraînement\n",
+        "fr": "Stats entra\u00eenement\n",
         "de": "Trainings-Statistik\n",
-        "es": "Estadísticas de Entrenamiento\n"
+        "es": "Estad\u00edsticas de Entrenamiento\n"
     },
     {
         "id": "L_MPMENU_449",
@@ -4495,9 +4495,9 @@
         "gb": "Completed!\n",
         "jp": "Score:\n",
         "it": "Compiuto!\n",
-        "fr": "Succès!\n",
+        "fr": "Succ\u00e8s!\n",
         "de": "Abgeschlossen!\n",
-        "es": "¡Completado!\n"
+        "es": "\u00a1Completado!\n"
     },
     {
         "id": "L_MPMENU_450",
@@ -4507,7 +4507,7 @@
         "it": "Punti:\n",
         "fr": "Score:\n",
         "de": "Score:\n",
-        "es": "Puntuación:\n"
+        "es": "Puntuaci\u00f3n:\n"
     },
     {
         "id": "L_MPMENU_451",
@@ -4515,8 +4515,8 @@
         "gb": "Targets Destroyed:\n",
         "jp": "Difficulty:\n",
         "it": "Obiettivi distrutti:\n",
-        "fr": "Cibles détruites:\n",
-        "de": "Zerstörte Ziele:\n",
+        "fr": "Cibles d\u00e9truites:\n",
+        "de": "Zerst\u00f6rte Ziele:\n",
         "es": "Blancos Destruidos:\n"
     },
     {
@@ -4524,8 +4524,8 @@
         "en": "Difficulty:\n",
         "gb": "Difficulty:\n",
         "jp": "Time Taken:\n",
-        "it": "Difficoltà:\n",
-        "fr": "Difficulté:\n",
+        "it": "Difficolt\u00e0:\n",
+        "fr": "Difficult\u00e9:\n",
         "de": "Schwierigkeit:\n",
         "es": "Dificultad:\n"
     },
@@ -4535,8 +4535,8 @@
         "gb": "Time Taken:\n",
         "jp": "Weapon:\n",
         "it": "Tempo impiegato:\n",
-        "fr": "Temps écoulé:\n",
-        "de": "benötigte Zeit:\n",
+        "fr": "Temps \u00e9coul\u00e9:\n",
+        "de": "ben\u00f6tigte Zeit:\n",
         "es": "Tiempo Necesitado:\n"
     },
     {
@@ -4555,9 +4555,9 @@
         "gb": "Accuracy:\n",
         "jp": "Not Failed\n",
         "it": "Precisione:\n",
-        "fr": "Précision:\n",
+        "fr": "Pr\u00e9cision:\n",
         "de": "Genauigkeit:\n",
-        "es": "Precisión:\n"
+        "es": "Precisi\u00f3n:\n"
     },
     {
         "id": "L_MPMENU_456",
@@ -4565,7 +4565,7 @@
         "gb": "Not Failed\n",
         "jp": "Out of Ammo\n",
         "it": "Non fallito\n",
-        "fr": "Pas échoué\n",
+        "fr": "Pas \u00e9chou\u00e9\n",
         "de": "Nicht durchgefallen\n",
         "es": "No Fallado\n"
     },
@@ -4577,7 +4577,7 @@
         "it": "Finite munizioni\n",
         "fr": "Plus de munit.\n",
         "de": "Keine Munition\n",
-        "es": "Sin Munición\n"
+        "es": "Sin Munici\u00f3n\n"
     },
     {
         "id": "L_MPMENU_458",
@@ -4597,7 +4597,7 @@
         "it": "Punteggio impossibile \n",
         "fr": "Score non atteint\n",
         "de": "Score nicht erreicht\n",
-        "es": "Puntuación Inalcanzable\n"
+        "es": "Puntuaci\u00f3n Inalcanzable\n"
     },
     {
         "id": "L_MPMENU_460",
@@ -4605,7 +4605,7 @@
         "gb": "Too Inaccurate\n",
         "jp": "Bullseye\n",
         "it": "Troppo impreciso\n",
-        "fr": "Trop imprécis\n",
+        "fr": "Trop impr\u00e9cis\n",
         "de": "Zu ungenau\n",
         "es": "Demasiado Impreciso\n"
     },
@@ -4667,7 +4667,7 @@
         "it": "Punti\n",
         "fr": "Score\n",
         "de": "Scoring\n",
-        "es": "Puntuación\n"
+        "es": "Puntuaci\u00f3n\n"
     },
     {
         "id": "L_MPMENU_467",
@@ -4717,7 +4717,7 @@
         "it": "Limite munizioni:\n",
         "fr": "Limite munit.:\n",
         "de": "Munitions-Limit:\n",
-        "es": "Límite de Munición:\n"
+        "es": "L\u00edmite de Munici\u00f3n:\n"
     },
     {
         "id": "L_MPMENU_472",
@@ -4727,7 +4727,7 @@
         "it": "Limite tempo:\n",
         "fr": "Limite temps:\n",
         "de": "Zeit-Limit:\n",
-        "es": "Límite de Tiempo:\n"
+        "es": "L\u00edmite de Tiempo:\n"
     },
     {
         "id": "L_MPMENU_473",
@@ -4735,9 +4735,9 @@
         "gb": "Min Accuracy:\n",
         "jp": "Goal Targets:\n",
         "it": "Precisione min.:\n",
-        "fr": "Précision Mini:\n",
+        "fr": "Pr\u00e9cision Mini:\n",
         "de": "Min. Genauigkeit:\n",
-        "es": "Precisión Mínima:\n"
+        "es": "Precisi\u00f3n M\u00ednima:\n"
     },
     {
         "id": "L_MPMENU_474",
@@ -4745,7 +4745,7 @@
         "gb": "Goal Targets:\n",
         "jp": "Goal Score:\n",
         "it": "Obiettivi:\n",
-        "fr": "Cibles à détruire:\n",
+        "fr": "Cibles \u00e0 d\u00e9truire:\n",
         "de": "Ziele:\n",
         "es": "Blancos Necesarios:\n"
     },
@@ -4755,9 +4755,9 @@
         "gb": "Goal Score:\n",
         "jp": "Cheats\n",
         "it": "Punteggio obiettivi:\n",
-        "fr": "Score à atteindre:\n",
+        "fr": "Score \u00e0 atteindre:\n",
         "de": "Score:\n",
-        "es": "Puntuación Necesaria:\n"
+        "es": "Puntuaci\u00f3n Necesaria:\n"
     },
     {
         "id": "L_MPMENU_476",
@@ -4775,7 +4775,7 @@
         "gb": "Done\n",
         "jp": "Warning\n",
         "it": "Fatto\n",
-        "fr": "Terminé\n",
+        "fr": "Termin\u00e9\n",
         "de": "Fertig\n",
         "es": "Hecho\n"
     },
@@ -4794,10 +4794,10 @@
         "en": "If you activate any cheats, then you\nwill be unable to progress further in the game\nwhile those cheats are active.\n",
         "gb": "If you activate any cheats, then you\nwill be unable to progress further in the game\nwhile those cheats are active.\n",
         "jp": "OK\n",
-        "it": "Finché i trucchi sono attivi,\nnon potrai progredire nel gioco\n.",
-        "fr": "En utilsant les codes de triche\nvous ne pourrez pas progresser dans le jeu \ntant que ceux-ci seront activés.\n",
-        "de": "Sollten Sie Cheats aktivieren, können Sie nicht\nweiter ins Spiel vordringen, solange\ndiese Cheats aktiv sind.\n",
-        "es": "Si activas cualquier truco, serás\nincapaz de avanzar más en el juego\nmientras ese truco esté activo.\n"
+        "it": "Finch\u00e9 i trucchi sono attivi,\nnon potrai progredire nel gioco\n.",
+        "fr": "En utilsant les codes de triche\nvous ne pourrez pas progresser dans le jeu \ntant que ceux-ci seront activ\u00e9s.\n",
+        "de": "Sollten Sie Cheats aktivieren, k\u00f6nnen Sie nicht\nweiter ins Spiel vordringen, solange\ndiese Cheats aktiv sind.\n",
+        "es": "Si activas cualquier truco, ser\u00e1s\nincapaz de avanzar m\u00e1s en el juego\nmientras ese truco est\u00e9 activo.\n"
     },
     {
         "id": "L_MPMENU_480",
@@ -4816,7 +4816,7 @@
         "jp": "Player %d: ",
         "it": "Annulla\n",
         "fr": "Annuler\n",
-        "de": "Zurück\n",
+        "de": "Zur\u00fcck\n",
         "es": "Cancelar\n"
     },
     {
@@ -4837,7 +4837,7 @@
         "it": "Premi START!\n",
         "fr": "START!\n",
         "de": "START!\n",
-        "es": "¡Pulsa START!\n"
+        "es": "\u00a1Pulsa START!\n"
     },
     {
         "id": "L_MPMENU_484",
@@ -4847,7 +4847,7 @@
         "it": "Ricerca macch. fotografica!\n",
         "fr": "Searching for Camera!\n",
         "de": "Searching for Camera!\n",
-        "es": "¡Buscando Cámara!\n"
+        "es": "\u00a1Buscando C\u00e1mara!\n"
     },
     {
         "id": "L_MPMENU_485",
@@ -4857,7 +4857,7 @@
         "it": "Regolazione macchina\n",
         "fr": "Calibrating Camera\n",
         "de": "Calibrating Camera\n",
-        "es": "Calibrando Cámara\n"
+        "es": "Calibrando C\u00e1mara\n"
     },
     {
         "id": "L_MPMENU_486",
@@ -4915,8 +4915,8 @@
         "gb": "Checking Controller Pak\n",
         "jp": "Getting PerfectHead\n",
         "it": "Esame Controller Pak\n",
-        "fr": "Vérif. Controller Pak\n",
-        "de": "Controller Pak \nwird geprüft\n",
+        "fr": "V\u00e9rif. Controller Pak\n",
+        "de": "Controller Pak \nwird gepr\u00fcft\n",
         "es": "Compr. Controller Pak\n"
     },
     {
@@ -4947,7 +4947,7 @@
         "it": "Regolazione autom. macchina\n",
         "fr": "Auto Camera Adjustment\n",
         "de": "Auto Camera Adjustment\n",
-        "es": "Autoajuste de Cámara\n"
+        "es": "Autoajuste de C\u00e1mara\n"
     },
     {
         "id": "L_MPMENU_495",

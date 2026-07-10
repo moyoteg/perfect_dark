@@ -5,6 +5,44 @@ This branch contains a **highly experimental** implementation of network play.
 Currently only Combat Sim is partially working with experimental 8 player support and really bad netcode.  
 Expect nothing to work right.
 
+### Perfect Dark Kit (`port-net-mods/kit`)
+
+This fork merges netplay with the All-in-One mod stack and custom arenas. **All players need the same binary, ROM, and `mods/mod_allinone` tree.**
+
+**Headless / CI smoke:** `./scripts/netplay-smoke.sh`  
+**Living test log:** [`docs/NETPLAY_TEST_LOG.md`](NETPLAY_TEST_LOG.md)  
+**Automation spec:** [`docs/NETPLAY_AUTOMATION_SPEC.md`](NETPLAY_AUTOMATION_SPEC.md)
+
+#### CLI shortcuts (for testing)
+
+| Flag | Effect |
+|------|--------|
+| `--host` | Auto-host after intro (skips to Combat Sim network flow) |
+| `--connect ADDR` | Auto-join; use `ADDR:PORT` or pair with `--port N` |
+| `--port N` | Host listen port; default client port if `ADDR` has no `:port` |
+| `--maxclients N` | Cap connected clients |
+| `--net-auto-start` | Host auto-starts Combat Sim when a client reaches lobby (smoke/CI only) |
+| `--net-stage N` | Arena stage id for `--net-auto-start` (e.g. `0x80` = my_arena) |
+| `--net-join-timeout-ms N` | Client join deadline when server is unreachable (smoke/CI) |
+
+Headless custom-arena match smoke (no menu input):
+
+```bash
+./scripts/netplay-smoke.sh   # steps 1–7: boot stages, host/join, my_arena net match
+```
+
+Manual LAN session (pick arena in Combat Sim menu):
+
+```bash
+# Host (machine A)
+./build/pd.arm64 --host --port 27100 --moddir mods/mod_allinone
+
+# Client (machine B) — same build + mods + ROM
+./build/pd.arm64 --connect 192.168.1.50 --port 27100 --moddir mods/mod_allinone
+```
+
+Pick a custom arena in Combat Sim before starting; stage assets must exist in every player's `mod_allinone`.
+
 ### Hosting
 
 1. Forward the server port (`27100` by default, can be changed in `pd.ini`).

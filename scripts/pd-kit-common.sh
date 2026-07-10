@@ -79,21 +79,29 @@ apps = {}
 for key, cfg in manifest.get("apps", {}).items():
     bundle = cfg.get("bundleFileName", "")
     app_path = release / bundle
+    # If the app is wrapped inside the hub, it is also considered built.
+    hub_bundle = manifest.get("apps", {}).get("kitHub", {}).get("bundleFileName", "Perfect Dark Kit.app")
+    wrapped_path = repo / hub_bundle / "Contents" / "Resources" / "Apps" / bundle
+    is_built = app_path.is_dir() or wrapped_path.is_dir()
+    resolved_path = wrapped_path if (not app_path.is_dir() and wrapped_path.is_dir()) else app_path
     entry = {
         "productName": cfg.get("productName"),
         "bundleFileName": bundle,
-        "built": app_path.is_dir(),
-        "path": str(app_path),
+        "built": is_built,
+        "path": str(resolved_path),
     }
-    if key == "kitHub" and app_path.is_dir():
-        wrapped_root = app_path / "Contents" / "Resources" / "Apps"
-        wrapped = {}
-        for child_key, child_cfg in manifest.get("apps", {}).items():
-            if child_key == "kitHub":
-                continue
-            child_bundle = child_cfg.get("bundleFileName", "")
-            wrapped[child_key] = (wrapped_root / child_bundle).is_dir()
-        entry["wrappedApps"] = wrapped
+    if key == "kitHub":
+        entry["path"] = str(repo / bundle)
+        entry["built"] = (repo / bundle).is_dir()
+        if (repo / bundle).is_dir():
+            wrapped_root = (repo / bundle) / "Contents" / "Resources" / "Apps"
+            wrapped = {}
+            for child_key, child_cfg in manifest.get("apps", {}).items():
+                if child_key == "kitHub":
+                    continue
+                child_bundle = child_cfg.get("bundleFileName", "")
+                wrapped[child_key] = (wrapped_root / child_bundle).is_dir()
+            entry["wrappedApps"] = wrapped
     apps[key] = entry
 
 payload = {
@@ -121,6 +129,22 @@ kit_symlink_app() {
 	if [[ -d "$bundle_path" ]]; then
 		ln -sfn "$bundle_path" "$PD_KIT_REPO_ROOT/$bundle_name"
 	fi
+}
+
+# Refresh a release .app inside Kit Hub's Contents/Resources/Apps/ when the hub
+# was built before the child app (Kit resolves wrapped copies before scripts/release).
+kit_sync_wrapped_app() {
+	local bundle_name="$1"
+	local hub="$PD_KIT_REPO_ROOT/${PD_KIT_APP_HUB:-Perfect Dark Kit.app}"
+	local src="$PD_KIT_RELEASE_DIR/$bundle_name"
+	local dst="$hub/Contents/Resources/Apps/$bundle_name"
+	if [[ ! -d "$hub" || ! -d "$src" ]]; then
+		return 0
+	fi
+	echo "Refreshing Kit Hub wrapped copy: $bundle_name"
+	mkdir -p "$(dirname "$dst")"
+	rm -rf "$dst"
+	cp -R "$src" "$dst"
 }
 
 # Bundle file names listed in kitHub.wraps (for hub copy step).
@@ -159,7 +183,8 @@ PY
 
 # Remove superseded .app bundles and repo-root symlinks from older naming schemes.
 kit_prune_legacy_app_bundles() {
-	local legacy=(
+	local 	legacy=(
+		"Perfect Dark Kit 2.app"
 		"Perfect Dark Kit — Map Editor.app"
 		"Perfect Dark Kit — Animation Lab.app"
 		"Perfect Dark Kit — Asset Upgrader.app"
@@ -186,6 +211,7 @@ kit_prune_electron_staging_dirs() {
 		"$PD_KIT_RELEASE_DIR/anim-lab-dist" \
 		"$PD_KIT_RELEASE_DIR/object-catalog-dist" \
 		"$PD_KIT_RELEASE_DIR/map-launcher-dist" \
+		"$PD_KIT_RELEASE_DIR/agent-office-dist" \
 		"$PD_KIT_RELEASE_DIR/asset-upgrader-electron-dist"; do
 		rm -rf "$dir" 2>/dev/null || true
 	done
@@ -208,13 +234,42 @@ kit_prune_repo_root_app_clutter() {
 	shopt -u nullglob
 }
 
+kit_prune_standalone_release_apps() {
+	local hub="${PD_KIT_APP_HUB:-Perfect Dark Kit.app}"
+	local entry name
+	shopt -s nullglob
+	for entry in "$PD_KIT_RELEASE_DIR"/*.app; do
+		name="$(basename "$entry")"
+		if [[ "$name" == "$hub" ]]; then
+			continue
+		fi
+		echo "Pruning standalone app: $name"
+		rm -rf "$entry"
+	done
+	shopt -u nullglob
+}
+
 kit_open_app() {
 	local bundle_name="$1"
 	local bundle_path="$PD_KIT_RELEASE_DIR/$bundle_name"
-	if [[ ! -d "$bundle_path" ]]; then
-		echo "App not built: $bundle_path" >&2
-		echo "Run: ./scripts/build-pd-kit.sh --apps" >&2
-		return 1
+	local hub="${PD_KIT_APP_HUB:-Perfect Dark Kit.app}"
+	local wrapped_path="$PD_KIT_REPO_ROOT/$hub/Contents/Resources/Apps/$bundle_name"
+
+	if [[ "$bundle_name" == "$hub" ]]; then
+		if [[ -d "$PD_KIT_REPO_ROOT/$hub" ]]; then
+			open "$PD_KIT_REPO_ROOT/$hub"
+			return 0
+		fi
 	fi
-	open "$bundle_path"
+	if [[ "$bundle_name" != "$hub" && -d "$wrapped_path" ]]; then
+		open "$wrapped_path"
+		return 0
+	fi
+	if [[ -d "$bundle_path" ]]; then
+		open "$bundle_path"
+		return 0
+	fi
+	echo "App not built: $bundle_path (or wrapped in $hub)" >&2
+	echo "Run: ./scripts/build-pd-kit.sh --apps-only" >&2
+	return 1
 }

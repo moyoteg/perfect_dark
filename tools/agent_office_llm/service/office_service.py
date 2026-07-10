@@ -76,6 +76,7 @@ class OfficeService:
                 self.bus.publish(Event.new("approval.pending",
                                            {"approval_id": appr.id, "action": act["action"]},
                                            source=agent.id))
+                self._persist_state()
                 return task
             if not res.ok:
                 task.status = TaskStatus.FAILED
@@ -115,11 +116,14 @@ class OfficeService:
             task.status = TaskStatus.FAILED
             task.result = f"{appr.connector}.{appr.action} failed: {res.error}"
             agent.state = "idle"
+            self._persist_state()
             return task
         if res.data is not None:
             task.artifacts.append(str(res.data))
         self._cursor[task.id] = self._cursor.get(task.id, 0) + 1  # move past the approved action
-        return self._run(task)
+        resumed = self._run(task)
+        self._persist_state()
+        return resumed
 
     def deny(self, approval_id: str, decided_by: str = "human") -> Task:
         appr = self.approvals[approval_id]
@@ -130,7 +134,14 @@ class OfficeService:
         task.result = f"denied: {appr.connector}.{appr.action}"
         self.agents[appr.agent_id].state = "idle"
         self.bus.publish(Event.new("approval.denied", {"approval_id": approval_id}, source=decided_by))
+        self._persist_state()
         return task
+
+    def _persist_state(self) -> None:
+        """Pass 38: snapshot pending connector approvals for process restart continuity."""
+        from .service_state import maybe_persist_service_state
+
+        maybe_persist_service_state(self)
 
     # -- inbound (Slack round-trip, VISION §5.2) ---------------------------
     def ingest_slack(self, message: dict) -> Event:

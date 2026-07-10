@@ -131,14 +131,14 @@ main() {
 		kit_prune_legacy_app_bundles
 		kit_prune_electron_staging_dirs
 		if [[ "$SYMLINK_AT_ROOT" -eq 1 ]]; then
-			kit_symlink_app "$PD_KIT_APP_HUB"
 			kit_prune_repo_root_app_clutter
 		fi
+		kit_prune_standalone_release_apps
 	fi
 
 	manifest_path="$(write_kit_release_manifest "$PD_BINARY")"
-	if [[ -d "$PD_KIT_RELEASE_DIR/$PD_KIT_APP_HUB" ]]; then
-		cp "$manifest_path" "$PD_KIT_RELEASE_DIR/$PD_KIT_APP_HUB/Contents/Resources/kit-manifest.json"
+	if [[ -d "$PD_KIT_REPO_ROOT/$PD_KIT_APP_HUB" ]]; then
+		cp "$manifest_path" "$PD_KIT_REPO_ROOT/$PD_KIT_APP_HUB/Contents/Resources/kit-manifest.json"
 	fi
 	echo ""
 	echo "==> Kit build complete"

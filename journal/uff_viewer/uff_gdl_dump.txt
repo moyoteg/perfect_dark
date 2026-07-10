@@ -51,8 +51,173 @@ ORIGIN PROXIMITY (anything with a vertex within 500 units)
 SHIPPED / BUILT bg_uff.seg VERIFICATION (decoded from disk)
 ------------------------------------------------------------------------
   mods/mod_allinone/files/bgdata/bg_uff.seg
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000000
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000030
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000060
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000090
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0000C0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0000F0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000120
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000150
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000180
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0001B0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0001E0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000210
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000240
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000270
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0002A0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0002D0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000300
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000330
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000360
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000390
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0003C0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0003F0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000420
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000450
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000480
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0004B0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0004E0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000510
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000540
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000570
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0005A0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0005D0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000600
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000630
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000660
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000690
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0006C0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0006F0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000720
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000750
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000780
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0007B0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0007E0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000810
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000840
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000870
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0008A0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0008D0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000900
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000930
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000960
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000990
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0009C0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E0009F0
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
+    G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000A20
+    G_TRI1 (0,1,2)
+    G_TRI1 (0,2,3)
     G_ENDDL
-    -> G_VTX load sizes=[] max=0 OVERFLOW(>16)=False
+    -> G_VTX load sizes=[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4] max=4 OVERFLOW(>16)=False
 
   build/ntsc-final/assets/files/bgdata/bg_uff.seg
     G_VTX bytes=48 verts=4 nibble=4 addr=0x0E000000

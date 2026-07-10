@@ -982,6 +982,15 @@ s32 mpCalculateTeamScoreLimit(void)
 
 void mpApplyLimits(void)
 {
+	/* Virtual Agent Office is an endless explore hub — never end on MP timers/scores. */
+	if (g_Vars.stagenum == STAGE_AGENT_OFFICE || g_Vars.stagenum == STAGE_AGENT_OFFICE_CI
+			|| g_Vars.stagenum == STAGE_AGENT_OFFICE_LAB) {
+		lvSetMpTimeLimit60(0);
+		lvSetMpScoreLimit(0);
+		lvSetMpTeamScoreLimit(0);
+		return;
+	}
+
 	if (g_MpSetup.timelimit >= 60) {
 		lvSetMpTimeLimit60(0);
 	} else {

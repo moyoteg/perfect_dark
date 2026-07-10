@@ -4833,6 +4833,9 @@ void bgunCreateFiredProjectile(s32 handnum)
 			}
 
 			sp260 = funcdef->speed * 1.6666666f / 60.0f;
+			if (g_Vars.stagenum == STAGE_ANIMLAB && hand->gset.weaponnum == WEAPON_SLAYER) {
+				sp260 *= 5.0f;
+			}
 			sp25c = funcdef->traveldist * 1.6666666f;
 
 			if (gsetHasFunctionFlags(&hand->gset, FUNCFLAG_CALCULATETRAJECTORY)) {
