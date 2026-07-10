@@ -997,10 +997,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   #validationSheet { position:relative !important; width:min(500px, calc(100vw - 32px)); max-height:min(85vh, 600px);
     display:flex; flex-direction:column; padding:var(--space-lg); border-radius:14px; }
   #validationSheet h2 { margin:0 0 var(--space-xs); font-size:15px; color:#f0f3fa; }
-  .validation-modal-body { overflow-y:auto; flex-grow:1; margin:var(--space-md) 0; font-size:12px; color:#cdd6e6; line-height:1.5; max-height:400px; padding-right:8px; }
+  .validation-modal-body { overflow-y:auto; flex-grow:1; margin:var(--space-md) 0; font-size:12px; color:#cdd6e6; line-height:1.5; max-height:400px; padding-right:8px;
+    user-select: text !important; -webkit-user-select: text !important; }
   .validation-modal-body p { margin:0 0 6px 0; }
   .validation-modal-body ul { margin:0 0 var(--space-md) 0; padding-left:20px; }
-  .validation-modal-body li { margin-bottom:4px; }
+  .validation-modal-body li { margin-bottom:4px; user-select: text !important; -webkit-user-select: text !important; }
   .validation-modal-body .err-header { color:#ff6b6b; font-weight:bold; margin-bottom:8px; }
   .validation-modal-body .warn-header { color:#ffd43b; font-weight:bold; margin-bottom:8px; }
   .validation-modal-body .err-item { color:#ff8787; }
@@ -1266,6 +1267,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <h2 id="validationModalTitle">Validation Results</h2>
     <div id="validationModalBody" class="validation-modal-body"></div>
     <div class="sheet-actions">
+      <button type="button" id="validationCopy" style="margin-right:auto">Copy</button>
       <button type="button" id="validationCancel">Cancel</button>
       <button type="button" id="validationOk" class="active">Proceed</button>
     </div>
@@ -4212,6 +4214,21 @@ function showValidationModal(opts) {
   }
 
   body.innerHTML = html;
+  
+  const copyBtn = document.getElementById('validationCopy');
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      const textToCopy = (errors.length ? 'Errors:\n' + errors.join('\n') : '') +
+                         (warnings.length ? 'Warnings:\n' + warnings.join('\n') : '');
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          showToast('Copied to clipboard!');
+        })
+        .catch(err => {
+          alert('Failed to copy text: ' + err);
+        });
+    };
+  }
 
   modal.hidden = false;
   modal.classList.add('open');
