@@ -230,6 +230,7 @@ def level_to_editor_json(name: str) -> dict:
 
     return {
         "name": name,
+        "level_module": name,
         "box_half": half,
         "box_height": height,
         "pads": pads,
@@ -670,9 +671,21 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <title>Perfect Dark Map Editor</title>
 <style>
   :root {
-    --panel: rgba(16,20,28,0.88); --border:#2a3242; --muted:#8a93a6; --accent:#2c7be5;
-    --space-xs:4px; --space-sm:6px; --space-md:10px; --space-lg:14px;
-    --label-size:11px; --control-size:12px; --toolbar-size:10px;
+    --panel: rgba(10, 15, 26, 0.72);
+    --border: rgba(255, 255, 255, 0.08);
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    --panel-blur: blur(18px) saturate(140%);
+    --glow: 0 0 20px rgba(59, 130, 246, 0.15);
+    --shadow: 0 10px 38px 0 rgba(0, 0, 0, 0.42);
+    --space-xs: 4px;
+    --space-sm: 6px;
+    --space-md: 10px;
+    --space-lg: 14px;
+    --label-size: 11px;
+    --control-size: 12px;
+    --toolbar-size: 10px;
     --menu-h: 0px;
     --chrome-top: 12px;
     --runbar-h: 52px;
@@ -681,36 +694,77 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     --bottom-bar-h: 92px;
   }
   body.browser-mode { --menu-h: 28px; --chrome-top: 36px; }
-  html, body { margin:0; height:100%; overflow:hidden; background:#0b0e14; color:#e6e6e6;
+  html, body { margin:0; height:100%; overflow:hidden; background:#07090e; color:#f1f5f9;
     font:13px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif; }
+  
+  /* Custom scrollbars */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
   #c { position:fixed; inset:0; display:block; width:100vw; height:100vh; }
-  .panel { position:fixed; background:var(--panel); border:1px solid var(--border); border-radius:10px;
-    padding:12px 14px; backdrop-filter:blur(6px); box-shadow:0 6px 24px rgba(0,0,0,0.45); }
+  .panel { position:fixed; background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:14px 16px; backdrop-filter:var(--panel-blur); -webkit-backdrop-filter:var(--panel-blur);
+    box-shadow:var(--shadow); transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+  .panel:hover { border-color: rgba(255,255,255,0.14); }
   #hud { top:var(--chrome-top); left:12px; width:262px; max-height:calc(100vh - var(--chrome-top) - var(--bottom-bar-h) - 16px); overflow-y:auto; z-index:4; }
   /* View/mode panel — fixed under slim run bar (pass-10 native Mac IA). */
   #panelRight { top:calc(var(--chrome-top) + var(--runbar-h) + 8px); right:var(--right-gap); width:210px; z-index:5; }
-  #hud h1 { font-size:14px; margin:0 0 4px; letter-spacing:.2px; }
-  #hud .sub { color:var(--muted); margin:0 0 10px; font-size:12px; }
-  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin:0 0 6px; }
+  #hud h1 { font-size:14px; font-weight:700; margin:0 0 4px; letter-spacing:.2px; color:#fff; }
+  #hud .sub { color:var(--muted); margin:0 0 12px; font-size:11px; font-weight:500; }
+  h2 { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin:14px 0 8px; }
   .row { display:flex; align-items:center; gap:8px; margin:3px 0; justify-content:space-between; }
   .row > span:first-child { display:flex; align-items:center; gap:8px; }
-  .sw { width:12px; height:12px; border-radius:3px; flex:0 0 auto; border:1px solid rgba(255,255,255,.25); }
+  .sw { width:12px; height:12px; border-radius:3px; flex:0 0 auto; border:1px solid rgba(255,255,255,.2); }
   .muted { color:var(--muted); }
-  .danger { color:#ff5d5d; font-weight:600; }
-  .ok { color:#57d977; font-weight:600; }
-  hr { border:0; border-top:1px solid #232a37; margin:10px 0; }
-  .toggle { cursor:pointer; user-select:none; display:flex; align-items:center; gap:7px; margin:4px 0; }
-  .toggle input { margin:0; }
-  .sub-toggles { margin-left:18px; padding-left:8px; border-left:1px solid #232a37; }
+  .danger { color:#f87171; font-weight:600; }
+  .ok { color:#34d399; font-weight:600; }
+  hr { border:0; border-top:1px solid rgba(255,255,255,0.06); margin:12px 0; }
+  
+  /* Styled toggles and checkboxes */
+  .toggle { cursor:pointer; user-select:none; display:flex; align-items:center; gap:8px; margin:5px 0; }
+  .toggle input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    width: 14px; height: 14px;
+    box-sizing: border-box;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .toggle input[type="checkbox"]:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+  .toggle input[type="checkbox"]:checked::after {
+    content: '✔';
+    font-size: 9px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .sub-toggles { margin-left:18px; padding-left:8px; border-left:1px solid rgba(255,255,255,0.06); }
   .btns { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px; }
-  button { font:inherit; color:#e6e6e6; background:#1b2330; border:1px solid var(--border);
-    border-radius:7px; padding:6px 8px; cursor:pointer; transition:background .12s, border-color .12s; }
-  button:hover { background:#243049; border-color:#3a465c; }
-  button:disabled { opacity:0.45; cursor:not-allowed; background:#141820; }
+  
+  button { font:inherit; color:#f0f3fa; background:rgba(255, 255, 255, 0.03); border:1px solid rgba(255,255,255,0.08);
+    border-radius:8px; padding:6px 12px; cursor:pointer; transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s ease, box-shadow 0.2s ease;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  button:hover:not(:disabled) { background:rgba(255, 255, 255, 0.08); border-color:rgba(255,255,255,0.16); }
+  button:active:not(:disabled) { transform: scale(0.97); }
+  button:disabled { opacity:0.3; cursor:not-allowed; background:rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.04); }
   button.wide { grid-column:1 / -1; }
-  button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.active { background:var(--accent-gradient); border-color:transparent; color:#fff; box-shadow: var(--glow); }
+
   #toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); z-index:20;
-    background:rgba(16,20,28,0.92); border:1px solid var(--border); border-radius:8px;
+    background:rgba(10,14,22,0.92); border:1px solid var(--border); border-radius:8px;
     padding:8px 16px; font-size:12px; color:#cdd6e6; pointer-events:none; opacity:0;
     transition:opacity .25s; }
   #toast.show { opacity:1; }
@@ -719,18 +773,17 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     background:rgba(16,20,28,0.85); padding:3px 8px; border-radius:6px; display:none;
     border:1px solid var(--border); }
   #help { left:12px; bottom:12px; max-width:420px; font-size:12px; color:#c7cedb; z-index:4; }
-  #help kbd { background:#1b2330; border:1px solid var(--border); border-bottom-width:2px;
-    border-radius:5px; padding:1px 6px; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#e6e6e6; }
+  #help kbd { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-bottom-width:2px;
+    border-radius:5px; padding:2px 6px; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#e2e8f0; }
   #help .hint { color:var(--muted); margin-top:4px; }
   #info { right:12px; bottom:12px; width:240px; display:none; }
   #info .close { float:right; cursor:pointer; color:var(--muted); }
-  #info h2 { margin:0 0 6px; color:#e6e6e6; text-transform:none; font-size:13px; letter-spacing:0; }
+  #info h2 { margin:0 0 6px; color:#fff; text-transform:none; font-size:13px; letter-spacing:0; }
   #info code { color:#cdd6e6; }
   .small { font-size:11px; color:var(--muted); }
   code { color:#cdd6e6; }
 
   /* ---------- pass-2: edit-mode UI ---------- */
-  /* Edit inspector stacks under run bar in one right column; view presets hide while editing. */
   #editPanel {
     top:calc(var(--chrome-top) + var(--runbar-h) + 8px);
     right:var(--right-gap);
@@ -742,24 +795,23 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   body.editing #panelRight { display:none !important; }
   body.editing #help { display:none !important; }
   body.editing .editbadge { display:none !important; }
-  #editPanel h1 { font-size:13px; margin:0 0 1px; }
+  #editPanel h1 { font-size:13px; font-weight:700; margin:0 0 2px; color:#fff; }
   #editPanel .sub { color:var(--muted); margin:0 0 var(--space-sm); font-size:11px; line-height:1.35; }
   #editPanel hr { margin:var(--space-sm) 0; }
-  #editPanel h2 { margin:0 0 var(--space-xs); font-size:10px; }
+  #editPanel h2 { margin:10px 0 var(--space-xs); font-size:10px; }
   #editPanel .field { margin:3px 0; }
   #editPanel .btns { gap:var(--space-xs); margin-bottom:var(--space-sm); }
   #editPanel .export-note { margin:var(--space-xs) 0 0; font-size:10px; line-height:1.4; }
   #editPanel details.edit-advanced { margin-top:6px; border:1px solid var(--border); border-radius:6px; padding:6px 8px; }
   #editPanel details.edit-advanced > summary { cursor:pointer; font-size:11px; color:var(--muted); user-select:none; }
   #editPanel details.edit-advanced[open] > summary { margin-bottom:6px; color:#cdd6e6; }
-  /* Side-panel tool grid removed — floating #placeToolbar is the primary placement UX. */
   .tools { display:none; }
-  /* Floating canvas toolbar — big visual component buttons for click-to-place. */
+  
   #placeToolbar {
     position:fixed; bottom:14px; left:50%; transform:translateX(-50%); z-index:8;
-    display:none; align-items:center; gap:8px; padding:8px 12px; border-radius:12px;
-    background:rgba(12,16,24,0.94); border:1px solid var(--border);
-    box-shadow:0 8px 32px rgba(0,0,0,0.45); backdrop-filter:blur(12px);
+    display:none; align-items:center; gap:8px; padding:8px 12px; border-radius:14px;
+    background:rgba(10,15,26,0.85); border:1px solid var(--border);
+    box-shadow:var(--shadow); backdrop-filter:var(--panel-blur); -webkit-backdrop-filter:var(--panel-blur);
     max-width:calc(100vw - var(--edit-col-w) - var(--right-gap) - 48px);
   }
   body.editing #placeToolbar { display:flex; }
@@ -770,29 +822,32 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   }
   #placeToolbar .pt-dot { width:14px; height:14px; border-radius:50%;
     border:1px solid rgba(255,255,255,.35); }
-  #placeToolbar button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  #placeToolbar button.active { background:var(--accent-gradient); border-color:transparent; color:#fff; }
   #placeToolbar .pt-hint { font-size:10px; color:var(--muted); max-width:180px; line-height:1.35; }
   #placeVariants {
     position:fixed; bottom:calc(var(--bottom-bar-h) - 4px); left:50%; transform:translateX(-50%); z-index:8;
     display:none; flex-wrap:wrap; gap:5px; justify-content:center;
     max-width:calc(100vw - var(--edit-col-w) - var(--right-gap) - 48px); padding:8px 10px; border-radius:10px;
-    background:rgba(12,16,24,0.92); border:1px solid var(--border);
-    box-shadow:0 4px 20px rgba(0,0,0,0.35);
+    background:rgba(10,15,26,0.85); border:1px solid var(--border);
+    box-shadow:var(--shadow); backdrop-filter:var(--panel-blur); -webkit-backdrop-filter:var(--panel-blur);
   }
   #placeVariants.open { display:flex; }
   #placeVariants button { font-size:10px; padding:4px 8px; min-height:28px; }
-  #placeVariants button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
-  /* Numeric field rows in the properties / geometry panels. */
-  .field { display:flex; align-items:center; gap:8px; margin:5px 0; }
+  #placeVariants button.active { background:var(--accent-gradient); border-color:transparent; color:#fff; }
+  
+  .field { display:flex; align-items:center; gap:8px; margin:6px 0; }
   .field label { flex:0 0 64px; color:var(--muted); }
   .field input[type=number], .field input[type=text], .field select {
-    flex:1 1 auto; min-width:0; font:inherit; color:#e6e6e6; background:#10141c;
-    border:1px solid var(--border); border-radius:6px; padding:4px 6px; }
+    flex:1 1 auto; min-width:0; font:inherit; color:#f0f3fa; background:rgba(0,0,0,0.3);
+    border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:5px 8px;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  .field input[type=number]:focus, .field input[type=text]:focus, .field select:focus {
+    border-color: var(--accent); outline: none; background: rgba(0,0,0,0.45);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25); }
   .field.xyz input { flex:1 1 0; width:0; }
-  .field input[type=range] { flex:1 1 auto; }
+  .field input[type=range] { flex:1 1 auto; accent-color: var(--accent); }
   .field .val { flex:0 0 64px; text-align:right; color:#cdd6e6; font-variant-numeric:tabular-nums; }
-  /* Properties panel (bottom-right) for the selected pad. */
-  /* Properties panel — floats left of edit column while editing. */
+  
   #props { right:12px; bottom:12px; width:268px; display:none; max-height:60vh; overflow-y:auto; z-index:6; }
   body.editing #props.shown {
     display:block;
@@ -800,74 +855,74 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     bottom:calc(var(--bottom-bar-h) + 8px);
     max-height:min(46vh, 380px);
   }
-  #props h2 { color:#e6e6e6; text-transform:none; font-size:13px; letter-spacing:0; margin:0 0 6px; }
+  #props h2 { color:#fff; font-weight:700; text-transform:none; font-size:13px; letter-spacing:0; margin:0 0 6px; }
   #props .close { float:right; cursor:pointer; color:var(--muted); }
-  /* Validation status line: green ok / yellow warn / red error chips. */
   #validate { font-size:12px; }
   #validate .chip { display:inline-block; padding:1px 7px; border-radius:10px; margin:2px 4px 2px 0;
-    background:#1b2330; border:1px solid var(--border); }
-  #validate .warn { color:#ffd166; }
-  #validate .err  { color:#ff5d5d; }
-  /* Export/import textarea. */
+    background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); }
+  #validate .warn { color:#fbbf24; }
+  #validate .err  { color:#f87171; }
+  
   #ioWrap, #pyWrap { display:none; margin-top:6px; }
   #ioWrap.shown, #pyWrap.shown { display:block; }
   #ioText, #pyText { width:100%; box-sizing:border-box; height:150px; resize:vertical; font:11px/1.45 ui-monospace,Menlo,monospace;
-    color:#cdd6e6; background:#0c0f16; border:1px solid var(--border); border-radius:7px; padding:6px; }
-  #buildCmds { margin:0; padding:8px; background:#0c0f16; border:1px solid var(--border); border-radius:7px;
-    font:11px/1.5 ui-monospace,Menlo,monospace; color:#cdd6e6; white-space:pre-wrap; word-break:break-all; }
-  #testCmds { margin:0; padding:8px; background:#0c0f16; border:1px solid var(--border); border-radius:7px;
-    font:11px/1.5 ui-monospace,Menlo,monospace; color:#cdd6e6; white-space:pre-wrap; word-break:break-all;
+    color:#e2e8f0; background:#07090e; border:1px solid var(--border); border-radius:8px; padding:8px; }
+  #buildCmds { margin:0; padding:8px; background:#07090e; border:1px solid var(--border); border-radius:8px;
+    font:11px/1.5 ui-monospace,Menlo,monospace; color:#e2e8f0; white-space:pre-wrap; word-break:break-all; }
+  #testCmds { margin:0; padding:8px; background:#07090e; border:1px solid var(--border); border-radius:8px;
+    font:11px/1.5 ui-monospace,Menlo,monospace; color:#e2e8f0; white-space:pre-wrap; word-break:break-all;
     max-height:220px; overflow-y:auto; }
   #testStatus { font-size:12px; margin:6px 0 0; min-height:18px; }
-  #testStatus .ok { color:#57d977; }
-  #testStatus .warn { color:#ffd166; }
-  #testStatus .err { color:#ff5d5d; }
-  button.test-primary { background:#1a6638; border-color:#2a8f4e; font-weight:600; }
-  button.test-primary:hover:not(:disabled) { background:#22884a; border-color:#3cb868; }
-  button.test-primary:disabled { opacity:0.55; cursor:wait; }
-  button.test-export { background:#2a4a6e; border-color:#3a6a9e; font-weight:600; }
-  button.test-export:hover:not(:disabled) { background:#356089; border-color:#4a82b8; }
-  button.test-export:disabled { opacity:0.55; cursor:wait; }
+  #testStatus .ok { color:#34d399; }
+  #testStatus .warn { color:#fbbf24; }
+  #testStatus .err { color:#f87171; }
+  
+  button.test-primary { background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-color:transparent; font-weight:600; color:#fff; }
+  button.test-primary:hover:not(:disabled) { background:linear-gradient(135deg, #34d399 0%, #10b981 100%); }
+  button.test-primary:disabled { opacity:0.4; cursor:wait; }
+  button.test-export { background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-color:transparent; font-weight:600; color:#fff; }
+  button.test-export:hover:not(:disabled) { background:linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+  button.test-export:disabled { opacity:0.4; cursor:wait; }
   .test-export-details { margin-top:6px; font-size:12px; color:var(--muted); }
   .test-export-details summary { cursor:pointer; color:#cdd6e6; user-select:none; margin-bottom:4px; }
   .test-export-details[open] summary { margin-bottom:6px; }
   .test-export-details .export-note { margin:0 0 6px; font-size:11px; }
   #testServerHint { font-size:11px; color:var(--muted); margin:4px 0 0; line-height:1.35; }
-  #testServerHint .live { color:#57d977; }
-  #testServerHint .off { color:#ffd166; }
+  #testServerHint .live { color:#34d399; }
+  #testServerHint .off { color:#fbbf24; }
   .export-note { font-size:11px; color:var(--muted); margin:4px 0 0; line-height:1.45; }
   .editbadge { position:fixed; top:calc(var(--chrome-top) + 4px); left:50%; transform:translateX(-50%); z-index:8;
-    background:#2c7be5; color:#fff; font-weight:700; letter-spacing:.4px; padding:5px 14px;
+    background:#3b82f6; color:#fff; font-weight:700; letter-spacing:.4px; padding:5px 14px;
     border-radius:20px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; pointer-events:none; }
   body.editing:not(.browser-mode) .editbadge { display:block; }
-  /* pass-10: Run bar — Mod + Scenario + Play only; file ops live in menu bar. */
+  
   #runBar { position:fixed; top:var(--chrome-top); right:var(--right-gap); z-index:7; display:flex; align-items:center;
-    gap:var(--space-sm); padding:6px 10px; border-radius:10px; max-height:44px;
-    background:var(--panel); border:1px solid var(--border); backdrop-filter:blur(6px);
-    box-shadow:0 6px 24px rgba(0,0,0,0.45); }
+    gap:var(--space-sm); padding:6px 12px; border-radius:14px; max-height:44px; }
   #runBar .run-field { display:flex; align-items:center; gap:var(--space-xs); margin:0; }
   #runBar .run-field label { flex:0 0 auto; font-size:var(--label-size); color:var(--muted);
     text-transform:uppercase; letter-spacing:.4px; }
-  #runBar .run-field select { font-size:var(--control-size); padding:6px 8px; min-height:32px;
-    min-width:88px; border-radius:7px; border:1px solid var(--border); background:#10141c; color:#e6e6e6; }
-  #runBar #testPlayBtn { min-height:44px; min-width:88px; padding:8px 14px; font-size:13px;
+  #runBar .run-field select { font-size:var(--control-size); padding:6px 10px; min-height:32px;
+    min-width:88px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.3); color:#f0f3fa; }
+  #runBar #testPlayBtn { min-height:32px; min-width:80px; padding:6px 12px; font-size:12px;
     font-weight:600; border-radius:8px; }
-  #runBar #editModeBtn { min-height:44px; min-width:56px; padding:8px 12px; font-size:13px; font-weight:600; border-radius:8px; }
-  #runBar #editModeBtn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
-  #runBar #buildSettingsBtn { min-width:44px; min-height:44px; padding:0; font-size:16px;
-    line-height:1; border-radius:8px; background:#1b2330; }
+  #runBar #editModeBtn { min-height:32px; min-width:56px; padding:6px 12px; font-size:12px; font-weight:600; border-radius:8px; }
+  #runBar #editModeBtn.active { background:var(--accent-gradient); border-color:transparent; color:#fff; box-shadow: var(--glow); }
+  #runBar #buildSettingsBtn { min-width:32px; min-height:32px; padding:0; font-size:14px;
+    line-height:1; border-radius:8px; background:rgba(255,255,255,0.03); }
+  #runBar #openMapBtn { min-width:32px; min-height:32px; padding:0; font-size:14px;
+    line-height:1; border-radius:8px; background:rgba(255,255,255,0.03); }
   #runBar #buildSettingsBtn:focus-visible, #runBar select:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
   body.drag-over-canvas { outline:3px dashed var(--accent); outline-offset:-3px; }
-  /* Document status pill — map name + dirty (replaces in-panel file chrome). */
-  #statusPill { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9;
-    display:flex; align-items:center; gap:8px; padding:8px 16px; min-height:36px;
-    border-radius:20px; background:rgba(16,20,28,0.9); border:1px solid var(--border);
-    backdrop-filter:blur(8px); box-shadow:0 4px 20px rgba(0,0,0,.4); pointer-events:none;
-    font-size:13px; font-weight:500; color:#f0f3fa; max-width:min(420px, calc(100vw - 48px)); }
+  
+  #statusPill { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); z-index:9;
+    display:flex; align-items:center; gap:10px; padding:8px 18px; min-height:38px;
+    border-radius:24px; background:rgba(10, 14, 22, 0.75); border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:var(--panel-blur); -webkit-backdrop-filter:var(--panel-blur);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4); pointer-events:none;
+    font-size:12px; font-weight:600; color:#f0f3fa; max-width:min(420px, calc(100vw - 48px)); }
   body.editing #statusPill {
     bottom:calc(var(--bottom-bar-h) + 6px);
-    max-width:min(420px, calc(100vw - var(--edit-col-w) - var(--right-gap) - 48px));
-  }
+    max-width:min(420px, calc(100vw - var(--edit-col-w) - var(--right-gap) - 48px)); }
   #statusPill .doc-dirty { color:#ffb020; font-size:11px; font-weight:700; flex:0 0 auto; }
   #statusPill .doc-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   #statusPill .doc-server { font-size:10px; color:var(--muted); font-weight:400; flex:0 0 auto; }
@@ -890,12 +945,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     font-size:12px; border:none; background:transparent; color:#e6e6e6; border-radius:4px; cursor:pointer; }
   .browser-menu-panel button:hover { background:rgba(255,255,255,.08); }
   /* Build Settings sheet — advanced test/build flags off the canvas. */
-  #buildSettingsModal { position:fixed; inset:0; z-index:30; display:none; align-items:center;
-    justify-content:center; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); }
+  #buildSettingsModal { position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; z-index:9998 !important; display:none; align-items:center;
+    justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); }
   #buildSettingsModal.open { display:flex; }
-  #buildSettingsSheet { width:min(420px, calc(100vw - 32px)); max-height:min(80vh, 720px);
-    overflow-y:auto; padding:var(--space-lg); border-radius:12px; background:#121820;
-    border:1px solid var(--border); box-shadow:0 12px 40px rgba(0,0,0,.55); }
+  #buildSettingsSheet { position:relative !important; width:min(420px, calc(100vw - 32px)); max-height:min(80vh, 720px);
+    overflow-y:auto; padding:var(--space-lg); border-radius:14px; }
   #buildSettingsSheet h2 { margin:0 0 var(--space-md); font-size:15px; color:#f0f3fa;
     text-transform:none; letter-spacing:0; }
   #buildSettingsSheet .sheet-section { margin:var(--space-md) 0; }
@@ -916,11 +970,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     margin-top:var(--space-lg); padding-top:var(--space-md); border-top:1px solid var(--border); }
   #buildSettingsSheet .sheet-actions button { min-height:44px; padding:8px 16px; }
   /* Map name prompt — Electron does not support window.prompt(); use in-app modal. */
-  #mapNameModal { position:fixed; inset:0; z-index:31; display:none; align-items:center;
-    justify-content:center; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); }
+  #mapNameModal { position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; z-index:9999 !important; display:none; align-items:center;
+    justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); }
   #mapNameModal.open { display:flex; }
-  #mapNameSheet { width:min(380px, calc(100vw - 32px)); padding:var(--space-lg); border-radius:12px;
-    background:#121820; border:1px solid var(--border); box-shadow:0 12px 40px rgba(0,0,0,.55); }
+  #mapNameSheet { position:relative !important; width:min(380px, calc(100vw - 32px)); padding:var(--space-lg); border-radius:14px; }
   #mapNameSheet h2 { margin:0 0 var(--space-xs); font-size:15px; color:#f0f3fa;
     text-transform:none; letter-spacing:0; }
   #mapNameSheet .map-name-hint { margin:0 0 var(--space-md); font-size:var(--label-size); color:var(--muted); }
@@ -988,7 +1041,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .pad-hover-ring { pointer-events:none; }
   /* pass-11: first-run / empty-map onboarding */
   #onboardingOverlay {
-    position:fixed; inset:0; z-index:25; display:none; align-items:center; justify-content:center;
+    position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; z-index:9997 !important; display:none; align-items:center; justify-content:center;
     background:rgba(6,8,12,0.72); backdrop-filter:blur(4px); padding:24px;
   }
   #onboardingOverlay.open { display:flex; }
@@ -1004,6 +1057,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     border-radius:5px; padding:1px 6px; font-family:ui-monospace,Menlo,monospace; font-size:11px;
   }
   #onboardingDismiss { width:100%; min-height:40px; font-weight:600; }
+  #openFileInput, #newMapName, #openMapList { display: none !important; }
 </style>
 </head>
 <body>
@@ -1094,6 +1148,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <label for="testScenario">Scenario</label>
     <select id="testScenario" title="Multiplayer scenario"></select>
   </div>
+  <button id="openMapBtn" type="button" title="Open saved map… (Cmd+O)" aria-label="Open saved map">📂</button>
   <button id="editModeBtn" type="button" title="Toggle edit mode (E)" aria-pressed="false">Edit</button>
   <button id="testPlayBtn" class="test-primary" type="button" title="Validate, build, deploy, launch (T)" aria-label="Play test map">▶ Play</button>
   <button id="buildSettingsBtn" type="button" title="Build Settings…" aria-label="Build settings">⚙</button>
@@ -1156,6 +1211,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="opt-checks">
         <label title="Build seg display list (--seg)"><input type="checkbox" id="testSegChk" checked /> Seg</label>
         <label title="Copy assets to mod (--deploy)"><input type="checkbox" id="testDeployChk" checked /> Deploy</label>
+        <label title="Disable character textures for performance"><input type="checkbox" id="testDisableTexturesChk" /> No Textures</label>
         <label title="cmake --build before play"><input type="checkbox" id="testRebuildChk" /> Rebuild</label>
         <label title="Launch pd.arm64 --test-map"><input type="checkbox" id="testPlayChk" checked /> Play</label>
         <label title="Skip pdmap validate"><input type="checkbox" id="testSkipValChk" /> Skip val</label>
@@ -1464,6 +1520,7 @@ function defaultsForType(t) {
 // Build the initial editor model from the read-only DATA.pads scene.
 const mapState = {
   name: DATA.name || 'uff',
+  level_module: DATA.level_module || '',
   pads: DATA.pads.map(p => {
     const t = (KIND_ORDER.includes(p.kind) ? p.kind : 'other');
     const pad = Object.assign({
@@ -2885,6 +2942,7 @@ function updateValidation() {
 function serializeMap() {
   return {
     name: mapState.name,
+    level_module: mapState.level_module || '',
     box_half: HALF,
     box_height: HEIGHT,
     pads: mapState.pads.map((p, i) => {
@@ -2908,6 +2966,7 @@ function loadMap(obj, opts = {}) {
   if (!obj || !Array.isArray(obj.pads)) { alert('Map JSON must have a pads[] array.'); return false; }
   if (!opts.skipHistory && !suppressHistory) pushHistory();
   mapState.name = obj.name || mapState.name;
+  mapState.level_module = obj.level_module || mapState.level_module || '';
   syncMapNameFields(mapState.name);
   updateStorageKeyDisplay();
   if (Number.isFinite(+obj.box_half) && Number.isFinite(+obj.box_height)) {
@@ -3777,16 +3836,19 @@ function collectValidationIssues() {
   const c = { spawn: 0, weapon: 0, ammo: 0, scenario: 0 };
   const posBuckets = new Map();
 
+  const isParade = mapState.name === 'parade' || mapState.name?.startsWith('parade_') || mapState.level_module === 'parade';
   if (pads.length === 0) errors.push('Empty map — add pads before testing');
   for (let i = 0; i < pads.length; i++) {
     const p = pads[i];
     const kind = KIND_ORDER.includes(p.type) ? p.type : 'other';
     if (kind in c) c[kind]++;
-    if (p.y < 0) errors.push('Pad ' + i + ' below floor (Y<0)');
+    if (p.y < 0 && !isParade) errors.push('Pad ' + i + ' below floor (Y<0)');
     if (kind === 'weapon' && p.weapon == null) errors.push('Pad ' + i + ': weapon not assigned');
     if (kind === 'ammo' && p.ammoType == null) errors.push('Pad ' + i + ': ammo type not assigned');
     if (kind === 'scenario' && !p.scenario) errors.push('Pad ' + i + ': scenario mode not set');
-    if (Math.abs(p.x) > HALF || Math.abs(p.z) > HALF) warnings.push('Pad ' + i + ' outside box XZ footprint');
+    const checkX = isParade ? p.x * 0.35 : p.x;
+    const checkZ = isParade ? p.z * 0.35 : p.z;
+    if (Math.abs(checkX) > HALF || Math.abs(checkZ) > HALF) warnings.push('Pad ' + i + ' outside box XZ footprint');
     if (p.y === 0 && (kind === 'spawn' || kind === 'weapon' || kind === 'ammo'))
       warnings.push('Pad ' + i + ' at Y=0 — use Y≥10 (SPAWN_Y)');
     if (padNearOriginForTest(p)) warnings.push('Pad ' + i + ' near origin');
@@ -3923,8 +3985,21 @@ function updateSimInfoReadout() {
 
 function getTestOptions() {
   let level;
-  try { level = sanitizeLevelName(testLevelInput.value || levelNameInput.value || mapState.name); }
+  try { level = sanitizeLevelName(testLevelInput.value || mapState.level_module || levelNameInput.value || mapState.name); }
   catch (e) { throw new Error(e.message); }
+
+  const catalogKeys = Object.keys(LEVEL_CATALOG || {});
+  let matched = '';
+  for (const key of catalogKeys) {
+    if (level.includes(key) || key.includes(level)) {
+      matched = key;
+      break;
+    }
+  }
+  if (matched) {
+    level = matched;
+  }
+
   const deployChoice = testDeployAs ? testDeployAs.value : '__same__';
   const deployAs = (deployChoice === '__same__') ? level : deployChoice;
   return {
@@ -3938,6 +4013,7 @@ function getTestOptions() {
     mpOptions: getMpOptionsFromUI(),
     seg: document.getElementById('testSegChk')?.checked !== false,
     deploy: document.getElementById('testDeployChk')?.checked !== false,
+    disableTextures: document.getElementById('testDisableTexturesChk')?.checked === true,
     skipValidate: document.getElementById('testSkipValChk')?.checked === true,
     rebuildGame: document.getElementById('testRebuildChk')?.checked === true,
     play: document.getElementById('testPlayChk')?.checked !== false,
@@ -3962,6 +4038,7 @@ function buildTestShellScript(data, opts) {
   if (opts.deployAs !== opts.level) flags.push('--deploy-as ' + opts.deployAs);
   if (opts.seg) flags.push('--seg');
   if (opts.deploy) flags.push('--deploy');
+  if (opts.disableTextures) flags.push('--no-textures');
   if (opts.skipValidate) flags.push('--skip-validate');
   if (opts.rebuildGame) flags.push('--rebuild-game');
   if (opts.play) flags.push('--play');
@@ -3993,6 +4070,7 @@ function buildTestCommandLine(opts) {
   if (opts.deployAs !== opts.level) parts.push('--deploy-as', opts.deployAs);
   if (opts.seg) parts.push('--seg');
   if (opts.deploy) parts.push('--deploy');
+  if (opts.disableTextures) parts.push('--no-textures');
   if (opts.skipValidate) parts.push('--skip-validate');
   if (opts.rebuildGame) parts.push('--rebuild-game');
   if (opts.play) parts.push('--play');
@@ -4416,6 +4494,7 @@ if (testLevelInput) {
 [testDeployAs, testModSelect, testScenarioSelect,
  document.getElementById('testNumSims'), document.getElementById('testSimDiff'),
  document.getElementById('testSegChk'), document.getElementById('testDeployChk'),
+ document.getElementById('testDisableTexturesChk'),
  document.getElementById('testSkipValChk'), document.getElementById('testRebuildChk'),
  document.getElementById('testPlayChk'), document.getElementById('testBackupChk'),
  document.getElementById('testWarnOkChk')].forEach(el => {
@@ -4474,6 +4553,7 @@ document.getElementById('redoBtn').onclick = redo;
 document.getElementById('saveLocalBtn').onclick = saveToLocalStorage;
 document.getElementById('loadLocalBtn').onclick = loadFromLocalStorage;
 document.getElementById('clearMapBtn').onclick = clearMap;
+document.getElementById('openMapBtn').onclick = openSavedMapDialog;
 
 // pass-10: menu bar bridge (Electron) + browser fallback strip.
 if (!window.electronAPI) document.body.classList.add('browser-mode');

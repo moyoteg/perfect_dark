@@ -89,8 +89,9 @@ def run_animlab_validation(
         mod = import_module(f"src.levels.{name}")
         tiles_data = mod.build_tiles_json()
 
-    collision_errors = audit_spawn_collision_floor(tiles_data)
-    walk_warnings = audit_spawn_walk_paths()
+    scale_factor = 0.35 if name == "parade" else 1.0
+    collision_errors = audit_spawn_collision_floor(tiles_data, scale_factor=scale_factor)
+    walk_warnings = audit_spawn_walk_paths(scale_factor=scale_factor)
     y4_count = count_y4_tiles_room1(tiles_data)
 
     collision_errors = list(collision_errors)
@@ -111,8 +112,9 @@ def run_animlab_validation(
             else:
                 import math
                 dist = math.hypot(pad1.x - pad2.x, pad1.z - pad2.z)
-                if abs(dist - 218.0) > 1.0:
-                    collision_errors.append(f"Unexpected door sibling pad distance: {dist:.2f} (expected ~218)")
+                expected_dist = 218.0 * 0.35 if name == "parade" or getattr(g, "anim_parade", False) else 218.0
+                if abs(dist - expected_dist) > 1.0:
+                    collision_errors.append(f"Unexpected door sibling pad distance: {dist:.2f} (expected ~{expected_dist:.2f})")
                 dot_prod = pad1.up_x * pad2.up_x + pad1.up_y * pad2.up_y + pad1.up_z * pad2.up_z
                 if abs(dot_prod + 1.0) > 0.01:
                     collision_errors.append(f"Unexpected door sibling up vectors alignment: dot={dot_prod:.2f}")

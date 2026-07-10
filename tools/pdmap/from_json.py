@@ -463,7 +463,29 @@ class EditorMapSpec:
         """Parse editor JSON into a fully wired ``MapDef`` with all MP invariants."""
         name = validate_level_name(deploy_name or str(data.get("name", "map")))
         level_module = validate_level_name(str(data.get("level_module") or data.get("name") or "uff"))
-        half = float(data.get("box_half", 5000))
+
+        g = MapDef(name)
+        if name == "parade" or name.startswith("parade_") or level_module == "parade":
+            g.anim_parade = True
+
+        scale_factor = 0.35 if getattr(g, "anim_parade", False) else 1.0
+
+        if getattr(g, "anim_parade", False):
+            # Calculate dynamic half from scaled pads and covers
+            pads_list = data.get("pads") or []
+            max_coord = 0.0
+            for p in pads_list:
+                px = abs(float(p.get("x", 0)) * scale_factor)
+                pz = abs(float(p.get("z", 0)) * scale_factor)
+                max_coord = max(max_coord, px, pz)
+            for cover in data.get("covers") or []:
+                cx = abs(float(cover.get("x", 0)) * scale_factor)
+                cz = abs(float(cover.get("z", 0)) * scale_factor)
+                max_coord = max(max_coord, cx, cz)
+            half = min(32767.0, max_coord + 1000.0)
+        else:
+            half = float(data.get("box_half", 5000))
+
         height = float(data.get("box_height", 3000))
         floor_y = spawn_y if spawn_y is not None else float(
             data.get("spawn_y", PAD_FLOOR_OFFSET)
@@ -473,9 +495,6 @@ class EditorMapSpec:
         if not pads:
             raise ValueError("Refusing to build an empty map — add at least one pad.")
 
-        g = MapDef(name)
-        if name == "parade" or name.startswith("parade_") or level_module == "parade":
-            g.anim_parade = True
         y_corrected: list[int] = []
 
         pad_indices: dict[str, int] = {}
@@ -499,10 +518,10 @@ class EditorMapSpec:
                     "indices must be contiguous 0..N-1."
                 )
 
-            x = float(p.get("x", 0))
-            z = float(p.get("z", 0))
+            x = float(p.get("x", 0)) * scale_factor
+            z = float(p.get("z", 0)) * scale_factor
             y = float(p.get("y", floor_y))
-            if y <= 0.0:
+            if not getattr(g, "anim_parade", False) and y <= 0.0:
                 y_corrected.append(i)
                 y = floor_y
             room = int(p.get("room", 1))
@@ -558,10 +577,32 @@ class EditorMapSpec:
 
         for cover in data.get("covers") or []:
             g.add_cover(
-                x=float(cover.get("x", 0)),
-                z=float(cover.get("z", 0)),
+                x=float(cover.get("x", 0)) * scale_factor,
+                z=float(cover.get("z", 0)) * scale_factor,
                 y=float(cover.get("y", floor_y)),
             )
+
+        tiles = data.get("tiles")
+        if getattr(g, "anim_parade", False) and tiles is not None:
+            scaled_tiles = {"rooms": {}, "occupied": []}
+            for room_name, room_tiles in tiles.get("rooms", {}).items():
+                scaled_room_tiles = []
+                for tile in room_tiles:
+                    tile_copy = dict(tile)
+                    tile_copy["vertices"] = [
+                        {"x": int(round(v["x"] * scale_factor)), "y": int(v["y"]), "z": int(round(v["z"] * scale_factor))}
+                        for v in tile["vertices"]
+                    ]
+                    scaled_room_tiles.append(tile_copy)
+                scaled_tiles["rooms"][room_name] = scaled_room_tiles
+            for rect in tiles.get("occupied", []):
+                scaled_tiles["occupied"].append([
+                    int(round(rect[0] * scale_factor)),
+                    int(round(rect[1] * scale_factor)),
+                    int(round(rect[2] * scale_factor)),
+                    int(round(rect[3] * scale_factor))
+                ])
+            tiles = scaled_tiles
 
         g.custom_waypoints = data.get("waypoints", [])
 
@@ -578,7 +619,7 @@ class EditorMapSpec:
                 data.get("center_marker_half", CENTER_MARKER_HALF)
             ),
             cover_markers=bool(data.get("cover_markers", False)),
-            tiles=data.get("tiles"),
+            tiles=tiles,
         )
 
     def tiles_json(self, *, seg_mode: str | None = None) -> dict:

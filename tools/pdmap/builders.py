@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .core import MapDef
 from .intro import Spawn, Weapon, Ammo, Case, CaseRespawn, Hill
-from .props import Weapon as WeaponProp, AmmoCrateMulti
+from .props import Weapon as WeaponProp, AmmoCrateMulti, Hoverbike, StdObject
 from .tiles import _DEFAULT_FLAGS
 from . import weapons as W
 from .anim_catalog import PARADE_ZONE_HALF
@@ -510,6 +510,31 @@ def tile_quad(
             {"x": int(x1), "y": yi, "z": int(z0)},
         ],
     }
+
+
+def tile_large_floor(
+    x0: float,
+    z0: float,
+    x1: float,
+    z1: float,
+    y: float,
+    floorcolour: int,
+    tile_size: float = 4000.0,
+) -> list[dict]:
+    """Tile a large floor area with smaller quads to ensure N64 collision grid partitioning works."""
+    tiles = []
+    cur_x = x0
+    while cur_x < x1:
+        next_x = min(cur_x + tile_size, x1)
+        cur_z = z0
+        while cur_z < z1:
+            next_z = min(cur_z + tile_size, z1)
+            tiles.append(
+                tile_quad(cur_x, cur_z, next_x, next_z, y=y, floorcolour=floorcolour)
+            )
+            cur_z = next_z
+        cur_x = next_x
+    return tiles
 
 
 def _floor_tiles_minus_rect(
@@ -1405,12 +1430,88 @@ def configure_matrix_test_room(half: float = 5000.0, pad_y: float = PAD_FLOOR_OF
 
 
 def configure_animation_lab(*, half: float | None = None, pad_y: float = PAD_FLOOR_OFFSET) -> MapDef:
-    """Animation parade arena — player south hub, category districts north, props west.
+    """Animation parade arena — simplified player south hub + category grids (no props wings)."""
+    from .anim_catalog import (
+        PARADE_PLAYER_SPAWN_Z,
+        PARADE_SPECIAL_X,
+        PARADE_SPECIAL_Z,
+        parade_arena_half,
+        parade_grid_xy,
+        parade_slot_markers,
+        parade_special_marker,
+    )
+    from .anim_parade import NUM_GRID_SLOTS, PAD_PARADE_FIRST, PAD_SPECIAL_TOUR
 
-    Grid size, spacing, and arena extent come from ``anim_catalog`` (full named
-    catalog). Deploy with ``pdmap build animlab --deploy``; boot via
-    ``--test-animlab`` (``STAGE_ANIMLAB``). Uses ``MapDef.anim_parade = True``.
-    """
+    if half is None:
+        half = parade_arena_half()
+
+    slot_meta = {s["slot"]: s for s in parade_slot_markers()}
+    g = MapDef("animlab")
+    g.anim_parade = True
+
+    # Pad 0: player faces +Z toward the district grid (room 1 south hub).
+    g.add_pad(index=0, x=0.0, y=pad_y, z=PARADE_PLAYER_SPAWN_Z, room=1)
+    g.add_intro(Spawn(0))
+
+    # Pads 1..N: per-district sub-zone grids; each sub-zone uses its own tile room.
+    for slot in range(NUM_GRID_SLOTS):
+        meta = slot_meta[slot + 1]
+        x, z = parade_grid_xy(slot + 1)
+        g.add_pad(
+            index=PAD_PARADE_FIRST + slot,
+            x=x,
+            y=pad_y,
+            z=z,
+            room=meta["room"],
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        )
+
+    # Full-tour cycler — east of spawn hub (room 1).
+    special = parade_special_marker()
+    g.add_pad(
+        index=PAD_SPECIAL_TOUR,
+        x=PARADE_SPECIAL_X,
+        y=pad_y,
+        z=PARADE_SPECIAL_Z,
+        room=special["room"],
+        dir_x=-1.0,
+        dir_y=0.0,
+        dir_z=0.0,
+    )
+
+    # Add 8 multiplayer spawns in the south hub around spawn point (0.0, PARADE_PLAYER_SPAWN_Z)
+    sim_spawn_coords = [
+        (0.0, PARADE_PLAYER_SPAWN_Z),
+        (150.0, PARADE_PLAYER_SPAWN_Z - 150.0),
+        (-150.0, PARADE_PLAYER_SPAWN_Z - 150.0),
+        (0.0, PARADE_PLAYER_SPAWN_Z - 300.0),
+        (150.0, PARADE_PLAYER_SPAWN_Z - 300.0),
+        (-150.0, PARADE_PLAYER_SPAWN_Z - 300.0),
+        (100.0, PARADE_PLAYER_SPAWN_Z - 450.0),
+        (-100.0, PARADE_PLAYER_SPAWN_Z - 450.0),
+    ]
+    for sx, sz in sim_spawn_coords:
+        pad_idx = len(g.pads)
+        g.add_pad(
+            index=pad_idx,
+            x=sx,
+            y=pad_y,
+            z=sz,
+            room=1,
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        )
+        g.add_intro(Spawn(pad=pad_idx))
+
+    add_loadout_intro(g)
+    return g
+
+
+def configure_parade(*, half: float | None = None, pad_y: float = PAD_FLOOR_OFFSET) -> MapDef:
+    """Parade map — full museum world (all static props, character galleries, megaworld)."""
     from .anim_catalog import (
         PARADE_PLAYER_SPAWN_Z,
         PARADE_SPECIAL_X,
@@ -1429,7 +1530,7 @@ def configure_animation_lab(*, half: float | None = None, pad_y: float = PAD_FLO
         half = parade_arena_half()
 
     slot_meta = {s["slot"]: s for s in parade_slot_markers()}
-    g = MapDef("animlab")
+    g = MapDef("parade")
     g.anim_parade = True
 
     # Pad 0: player faces +Z toward the district grid (room 1 south hub).
@@ -1473,11 +1574,304 @@ def configure_animation_lab(*, half: float | None = None, pad_y: float = PAD_FLO
     # Level megaworld — pad-sized footprint islands (pads + name markers after character gallery).
     add_level_megaworld_pads(g, pad_y=pad_y)
 
+    # Portal Entrance and Landing pads
+    from .anim_catalog import (
+        hub_signpost_entries,
+        PARADE_CHARACTERS_CENTER_X,
+        PARADE_CHARACTERS_CENTER_Z,
+        PARADE_CHARACTERS_HALF,
+        PARADE_PROPS_CENTER_X,
+        PARADE_PROPS_CENTER_Z,
+        OBJECT_CATALOG_HUB_X,
+        OBJECT_CATALOG_HUB_Z,
+        PARADE_TRUE_SCALE_NORMAL_CENTER_X,
+        PARADE_TRUE_SCALE_NORMAL_CENTER_Z,
+    )
+    from .anim_levels import world_gate_entries
+
+    portal_entrance_pads = {}
+    portal_landing_pads = {}
+    level_gates = {gate["compass"]: gate for gate in world_gate_entries()}
+    signs = hub_signpost_entries()
+
+    # 1. Entrance pads (placed where the portal/signpost arches are)
+    entrance_base = len(g.pads)
+    for i, sign in enumerate(signs):
+        pad_idx = entrance_base + i
+        g.add_pad(
+            index=pad_idx,
+            x=float(sign["x"]),
+            y=pad_y,
+            z=float(sign["z"]),
+            room=1,
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        )
+        portal_entrance_pads[sign["compass"]] = pad_idx
+
+    # 2. Landing pads (where the player spawns when teleported)
+    landing_base = len(g.pads)
+    for i, sign in enumerate(signs):
+        pad_idx = landing_base + i
+        compass = sign["compass"]
+        tx = float(sign["targetX"])
+        tz = float(sign["targetZ"])
+        room = 1
+        dx, dz = 0.0, -1.0 # Default looking North
+
+        if compass == "N":
+            tx, tz = 0.0, -1500.0
+            room = 1
+            dx, dz = 0.0, -1.0
+        elif compass == "SW":
+            tx, tz = PARADE_PROPS_CENTER_X, PARADE_PROPS_CENTER_Z + 600.0
+            room = 1
+            dx, dz = 0.0, 1.0 # Look South
+        elif compass == "WSW":
+            gate = level_gates["WSW"]
+            tx, tz = float(gate["gateX"]), float(gate["gateZ"]) + 150.0
+            room = 18
+            dx, dz = -1.0, 0.0 # Look West
+        elif compass == "W":
+            tx, tz = OBJECT_CATALOG_HUB_X, OBJECT_CATALOG_HUB_Z + 600.0
+            room = 20
+            dx, dz = 0.0, 1.0 # Look South
+        elif compass == "E":
+            gate = level_gates["E"]
+            tx, tz = float(gate["gateX"]), float(gate["gateZ"]) - 150.0
+            room = 18
+            dx, dz = 1.0, 0.0 # Look East
+        elif compass == "NW":
+            tx, tz = PARADE_TRUE_SCALE_NORMAL_CENTER_X, PARADE_TRUE_SCALE_NORMAL_CENTER_Z + 600.0
+            room = 16
+            dx, dz = 0.0, 1.0 # Look South
+        elif compass == "SE":
+            tx, tz = PARADE_CHARACTERS_CENTER_X - PARADE_CHARACTERS_HALF + 200.0, PARADE_CHARACTERS_CENTER_Z
+            room = 19
+            dx, dz = 1.0, 0.0 # Look East into gallery
+        elif compass == "NE":
+            # Developer Annex bridge re-aligned diagonal entry coordinate
+            tx, tz = 5316.0, 3695.0
+            room = 18
+            dx, dz = 0.7733, 0.6341 # Look along bridge's path
+
+        g.add_pad(
+            index=pad_idx,
+            x=tx,
+            y=pad_y,
+            z=tz,
+            room=room,
+            dir_x=dx,
+            dir_y=0.0,
+            dir_z=dz,
+        )
+        portal_landing_pads[compass] = pad_idx
+
+    g.portal_entrance_pads = portal_entrance_pads
+    g.portal_landing_pads = portal_landing_pads
+
+    # Portal helper pad: spawn the portal trigger guard hidden under the floor
+    portal_guard_pad = len(g.pads)
+    g.add_pad(
+        index=portal_guard_pad,
+        x=0.0,
+        y=-50.0,
+        z=0.0,
+        room=1,
+        dir_x=0.0,
+        dir_y=0.0,
+        dir_z=-1.0,
+    )
+    g.portal_guard_pad = portal_guard_pad
+
+    # Weapons & Devices exhibition crescent (placed in an arc south of player spawn wrapping behind them)
+    weapons_to_spawn = [
+        0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
+        0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,
+        0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x2C
+    ]
+    num_weaps = len(weapons_to_spawn)
+    import math
+
+    # Semicircle crescent wrapping around the player from behind (South)
+    # Sweeps from South-Southwest to South-Southeast (-5*pi/6 to -pi/6)
+    start_angle = -5.0 * math.pi / 6.0
+    end_angle = -math.pi / 6.0
+    angle_step = (end_angle - start_angle) / (num_weaps - 1) if num_weaps > 1 else 0.0
+
+    for idx_w, weapon_id in enumerate(weapons_to_spawn):
+        ang = start_angle + idx_w * angle_step
+        wx = 600.0 * math.cos(ang)
+        wz = -2200.0 + 600.0 * math.sin(ang)
+
+        # Facing direction points towards the center spawn point (0.0, -2200.0)
+        dx = -math.cos(ang)
+        dz = -math.sin(ang)
+
+        pad_idx = len(g.pads)
+        g.add_pad(
+            index=pad_idx,
+            x=wx,
+            y=pad_y,
+            z=wz,
+            room=1,
+            dir_x=dx,
+            dir_y=0.0,
+            dir_z=dz,
+        )
+        g.add_prop(
+            WeaponProp(
+                weapon=weapon_id,
+                scale=0x0100,
+                model=0,
+                chr_=pad_idx,
+                flags=0x00000001,  # OBJFLAG_FALL
+            )
+        )
+
+    # Spawn a driveable Hoverbike directly in front of the player's spawn point on a golden pedestal
+    bike_pad = len(g.pads)
+    g.add_pad(
+        index=bike_pad,
+        x=0.0,
+        y=pad_y,
+        z=-1800.0,
+        room=1,
+        dir_x=0.0,
+        dir_y=0.0,
+        dir_z=-1.0,
+    )
+    g.add_prop(
+        Hoverbike(
+            scale=0x0100,
+            model=0x003a,  # MODEL_HOVBIKE
+            pad=bike_pad,
+            flags=0x00000001,  # OBJFLAG_FALL
+        )
+    )
+
+    # Spawn Categorized Weapon Stands to the South (on 3D tables)
+    for cat in CATEGORIZED_WEAPON_STANDS:
+        cx = cat["x"]
+        wlist = cat["weapons"]
+        num_w = len(wlist)
+
+        # Spawn 3 tables end-to-end along the Z-axis for this category
+        table_z_coords = [-3180.0, -3000.0, -2820.0]
+        for tz in table_z_coords:
+            t_pad_idx = len(g.pads)
+            g.add_pad(
+                index=t_pad_idx,
+                x=cx,
+                y=0.0,
+                z=tz,
+                room=1,
+                dir_x=1.0,  # Rotate 90 degrees to align long axis with Z
+                dir_y=0.0,
+                dir_z=0.0,
+            )
+            g.add_prop(
+                StdObject(
+                    scale=0x0100,
+                    model=0x0166,  # MODEL_CI_TABLE
+                    pad=t_pad_idx,
+                    flags=0x00000001,  # OBJFLAG_FALL
+                )
+            )
+
+        # Spawn weapons at Y = 75.0 (table height) without OBJFLAG_FALL
+        for i, weapon_id in enumerate(wlist):
+            wz = -3000.0 + (i - (num_w - 1) / 2.0) * 50.0
+            pad_idx = len(g.pads)
+            g.add_pad(
+                index=pad_idx,
+                x=cx,
+                y=75.0,
+                z=wz,
+                room=1,
+                dir_x=0.0,
+                dir_y=0.0,
+                dir_z=-1.0,
+            )
+            g.add_prop(
+                WeaponProp(
+                    weapon=weapon_id,
+                    scale=0x0100,
+                    model=0,
+                    chr_=pad_idx,
+                    flags=0x00000001,  # OBJFLAG_FALL (fall onto the table collision tile)
+                )
+            )
+
+    # Combat sim spawn pads inside the glass room centered at (0, -1200)
+    sim_spawn_coords = [
+        (0.0, -1100.0),
+        (150.0, -1100.0),
+        (-150.0, -1100.0),
+        (0.0, -1300.0),
+        (150.0, -1300.0),
+        (-150.0, -1300.0),
+        (100.0, -1200.0),
+        (-100.0, -1200.0),
+    ]
+    for sx, sz in sim_spawn_coords:
+        pad_idx = len(g.pads)
+        g.add_pad(
+            index=pad_idx,
+            x=sx,
+            y=pad_y,
+            z=sz,
+            room=1,
+            dir_x=0.0,
+            dir_y=0.0,
+            dir_z=-1.0,
+        )
+        g.add_intro(Spawn(pad=pad_idx))
+
     add_loadout_intro(g)
     return g
 
-
 # Animation lab parade — category-coloured floor markers (visible with SEG_MODE=parade).
+CATEGORIZED_WEAPON_STANDS = [
+    {
+        "name": "Pistols",
+        "color": "#f59e0b",
+        "x": -600.0,
+        "weapons": [0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09]
+    },
+    {
+        "name": "SMGs",
+        "color": "#3b82f6",
+        "x": -300.0,
+        "weapons": [0x0A, 0x0B, 0x0C, 0x0D, 0x0E]
+    },
+    {
+        "name": "Rifles",
+        "color": "#10b981",
+        "x": 0.0,
+        "weapons": [0x0F, 0x10, 0x11, 0x12, 0x13, 0x14]
+    },
+    {
+        "name": "Heavy",
+        "color": "#ef4444",
+        "x": 300.0,
+        "weapons": [0x15, 0x16, 0x17, 0x18]
+    },
+    {
+        "name": "Melee & Devices",
+        "color": "#8b5cf6",
+        "x": 600.0,
+        "weapons": [0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x2C]
+    },
+    {
+        "name": "Modified",
+        "color": "#ec4899",
+        "x": 900.0,
+        "weapons": [0x21, 0x11]
+    }
+]
+
 PARADE_SEG_MARKER_Y_OFFSET = 4.0
 PARADE_SEG_ARENA_RGBA = HILL_SEG_ARENA_RGBA
 
@@ -1536,6 +1930,45 @@ def _append_disjoint_carpet(
         occupied.append(_tile_quad_bounds(piece))
 
 
+def append_carpet_with_frame(
+    hub_tiles: list[dict],
+    occupied: list[tuple[float, float, float, float]],
+    x0: float,
+    z0: float,
+    x1: float,
+    z1: float,
+    *,
+    y: float,
+    floorcolour: int,
+    floortype: str = "carpet",
+    border: float = 6.0,
+) -> None:
+    """Append a colored carpet with a nice white frame around it."""
+    _append_disjoint_carpet(
+        hub_tiles,
+        occupied,
+        x0,
+        z0,
+        x1,
+        z1,
+        y=y + 1.0,
+        floorcolour=floorcolour,
+        floortype=floortype,
+    )
+    white_colour = _hex_to_floor_colour("#ffffff")
+    _append_disjoint_carpet(
+        hub_tiles,
+        occupied,
+        x0 - border,
+        z0 - border,
+        x1 + border,
+        z1 + border,
+        y=y,
+        floorcolour=white_colour,
+        floortype=floortype,
+    )
+
+
 def floor_box_with_parade_slots(
     name: str,
     *,
@@ -1547,17 +1980,39 @@ def floor_box_with_parade_slots(
     arena_colour: int = 4095,
 ) -> dict:
     """Box arena with coloured floor squares under each parade guard cell."""
-    cuts = [(s["x"], s["z"], zone_half) for s in slots]
-    arena_tiles = _floor_tiles_minus_zones(half, y, cuts, floorcolour=arena_colour)
+    h = int(half)
+    # Tiled massive floor at Y = 0.0
+    arena_tiles = tile_large_floor(-h, -h, h, h, y=y, floorcolour=arena_colour)
+
+
+    # 3. Add table collision quads at Y = 75.0 for categorized weapon stands
+    for cat in CATEGORIZED_WEAPON_STANDS:
+        cx = cat["x"]
+        table_z_coords = [-3180.0, -3000.0, -2820.0]
+        for tz in table_z_coords:
+            arena_tiles.append(
+                tile_quad(
+                    cx - 33.0,
+                    tz - 92.0,
+                    cx + 33.0,
+                    tz + 92.0,
+                    y=y + 75.0,
+                    floorcolour=arena_colour,
+                )
+            )
+
     marker_y = y + PARADE_SEG_MARKER_Y_OFFSET
     # Sub-zone pitch (150 u) is tighter than marker diameter (2×zone_half) — clip
     # marker_y carpets so adjacent slots from different zones never share XZ area.
     occupied: list[tuple[float, float, float, float]] = []
+    dummy_tiles: list[dict] = []
     for slot in slots:
         cx, cz = slot["x"], slot["z"]
         colour = slot["floorColour"]
-        _append_disjoint_carpet(
-            arena_tiles,
+        is_tour = slot.get("isSpecialTour", False) or slot.get("slot") == 0
+        target_tiles = arena_tiles if is_tour else dummy_tiles
+        append_carpet_with_frame(
+            target_tiles,
             occupied,
             cx - zone_half,
             cz - zone_half,
@@ -1567,22 +2022,13 @@ def floor_box_with_parade_slots(
             floorcolour=colour,
             floortype="carpet",
         )
-        arena_tiles.append(
-            tile_quad(
-                cx - zone_half,
-                cz - zone_half,
-                cx + zone_half,
-                cz + zone_half,
-                y=y,
-                floorcolour=arena_colour,
-            )
-        )
     prefix = name.upper()
     return {
         "rooms": {
             f"ROOM_{prefix}_0000": [],
             f"ROOM_{prefix}_{arena_room_index:04d}": arena_tiles,
-        }
+        },
+        "occupied": occupied,
     }
 
 
@@ -1624,7 +2070,7 @@ def floor_box_with_parade_zones(
     marker_y = y + PARADE_SEG_MARKER_Y_OFFSET
     hub_tiles = list(rooms.get(f"ROOM_{prefix}_{arena_room_index:04d}", []))
     # Slot markers from base already occupy the district grid at marker_y.
-    occupied = _parade_carpet_occupied_from_tiles(hub_tiles, marker_y)
+    occupied = list(base.get("occupied", []))
 
     from .anim_catalog import (
         PARADE_CORRIDOR_COLOUR,
@@ -1639,8 +2085,25 @@ def floor_box_with_parade_zones(
     def _hub_carpet(
         x0: float, z0: float, x1: float, z1: float, colour: int
     ) -> None:
-        _append_disjoint_carpet(
+        append_carpet_with_frame(
             hub_tiles,
+            occupied,
+            x0,
+            z0,
+            x1,
+            z1,
+            y=marker_y,
+            floorcolour=colour,
+            floortype="carpet",
+        )
+
+    def _occupy_carpet(
+        x0: float, z0: float, x1: float, z1: float, colour: int
+    ) -> None:
+        """Register the carpet's footprint in the occupancy list without rendering it in Room 1."""
+        dummy_tiles: list[dict] = []
+        append_carpet_with_frame(
+            dummy_tiles,
             occupied,
             x0,
             z0,
@@ -1663,7 +2126,7 @@ def floor_box_with_parade_zones(
                 tcz = float(td.get("centerZ", 0))
                 th = float(td.get("half", 1200.0))
                 tag_colour = int(td.get("floorColour", _hex_to_floor_colour("#0ea5e9")))
-                _hub_carpet(tcx - th, tcz - th, tcx + th, tcz + th, tag_colour)
+                _occupy_carpet(tcx - th, tcz - th, tcx + th, tcz + th, tag_colour)
         else:
             mcx = float(museum_district.get("centerX", 0))
             mcz = float(museum_district.get("centerZ", 0))
@@ -1671,7 +2134,7 @@ def floor_box_with_parade_zones(
             museum_colour = int(
                 museum_district.get("floorColour", _hex_to_floor_colour("#0ea5e9"))
             )
-            _hub_carpet(mcx - mh, mcz - mh, mcx + mh, mcz + mh, museum_colour)
+            _occupy_carpet(mcx - mh, mcz - mh, mcx + mh, mcz + mh, museum_colour)
 
     if true_scale_district:
         from .anim_catalog import (
@@ -1687,7 +2150,7 @@ def floor_box_with_parade_zones(
             wing_colour = int(wing.get("floorColour", _hex_to_floor_colour("#14b8a6")))
             if not _parade_wing_tile_in_s16(wcx, wcz, wh):
                 continue
-            _hub_carpet(wcx - wh, wcz - wh, wcx + wh, wcz + wh, wing_colour)
+            _occupy_carpet(wcx - wh, wcz - wh, wcx + wh, wcz + wh, wing_colour)
 
     if characters_district:
         from .anim_catalog import (
@@ -1702,12 +2165,13 @@ def floor_box_with_parade_zones(
         char_colour = int(
             characters_district.get("floorColour", _hex_to_floor_colour("#c084fc"))
         )
-        _hub_carpet(ccx - ch, ccz - ch, ccx + ch, ccz + ch, char_colour)
+        _occupy_carpet(ccx - ch, ccz - ch, ccx + ch, ccz + ch, char_colour)
 
     if levels_district:
         from .anim_levels import append_megaworld_hub_tiles
 
-        append_megaworld_hub_tiles(hub_tiles, marker_y=marker_y, occupied=occupied)
+        dummy_tiles = []
+        append_megaworld_hub_tiles(dummy_tiles, marker_y=marker_y, occupied=occupied)
 
     if props_district:
         pcx = float(props_district.get("centerX", 0))
@@ -1725,6 +2189,37 @@ def floor_box_with_parade_zones(
         PARADE_SPECIAL_Z + tour_half,
         _hex_to_floor_colour("#ffd166"),
     )
+
+    # Glass Room carpet (centered at (0, -1200) with size 600x600)
+    # Using a premium neon cyan color (#06b6d4)
+    glass_carpet_color = _hex_to_floor_colour("#06b6d4")
+    _hub_carpet(-300.0, -1500.0, 300.0, -900.0, glass_carpet_color)
+
+    # Weapons crescent curved carpet path (Rose red #f43f5e)
+    import math
+    weapons_carpet_color = _hex_to_floor_colour("#f43f5e")
+    segment_angles = [-5.0 * math.pi / 6.0, -2.0 * math.pi / 3.0, -math.pi / 2.0, -math.pi / 3.0, -math.pi / 6.0]
+    points = []
+    for ang in segment_angles:
+        px = 600.0 * math.cos(ang)
+        pz = -2200.0 + 600.0 * math.sin(ang)
+        points.append((px, pz))
+    for i in range(len(points) - 1):
+        x0, z0 = points[i]
+        x1, z1 = points[i+1]
+        min_x, max_x = min(x0, x1), max(x0, x1)
+        min_z, max_z = min(z0, z1), max(z0, z1)
+        _hub_carpet(min_x - 70.0, min_z - 70.0, max_x + 70.0, max_z + 70.0, weapons_carpet_color)
+
+    # Hoverbike golden pedestal stand (Gold #ffd166)
+    bike_carpet_color = _hex_to_floor_colour("#ffd166")
+    _hub_carpet(-120.0, -1900.0, 120.0, -1700.0, bike_carpet_color)
+
+    # Categorized weapon stands carpets (South of spawn)
+    for cat in CATEGORIZED_WEAPON_STANDS:
+        cx = cat["x"]
+        colour = _hex_to_floor_colour(cat["color"])
+        _hub_carpet(cx - 50.0, -3300.0, cx + 50.0, -2700.0, colour)
 
     if vignette_props:
         for prop in vignette_props.get("props") or []:
@@ -1747,23 +2242,8 @@ def floor_box_with_parade_zones(
 
     append_compass_rose_tiles(hub_tiles, occupied, marker_y=marker_y)
 
-    # Room 1 arena floor overlaps prop-district rooms — carve megaworld so room 18
-    # owns collision, carpets, and the 89 stage-island crate props when walking NE.
-    if levels_district:
-        from .anim_catalog import spawn_plaza_bounds
-        from .anim_levels import megaworld_bounds
+    # Room 1 arena floor overlaps prop-district rooms — keep the floor solid at Y=0.0 everywhere.
 
-        mb = megaworld_bounds()
-        plaza = spawn_plaza_bounds()
-        _carve_floor_rect_from_tiles(
-            hub_tiles,
-            mb["minX"],
-            mb["minZ"],
-            mb["maxX"],
-            mb["maxZ"],
-            y=y,
-            preserve=[(plaza["x0"], plaza["z0"], plaza["x1"], plaza["z1"])],
-        )
 
     # Pad 0 is room 1 — always restore collision under spawn ± clearance.
     _ensure_spawn_plaza_floor(hub_tiles, y=y, floorcolour=arena_colour)
@@ -1791,30 +2271,21 @@ def floor_box_with_parade_zones(
         zone_tiles = [
             tile_quad(xmin, zmin, xmax, zmax, y=y, floorcolour=arena_colour)
         ]
-        # Per-guard category colour markers inside each sub-zone room.
+        # Per-guard category colour markers with white frame borders inside each sub-zone room.
+        z_occupied: list[tuple[float, float, float, float]] = []
         for slot in zslots:
             scx, scz = slot["x"], slot["z"]
             colour = int(slot.get("floorColour", arena_colour))
-            zone_tiles.append(
-                tile_quad(
-                    scx - zone_half,
-                    scz - zone_half,
-                    scx + zone_half,
-                    scz + zone_half,
-                    y=marker_y,
-                    floorcolour=colour,
-                    floortype="carpet",
-                )
-            )
-            zone_tiles.append(
-                tile_quad(
-                    scx - zone_half,
-                    scz - zone_half,
-                    scx + zone_half,
-                    scz + zone_half,
-                    y=y,
-                    floorcolour=arena_colour,
-                )
+            append_carpet_with_frame(
+                zone_tiles,
+                z_occupied,
+                scx - zone_half,
+                scz - zone_half,
+                scx + zone_half,
+                scz + zone_half,
+                y=marker_y,
+                floorcolour=colour,
+                floortype="carpet",
             )
         rooms[f"ROOM_{prefix}_{room_idx:04d}"] = zone_tiles
 
@@ -1833,16 +2304,16 @@ def floor_box_with_parade_zones(
             tile_quad(x0, z0, x1, z1, y=y, floorcolour=arena_colour)
         ]
         if carpet_colour is not None:
-            district_tiles.append(
-                tile_quad(
-                    x0,
-                    z0,
-                    x1,
-                    z1,
-                    y=marker_y,
-                    floorcolour=carpet_colour,
-                    floortype="carpet",
-                )
+            append_carpet_with_frame(
+                district_tiles,
+                [],
+                x0,
+                z0,
+                x1,
+                z1,
+                y=marker_y,
+                floorcolour=carpet_colour,
+                floortype="carpet",
             )
         rooms[f"ROOM_{prefix}_{room_idx:04d}"] = district_tiles
 
@@ -2038,6 +2509,7 @@ def parade_district_seg_faces(
     special: dict | None = None,
     zone_half: float = PARADE_ZONE_HALF,
     y: float = 0.0,
+    pads: list | None = None,
 ) -> tuple[list[tuple], list[int]]:
     """Arena + district/props/tour raised markers (~12 faces — safe for bgInflate)."""
     from .anim_catalog import (
@@ -2046,91 +2518,154 @@ def parade_district_seg_faces(
         PARADE_PROPS_HALF,
         PARADE_SPECIAL_X,
         PARADE_SPECIAL_Z,
+        parade_slot_markers,
+        spawn_plaza_bounds,
     )
+    from .anim_wayfinding import spawn_corridor_routes
+    import math
 
-    marker_y = y + PARADE_SEG_MARKER_Y_OFFSET
-    arena_tiles = _floor_tiles_minus_zones(half, y, [], floorcolour=4095)
+    scale = 0.35
+
+    faces: list[tuple] = []
     face_colours: list[int] = [PARADE_SEG_ARENA_RGBA]
+    color_to_index = {PARADE_SEG_ARENA_RGBA: 0}
 
-    def _tile_to_face(tile: dict, colour_index: int) -> tuple:
-        vs = tile["vertices"]
-        fy = int(vs[0]["y"])
-        return (
-            (vs[0]["x"], fy, vs[0]["z"]),
-            (vs[3]["x"], fy, vs[3]["z"]),
-            (vs[2]["x"], fy, vs[2]["z"]),
-            (vs[1]["x"], fy, vs[1]["z"]),
-            colour_index,
-        )
+    def _add_face(x0, z0, x1, z1, y_val, hex_color):
+        cx0 = max(-32768, min(32767, int(x0)))
+        cz0 = max(-32768, min(32767, int(z0)))
+        cx1 = max(-32768, min(32767, int(x1)))
+        cz1 = max(-32768, min(32767, int(z1)))
+        rgba = _hex_to_seg_rgba(hex_color)
+        if rgba not in color_to_index:
+            face_colours.append(rgba)
+            color_to_index[rgba] = len(face_colours) - 1
+        c_idx = color_to_index[rgba]
+        faces.append((
+            (cx0, int(y_val), cz0),
+            (cx0, int(y_val), cz1),
+            (cx1, int(y_val), cz1),
+            (cx1, int(y_val), cz0),
+            c_idx
+        ))
 
-    faces = [_tile_to_face(t, 0) for t in arena_tiles]
+    occupied_corridor_rects: list[tuple[float, float, float, float]] = []
+    occupied_carpet_rects: list[tuple[float, float, float, float]] = []
 
-    for district in districts:
-        dcx = float(district["centerX"])
-        dcz = float(district["centerZ"])
-        span_cols = int(district.get("spanCols", 1))
-        span_rows = int(district.get("spanRows", 1))
-        hw = span_cols * PARADE_DISTRICT_CELL_W / 2.0 + 40.0
-        hd = span_rows * PARADE_DISTRICT_CELL_D / 2.0 + 40.0
-        rgba = _hex_to_seg_rgba(str(district.get("color", "#505060")))
-        face_colours.append(rgba)
-        zone_tile = tile_quad(dcx - hw, dcz - hd, dcx + hw, dcz + hd, y=marker_y)
-        faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+    def _add_disjoint_face(x0, z0, x1, z1, y_val, hex_color, overlap_list=None):
+        _add_face(x0, z0, x1, z1, y_val, hex_color)
+        if overlap_list is not None:
+            overlap_list.append((min(x0, x1), min(z0, z1), max(x0, x1), max(z0, z1)))
 
+    def _add_framed_carpet(x0, z0, x1, z1, y_val, hex_color, frame_w=15.0):
+        min_x, max_x = min(x0, x1), max(x0, x1)
+        min_z, max_z = min(z0, z1), max(z0, z1)
+        _add_disjoint_face(min_x - frame_w, min_z - frame_w, max_x + frame_w, max_z + frame_w, y_val + 1.0, "#0f172a", occupied_carpet_rects)
+        _add_face(min_x, min_z, max_x, max_z, y_val + 2.0, hex_color)
+
+    # 1. Background arena floor grid
+    h = int(half)
+    tile_size = 4000.0
+    cur_x = -h
+    while cur_x < h:
+        next_x = min(h, cur_x + tile_size)
+        cur_z = -h
+        while cur_z < h:
+            next_z = min(h, cur_z + tile_size)
+            _add_disjoint_face(cur_x, cur_z, next_x, next_z, y, "#0f172a")
+            cur_z = next_z
+        cur_x = next_x
+
+    # 2. Spawn Plaza concrete platform (elevated 1 unit)
+    plaza = dict(spawn_plaza_bounds())
+    for k in ("x0", "z0", "x1", "z1"):
+        plaza[k] *= scale
+    _add_disjoint_face(plaza["x0"], plaza["z0"], plaza["x1"], plaza["z1"], y + 1.0, "#505060", occupied_corridor_rects)
+
+    # 3. Corridors / Walkways (elevated 1 unit)
+    for route in spawn_corridor_routes():
+        r = dict(route)
+        for k in ("x0", "z0", "x1", "z1"):
+            r[k] *= scale
+        _add_disjoint_face(r["x0"], r["z0"], r["x1"], r["z1"], y + 1.0, r["color"], occupied_corridor_rects)
+
+    # 3. Individual Guard Slot Carpets (with frames & padding)
+    slots = parade_slot_markers()
+    for slot in slots:
+        cx, cz = slot["x"] * scale, slot["z"] * scale
+        color = slot.get("districtColor") or "#505060"
+        s_half = zone_half * scale
+        _add_framed_carpet(cx - s_half, cz - s_half, cx + s_half, cz + s_half, y, color)
+
+    # 4. Weapons Crescent curved carpet
+    weapons_carpet_color = "#f43f5e"
+    segment_angles = [-5.0 * math.pi / 6.0, -2.0 * math.pi / 3.0, -math.pi / 2.0, -math.pi / 3.0, -math.pi / 6.0]
+    points = []
+    for ang in segment_angles:
+        px = 600.0 * math.cos(ang) * scale
+        pz = (-2200.0 + 600.0 * math.sin(ang)) * scale
+        points.append((px, pz))
+    for i in range(len(points) - 1):
+        x0, z0 = points[i]
+        x1, z1 = points[i+1]
+        min_x, max_x = min(x0, x1), max(x0, x1)
+        min_z, max_z = min(z0, z1), max(z0, z1)
+        _add_framed_carpet(min_x - 70.0 * scale, min_z - 70.0 * scale, max_x + 70.0 * scale, max_z + 70.0 * scale, y, weapons_carpet_color)
+
+    # 5. Hoverbike pedestal stand carpet
+    _add_framed_carpet(-120.0 * scale, -1900.0 * scale, 120.0 * scale, -1700.0 * scale, y, "#ffd166")
+
+    # 6. Categorized Weapon Stands carpets (South of spawn)
+    for cat in CATEGORIZED_WEAPON_STANDS:
+        cx = cat["x"] * scale
+        _add_framed_carpet(cx - 50.0 * scale, -3300.0 * scale, cx + 50.0 * scale, -2700.0 * scale, y, cat["color"])
+
+    # 7. Props District Wing
     if props_district:
-        pcx = float(props_district.get("centerX", 0))
-        pcz = float(props_district.get("centerZ", 0))
-        ph = PARADE_PROPS_HALF
-        rgba = _hex_to_seg_rgba("#38bdf8")
-        face_colours.append(rgba)
-        zone_tile = tile_quad(pcx - ph, pcz - ph, pcx + ph, pcz + ph, y=marker_y)
-        faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+        pcx = float(props_district.get("centerX", 0)) * scale
+        pcz = float(props_district.get("centerZ", 0)) * scale
+        ph = PARADE_PROPS_HALF * scale
+        _add_framed_carpet(pcx - ph, pcz - ph, pcx + ph, pcz + ph, y, "#38bdf8")
 
+    # 8. Museum District Wing
     if museum_district:
         from .anim_catalog import parade_museum_half
-
-        mcx = float(museum_district.get("centerX", 0))
-        mcz = float(museum_district.get("centerZ", 0))
-        mh = float(museum_district.get("half", parade_museum_half()))
-        # Seg vertices are s16 — clamp marker extent so mcx±mh / mcz±mh stay in range.
+        mcx = float(museum_district.get("centerX", 0)) * scale
+        mcz = float(museum_district.get("centerZ", 0)) * scale
+        mh = float(museum_district.get("half", parade_museum_half())) * scale
+        # Clamp to s16 range
         s16_cap = 32767 - int(max(abs(mcx), abs(mcz)))
-        mh = min(mh, float(max(1200, s16_cap)))
-        rgba = _hex_to_seg_rgba("#0ea5e9")
-        face_colours.append(rgba)
-        zone_tile = tile_quad(mcx - mh, mcz - mh, mcx + mh, mcz + mh, y=marker_y)
-        faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+        mh = min(mh, float(max(1200 * scale, s16_cap)))
+        _add_framed_carpet(mcx - mh, mcz - mh, mcx + mh, mcz + mh, y, "#0ea5e9")
 
+    # 9. True Scale District Wing
     if true_scale_district:
         for wing in true_scale_district.get("wings") or []:
-            wcx = float(wing.get("centerX", 0))
-            wcz = float(wing.get("centerZ", 0))
-            wh = float(wing.get("half", 1200.0))
-            if not _parade_wing_tile_in_s16(wcx, wcz, wh):
-                continue
-            rgba = _hex_to_seg_rgba(str(wing.get("colour", "#14b8a6")))
-            face_colours.append(rgba)
-            zone_tile = tile_quad(wcx - wh, wcz - wh, wcx + wh, wcz + wh, y=marker_y)
-            faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+            wcx = float(wing.get("centerX", 0)) * scale
+            wcz = float(wing.get("centerZ", 0)) * scale
+            wh = float(wing.get("half", 1200.0)) * scale
+            color = wing.get("colour") or "#14b8a6"
+            _add_framed_carpet(wcx - wh, wcz - wh, wcx + wh, wcz + wh, y, color)
 
+    # 10. Characters District Wing
     if characters_district:
         from .anim_catalog import PARADE_CHARACTERS_HALF
+        ccx = float(characters_district.get("centerX", 0)) * scale
+        ccz = float(characters_district.get("centerZ", 0)) * scale
+        ch = float(characters_district.get("half", PARADE_CHARACTERS_HALF)) * scale
+        _add_framed_carpet(ccx - ch, ccz - ch, ccx + ch, ccz + ch, y, "#c084fc")
 
-        ccx = float(characters_district.get("centerX", 0))
-        ccz = float(characters_district.get("centerZ", 0))
-        ch = float(characters_district.get("half", PARADE_CHARACTERS_HALF))
-        rgba = _hex_to_seg_rgba("#c084fc")
-        face_colours.append(rgba)
-        zone_tile = tile_quad(ccx - ch, ccz - ch, ccx + ch, ccz + ch, y=marker_y)
-        faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
-
+    # 11. Full Tour Pad Special Marker
     if special:
-        sx = float(special.get("x", PARADE_SPECIAL_X))
-        sz = float(special.get("z", PARADE_SPECIAL_Z))
-        sh = zone_half * 0.85
-        rgba = _hex_to_seg_rgba("#ffd166")
-        face_colours.append(rgba)
-        zone_tile = tile_quad(sx - sh, sz - sh, sx + sh, sz + sh, y=marker_y)
-        faces.append(_tile_to_face(zone_tile, len(face_colours) - 1))
+        sx = float(special.get("x", PARADE_SPECIAL_X)) * scale
+        sz = float(special.get("z", PARADE_SPECIAL_Z)) * scale
+        sh = zone_half * scale * 0.85
+        _add_framed_carpet(sx - sh, sz - sh, sx + sh, sz + sh, y, "#ffd166")
+
+    # 12. Local floor stamping under every single pad
+    if pads:
+        for p in pads:
+            px, pz = p.x, p.z
+            _add_face(px - 150.0, pz - 150.0, px + 150.0, pz + 150.0, p.y, "#d0d0d0")
 
     return faces, face_colours
 

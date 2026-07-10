@@ -188,18 +188,28 @@ def spawn_corridor_routes() -> list[dict[str, Any]]:
     )
 
     # Character gallery (purple-pink).
-    # Character gallery (purple-pink) — L-path covers spawn east strip through gallery.
+    # Character gallery (purple-pink) — vertical spine then horizontal approach (L-path).
     ccx = PARADE_CHARACTERS_CENTER_X
     ccz = PARADE_CHARACTERS_CENTER_Z
     ch = PARADE_CHARACTERS_HALF
     _route(
-        "route_characters",
-        "Character gallery",
+        "route_characters_east_spine",
+        "Character gallery east spine",
+        "SE",
+        120.0 - hw * 0.4,
+        spawn_z - 200.0,
+        120.0 + hw * 0.4,
+        ccz,
+        PARADE_CHARACTERS_COLOUR,
+    )
+    _route(
+        "route_characters_approach",
+        "Character gallery approach",
         "SE",
         120.0,
-        min(spawn_z - 200.0, ccz - ch),
-        ccx + ch,
-        max(spawn_z + 100.0, ccz + ch),
+        ccz - ch,
+        ccx - ch,
+        ccz + ch,
         PARADE_CHARACTERS_COLOUR,
     )
 
@@ -348,7 +358,7 @@ def distance_beacon_placements() -> list[dict[str, Any]]:
     beacons: list[dict[str, Any]] = []
 
     spine_targets: list[tuple[str, str, float, float, str]] = [
-        ("solo", "WSW", -4200.0, -5200.0, "#f59e0b"),
+        ("solo", "S", -4200.0, -5200.0, "#f59e0b"),
         ("mp", "E", 9200.0, -2800.0, "#dc2626"),
         ("dev", "NE", 5200.0, 3600.0, "#64748b"),
         ("props", "SW", PARADE_PROPS_CENTER_X, PARADE_PROPS_CENTER_Z, "#38bdf8"),
@@ -423,8 +433,8 @@ def in_game_guide_payload() -> dict[str, Any]:
             ],
         },
         "walkHint": (
-            "Stand on spawn pad 0 (0, -2200). Eight PORTAL arches at 800 u mark each wing. "
-            f"Follow coloured carpets: gold WSW solo ({plan['soloCount']} islands), "
+            "Stand on spawn pad 0 (0, -2200). Eight PORTAL arches at 1500 u mark each wing. "
+            f"Follow coloured carpets: gold S solo ({plan['soloCount']} islands), "
             f"crimson east MP ({plan['mpCount']}), "
             f"northeast slate dev ({plan['devCount']}), "
             "cyan SW props, blue W catalog, teal NW true-scale, purple SE characters, "
@@ -560,6 +570,7 @@ def audit_spawn_collision_floor(
     sample_step: float = 250.0,
     player_room: int = 1,
     collision_y: float = 0.0,
+    scale_factor: float = 1.0,
 ) -> list[str]:
     """Sample spawn→wing polylines; warn when room *player_room* lacks Y=0 floor."""
     if tiles_data is None:
@@ -589,11 +600,12 @@ def audit_spawn_collision_floor(
     warnings: list[str] = []
     for wing_id in wing_ids:
         waypoints = _path_waypoints_for_wing(wing_id)
+        scaled_waypoints = [(wx * scale_factor, wz * scale_factor) for wx, wz in waypoints]
         samples: list[tuple[float, float]] = []
-        for i in range(len(waypoints) - 1):
-            x0, z0 = waypoints[i]
-            x1, z1 = waypoints[i + 1]
-            samples.extend(_sample_line(x0, z0, x1, z1, sample_step))
+        for i in range(len(scaled_waypoints) - 1):
+            x0, z0 = scaled_waypoints[i]
+            x1, z1 = scaled_waypoints[i + 1]
+            samples.extend(_sample_line(x0, z0, x1, z1, sample_step * scale_factor))
 
         missing = [
             (sx, sz)
@@ -611,46 +623,47 @@ def audit_spawn_collision_floor(
     return warnings
 
 
-def audit_spawn_walk_paths(*, sample_step: float = 500.0) -> list[str]:
+def audit_spawn_walk_paths(*, sample_step: float = 500.0, scale_factor: float = 1.0) -> list[str]:
     """Sample spawn→wing polylines; warn when no corridor region covers a sample point."""
     from .anim_levels import megaworld_plan
 
+    scale = scale_factor
     regions: list[tuple[str, float, float, float, float]] = []
 
     for route in spawn_corridor_routes():
         regions.append(
-            (route["id"], route["x0"], route["z0"], route["x1"], route["z1"])
+            (route["id"], route["x0"] * scale, route["z0"] * scale, route["x1"] * scale, route["z1"] * scale)
         )
 
     # Wing interior carpets count as covered (corridors clip into them in builders).
     cat_metrics = parade_museum_grid_metrics()
-    cat_cx = float(cat_metrics.get("centerX", OBJECT_CATALOG_HUB_X))
-    cat_cz = float(cat_metrics.get("centerZ", OBJECT_CATALOG_HUB_Z))
-    cat_half = float(cat_metrics.get("half", parade_museum_half()))
+    cat_cx = float(cat_metrics.get("centerX", OBJECT_CATALOG_HUB_X)) * scale
+    cat_cz = float(cat_metrics.get("centerZ", OBJECT_CATALOG_HUB_Z)) * scale
+    cat_half = float(cat_metrics.get("half", parade_museum_half())) * scale
     regions.append(("catalog_wing", cat_cx - cat_half, cat_cz - cat_half, cat_cx + cat_half, cat_cz + cat_half))
-    ch = PARADE_CHARACTERS_HALF
-    ccx, ccz = PARADE_CHARACTERS_CENTER_X, PARADE_CHARACTERS_CENTER_Z
+    ch = PARADE_CHARACTERS_HALF * scale
+    ccx, ccz = PARADE_CHARACTERS_CENTER_X * scale, PARADE_CHARACTERS_CENTER_Z * scale
     regions.append(("characters_wing", ccx - ch, ccz - ch, ccx + ch, ccz + ch))
-    ts_half = parade_true_scale_normal_half()
-    ts_cx = PARADE_TRUE_SCALE_NORMAL_CENTER_X
-    ts_cz = PARADE_TRUE_SCALE_NORMAL_CENTER_Z
+    ts_half = parade_true_scale_normal_half() * scale
+    ts_cx = PARADE_TRUE_SCALE_NORMAL_CENTER_X * scale
+    ts_cz = PARADE_TRUE_SCALE_NORMAL_CENTER_Z * scale
     regions.append(("true_scale_wing", ts_cx - ts_half, ts_cz - ts_half, ts_cx + ts_half, ts_cz + ts_half))
     regions.append(
         (
             "props_wing",
-            PARADE_PROPS_CENTER_X - PARADE_PROPS_HALF,
-            PARADE_PROPS_CENTER_Z - PARADE_PROPS_HALF,
-            PARADE_PROPS_CENTER_X + PARADE_PROPS_HALF,
-            PARADE_PROPS_CENTER_Z + PARADE_PROPS_HALF,
+            (PARADE_PROPS_CENTER_X - PARADE_PROPS_HALF) * scale,
+            (PARADE_PROPS_CENTER_Z - PARADE_PROPS_HALF) * scale,
+            (PARADE_PROPS_CENTER_X + PARADE_PROPS_HALF) * scale,
+            (PARADE_PROPS_CENTER_Z + PARADE_PROPS_HALF) * scale,
         )
     )
     regions.append(
         (
             "districts_wing",
-            PARADE_DISTRICT_ORIGIN_X - 3500.0,
-            PARADE_DISTRICT_ORIGIN_Z - 3500.0,
-            PARADE_DISTRICT_ORIGIN_X + 3500.0,
-            PARADE_DISTRICT_ORIGIN_Z + 3500.0,
+            (PARADE_DISTRICT_ORIGIN_X - 3500.0) * scale,
+            (PARADE_DISTRICT_ORIGIN_Z - 3500.0) * scale,
+            (PARADE_DISTRICT_ORIGIN_X + 3500.0) * scale,
+            (PARADE_DISTRICT_ORIGIN_Z + 3500.0) * scale,
         )
     )
 
@@ -659,10 +672,10 @@ def audit_spawn_walk_paths(*, sample_step: float = 500.0) -> list[str]:
         regions.append(
             (
                 f"megaworld_spine_{spine.world}",
-                spine.x0,
-                spine.z0,
-                spine.x1,
-                spine.z1,
+                spine.x0 * scale,
+                spine.z0 * scale,
+                spine.x1 * scale,
+                spine.z1 * scale,
             )
         )
 
@@ -678,15 +691,16 @@ def audit_spawn_walk_paths(*, sample_step: float = 500.0) -> list[str]:
     ]
 
     warnings: list[str] = []
-    hw = PARADE_CORRIDOR_HALF_WIDTH
+    hw = PARADE_CORRIDOR_HALF_WIDTH * scale
 
     for wing_id in wing_ids:
         waypoints = _path_waypoints_for_wing(wing_id)
+        scaled_waypoints = [(wx * scale, wz * scale) for wx, wz in waypoints]
         samples: list[tuple[float, float]] = []
-        for i in range(len(waypoints) - 1):
-            x0, z0 = waypoints[i]
-            x1, z1 = waypoints[i + 1]
-            samples.extend(_sample_line(x0, z0, x1, z1, sample_step)[1:])
+        for i in range(len(scaled_waypoints) - 1):
+            x0, z0 = scaled_waypoints[i]
+            x1, z1 = scaled_waypoints[i + 1]
+            samples.extend(_sample_line(x0, z0, x1, z1, sample_step * scale)[1:])
 
         uncovered = 0
         for sx, sz in samples:
@@ -707,6 +721,6 @@ def audit_spawn_walk_paths(*, sample_step: float = 500.0) -> list[str]:
         if uncovered:
             warnings.append(
                 f"spawn walk audit: {wing_id} route has {uncovered}/{len(samples)} "
-                f"sample points outside corridor carpets (step={sample_step:.0f} u)"
+                f"sample points outside corridor carpets (step={sample_step * scale:.0f} u)"
             )
     return warnings

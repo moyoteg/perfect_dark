@@ -30,7 +30,7 @@ SEG_BASE = 0x0F000000
 # Primary section decompressed size — must be large enough that the
 # host-converted room table (20 * 22 = 440 bytes) plus header, portals and
 # bgcmds fits. 512 bytes (0x200) works.
-PRIMARY_SIZE = 512
+PRIMARY_SIZE = 1024
 ROOM_BASE = SEG_BASE + PRIMARY_SIZE
 
 # Per-face vertex colours (RGBA8): floor, ceiling, -Z, +X, +Z, -X.
@@ -353,7 +353,7 @@ def _build_room_block(template_seg, faces, face_colours, *, floor_quad_count: in
     return bytes(buf)
 
 
-def _build_primary(prim_inf, room_cmp_sizes):
+def _build_primary(prim_inf, room_cmp_sizes, total_rooms: int = 20, num_rooms: int | None = None):
     """Build primary section with one or more compressed room blobs chained."""
     if isinstance(room_cmp_sizes, int):
         room_cmp_sizes = [room_cmp_sizes]
@@ -361,7 +361,7 @@ def _build_primary(prim_inf, room_cmp_sizes):
     buf = bytearray(prim_inf)
 
     room_tbl_ofs = 24
-    portal_ofs = room_tbl_ofs + 20 * 20
+    portal_ofs = room_tbl_ofs + total_rooms * 20
     bgcmd_ofs = portal_ofs + 10
 
     struct.pack_into(">IIIIII", buf, 0,
@@ -381,13 +381,20 @@ def _build_primary(prim_inf, room_cmp_sizes):
         offsets.append(cursor)
         cursor += size
     end_marker = cursor
-    num_real = len(room_cmp_sizes)
+    
+    if num_rooms is None:
+        num_rooms = len(room_cmp_sizes)
 
-    for i in range(20):
+    for i in range(total_rooms):
         pos = room_tbl_ofs + i * 20
-        if 1 <= i <= num_real:
-            pg = offsets[i - 1]
-        elif i == num_real + 1:
+        if i == 0:
+            pg = 0
+        elif 1 <= i <= num_rooms:
+            if i <= len(room_cmp_sizes):
+                pg = offsets[i - 1]
+            else:
+                pg = end_marker
+        elif i == num_rooms + 1:
             pg = end_marker
         else:
             pg = 0
@@ -776,6 +783,7 @@ def build_parade_districts_box_seg(
     special: dict | None = None,
     zone_half=None,
     template_seg=None,
+    pads: list | None = None,
 ) -> bytes:
     """Single-room seg for Animation Lab: arena + district/props/tour markers only.
 
@@ -802,6 +810,7 @@ def build_parade_districts_box_seg(
             characters_district=characters_district,
             special=special,
             zone_half=zone_half,
+            pads=pads,
         )
 
         new_room = _build_room_block(
@@ -816,9 +825,9 @@ def build_parade_districts_box_seg(
         _, sec1_cmp, _ = struct.unpack(">III", seg[0:12])
         rest = seg[12 + sec1_cmp:]
 
-        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob))
+        primary_n64 = _build_primary(PRIMARY_SIZE, len(new_room_blob), total_rooms=27, num_rooms=24)
         primary_blob = zip1172(primary_n64)
-        rest = _patch_section3_gfxdatalen(rest, len(new_room))
+        rest = _patch_section3_gfxdatalen(rest, [len(new_room)] + [0] * 23)
 
         result = (
             struct.pack(
@@ -859,6 +868,7 @@ def write_parade_districts_box_seg(
     special: dict | None = None,
     zone_half=None,
     template_seg=None,
+    pads: list | None = None,
 ) -> str:
     data = build_parade_districts_box_seg(
         half=half,
@@ -871,6 +881,7 @@ def write_parade_districts_box_seg(
         special=special,
         zone_half=zone_half,
         template_seg=template_seg,
+        pads=pads,
     )
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "wb") as f:
