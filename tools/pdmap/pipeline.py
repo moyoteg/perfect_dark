@@ -140,6 +140,7 @@ def _build_box_seg_to_build_dir(
     center_marker_half: float | None = None,
     cover_markers: list[tuple[float, float]] | None = None,
     pads: list | None = None,
+    scale_factor: float = 1.0,
 ) -> str:
     from .seg import (
         validate_seg_g_vtx,
@@ -166,6 +167,7 @@ def _build_box_seg_to_build_dir(
             characters_district=parade_characters_district,
             special=parade_special,
             pads=pads,
+            scale_factor=scale_factor,
         )
     elif parade_slots:
         write_parade_box_seg(
@@ -907,6 +909,7 @@ def build_from_module(
                     )
                     else None
                 ),
+                scale_factor=getattr(mapdef, "scale_factor", 1.0),
             )
     elif deploy and verbose and skip_seg:
         print("  SKIP_SEG: retail seg/tiles left in ROM (deploy pads + setup only)")

@@ -2510,6 +2510,7 @@ def parade_district_seg_faces(
     zone_half: float = PARADE_ZONE_HALF,
     y: float = 0.0,
     pads: list | None = None,
+    scale_factor: float = 1.0,
 ) -> tuple[list[tuple], list[int]]:
     """Arena + district/props/tour raised markers (~12 faces — safe for bgInflate)."""
     from .anim_catalog import (
@@ -2524,7 +2525,7 @@ def parade_district_seg_faces(
     from .anim_wayfinding import spawn_corridor_routes
     import math
 
-    scale = 0.35
+    scale = scale_factor
 
     faces: list[tuple] = []
     face_colours: list[int] = [PARADE_SEG_ARENA_RGBA]

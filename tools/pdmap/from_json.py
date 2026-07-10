@@ -451,6 +451,7 @@ class EditorMapSpec:
     # Visible floor markers at AI cover positions (step 31).
     cover_markers: bool = False
     tiles: dict[str, Any] | None = None
+    scale_factor: float = 1.0
 
     @classmethod
     def from_json(
@@ -468,7 +469,14 @@ class EditorMapSpec:
         if name == "parade" or name.startswith("parade_") or level_module == "parade":
             g.anim_parade = True
 
-        scale_factor = 0.35 if getattr(g, "anim_parade", False) else 1.0
+        if "scale_factor" in data:
+            scale_factor = float(data["scale_factor"])
+        elif name == "parade" or name.startswith("parade_") or level_module == "parade":
+            scale_factor = 0.35
+        else:
+            scale_factor = 1.0
+
+        g.scale_factor = scale_factor
 
         if getattr(g, "anim_parade", False):
             # Calculate dynamic half from scaled pads and covers
@@ -620,6 +628,7 @@ class EditorMapSpec:
             ),
             cover_markers=bool(data.get("cover_markers", False)),
             tiles=tiles,
+            scale_factor=scale_factor,
         )
 
     def tiles_json(self, *, seg_mode: str | None = None) -> dict:

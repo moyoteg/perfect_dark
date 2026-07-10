@@ -1,6 +1,7 @@
 {
   "name": "parade",
   "level_module": "parade",
+  "scale_factor": 0.35,
   "box_half": 5000.0,
   "box_height": 3000.0,
   "pads": [

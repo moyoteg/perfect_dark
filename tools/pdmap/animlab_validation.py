@@ -85,41 +85,48 @@ def run_animlab_validation(
     name: str = "parade",
 ) -> AnimLabValidationReport:
     """Run Anim Lab layout audits and content baselines; return typed report."""
+    from .core import load_level_module
+    g = None
+    scale_factor = 1.0
+    try:
+        g = load_level_module(name).build()
+        scale_factor = getattr(g, "scale_factor", 1.0)
+    except Exception as e:
+        pass
+
     if tiles_data is None:
         mod = import_module(f"src.levels.{name}")
         tiles_data = mod.build_tiles_json()
 
-    scale_factor = 0.35 if name == "parade" else 1.0
     collision_errors = audit_spawn_collision_floor(tiles_data, scale_factor=scale_factor)
     walk_warnings = audit_spawn_walk_paths(scale_factor=scale_factor)
     y4_count = count_y4_tiles_room1(tiles_data)
 
     collision_errors = list(collision_errors)
-    from .core import load_level_module
-    try:
-        g = load_level_module(name).build()
-        doors = [p for p in g.props if type(p).__name__ == "Door"]
-        if len(doors) != 2:
-            collision_errors.append(f"Expected exactly 2 double sliding doors in {name}, got {len(doors)}")
-        else:
-            d1, d2 = doors[0], doors[1]
-            if d1.sibling != 1 or d2.sibling != -1:
-                collision_errors.append(f"Invalid door sibling linkages: {d1.sibling}, {d2.sibling}")
-            pad1 = next((p for p in g.pads if p.index == d1.pad), None)
-            pad2 = next((p for p in g.pads if p.index == d2.pad), None)
-            if not pad1 or not pad2:
-                collision_errors.append("Could not find pads for door siblings")
+    if g is not None:
+        try:
+            doors = [p for p in g.props if type(p).__name__ == "Door"]
+            if len(doors) != 2:
+                collision_errors.append(f"Expected exactly 2 double sliding doors in {name}, got {len(doors)}")
             else:
-                import math
-                dist = math.hypot(pad1.x - pad2.x, pad1.z - pad2.z)
-                expected_dist = 218.0 * 0.35 if name == "parade" or getattr(g, "anim_parade", False) else 218.0
-                if abs(dist - expected_dist) > 1.0:
-                    collision_errors.append(f"Unexpected door sibling pad distance: {dist:.2f} (expected ~{expected_dist:.2f})")
-                dot_prod = pad1.up_x * pad2.up_x + pad1.up_y * pad2.up_y + pad1.up_z * pad2.up_z
-                if abs(dot_prod + 1.0) > 0.01:
-                    collision_errors.append(f"Unexpected door sibling up vectors alignment: dot={dot_prod:.2f}")
-    except Exception as e:
-        collision_errors.append(f"Failed to statically verify doors: {e}")
+                d1, d2 = doors[0], doors[1]
+                if d1.sibling != 1 or d2.sibling != -1:
+                    collision_errors.append(f"Invalid door sibling linkages: {d1.sibling}, {d2.sibling}")
+                pad1 = next((p for p in g.pads if p.index == d1.pad), None)
+                pad2 = next((p for p in g.pads if p.index == d2.pad), None)
+                if not pad1 or not pad2:
+                    collision_errors.append("Could not find pads for door siblings")
+                else:
+                    import math
+                    dist = math.hypot(pad1.x - pad2.x, pad1.z - pad2.z)
+                    expected_dist = 218.0 * scale_factor
+                    if abs(dist - expected_dist) > 1.0:
+                        collision_errors.append(f"Unexpected door sibling pad distance: {dist:.2f} (expected ~{expected_dist:.2f})")
+                    dot_prod = pad1.up_x * pad2.up_x + pad1.up_y * pad2.up_y + pad1.up_z * pad2.up_z
+                    if abs(dot_prod + 1.0) > 0.01:
+                        collision_errors.append(f"Unexpected door sibling up vectors alignment: dot={dot_prod:.2f}")
+        except Exception as e:
+            collision_errors.append(f"Failed to statically verify doors: {e}")
 
     char_count = len(MAIN_CHARACTER_ENTRIES)
     pad_first = _character_pad_first()

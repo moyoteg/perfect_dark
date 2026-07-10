@@ -784,6 +784,7 @@ def build_parade_districts_box_seg(
     zone_half=None,
     template_seg=None,
     pads: list | None = None,
+    scale_factor: float = 1.0,
 ) -> bytes:
     """Single-room seg for Animation Lab: arena + district/props/tour markers only.
 
@@ -811,6 +812,7 @@ def build_parade_districts_box_seg(
             special=special,
             zone_half=zone_half,
             pads=pads,
+            scale_factor=scale_factor,
         )
 
         new_room = _build_room_block(
@@ -869,6 +871,7 @@ def write_parade_districts_box_seg(
     zone_half=None,
     template_seg=None,
     pads: list | None = None,
+    scale_factor: float = 1.0,
 ) -> str:
     data = build_parade_districts_box_seg(
         half=half,
@@ -882,6 +885,7 @@ def write_parade_districts_box_seg(
         zone_half=zone_half,
         template_seg=template_seg,
         pads=pads,
+        scale_factor=scale_factor,
     )
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "wb") as f:
