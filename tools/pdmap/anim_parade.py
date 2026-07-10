@@ -38,9 +38,7 @@ CHRCFLAG_NOSHADOW = 0x00002000
 CHRCFLAG_NEVERSLEEP = 0x00040000
 # Do not set CHRCFLAG_NEVERSLEEP: it forces chraiExecute every frame for all
 # parade guards (570+) and pegs CPU. Ailists yield + CHRANIMFLAG_SLOWUPDATE suffice.
-import os
-_DISABLE_TEXTURES = os.environ.get("PDMAP_DISABLE_TEXTURES", "").strip().lower() in ("1", "true", "yes")
-_PARADE_CHR_FLAGS = CHRCFLAG_NOSHADOW if _DISABLE_TEXTURES else 0
+_PARADE_CHR_FLAGS = CHRCFLAG_NOSHADOW
 
 TEAM_ENEMY = 0x02
 SQUADRON_01 = 0x01
