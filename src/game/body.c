@@ -478,9 +478,9 @@ void bodyAllocateChr(s32 stagenum, struct packedchr *packed, s32 cmdindex)
 				chr->hidden2 |= CHRH2FLAG_BLUESIGHT;
 			}
 
-			// Animation Lab spawns 500+ guards; radial shadows must be off before the
+			// Animation Lab and Parade spawn 500+ guards; radial shadows must be off before the
 			// first bgRender (ailist set_self_chrflag runs after first draw).
-			if (g_Vars.stagenum == STAGE_ANIMLAB) {
+			if (g_Vars.stagenum == STAGE_ANIMLAB || g_Vars.stagenum == STAGE_PARADE) {
 				chr->chrflags |= CHRCFLAG_NOSHADOW;
 			}
 
