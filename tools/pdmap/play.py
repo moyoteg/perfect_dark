@@ -9,6 +9,7 @@ import sys
 from .core import ROOT
 
 TEST_MAP_SLOT = "uff"
+STAGE_ANIMLAB = 0x82
 
 def get_stage_id(stage_name: str) -> int | None:
     constants_h = os.path.join(ROOT, "src", "include", "constants.h")
