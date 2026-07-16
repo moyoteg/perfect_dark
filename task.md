@@ -1,0 +1,18 @@
+- `[x]` Fix G5 sliding door coordinates and sibling in `anim_props.py`
+  - `[x]` Support optional pad bounds and up vectors in `ParadePropSpec` and `all_parade_prop_specs()` pad creation loop
+  - `[x]` Configure `Glass Room Door` pad orientation and dimensions in `anim_props.py`
+- `[x]` Prevent duplicate carpet rendering in Room 1 (Plaza Hub) in `builders.py`
+  - `[x]` Modify `floor_box_with_parade_slots` to skip adding slot carpets to Room 1 tiles but keep them in `occupied`, preserving the special tour slot
+  - `[x]` Modify `floor_box_with_parade_zones` to only occupy wing carpets (Museum, True Scale, Characters) instead of rendering them in Room 1
+  - `[x]` Modify `floor_box_with_parade_zones` to only occupy Megaworld carpets using a dummy tile list
+- `[x]` Refactor Room 18 (Levels Megaworld) tile generation in `anim_levels.py`
+  - `[x]` Refactor `megaworld_district_room_tiles` to use `_append_disjoint_carpet` with an `occ` list to clip overlapping islands and bridges
+- `[x]` Re-baseline and verify
+  - `[x]` Run map validation to determine new Y=4 tile count baseline
+  - `[x]` Update Spotlight symlink (`~/Applications/Perfect Dark Kit.app`) to point to the external drive version
+  - `[x]` Fix test pollution failure in `tests/test_dm_threads.py` (live director test)
+
+  - `[x]` Update validation thresholds in `validate.py` and `animlab_validation.py`
+  - `[x]` Rebuild and deploy the map
+  - `[x]` Run all regression and domain tests
+  - `[x]` Run playtest smoke test (requires user manual verification)
