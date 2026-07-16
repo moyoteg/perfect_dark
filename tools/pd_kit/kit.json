@@ -62,7 +62,7 @@
       "shortTitle": "Asset Catalog",
       "bundleFileName": "PD Asset Catalog.app",
       "logFile": "object-catalog.log",
-      "description": "Browse props, weapons, characters, and other game assets with 3D previews.",
+      "description": "Browse props, weapons, characters, animations, and other game assets with 3D and playback previews.",
       "category": "authoring",
       "optional": true,
       "legacySupportDir": null,
