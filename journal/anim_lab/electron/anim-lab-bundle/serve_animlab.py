@@ -808,6 +808,28 @@ class AnimLabHandler(BaseHTTPRequestHandler):
             )
             return
 
+        if path == "/api/mesh":
+            chr_name = (query.get("chr") or ["dark_combat"])[0].strip()
+            anim_raw = (query.get("anim") or ["1"])[0].strip()
+            frame_raw = (query.get("frame") or ["0"])[0].strip()
+            try:
+                anim_index = int(anim_raw)
+                frame = int(frame_raw)
+            except ValueError:
+                _json_response(self, 400, {"ok": False, "error": "Invalid anim or frame parameter"})
+                return
+
+            try:
+                from tools.pdmap.prop_mesh import mesh_for_character_anim
+
+                payload = mesh_for_character_anim(chr_name, anim_index, frame)
+            except Exception as exc:
+                _log_traceback(f"GET /api/mesh failed: {exc}")
+                _json_response(self, 500, {"ok": False, "error": str(exc)})
+                return
+            _json_response(self, 200, payload)
+            return
+
         if path in ("/", "/index.html"):
             rel = "anim_lab.html"
         else:

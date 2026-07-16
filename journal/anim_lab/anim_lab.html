@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PD Anim Lab</title>
+  <script src="mesh_shaders.inc.js"></script>
+  <script src="mesh_viewer.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -310,6 +312,66 @@
     .busy { color: #ffb347; font-size: .8rem; min-height: 1.1em; margin-top: .4rem; }
     .last-deploy { font-size: .76rem; color: var(--muted); font-family: var(--mono); margin-top: .3rem; }
     .scroll-section { max-height: 70vh; overflow: auto; }
+    .viewer-stage {
+      position: relative;
+      height: 320px;
+      border-radius: 10px; border: 1px solid var(--border);
+      background:
+        radial-gradient(circle at 50% 20%, #16324a 0%, #0a121a 55%, #070b10 100%);
+      margin-bottom: .65rem;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+    }
+    .viewer-stage canvas {
+      display: block; width: 100%; height: 100%;
+      cursor: grab;
+    }
+    .viewer-stage canvas:active { cursor: grabbing; }
+    .viewer-hint {
+      position: absolute; left: 8px; bottom: 6px; right: 8px;
+      font-size: .68rem; color: rgba(200, 220, 240, .7);
+      pointer-events: none;
+    }
+    .viewer-status {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .82rem; color: var(--muted);
+      pointer-events: none;
+      background: rgba(7, 11, 18, .35);
+    }
+    .viewer-status.hidden { display: none; }
+    .play-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .play-controls button {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+    }
+    .play-slider-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .play-slider {
+      flex: 1;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    .play-frame-label {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      min-width: 5.5rem;
+      text-align: right;
+      color: var(--muted);
+    }
+    .chr-select-row {
+      margin-bottom: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -657,13 +719,135 @@
       return (catalog.parade || []).find(a => a.id === id) || null;
     }
 
+    let detailViewerState = null;
+    let playTimer = null;
+    let playFrame = 0;
+    let playing = false;
+    let meshCache = {};
+    let currentAnimIndex = null;
+    let activePreviewChr = 'dark_combat';
+
+    function stopAnimPlayback() {
+      playing = false;
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+      }
+      const btn = document.getElementById('btnPlayPause');
+      if (btn) btn.textContent = '▶ Play';
+    }
+
+    function startAnimPlayback(a) {
+      if (playing) return;
+      playing = true;
+      const btn = document.getElementById('btnPlayPause');
+      if (btn) btn.textContent = '⏸ Pause';
+
+      playTimer = setInterval(() => {
+        if (!playing) return;
+        playFrame = (playFrame + 1) % a.numframes;
+        loadAndRenderFrame(a.index, playFrame);
+      }, 100);
+    }
+
+    async function loadAndRenderFrame(animIndex, frameIndex) {
+      if (currentAnimIndex !== animIndex) return;
+      const cacheKey = `${activePreviewChr}:${animIndex}:${frameIndex}`;
+      const statusEl = document.getElementById('viewerStatus');
+      const metaEl = document.getElementById('meshMeta');
+      
+      const slider = document.getElementById('playSlider');
+      const label = document.getElementById('playFrameLabel');
+      if (slider) slider.value = frameIndex;
+      if (label) {
+        const anim = findAnimById(currentAnimIndex);
+        const total = anim ? anim.numframes : 1;
+        label.textContent = `Fr ${frameIndex} / ${total - 1}`;
+      }
+
+      let mesh = meshCache[cacheKey];
+      if (!mesh) {
+        try {
+          const res = await fetch(`${apiBase}/api/mesh?chr=${activePreviewChr}&anim=${animIndex}&frame=${frameIndex}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const payload = await res.json();
+          if (!payload.ok || !payload.vertexCount) throw new Error(payload.error || 'No mesh data');
+          mesh = ObjectCatalogMeshViewer.normalizeMesh(payload);
+          meshCache[cacheKey] = mesh;
+        } catch (err) {
+          if (currentAnimIndex !== animIndex) return;
+          if (statusEl) {
+            statusEl.textContent = `Error: ${err.message}`;
+            statusEl.classList.remove('hidden');
+          }
+          return;
+        }
+      }
+
+      if (currentAnimIndex !== animIndex) return;
+      if (statusEl) statusEl.classList.add('hidden');
+      if (metaEl) {
+        metaEl.textContent = `${mesh.vertexCount} verts · ${mesh.triangleCount} tris`;
+      }
+
+      if (detailViewerState) {
+        ObjectCatalogMeshViewer.uploadMesh(detailViewerState, mesh);
+        ObjectCatalogMeshViewer.drawFrame(detailViewerState);
+      }
+    }
+
     function showDetail(a) {
+      stopAnimPlayback();
+      if (detailViewerState) {
+        ObjectCatalogMeshViewer.stop(detailViewerState);
+        detailViewerState = null;
+      }
+
+      currentAnimIndex = a.index;
+      playFrame = 0;
+
       const color = a.categoryColor || '#6b8cff';
       els.detailBox.style.setProperty('--cat-color', color);
       els.detailBox.innerHTML = `
         <button type="button" class="close" id="detailClose">×</button>
         <h3>${a.categoryIcon || ''} ${esc(a.label)}</h3>
         <div class="hint-line">${esc(a.hint)}</div>
+
+        <!-- 3D WebGL preview stage -->
+        <div class="viewer-stage" style="--tag-color:${color}">
+          <canvas id="meshCanvas"></canvas>
+          <div class="viewer-status" id="viewerStatus">Loading 3D model…</div>
+          <div class="viewer-hint">Drag to orbit · scroll to zoom · <span id="meshMeta">—</span></div>
+        </div>
+
+        <!-- Character Selector Dropdown -->
+        <div class="chr-select-row">
+          <label class="field">Preview Model
+            <select id="previewChrSelect">
+              <option value="dark_combat" ${activePreviewChr === 'dark_combat' ? 'selected' : ''}>Joanna Dark (Combat)</option>
+              <option value="dark_leather" ${activePreviewChr === 'dark_leather' ? 'selected' : ''}>Joanna Dark (Leather)</option>
+              <option value="dark_trench" ${activePreviewChr === 'dark_trench' ? 'selected' : ''}>Joanna Dark (Trench)</option>
+              <option value="cisoldier" ${activePreviewChr === 'cisoldier' ? 'selected' : ''}>CI Soldier</option>
+              <option value="dd_guard" ${activePreviewChr === 'dd_guard' ? 'selected' : ''}>dataDyne Guard</option>
+              <option value="cassandra" ${activePreviewChr === 'cassandra' ? 'selected' : ''}>Cassandra De Vries</option>
+              <option value="carrington" ${activePreviewChr === 'carrington' ? 'selected' : ''}>Daniel Carrington</option>
+              <option value="area51guard" ${activePreviewChr === 'area51guard' ? 'selected' : ''}>Area 51 Guard</option>
+              <option value="skedar" ${activePreviewChr === 'skedar' ? 'selected' : ''}>Skedar</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Playback controls -->
+        <div class="play-controls">
+          <button type="button" id="btnPlayPause">⏸ Pause</button>
+          <button type="button" id="btnPrevFrame">◀</button>
+          <button type="button" id="btnNextFrame">▶</button>
+          <div class="play-slider-container">
+            <input type="range" class="play-slider" id="playSlider" min="0" max="${a.numframes - 1}" value="0">
+            <span class="play-frame-label" id="playFrameLabel">Fr 0 / ${a.numframes - 1}</span>
+          </div>
+        </div>
+
         <dl class="detail-kv">
           <dt>ANIM id</dt><dd>${esc(a.id)}</dd>
           <dt>Index</dt><dd>${a.index} (${esc(a.indexHex)})</dd>
@@ -678,10 +862,77 @@
         </dl>
         <p class="hint">CLI: <code>python3 tools/list_animations.py --id ${esc(a.id)}</code></p>
       `;
-      document.getElementById('detailClose').onclick = () => els.detailOverlay.classList.remove('open');
+
+      // Set up click handlers and event listeners
+      document.getElementById('detailClose').onclick = () => {
+        stopAnimPlayback();
+        if (detailViewerState) {
+          ObjectCatalogMeshViewer.stop(detailViewerState);
+          detailViewerState = null;
+        }
+        els.detailOverlay.classList.remove('open');
+      };
+
+      const chrSelect = document.getElementById('previewChrSelect');
+      chrSelect.addEventListener('change', () => {
+        activePreviewChr = chrSelect.value;
+        loadAndRenderFrame(a.index, playFrame);
+      });
+
+      const btnPlay = document.getElementById('btnPlayPause');
+      btnPlay.addEventListener('click', () => {
+        if (playing) {
+          stopAnimPlayback();
+        } else {
+          startAnimPlayback(a);
+        }
+      });
+
+      document.getElementById('btnPrevFrame').addEventListener('click', () => {
+        stopAnimPlayback();
+        playFrame = (playFrame - 1 + a.numframes) % a.numframes;
+        loadAndRenderFrame(a.index, playFrame);
+      });
+
+      document.getElementById('btnNextFrame').addEventListener('click', () => {
+        stopAnimPlayback();
+        playFrame = (playFrame + 1) % a.numframes;
+        loadAndRenderFrame(a.index, playFrame);
+      });
+
+      const slider = document.getElementById('playSlider');
+      slider.addEventListener('input', () => {
+        stopAnimPlayback();
+        playFrame = parseInt(slider.value, 10);
+        loadAndRenderFrame(a.index, playFrame);
+      });
+
       els.detailOverlay.classList.add('open');
       highlightedSpatialAnimId = a.id || a.animId || '';
       if (catalog?.paradeLayout) renderParadeSpatialMap(catalog.paradeLayout);
+
+      // Start 3D mesh viewer state
+      const canvas = document.getElementById('meshCanvas');
+      if (canvas) {
+        detailViewerState = ObjectCatalogMeshViewer.createState();
+        const gl = ObjectCatalogMeshViewer.init(detailViewerState, canvas);
+        if (gl) {
+          // Render loop for rotation/orbit interaction
+          const tick = () => {
+            if (!detailViewerState || detailViewerState.canvas !== canvas) return;
+            ObjectCatalogMeshViewer.drawFrame(detailViewerState);
+            detailViewerState.raf = requestAnimationFrame(tick);
+          };
+          tick();
+        } else {
+          document.getElementById('viewerStatus').textContent = 'WebGL unavailable';
+        }
+      }
+
+      // Initial frame load and play automatically
+      loadAndRenderFrame(a.index, 0).then(() => {
+        startAnimPlayback(a);
+      });
     }
 
     function findParadeAnim(id) {
