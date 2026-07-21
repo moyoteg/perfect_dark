@@ -14,7 +14,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MOD_SEG = ROOT / "mods" / "mod_allinone" / "files" / "bgdata" / "bg_uff.seg"
 MOD_TILES = ROOT / "mods" / "mod_allinone" / "files" / "bgdata" / "bg_uff_tilesZ"
-EMPTY_PLAY_SEG_MAX_BYTES = 350
+# Empty uff play seg is ~960 B (tiles-only, G_VTX=0). Wall segs are typically ≥4 KB.
+EMPTY_PLAY_SEG_MAX_BYTES = 2048
 
 
 def inspect() -> dict:
