@@ -134,7 +134,10 @@ def test_journey_02_map_library_aggregation(editor_test_server: str) -> None:
         maps = data.get("maps", [])
         map_names = {m["name"] for m in maps}
 
-        # Assert key custom maps are present
+        # Assert full custom catalog is aggregated (80+ maps)
+        assert len(maps) >= 80, f"Expected at least 80 aggregated maps, found {len(maps)}"
+
+        # Assert key custom maps and procedural levels are present
         required_maps = [
             "matrix_battle_64",
             "cyber_arena",
@@ -144,6 +147,11 @@ def test_journey_02_map_library_aggregation(editor_test_server: str) -> None:
             "full_arena",
             "my_arena",
             "animlab_map",
+            "conker_war_sentry_inf",
+            "practice_aim",
+            "agent_office",
+            "datadyne_office",
+            "parade",
         ]
         for req_map in required_maps:
             assert req_map in map_names, f"Expected {req_map} in aggregated map library"
@@ -161,6 +169,20 @@ def test_journey_02_map_library_aggregation(editor_test_server: str) -> None:
         assert ca_resp.status == 200
         ca_data = json.loads(ca_resp.read().decode("utf-8"))
         assert len(ca_data.get("map", {}).get("pads", [])) >= 4
+
+    # Verify 1-click load for conker_war_sentry_inf
+    conker_url = f"{editor_test_server}/api/maps/conker_war_sentry_inf"
+    with urllib.request.urlopen(conker_url) as conker_resp:
+        assert conker_resp.status == 200
+        conker_data = json.loads(conker_resp.read().decode("utf-8"))
+        assert len(conker_data.get("map", {}).get("pads", [])) >= 200
+
+    # Verify 1-click load for agent_office
+    office_url = f"{editor_test_server}/api/maps/agent_office"
+    with urllib.request.urlopen(office_url) as office_resp:
+        assert office_resp.status == 200
+        office_data = json.loads(office_resp.read().decode("utf-8"))
+        assert len(office_data.get("map", {}).get("pads", [])) >= 200
 
 
 # ==============================================================================

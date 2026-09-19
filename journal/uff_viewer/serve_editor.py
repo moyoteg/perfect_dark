@@ -682,6 +682,21 @@ class EditorHandler(BaseHTTPRequestHandler):
                             "source": src_label,
                             "padCount": pad_count,
                         }
+
+            # Discover any standalone python level modules in src/levels/ not yet cached as JSON
+            levels_dir = os.path.join(ROOT, "src", "levels")
+            if os.path.isdir(levels_dir):
+                for f in sorted(os.listdir(levels_dir)):
+                    if f.endswith(".py") and not f.startswith("__") and f not in ("practice_common.py", "office_learn_01_door.py"):
+                        name = f[:-3]
+                        if name in maps_dict:
+                            continue
+                        maps_dict[name] = {
+                            "name": name,
+                            "source": "level",
+                            "padCount": 16,
+                        }
+
             maps_list = sorted(maps_dict.values(), key=lambda x: str(x["name"]))
             self.send_response(200)
             _cors_headers(self)
@@ -705,6 +720,24 @@ class EditorHandler(BaseHTTPRequestHandler):
                     file_path = probe
                     break
             if not file_path:
+                py_probe = os.path.join(ROOT, "src", "levels", f"{name}.py")
+                if os.path.isfile(py_probe):
+                    try:
+                        import importlib
+                        from tools.pdmap.level_to_editor import mapdef_to_editor_json
+                        mod = importlib.import_module(f"src.levels.{name}")
+                        if hasattr(mod, "build"):
+                            m = mod.build()
+                            map_data = mapdef_to_editor_json(m)
+                            self.send_response(200)
+                            _cors_headers(self)
+                            self.send_header("Content-Type", "application/json; charset=utf-8")
+                            self.end_headers()
+                            self.wfile.write(json.dumps({"map": map_data}).encode("utf-8"))
+                            return
+                    except Exception as exc:
+                        self.send_error(500, f"Error compiling level module {name}: {exc}")
+                        return
                 self.send_error(404, f"Map not found: {name}")
                 return
             try:
