@@ -1,6 +1,6 @@
 # Perfect Dark & PragCore Ecosystem — Comprehensive User Journeys Specification
 
-This specification documents the **20 Canonical User Journeys (UJ-01 through UJ-20)** spanning the ten operational personas of the platform ecosystem:
+This specification documents the **30 Canonical User Journeys (UJ-01 through UJ-30)** spanning the fifteen operational personas of the platform ecosystem:
 1. **Level Designer & Visual Creator** (Creative & Spatial Authoring)
 2. **Combat Simulator Player** (Gameplay, Bot Battles & High-Scale Combat)
 3. **Office Walker & Operations Manager** (Diegetic Agent Presence & Monitoring)
@@ -11,6 +11,11 @@ This specification documents the **20 Canonical User Journeys (UJ-01 through UJ-
 8. **Technical Asset Modder & Animator** (Skeletal Rigs, Props & Weapon Viewmodels)
 9. **Narrative & Campaign Designer** (Single-Player Objectives, Cutscenes & Briefings)
 10. **Release Engineer & Quality Guardian** (Deterministic CI/CD, Gates & AI Navigation)
+11. **Multiplayer Competitor & Netplay Host** (Over-The-Wire Mod Synchronization & Desync Prevention)
+12. **Sound Designer & Audio Engineer** (Procedural Earcon & ADPCM Audio Compilation)
+13. **Cinematographer & Cutscene Director** (Spline Tracks, Camera Choreography & Briefing Playback)
+14. **QA Automation Engineer & Bot Simulation Lead** (Headless Emulation, Balance Telemetry & Scenario Stress)
+15. **Spatial Optimization Engineer & 3D Artist** (Multi-Room Portals, PVS Occlusion & OBJ Ingestion)
 
 ---
 
@@ -38,6 +43,16 @@ This specification documents the **20 Canonical User Journeys (UJ-01 through UJ-
 | **UJ-18** | **Interactive 3D Object Vitrine** | World Builder | `tools/pdmap/gen_object_catalog.py` | Parsing `constants.h` `MODEL_*` into 3D grid curriculum map with visual markdown/PNG legend |
 | **UJ-19** | **Mechanical Release & Quality Gate** | Release Engineer | `tools/release_gate.py`, `make readiness` | Mechanical pre-flight verification across all subsystems with exit code 0 and 20-property compliance |
 | **UJ-20** | **Procedural Navmesh & Reciprocity** | AI Programmer | `tools/pdmap/navmesh.py` | Ray-casting obstacle clipping $\to$ strict reciprocal symmetry ($A \leftrightarrow B$) $\to$ zero stuck bots |
+| **UJ-21** | **Multiplayer Network Mod Sync** | Netplay Host | `port/include/net/net_automation.h` | Pre-flight hash handshake (`NET_MOD_HASH_LEN = 65`) $\to$ match verification $\to$ desync prevention |
+| **UJ-22** | **Declarative Audio & SFX Synthesis** | Audio Engineer | `tools/pdmap/audio_compiler.py` | `audio.json` validation $\to$ volume bounding $[0.0, 2.0]$ $\to$ procedural laser/shotgun/shield generation |
+| **UJ-23** | **Cinematic Cutscenes & Splines** | Cinematographer | `tools/pdmap/mission_compiler.py` | 30Hz camera spline interpolation $\to$ position/look_at/FOV continuity $\to$ in-engine cutscene choreography |
+| **UJ-24** | **Headless Bot QA & Scenario Stress** | QA Automation Lead | `tools/pdmap/level_compiler.py` | Headless engine simulation (`--test-frames`) $\to$ KOTH, CTF, Briefcase, and Combat rules verification |
+| **UJ-25** | **Multi-Room Connected Geometry** | Senior Architect | `tools/pdmap/seg.py` | Multi-room box faces $\to$ `build_multiroom_seg` $\to$ zero G_VTX validation errors $\to$ room portal boundaries |
+| **UJ-26** | **Universal 3D Mesh Importer** | External 3D Artist | `tools/pdmap/mesh_to_level.py` | Wavefront OBJ parsing $\to$ bounding box triangulation $\to$ floor height detection $\to$ pad elevation ($+10.0$) |
+| **UJ-27** | **Cross-Office Social Bus Routing** | Remote Team Lead | `service/social_bus.py`, `office_service.py` | Inter-office event bus $\to$ rumor and guard report propagation (`g5` $\to$ `ci`) $\to$ activity feed stream |
+| **UJ-28** | **Dynamic Character Table Expansion** | Character Artist | `src/include/files.h`, `characters.json` | Expanded `NUM_FILES = 4096` $\to$ `characters.json` schema validation $\to$ runtime body/head binding |
+| **UJ-29** | **Hermetic Account Pooling & LLM Lease** | Autonomous AI Lead | `service/account_pool.py` | Zero plaintext token leak $\to$ role-scoped lease checkout/checkin $\to$ provider failover routing |
+| **UJ-30** | **Turnkey Unified Release Packaging** | Platform Publisher | `scripts/release/package-unified-dist.sh` | Standalone bundle generation $\to$ 5 core pillars $\to$ SHA256SUMS.txt and MANIFEST.json verification |
 
 ---
 
@@ -318,3 +333,140 @@ This specification documents the **20 Canonical User Journeys (UJ-01 through UJ-
   6. Prunes orphan nodes and caps maximum node degree ($\le 7$) to prevent simulant stack overflow.
   7. Packs waypoint graph into `padsZ` binary table ready for in-engine bot pathfinding.
 - **Automated Verification**: `tests/test_pd_navmesh.py`.
+
+---
+
+### UJ-21: Multiplayer Network Mod Over-The-Wire Synchronization
+- **Goal**: Multiplayer host and peers ensure identical level, weapon, and character checksums before match initiation to prevent desync crashes.
+- **Preconditions**: `port/include/net/net_automation.h` and `port/src/net/net_automation.c` compiled into engine.
+- **Step-by-step Flow**:
+  1. Host packages active mod directory into `.pdmod` package with SHA-256 hash.
+  2. Host executes `./build/pd.arm64 --net-mod-hash <H>`: engine emits `mod_hash_configured`.
+  3. Client connects and submits its local mod package digest via `--verify-mod-hash <H>`.
+  4. Engine runs `netModSyncVerify()`:
+     - If hashes match: engine logs `NET_MOD_SYNC: event=hash_verified status=1` and begins peer game simulation.
+     - If hashes mismatch: engine logs `NET_MOD_SYNC: event=hash_mismatch status=2` and halts network handshake with explicit mismatch telemetry.
+- **Automated Verification**: `tests/test_pd_net_mod_sync.py`.
+
+---
+
+### UJ-22: Declarative Audio Engine & Procedural Sound Design
+- **Goal**: Sound designer authors, validates, and injects custom SFX and ambient background audio without hex editing sound banks.
+- **Preconditions**: `tools/pdmap/audio_compiler.py` and `mods/mod_allinone/audio.json` present.
+- **Step-by-step Flow**:
+  1. Designer configures `audio.json` with sound effects (`id`, `file`, `volume`, `pitch`, `loop`).
+  2. Compiler enforces volume bounding within $[0.0, 2.0]$ and rejects duplicate IDs.
+  3. Procedural acoustic synthesizer generates calibrated waveforms for missing assets (`generate_laser_sfx`, `generate_shotgun_sfx`, `generate_shield_sfx`, `generate_ambient_drone`).
+  4. Audio compiler packages audio manifest into Rareware ADPCM tables ready for N64 sound driver playback.
+- **Automated Verification**: `tests/test_pd_audio_json.py`.
+
+---
+
+### UJ-23: Campaign Cinematic Cutscenes & Camera Splines
+- **Goal**: Cinematographer scripts dynamic in-engine camera choreography, actor movements, and briefing cinematics.
+- **Preconditions**: `tools/pdmap/mission_compiler.py` cutscene compiler present.
+- **Step-by-step Flow**:
+  1. Director defines camera keyframes (`time`, `pos [X, Y, Z]`, `look_at [X, Y, Z]`, `fov`).
+  2. Cutscene compiler evaluates spline curve at 30Hz (`interpolate_camera_spline`), producing smooth hermite transitions.
+  3. Actor staging positions and animations are coupled to timeline milestones.
+  4. Preview cutscene via `pdmap mission --play-cutscene <mission_id>` in headless or windowed player.
+  5. Compiles cinematic track directly into `Usetup<mission>Z` cutscene header.
+- **Automated Verification**: `tests/test_pd_cutscene_studio_integration.py`, `tests/test_pd_mission_cutscenes.py`.
+
+---
+
+### UJ-24: Headless Bot QA Playtesting & Scenario Stress Simulation
+- **Goal**: QA engineer conducts automated combat scenario testing (KOTH, CTF, Briefcase) to verify bot balance and map stability.
+- **Preconditions**: Native binary built with test harness support (`--test-frames`, `--scenario-X`).
+- **Step-by-step Flow**:
+  1. QA launches automated scenario runner against target custom level (e.g. `cyber_arena.json`).
+  2. Level compiler validates objective pads (e.g. hill pad index 4, CTF base pads 2 & 5).
+  3. Headless test harness boots `./build/pd.arm64 --test-map --num-sims 4 --scenario-1 --test-frames 60`.
+  4. Simulants execute autonomous combat loops while the harness monitors for memory leaks, stuck states, or abnormal crashes.
+  5. Test runner verifies exit code 0 and records kill/death telemetry and objective captures.
+- **Automated Verification**: `tests/test_pd_scenario_simulation.py`, `tests/test_pd_live_bot_playtest.py`.
+
+---
+
+### UJ-25: Multi-Room Connected Level Geometry & G_VTX Optimization
+- **Goal**: Senior level architect designs complex multi-room facilities with connected portals and zero Fast3D vertex buffer overruns.
+- **Preconditions**: `tools/pdmap/seg.py` multiroom builder available.
+- **Step-by-step Flow**:
+  1. Architect defines individual room box faces and wall apertures.
+  2. Multiroom segmentation compiler (`build_multiroom_seg`) generates binary room blocks.
+  3. `validate_seg_g_vtx` executes structural validation:
+     - Asserts vertex table loads never exceed Fast3D buffer capacity (`MAX_G_VTX = 16`).
+     - Verifies face colors and texture coordinate offsets.
+     - Confirms portal connection planes match between adjacent room boundaries.
+  4. In-engine renderer utilizes room occlusion culling to sustain stable 60 FPS in massive environments.
+- **Automated Verification**: `tests/test_pd_multiroom_seg.py`, `tests/test_pd_multiroom_editor_integration.py`.
+
+---
+
+### UJ-26: Universal 3D Mesh Importer (OBJ/GLTF to Playable Stage)
+- **Goal**: 3D artist converts external Wavefront OBJ or GLTF models into fully functional, playable Perfect Dark arenas.
+- **Preconditions**: `tools/pdmap/mesh_to_level.py` converter available.
+- **Step-by-step Flow**:
+  1. Artist exports 3D architecture from Blender or Maya as standard `.obj`.
+  2. `parse_mesh_geometry()` parses vertex positions and triangulates polygonal faces.
+  3. `convert_mesh_to_level()` computes global spatial bounding box and detects floor height (`floor_y`).
+  4. Automatically distributes spawn pads across walkable areas, enforcing exact `pad.y = floor_y + 10.0` vertical clearance.
+  5. Generates boundary collision walls and exports production level JSON ready for immediate compilation.
+- **Automated Verification**: `tests/test_pd_mesh_to_level.py`.
+
+---
+
+### UJ-27: Cross-Office Social Bus Routing & Remote Event Bridging
+- **Goal**: Operations manager bridges live in-game events, agent status updates, and security alerts to external team channels.
+- **Preconditions**: `service/social_bus.py` and `service/office_service.py` active.
+- **Step-by-step Flow**:
+  1. Security or worker agent in virtual office triggers an observation (e.g. guard report or completed build).
+  2. `SocialBus.route()` serializes event payload (`text`, `from_office`, `to_office`, `kind`).
+  3. Event propagates across the in-memory bus (`social.guard_report`).
+  4. Office service feeds update in real-time and optionally dispatch outbound webhook to Slack/Discord bridge.
+  5. Remote team members monitor office operations without opening the 3D client.
+- **Automated Verification**: `tests/test_social_bus.py`, `tests/test_slack_api.py`.
+
+---
+
+### UJ-28: Dynamic Player & Character Table Expansion
+- **Goal**: Character artist introduces new playable multiplayer characters and campaign guard skins without recompiling N64 tables.
+- **Preconditions**: `src/include/files.h` (`NUM_FILES = 4096`) and `mods/mod_allinone/characters.json` present.
+- **Step-by-step Flow**:
+  1. Artist defines new character profile in `characters.json` (`id`, `name`, `gender`, `head_filenum`, `body_filenum`, `scale`).
+  2. Dynamic file registration allows custom asset filenums up to `MAX_FILE_ID = 0x0FFF` (4095).
+  3. Engine dynamically mounts custom character geometry into `g_HeadsAndBodies` and `g_MpBodies`.
+  4. New character immediately appears in the Combat Simulator player setup menu with proper head-body alignment and skeleton scaling.
+- **Automated Verification**: `tests/test_pd_character_registration.py`, `tests/test_pd_custom_chr_deploy.py`.
+
+---
+
+### UJ-29: Hermetic AI Director & Autonomous Account Pooling
+- **Goal**: Autonomous AI lead manages multi-provider LLM leases for virtual office agents with zero secret leakage.
+- **Preconditions**: `service/account_pool.py` and `office_director.py` active.
+- **Step-by-step Flow**:
+  1. Supervisor bootstraps `AccountPool` from environment credentials (`bootstrap_llm_pool_from_env`).
+  2. Logger sanitizes all events, strictly redacting plaintext API tokens and environment variable values.
+  3. When an agent requires an LLM inference cycle, `AccountPool` checks out a role-scoped lease.
+  4. If a provider encounters rate limits or errors, the pool automatically fails over to secondary healthy accounts.
+  5. Lease checkin returns token usage and latency metrics to telemetry without state pollution.
+- **Automated Verification**: `tests/test_account_pool_director.py`, `tests/test_hermes_director.py`.
+
+---
+
+### UJ-30: Turnkey Unified Release Packaging Pipeline
+- **Goal**: Platform publisher builds, audits, and seals complete distribution packages for macOS and Linux users.
+- **Preconditions**: `scripts/release/package-unified-dist.sh` present.
+- **Step-by-step Flow**:
+  1. Publisher runs `./scripts/release/package-unified-dist.sh <dist_dir>`.
+  2. Script verifies presence and packages the five core pillars:
+     - `apps/Perfect Dark Kit.app` (Desktop suite)
+     - `bin/pd.arm64` and `bin/pd-runner` (Native game binaries)
+     - `mods/mod_allinone` and `mods/mod_allinone.pdmod` (Validated mod packs)
+     - `tools/pdmap` (Level and asset toolchain)
+     - Top-level documentation and quick-start guides
+  3. Computes `SHA256SUMS.txt` covering every distributed file.
+  4. Generates structured `MANIFEST.json` containing git commit, build timestamp, and component booleans.
+  5. Verifies package zip integrity and confirms turnkey ready-to-run installation.
+- **Automated Verification**: `tests/test_unified_release_package.py`, `tests/test_pd_turnkey_release_bundle.py`.
+

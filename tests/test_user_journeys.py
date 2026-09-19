@@ -33,7 +33,12 @@ from service.tenant import normalize_tenant_id, tenant_context, resolve_tenant_s
 from tools.pdmap.chr_anim_pose import get_anim_metadata
 from tools.pdmap.from_json import EditorMapSpec
 from tools.pdmap.generative_assistant import GenerativeAssistant
-from tools.pdmap.mission_compiler import create_sample_mission, validate_mission_dict
+from tools.pdmap.mission_compiler import (
+    create_sample_mission,
+    validate_mission_dict,
+    interpolate_camera_spline,
+    compile_mission_cutscenes,
+)
 from tools.pdmap.weapon_compiler import validate_weapons_json, DEFAULT_WEAPONS_JSON_PATH
 from tools.asset_upgrader.mlx_backend import MLXCoreImageUpgrader
 from tools.pdmap.pd_pack import compute_sha256, _should_ignore
@@ -41,6 +46,14 @@ from tools.pdmap.setup_c_preprocess import eval_setup_version_condition
 from tools.pdmap.gen_object_catalog import parse_models, select as select_models, build as build_catalog
 from tools.release_gate import ReleaseGateReport, SubsystemResult, SCENARIO_CROSS_SYSTEM_RELEASE
 from tools.pdmap.navmesh import NavPoint, ObstacleBox
+from tools.pdmap.audio_compiler import validate_audio_json, generate_laser_sfx
+from tools.pdmap.level_compiler import validate_level_json
+from tools.pdmap.seg import build_multiroom_seg, validate_seg_g_vtx, _box_faces, DEFAULT_FACE_COLOURS, DEBUG_FACE_COLOURS
+from tools.pdmap.mesh_to_level import parse_mesh_geometry, convert_mesh_to_level
+from service.event_bus import EventBus
+from service.social_bus import SocialBus
+from service.account_pool import is_account_pool_enabled, bootstrap_llm_pool_from_env
+
 
 
 @pytest.fixture(scope="module")
@@ -521,4 +534,214 @@ def test_journey_20_procedural_navmesh_reciprocal_waypoints() -> None:
     assert box.intersects_segment_2d(-100.0, 0.0, 100.0, 0.0) is True
     # Line completely outside
     assert box.intersects_segment_2d(100.0, 100.0, 200.0, 200.0) is False
+
+
+# ==============================================================================
+# UJ-21: Multiplayer Network Mod Over-The-Wire Synchronization
+# ==============================================================================
+def test_journey_21_network_mod_sync_contracts() -> None:
+    """UJ-21: Netplay mod synchronization verifies SHA-256 hash contracts."""
+    header_path = REPO / "port" / "include" / "net" / "net_automation.h"
+    source_path = REPO / "port" / "src" / "net" / "net_automation.c"
+    assert header_path.is_file(), f"Missing {header_path}"
+    assert source_path.is_file(), f"Missing {source_path}"
+
+    h_src = header_path.read_text(encoding="utf-8")
+    assert "NET_MOD_HASH_LEN" in h_src
+    assert "65" in h_src
+    assert "NetModSyncStatus" in h_src
+    assert "NET_MOD_SYNC_VERIFIED" in h_src
+    assert "NET_MOD_SYNC_MISMATCH" in h_src
+    assert "netModSyncInit" in h_src
+    assert "netModSyncVerify" in h_src
+
+
+# ==============================================================================
+# UJ-22: Declarative Audio Engine & Procedural Sound Design
+# ==============================================================================
+def test_journey_22_declarative_audio_engine(tmp_path: Path) -> None:
+    """UJ-22: Audio designer validates audio.json and generates procedural waveforms."""
+    audio_path = REPO / "mods" / "mod_allinone" / "audio.json"
+    assert audio_path.is_file(), f"Missing {audio_path}"
+    errors = validate_audio_json(audio_path)
+    assert errors == [], f"Validation errors in audio.json: {errors}"
+
+    # Volume range gating enforcement
+    bad_vol = {"id": "bad", "sfx": [{"id": "test", "volume": 3.5}]}
+    assert any("volume" in e for e in validate_audio_json(bad_vol))
+
+    # Procedural sound synthesis check
+    laser_wav = tmp_path / "laser_test.wav"
+    out_path = generate_laser_sfx(laser_wav, duration=0.05, sample_rate=22050)
+    assert out_path.is_file()
+    assert out_path.stat().st_size > 0
+
+
+# ==============================================================================
+# UJ-23: Campaign Cinematic Cutscenes & Camera Splines
+# ==============================================================================
+def test_journey_23_cinematic_cutscenes_and_camera_splines() -> None:
+    """UJ-23: Cinematographer interpolates smooth 30Hz camera splines for cutscenes."""
+    keyframes = [
+        {"time": 0.0, "pos": [0.0, 100.0, -300.0], "look_at": [0.0, 10.0, 0.0], "fov": 60.0},
+        {"time": 2.0, "pos": [20.0, 40.0, -100.0], "look_at": [0.0, 20.0, 0.0], "fov": 65.0},
+    ]
+    samples = interpolate_camera_spline(keyframes, sample_hz=30.0)
+    assert len(samples) == 61  # 2.0s * 30Hz + 1
+    assert samples[0]["frame"] == 0
+    assert samples[0]["pos"] == [0.0, 100.0, -300.0]
+    assert samples[-1]["frame"] == 60
+    assert samples[-1]["pos"] == [20.0, 40.0, -100.0]
+
+
+# ==============================================================================
+# UJ-24: Headless Bot QA Playtesting & Scenario Stress Simulation
+# ==============================================================================
+def test_journey_24_headless_bot_qa_scenario_stress() -> None:
+    """UJ-24: Automated QA validates multiplayer game rules and objective anchors."""
+    cyber_arena_json = REPO / "mods" / "mod_allinone" / "levels" / "cyber_arena.json"
+    assert cyber_arena_json.is_file(), f"Missing {cyber_arena_json}"
+    errors = validate_level_json(cyber_arena_json)
+    assert errors == [], f"cyber_arena.json validation failed: {errors}"
+
+    with open(cyber_arena_json, "r", encoding="utf-8") as f:
+        arena_data = json.load(f)
+    scenarios = arena_data.get("scenarios", {})
+    assert "hill" in scenarios
+    assert scenarios["hill"].get("pad") == 4
+    assert "capture_the_flag" in scenarios
+    assert len(scenarios["capture_the_flag"]) == 2
+
+
+# ==============================================================================
+# UJ-25: Multi-Room Connected Level Geometry & G_VTX Optimization
+# ==============================================================================
+def test_journey_25_multiroom_connected_geometry_and_g_vtx() -> None:
+    """UJ-25: Senior architect compiles multi-room segmentation with zero G_VTX errors."""
+    r1_faces = _box_faces(-4000, 0, -2000, 2000, 2500)
+    r2_faces = _box_faces(0, 4000, -2000, 2000, 2500)
+
+    seg_bytes = build_multiroom_seg([
+        (r1_faces, DEFAULT_FACE_COLOURS),
+        (r2_faces, DEBUG_FACE_COLOURS),
+    ])
+    assert len(seg_bytes) > 500
+    errors = validate_seg_g_vtx(seg_bytes)
+    assert errors == [], f"Multiroom G_VTX validation failed: {errors}"
+
+
+# ==============================================================================
+# UJ-26: Universal 3D Mesh Importer (OBJ/GLTF to Playable Stage)
+# ==============================================================================
+def test_journey_26_universal_3d_mesh_importer() -> None:
+    """UJ-26: Ingests 3D OBJ geometry and enforces exact +10.0 spawn pad clearance."""
+    raw_obj = """
+    v -200 -50 -200
+    v 200 -50 -200
+    v 200 -50 200
+    v -200 -50 200
+    f 1 2 3 4
+    """
+    verts, faces = parse_mesh_geometry(raw_obj)
+    assert len(verts) == 4
+    assert len(faces) == 2  # Triangulated quad
+
+    g, extent, floor_y = convert_mesh_to_level(verts, faces, "test_obj_level", num_spawns=4)
+    assert floor_y == -50.0
+    assert extent >= 200.0
+    for pad in g.pads:
+        assert pad.y == floor_y + 10.0, f"Pad {pad.index} missing +10.0 clearance over floor {floor_y}"
+
+
+# ==============================================================================
+# UJ-27: Cross-Office Social Bus Routing & Remote Event Bridging
+# ==============================================================================
+def test_journey_27_cross_office_social_bus_routing() -> None:
+    """UJ-27: Operations manager bridges agent events across offices via SocialBus."""
+    bus = EventBus()
+    social = SocialBus(bus)
+    rumor = social.route(
+        text="Security agent detected anomalous telemetry",
+        from_office="g5",
+        to_office="ci",
+        from_agent_id="security",
+        to_agent_id="director",
+        kind="guard_report",
+    )
+    assert rumor.kind == "guard_report"
+    assert rumor.from_office == "g5"
+    assert rumor.to_office == "ci"
+
+    feed = social.feed(office="ci")
+    assert any(r["id"] == rumor.id for r in feed)
+    events = bus.history("social.")
+    assert any(e.type == "social.guard_report" for e in events)
+
+
+# ==============================================================================
+# UJ-28: Dynamic Player & Character Table Expansion
+# ==============================================================================
+def test_journey_28_dynamic_character_table_expansion() -> None:
+    """UJ-28: Character artist verifies NUM_FILES = 4096 and characters.json registry."""
+    files_h = REPO / "src" / "include" / "files.h"
+    assert files_h.is_file(), f"Missing {files_h}"
+    content = files_h.read_text(encoding="utf-8")
+    matches = re.findall(r"#define\s+NUM_FILES\s+(\d+)", content)
+    assert len(matches) >= 2
+    assert matches[-1] == "4096"
+
+    characters_json = REPO / "mods" / "mod_allinone" / "characters.json"
+    assert characters_json.is_file(), f"Missing {characters_json}"
+    with open(characters_json, "r", encoding="utf-8") as f:
+        chars_data = json.load(f)
+    assert isinstance(chars_data, list)
+    assert len(chars_data) > 0
+    c0 = chars_data[0]
+    assert "character_id" in c0 and "name" in c0 and "body_filenum" in c0 and "hand_filenum" in c0
+
+
+
+# ==============================================================================
+# UJ-29: Hermetic AI Director & Autonomous Account Pooling
+# ==============================================================================
+def test_journey_29_hermetic_account_pooling_llm_lease() -> None:
+    """UJ-29: AI architect pools LLM credentials without plaintext token leakage."""
+    old_pool = os.environ.get("AGENT_OFFICE_ACCOUNT_POOL")
+    old_key = os.environ.get("OPENAI_API_KEY")
+    try:
+        os.environ["AGENT_OFFICE_ACCOUNT_POOL"] = "1"
+        os.environ["OPENAI_API_KEY"] = "sk-test-mock-secret-key-12345"
+        pool = bootstrap_llm_pool_from_env(run_id="uj29-verification")
+        assert pool is not None
+        assert pool.pool_id == "llm-auto"
+        # Verify secret sanitization in event logs
+        serialized = " ".join(str(e.to_dict()) for e in pool.logger.events)
+        assert "sk-test-mock-secret-key-12345" not in serialized
+    finally:
+        if old_pool is None:
+            os.environ.pop("AGENT_OFFICE_ACCOUNT_POOL", None)
+        else:
+            os.environ["AGENT_OFFICE_ACCOUNT_POOL"] = old_pool
+        if old_key is None:
+            os.environ.pop("OPENAI_API_KEY", None)
+        else:
+            os.environ["OPENAI_API_KEY"] = old_key
+
+
+# ==============================================================================
+# UJ-30: Turnkey Unified Release Packaging Pipeline
+# ==============================================================================
+def test_journey_30_turnkey_unified_release_packaging() -> None:
+    """UJ-30: Platform publisher audits package-unified-dist.sh and core pillars."""
+    pkg_script = REPO / "scripts" / "release" / "package-unified-dist.sh"
+    assert pkg_script.is_file(), f"Missing {pkg_script}"
+    assert os.access(pkg_script, os.X_OK), f"{pkg_script} not executable"
+
+    script_content = pkg_script.read_text(encoding="utf-8")
+    assert "MANIFEST.json" in script_content
+    assert "SHA256SUMS.txt" in script_content
+    assert "pd.arm64" in script_content
+    assert "Perfect Dark Kit.app" in script_content
+    assert "mod_allinone" in script_content
+
 
