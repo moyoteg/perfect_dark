@@ -523,6 +523,37 @@
     opacity:0.5; cursor:not-allowed;
   }
 
+  /* Tactile Action Chips (.ai-action-chip) */
+  .ai-action-chips-row {
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-top:2px;
+  }
+  .ai-action-chip {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#111722;
+    border:1px solid rgba(255, 255, 255, 0.08);
+    border-radius:6px;
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.3);
+    color:#cbd5e1;
+    font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size:11px; font-weight:500; line-height:1;
+    padding:6px 10px; cursor:pointer;
+    transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    white-space:nowrap; user-select:none; -webkit-user-select:none;
+  }
+  .ai-action-chip:hover {
+    background:#182232;
+    border-color:rgba(255, 255, 255, 0.20);
+    color:#f1f5f9;
+  }
+  .ai-action-chip:active {
+    transform:translateY(1px);
+    background:#0d121b;
+  }
+  .ai-action-chip svg {
+    width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+    flex-shrink:0; vertical-align:middle;
+  }
+
   #browserMenuBar { display:none !important; }
   .browser-menu { position:relative; }
   .browser-menu summary { list-style:none; cursor:pointer; padding:4px 10px; border-radius:4px;
@@ -1259,6 +1290,14 @@ function pushHistory() {
   markDirty();
 }
 
+function pushUndoState() {
+  pushHistory();
+}
+
+function undoAction() {
+  undo();
+}
+
 function undo() {
   if (!historyStack.length) return;
   suppressHistory = true;
@@ -1266,6 +1305,7 @@ function undo() {
   const snap = historyStack.pop();
   restoreSnapshot(snap);
   updateUndoRedoButtons();
+  if (typeof playEarcon === 'function') playEarcon('undo');
   showToast('Undo');
 }
 
@@ -1887,6 +1927,64 @@ function moveCamera(pos, look, dur = 650) {
 }
 function easeInOut(x) { return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
 
+let flyRafId = null;
+
+function parseCoords(c) {
+  if (!c) return null;
+  if (c instanceof THREE.Vector3) return c.clone();
+  if (Array.isArray(c) && c.length >= 3) return new THREE.Vector3(Number(c[0]), Number(c[1]), Number(c[2]));
+  if (typeof c === 'object' && ('x' in c) && ('y' in c) && ('z' in c)) return new THREE.Vector3(Number(c.x), Number(c.y), Number(c.z));
+  return null;
+}
+
+function flyCameraTo(targetCoords, eyeCoords, durationMs = 600) {
+  const targetLook = parseCoords(targetCoords);
+  if (!targetLook) return;
+
+  if (typeof mode !== 'undefined' && mode !== 'orbit' && typeof setMode === 'function') {
+    setMode('orbit');
+  }
+  tween = null; // stop any ongoing preset moveCamera tween
+  if (flyRafId) {
+    cancelAnimationFrame(flyRafId);
+    flyRafId = null;
+  }
+
+  const startTarget = controls.target.clone();
+  const startEye = camera.position.clone();
+
+  let endEye = parseCoords(eyeCoords);
+  if (!endEye) {
+    const offset = startEye.clone().sub(startTarget);
+    if (offset.lengthSq() < 1) {
+      offset.set(0, 400, 600);
+    }
+    endEye = targetLook.clone().add(offset);
+  }
+
+  const startTime = performance.now();
+  const dur = Math.max(50, durationMs || 600);
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const p = Math.min(1, elapsed / dur);
+    const ease = 1 - Math.pow(1 - p, 3); // cubic ease-out
+
+    camera.position.lerpVectors(startEye, endEye, ease);
+    controls.target.lerpVectors(startTarget, targetLook, ease);
+    camera.lookAt(controls.target);
+    if (typeof controls.update === 'function') controls.update();
+
+    if (p < 1) {
+      flyRafId = requestAnimationFrame(step);
+    } else {
+      flyRafId = null;
+    }
+  }
+
+  flyRafId = requestAnimationFrame(step);
+}
+
 const PRESET_DIRS = {
   iso:   new THREE.Vector3(1, 0.42, 1),
   top:   new THREE.Vector3(0, 1, 0.0001),
@@ -2143,7 +2241,205 @@ aiChatModal?.addEventListener('click', (e) => {
   if (e.target === aiChatModal) toggleAiChatModal(false);
 });
 
-function appendChatMessage(sender, text) {
+// ===========================================================================
+// Procedural Web Audio Earcons (Zero External Assets)
+// ===========================================================================
+let audioCtxInstance = null;
+
+function getAudioContext() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!audioCtxInstance) {
+      audioCtxInstance = new AudioContextClass();
+    }
+    if (audioCtxInstance && audioCtxInstance.state === 'suspended') {
+      audioCtxInstance.resume().catch(() => {});
+    }
+    return audioCtxInstance;
+  } catch (e) {
+    return null;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  ['click', 'keydown', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, () => {
+      if (audioCtxInstance && audioCtxInstance.state === 'suspended') {
+        audioCtxInstance.resume().catch(() => {});
+      }
+    }, { once: true, passive: true });
+  });
+}
+
+function playEarcon(type) {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === 'success') {
+      // crisp high-register dual-tone ping (520Hz -> 680Hz, 80ms)
+      const dur = 0.08;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.linearRampToValueAtTime(680, now + dur);
+
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      osc.start(now);
+      osc.stop(now + dur);
+    } else if (type === 'modify') {
+      // gentle soft pop (440Hz, 60ms)
+      const dur = 0.06;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      osc.start(now);
+      osc.stop(now + dur);
+    } else if (type === 'undo') {
+      // descending tone (480Hz -> 320Hz, 70ms)
+      const dur = 0.07;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(480, now);
+      osc.frequency.linearRampToValueAtTime(320, now + dur);
+
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      osc.start(now);
+      osc.stop(now + dur);
+    } else if (type === 'error') {
+      // warning buzz (220Hz -> 180Hz, 120ms)
+      const dur = 0.12;
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(180, now + dur);
+
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      osc.start(now);
+      osc.stop(now + dur);
+    } else {
+      return;
+    }
+
+    osc.onended = () => {
+      try {
+        osc.disconnect();
+        gain.disconnect();
+      } catch (e) {}
+    };
+  } catch (err) {
+    // Audio errors fail silently to protect UI flow
+  }
+}
+
+// Global state variables for viewport telemetry and action routing
+let selectedPadIndex = null;
+let selectedRoomId = null;
+let editModeActive = false;
+let lastAiResponse = null;
+let lastFocusTarget = null;
+
+function saveMapOnServer() {
+  if (typeof saveCurrentMap === 'function') {
+    return saveCurrentMap();
+  }
+  showToast('Map saved');
+}
+
+function runTestMap() {
+  if (typeof runTestPlay === 'function') {
+    return runTestPlay();
+  }
+}
+
+function handleActionChipClick(chip) {
+  if (!chip) return;
+
+  let chipObj = chip;
+  if (typeof chip === 'string') {
+    const s = chip.trim();
+    const sLower = s.toLowerCase();
+    if (sLower.includes('play') || sLower.includes('test')) {
+      chipObj = { label: s, action: 'playtest' };
+    } else if (sLower.includes('rollback') || sLower.includes('undo')) {
+      chipObj = { label: s, action: 'undo' };
+    } else if (sLower.includes('save')) {
+      chipObj = { label: s, action: 'save' };
+    } else if (sLower.includes('focus')) {
+      chipObj = { label: s, action: 'focus' };
+    } else {
+      chipObj = { label: s, prompt: s };
+    }
+  }
+
+  const action = chipObj.action;
+
+  if (action === 'playtest') {
+    const playBtn = document.getElementById('testPlayBtn');
+    if (playBtn) {
+      playBtn.click();
+    } else if (typeof runTestPlay === 'function') {
+      runTestPlay();
+    } else if (typeof runTestMap === 'function') {
+      runTestMap();
+    }
+  } else if (action === 'focus') {
+    const coords = chipObj.coords || (lastAiResponse && lastAiResponse.focus_target) || lastFocusTarget;
+    if (coords && typeof flyCameraTo === 'function') {
+      flyCameraTo(coords);
+    }
+  } else if (action === 'select_pad') {
+    const targetIdx = typeof chipObj.target === 'number' ? chipObj.target
+      : (typeof chipObj.pad === 'number' ? chipObj.pad : parseInt(chipObj.target, 10));
+    if (!isNaN(targetIdx) && typeof selectPad === 'function') {
+      selectPad(targetIdx);
+      if (!editModeActive && typeof setEditing === 'function') setEditing(true);
+      if (typeof mapState !== 'undefined' && mapState && mapState.pads && mapState.pads[targetIdx]) {
+        const p = mapState.pads[targetIdx];
+        if (typeof flyCameraTo === 'function') {
+          flyCameraTo([p.x, p.y, p.z]);
+        }
+      }
+    }
+  } else if (action === 'save') {
+    if (typeof saveMapOnServer === 'function') {
+      saveMapOnServer();
+    } else if (typeof saveCurrentMap === 'function') {
+      saveCurrentMap();
+    } else {
+      showToast('Map saved');
+    }
+  } else if (action === 'undo' || action === 'rollback') {
+    if (typeof undoAction === 'function') {
+      undoAction();
+    } else if (typeof undo === 'function') {
+      undo();
+    }
+  } else if (chipObj.prompt) {
+    const inputEl = document.getElementById('chatPromptInput');
+    if (inputEl) inputEl.value = chipObj.prompt;
+    sendAiPrompt(chipObj.prompt);
+  }
+}
+
+function appendChatMessage(sender, text, actionChips = []) {
   if (!chatTranscript) return;
   const msgEl = document.createElement('div');
   msgEl.className = 'ai-msg ai-msg-' + sender;
@@ -2151,6 +2447,65 @@ function appendChatMessage(sender, text) {
   bubble.className = 'ai-bubble ai-bubble-' + sender;
   bubble.textContent = text;
   msgEl.appendChild(bubble);
+
+  if (Array.isArray(actionChips) && actionChips.length > 0) {
+    const chipsRow = document.createElement('div');
+    chipsRow.className = 'ai-action-chips-row';
+    actionChips.forEach(chip => {
+      let chipObj = chip;
+      if (typeof chip === 'string') {
+        const s = chip.trim();
+        const sLower = s.toLowerCase();
+        if (sLower.includes('play') || sLower.includes('test')) {
+          chipObj = { label: s, action: 'playtest' };
+        } else if (sLower.includes('rollback') || sLower.includes('undo')) {
+          chipObj = { label: s, action: 'undo' };
+        } else if (sLower.includes('save')) {
+          chipObj = { label: s, action: 'save' };
+        } else if (sLower.includes('focus')) {
+          chipObj = { label: s, action: 'focus' };
+        } else {
+          chipObj = { label: s, prompt: s };
+        }
+      }
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ai-action-chip';
+      const label = chipObj.label || chipObj.title || chipObj.name || chipObj.action || chipObj.prompt || 'Action';
+
+      let iconSvg = '';
+      const act = chipObj.action;
+      if (act === 'playtest') {
+        iconSvg = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>';
+      } else if (act === 'focus') {
+        iconSvg = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>';
+      } else if (act === 'select_pad') {
+        iconSvg = '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>';
+      } else if (act === 'save') {
+        iconSvg = '<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+      } else if (act === 'undo' || act === 'rollback') {
+        iconSvg = '<svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>';
+      } else {
+        iconSvg = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+      }
+
+      if (iconSvg) {
+        btn.insertAdjacentHTML('beforeend', iconSvg);
+      }
+      const labelSpan = document.createElement('span');
+      labelSpan.textContent = label;
+      btn.appendChild(labelSpan);
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleActionChipClick(chipObj);
+      });
+      chipsRow.appendChild(btn);
+    });
+    msgEl.appendChild(chipsRow);
+  }
+
   chatTranscript.appendChild(msgEl);
   chatTranscript.scrollTop = chatTranscript.scrollHeight;
 }
@@ -2186,10 +2541,19 @@ async function sendAiPrompt(customText) {
   if (sendBtn) sendBtn.disabled = true;
 
   const currentMap = typeof serializeMap === 'function' ? serializeMap() : {};
+  const viewport = {
+    camera_pos: [Math.round(camera.position.x), Math.round(camera.position.y), Math.round(camera.position.z)],
+    camera_target: [Math.round(controls.target.x), Math.round(controls.target.y), Math.round(controls.target.z)],
+    selected_pad: typeof selectedPadIndex === 'number' ? selectedPadIndex : null,
+    active_room: typeof selectedRoomId === 'number' ? selectedRoomId : null,
+    edit_mode: !!editModeActive
+  };
+
   const payload = {
     prompt: promptText,
     current_map: currentMap,
-    history: []
+    history: [],
+    viewport: viewport
   };
 
   try {
@@ -2200,6 +2564,7 @@ async function sendAiPrompt(customText) {
     });
     removeAiThinking();
     if (!res.ok) {
+      if (typeof playEarcon === 'function') playEarcon('error');
       let errText = 'Server error ' + res.status;
       try {
         const errJson = await res.json();
@@ -2209,10 +2574,41 @@ async function sendAiPrompt(customText) {
       return;
     }
     const data = await res.json();
+    lastAiResponse = data;
+    if (data.focus_target) {
+      lastFocusTarget = data.focus_target;
+    }
+
     const reply = data.reply || data.response || data.message || 'PragChat synthesis complete.';
-    appendChatMessage('assistant', reply);
+
+    let actionChips = [];
+    if (Array.isArray(data.action_chips)) {
+      actionChips = data.action_chips;
+    } else if (Array.isArray(data.chips)) {
+      actionChips = data.chips;
+    } else {
+      if (data.map) {
+        actionChips.push({ label: 'Playtest', action: 'playtest' });
+        actionChips.push({ label: 'Save', action: 'save' });
+        actionChips.push({ label: 'Undo', action: 'undo' });
+      }
+      if (data.focus_target) {
+        actionChips.unshift({ label: 'Focus Area', action: 'focus', coords: data.focus_target });
+      }
+    }
+
+    appendChatMessage('assistant', reply, actionChips);
+
+    if (data.focus_target && typeof flyCameraTo === 'function') {
+      flyCameraTo(data.focus_target);
+    }
 
     if (data.map) {
+      if (typeof pushUndoState === 'function') {
+        pushUndoState();
+      } else if (typeof pushHistory === 'function') {
+        pushHistory();
+      }
       loadMapFromData(data.map);
       if (data.saved_map_id || data.map.name) {
         currentMapId = data.saved_map_id || data.map.name;
@@ -2220,10 +2616,12 @@ async function sendAiPrompt(customText) {
         markClean();
         refreshMapsList();
       }
+      if (typeof playEarcon === 'function') playEarcon('success');
       showToast('PragChat · ' + (data.action || 'Arena synthesized') + (data.saved_map_id ? ' (Saved)' : ''));
     }
   } catch (err) {
     removeAiThinking();
+    if (typeof playEarcon === 'function') playEarcon('error');
     appendChatMessage('assistant', 'Network error: ' + err.message);
   } finally {
     aiIsGenerating = false;
@@ -2317,6 +2715,7 @@ function hideDragVisual() {
 function setEditing(on) {
   if (on === editing) return;
   editing = on;
+  editModeActive = !!on;
   document.body.classList.toggle('editing', on);
   if (editBtn) {
     editBtn.textContent = on ? 'Exit edit mode (E)' : 'Enter edit mode (E)';
@@ -2512,17 +2911,24 @@ function addPad(type, pt) {
   rebuildPads();               // reassigns contiguous indices + meshes
   selectPad(mapState.pads.length - 1);
   updateValidation();
+  if (typeof playEarcon === 'function') playEarcon('modify');
 }
 function deletePad() {
   if (selectedIndex < 0) return;
   pushHistory();
   mapState.pads.splice(selectedIndex, 1);  // splice keeps the array dense → indices stay 0..N-1
   selectedIndex = -1;
+  selectedPadIndex = null;
+  selectedRoomId = null;
   rebuildPads();
   renderProps();
 }
 function selectPad(i) {
   selectedIndex = (i >= 0 && i < mapState.pads.length) ? i : -1;
+  selectedPadIndex = selectedIndex >= 0 ? selectedIndex : null;
+  selectedRoomId = (selectedPadIndex !== null && mapState.pads[selectedPadIndex])
+    ? (typeof mapState.pads[selectedPadIndex].room === 'number' ? mapState.pads[selectedPadIndex].room : 1)
+    : null;
   updateSelectionMarker();
   renderProps();
   updateHoverRing();
@@ -4606,13 +5012,13 @@ updateBuildCmds(mapState.name);
 window.__editor = {
   setEditing, beginPlacementMode, toggleMinimap, toggleSnapGrid, setMinimapVisible, addPad, selectPad, deletePad, exportJSON, loadMap, loadMapFromData, toggleAiChatModal, sendAiPrompt, serializeMap, mapState, setTool,
   exportPython, jsonToLevelPy, loadFromCatalog,
-  undo, redo, pushHistory, saveToLocalStorage, loadFromLocalStorage, clearMap,
-  saveCurrentMap, loadSelectedMap, createNewMap, deleteSelectedMap, refreshMapsList,
+  undo, redo, pushHistory, pushUndoState, undoAction, saveToLocalStorage, loadFromLocalStorage, clearMap,
+  saveCurrentMap, saveMapOnServer, loadSelectedMap, createNewMap, deleteSelectedMap, refreshMapsList,
   openMapFromFile, triggerOpenFilePicker, loadMapFromJsonText, closeMapMenus,
   handleMenuAction, openBuildSettings, closeBuildSettings, exportDocumentJson, openSavedMapDialog,
   markDirty, markClean, updateDocTitle, resolveDocumentName,
-  collectValidationIssues, getTestOptions, buildTestCommandLine, runTestPlay, runTestBuildOnly, runTestExport, updateTestPanel,
-  drawMinimap,
+  collectValidationIssues, getTestOptions, buildTestCommandLine, runTestPlay, runTestMap, runTestBuildOnly, runTestExport, updateTestPanel,
+  drawMinimap, flyCameraTo, playEarcon, appendChatMessage,
   get currentMapId() { return currentMapId; },
   set currentMapId(v) { currentMapId = v; },
   get devServerOnline() { return devServerOnline; },

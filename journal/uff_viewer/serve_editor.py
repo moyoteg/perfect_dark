@@ -14,13 +14,18 @@ Then open http://127.0.0.1:8765/ and use **Test / Play** in the editor panel.
 from __future__ import annotations
 
 import argparse
+import copy
+import datetime
+import hashlib
 import json
 import os
+import re
 import shlex
 import socket
 import subprocess
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import urlparse, unquote
@@ -30,6 +35,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _env_root = os.environ.get("PD_REPO_ROOT", "").strip()
 ROOT = os.path.abspath(_env_root) if _env_root else os.path.dirname(os.path.dirname(HERE))
 DEFAULT_PORT = 8765
+AUDIT_LOG_FILE = os.environ.get("PD_CHAT_AUDIT_LOG") or os.path.join(HERE, ".chat_audit.jsonl")
 
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
@@ -134,10 +140,24 @@ def pragchat_manifest(base_url: str = "http://127.0.0.1:8765") -> dict[str, Any]
                                 "properties": {
                                     "prompt": {"type": "string", "description": "Creation or modification prompt."},
                                     "current_map": {"type": "object", "description": "Current map state."},
+                                    "viewport": {"type": "object", "description": "Current viewport state."},
                                 },
                                 "required": ["prompt"],
                             },
-                        }
+                        },
+                        {
+                            "name": "rollback",
+                            "method": "POST",
+                            "url": "/api/chat-rollback",
+                            "description": "Roll back conversational mutation to previous draft or map.",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "map_id": {"type": "string", "description": "Optional ID of map to restore."},
+                                    "previous_map": {"type": "object", "description": "Optional previous map state to restore."},
+                                },
+                            },
+                        },
                     ],
                 },
             },
@@ -481,6 +501,156 @@ def _run_test_map(payload: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+_AUDIT_LOCK = threading.Lock()
+_CHAT_DRAFTS: list[dict[str, Any]] = []
+_DRAFTS_LOCK = threading.Lock()
+
+
+def _log_traceback(message: str) -> None:
+    """Append a traceback to the shared editor log for Electron/shell diagnostics."""
+    import traceback
+    from datetime import datetime
+
+    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    body = traceback.format_exc()
+    line = f"[{stamp}] [serve_editor] {message}\n{body}"
+    print(line, file=sys.stderr, end="" if line.endswith("\n") else "\n")
+    try:
+        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+        with open(LOG_FILE, "a", encoding="utf-8") as fp:
+            fp.write(line)
+            if not line.endswith("\n"):
+                fp.write("\n")
+    except (OSError, IOError):
+        pass
+
+
+def _scrub_secrets(text: str) -> str:
+    """Strictly scrub any plaintext secrets or API keys."""
+    if not text:
+        return ""
+    # Bearer tokens
+    text = re.sub(r"Bearer\s+[A-Za-z0-9_\-\.]+", "Bearer [REDACTED]", text, flags=re.IGNORECASE)
+    # Common secret/key assignments
+    text = re.sub(
+        r"(api[_-]?key|secret|token|password|auth|private[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_\-\.]+['\"]?",
+        r"\1=[REDACTED]",
+        text,
+        flags=re.IGNORECASE,
+    )
+    # Known key formats
+    text = re.sub(r"sk-[A-Za-z0-9_\-]{16,}", "[REDACTED]", text)
+    text = re.sub(r"AIza[0-9A-Za-z\-_]{30,}", "[REDACTED]", text)
+    text = re.sub(r"prag-[A-Za-z0-9_\-]{12,}", "[REDACTED]", text)
+    return text
+
+
+def _record_chat_audit(
+    prompt: str,
+    action: str | None,
+    elapsed_sec: float,
+    verification_passed: bool,
+    map_name: str | None = None,
+) -> dict[str, Any]:
+    """Append-only JSONL audit log for conversational developer operations."""
+    scrubbed = _scrub_secrets(prompt)
+    prompt_hash = hashlib.sha256(scrubbed.encode("utf-8")).hexdigest()[:16]
+    record = {
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "prompt_hash": prompt_hash,
+        "action": action or "unknown",
+        "latency_ms": round(elapsed_sec * 1000.0, 2),
+        "verification_passed": bool(verification_passed),
+        "map_name": map_name or None,
+    }
+    line = json.dumps(record) + "\n"
+
+    target_files = [AUDIT_LOG_FILE]
+    if not os.environ.get("PD_CHAT_AUDIT_LOG"):
+        root_audit = os.path.join(ROOT, ".chat_audit.jsonl")
+        if root_audit not in target_files:
+            target_files.append(root_audit)
+
+    with _AUDIT_LOCK:
+        for tf in target_files:
+            try:
+                tdir = os.path.dirname(os.path.abspath(tf))
+                if tdir:
+                    os.makedirs(tdir, exist_ok=True)
+                with open(tf, "a", encoding="utf-8") as fp:
+                    fp.write(line)
+            except (OSError, IOError) as exc:
+                _log_traceback(f"Failed writing audit log {tf}: {exc}")
+
+    return record
+
+
+def _save_draft(map_data: dict[str, Any]) -> None:
+    """Store conversational draft for zero-friction rollback."""
+    if not isinstance(map_data, dict):
+        return
+    with _DRAFTS_LOCK:
+        _CHAT_DRAFTS.append(copy.deepcopy(map_data))
+        if len(_CHAT_DRAFTS) > 50:
+            _CHAT_DRAFTS.pop(0)
+
+
+def _pop_last_draft() -> dict[str, Any] | None:
+    """Retrieve and pop the most recent conversational draft."""
+    with _DRAFTS_LOCK:
+        if _CHAT_DRAFTS:
+            return _CHAT_DRAFTS.pop()
+        return None
+
+
+def _verify_map_data(map_data: dict[str, Any] | None) -> dict[str, Any]:
+    """Deterministically verify arena against Perfect Dark engine invariants."""
+    if not map_data or not isinstance(map_data, dict) or not map_data.get("pads"):
+        return {"passed": True, "errors": [], "checks": {"pads": 0, "rooms": 0}}
+
+    errors: list[str] = []
+    pads = map_data.get("pads", [])
+    rooms = map_data.get("rooms", [])
+    checks: dict[str, Any] = {
+        "pads": len(pads),
+        "rooms": len(rooms),
+    }
+
+    # Invariant 1: Y=10 floor offset
+    y_ok = all(
+        isinstance(p, dict) and (p.get("y") == 10.0 or p.get("y") == 10)
+        for p in pads
+    )
+    checks["y_invariant"] = y_ok
+    if not y_ok:
+        errors.append("All pads must maintain strict Y=10 floor offset")
+
+    # Invariant 2: Contiguous pad indices 0..N-1
+    indices = [p.get("index") for p in pads if isinstance(p, dict) and "index" in p]
+    indices_ok = (indices == list(range(len(pads))))
+    checks["contiguous_indices"] = indices_ok
+    if not indices_ok:
+        errors.append(f"Pad indices must be contiguous 0..{len(pads) - 1}")
+
+    # Invariant 3: Validate against EditorMapSpec / validate_mapdef
+    try:
+        from tools.pdmap.from_json import EditorMapSpec
+        from tools.pdmap.validate import validate_mapdef
+
+        spec = EditorMapSpec.from_json(map_data)
+        v_errs = validate_mapdef(spec.mapdef, tiles_room_count=spec.tiles_room_count())
+        if v_errs:
+            errors.extend(v_errs)
+    except (KeyError, ValueError, TypeError, AttributeError) as val_err:
+        errors.append(f"Validation error: {val_err}")
+
+    return {
+        "passed": len(errors) == 0,
+        "errors": errors,
+        "checks": checks,
+    }
+
+
 class EditorHandler(BaseHTTPRequestHandler):
     """Serve ``uff_map.html`` and editor API routes."""
 
@@ -805,7 +975,134 @@ class EditorHandler(BaseHTTPRequestHandler):
 
         path = urlparse(self.path).path
 
+        if path == "/api/chat-rollback":
+            t_start = time.perf_counter()
+            length = int(self.headers.get("Content-Length", "0"))
+            raw = self.rfile.read(length) if length else b""
+            try:
+                payload = json.loads(raw.decode("utf-8") if raw else "{}")
+            except Exception as exc:
+                _json_response(self, 400, {"ok": False, "error": f"invalid_json: {exc}"})
+                return
+
+            if not isinstance(payload, dict):
+                _json_response(self, 400, {"ok": False, "error": "Request body must be a JSON object"})
+                return
+
+            map_id = payload.get("map_id")
+            previous_map = payload.get("previous_map")
+
+            restored_map = None
+            if isinstance(previous_map, dict) and previous_map:
+                restored_map = previous_map
+            elif map_id and isinstance(map_id, str):
+                clean_id = os.path.basename(map_id.strip())
+                if clean_id.endswith(".json"):
+                    clean_id = clean_id[:-5]
+                candidate_dirs = [
+                    os.path.join(STATE_DIR, "maps"),
+                    os.path.join(ROOT, "journal", "map_learn", "maps"),
+                    os.path.join(ROOT, "journal", "map_learn", "templates"),
+                ]
+                for cdir in candidate_dirs:
+                    target = os.path.join(cdir, f"{clean_id}.json")
+                    if os.path.isfile(target):
+                        try:
+                            with open(target, "r", encoding="utf-8") as rfp:
+                                loaded = json.load(rfp)
+                                if isinstance(loaded, dict) and "template" in loaded and isinstance(loaded["template"], dict):
+                                    restored_map = loaded["template"]
+                                else:
+                                    restored_map = loaded
+                                break
+                        except (OSError, IOError, json.JSONDecodeError) as l_err:
+                            _log_traceback(f"Failed to load map {target}: {l_err}")
+
+            if restored_map is None:
+                restored_map = _pop_last_draft()
+
+            if restored_map is None:
+                maps_dir = os.path.join(STATE_DIR, "maps")
+                if os.path.isdir(maps_dir):
+                    files = [os.path.join(maps_dir, f) for f in os.listdir(maps_dir) if f.endswith(".json")]
+                    if files:
+                        files.sort(key=os.path.getmtime, reverse=True)
+                        try:
+                            with open(files[0], "r", encoding="utf-8") as fp:
+                                restored_map = json.load(fp)
+                        except (OSError, IOError, json.JSONDecodeError):
+                            pass
+
+            if restored_map is None:
+                _json_response(self, 400, {
+                    "ok": False,
+                    "error": "No previous map or saved draft available to rollback",
+                })
+                return
+
+            verification = _verify_map_data(restored_map)
+            elapsed = time.perf_counter() - t_start
+            latency_ms = round(elapsed * 1000.0, 2)
+
+            coords = [0.0, 10.0, 0.0]
+            if isinstance(restored_map, dict):
+                pads = restored_map.get("pads", [])
+                if pads and isinstance(pads[0], dict):
+                    coords = [
+                        round(float(pads[0].get("x", 0.0)), 1),
+                        round(float(pads[0].get("y", 10.0)), 1),
+                        round(float(pads[0].get("z", 0.0)), 1),
+                    ]
+            focus_target = coords
+            action_chips = [
+                {"label": "Playtest (T)", "action": "playtest"},
+                {"label": "Focus 3D View", "action": "focus", "coords": coords},
+                {"label": "Save Map", "action": "save"},
+                {"label": "Undo", "action": "undo"},
+            ]
+
+            prompt_text = str(payload.get("prompt") or map_id or "rollback")
+            map_name = (
+                restored_map.get("name")
+                if isinstance(restored_map, dict)
+                else (map_id if isinstance(map_id, str) else None)
+            )
+
+            _record_chat_audit(
+                prompt=prompt_text,
+                action="rollback",
+                elapsed_sec=elapsed,
+                verification_passed=bool(verification.get("passed", True)),
+                map_name=map_name,
+            )
+
+            if isinstance(restored_map, dict) and restored_map.get("pads"):
+                raw_name = str(restored_map.get("name") or map_id or "restored_arena")
+                map_slug = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in raw_name.lower())[:32]
+                try:
+                    maps_dir = os.path.join(STATE_DIR, "maps")
+                    os.makedirs(maps_dir, exist_ok=True)
+                    target_file = os.path.join(maps_dir, f"{map_slug}.json")
+                    with open(target_file, "w", encoding="utf-8") as fp:
+                        json.dump(restored_map, fp, indent=2)
+                except (OSError, IOError) as save_err:
+                    _log_traceback(f"Auto-save rollback map failed: {save_err}")
+
+            response_payload = {
+                "ok": True,
+                "map": restored_map,
+                "action": "rollback",
+                "reply": "Rolled back conversational mutation.",
+                "action_chips": action_chips,
+                "focus_target": focus_target,
+                "verification": verification,
+                "latency_ms": latency_ms,
+            }
+            _json_response(self, 200, response_payload)
+            return
+
         if path == "/api/chat-generate":
+            t_start = time.perf_counter()
             length = int(self.headers.get("Content-Length", "0"))
             raw = self.rfile.read(length) if length else b""
             try:
@@ -833,11 +1130,23 @@ class EditorHandler(BaseHTTPRequestHandler):
                 _json_response(self, 400, {"ok": False, "error": "Invalid 'history' field; must be a list or null"})
                 return
 
+            viewport = payload.get("viewport")
+            if viewport is not None and not isinstance(viewport, dict):
+                _json_response(self, 400, {"ok": False, "error": "Invalid 'viewport' field; must be a dict or null"})
+                return
+
+            # Save prior map into conversational draft stack before mutation
+            if isinstance(current_map, dict) and current_map.get("pads"):
+                _save_draft(current_map)
+
             try:
                 from tools.pdmap.generative_assistant import GenerativeAssistant
 
                 assistant = GenerativeAssistant()
-                res = assistant.process_prompt(prompt, current_map, history)
+                try:
+                    res = assistant.process_prompt(prompt, current_map, history, viewport=viewport)
+                except TypeError:
+                    res = assistant.process_prompt(prompt, current_map, history)
             except Exception as exc:
                 _log_traceback(f"POST /api/chat-generate failed: {exc}")
                 _json_response(self, 500, {"ok": False, "error": str(exc)})
@@ -856,11 +1165,62 @@ class EditorHandler(BaseHTTPRequestHandler):
                 map_data = current_map
                 action = None
 
+            # Action chips
+            action_chips = res.get("action_chips") if isinstance(res, dict) else None
+            if not action_chips:
+                if action == "generate":
+                    action_chips = [
+                        {"label": "Playtest (T)", "action": "playtest"},
+                        {"label": "Focus 3D View", "action": "focus", "coords": [0.0, 10.0, 0.0]},
+                        {"label": "Save Map", "action": "save"},
+                        {"label": "Undo", "action": "undo"},
+                    ]
+                elif action == "modify":
+                    action_chips = [
+                        {"label": "Playtest (T)", "action": "playtest"},
+                        {"label": "Undo", "action": "undo"},
+                    ]
+                elif action == "explain":
+                    action_chips = [
+                        {"label": "Synthesize Sniper Duel", "prompt": "Symmetrical 2-room sniper duel"},
+                        {"label": "Synthesize KOTH Arena", "prompt": "King of the hill arena"},
+                    ]
+                else:
+                    action_chips = [
+                        {"label": "Playtest (T)", "action": "playtest"},
+                        {"label": "Undo", "action": "undo"},
+                    ]
+
+            # Focus target
+            focus_target = res.get("focus_target") if isinstance(res, dict) else None
+            if focus_target is None and isinstance(map_data, dict):
+                pads = map_data.get("pads", [])
+                if pads and isinstance(pads[0], dict):
+                    focus_target = [
+                        round(float(pads[0].get("x", 0.0)), 1),
+                        round(float(pads[0].get("y", 10.0)), 1),
+                        round(float(pads[0].get("z", 0.0)), 1),
+                    ]
+                else:
+                    focus_target = [0.0, 10.0, 0.0]
+
+            # Verification
+            verification = res.get("verification") if isinstance(res, dict) else None
+            if verification is None:
+                verification = _verify_map_data(map_data)
+
+            elapsed = time.perf_counter() - t_start
+            latency_ms = round(elapsed * 1000.0, 2)
+
             response_payload: dict[str, Any] = {
                 "ok": True,
                 "reply": reply,
                 "map": map_data,
                 "action": action,
+                "action_chips": action_chips,
+                "focus_target": focus_target,
+                "verification": verification,
+                "latency_ms": latency_ms,
             }
             if isinstance(res, dict):
                 for k, v in res.items():
@@ -877,8 +1237,38 @@ class EditorHandler(BaseHTTPRequestHandler):
                     with open(target_file, "w", encoding="utf-8") as fp:
                         json.dump(map_data, fp, indent=2)
                     response_payload["saved_map_id"] = map_slug
-                except Exception as save_err:
+                except (OSError, IOError) as save_err:
                     _log_traceback(f"Auto-save chat generated map failed: {save_err}")
+
+            if action == "generate" and isinstance(map_data, dict):
+                raw_name = str(map_data.get("name") or "synthesized_arena")
+                map_slug = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in raw_name.lower())[:32]
+                pads = map_data.get("pads") or []
+                rooms = map_data.get("rooms") or []
+                recipe = {
+                    "prompt": prompt,
+                    "slug": map_slug,
+                    "pads_count": len(pads),
+                    "rooms_count": len(rooms),
+                    "template": map_data,
+                }
+                try:
+                    templates_dir = os.path.join(ROOT, "journal", "map_learn", "templates")
+                    os.makedirs(templates_dir, exist_ok=True)
+                    template_file = os.path.join(templates_dir, f"{map_slug}.json")
+                    with open(template_file, "w", encoding="utf-8") as tfp:
+                        json.dump(recipe, tfp, indent=2)
+                except (OSError, IOError) as t_err:
+                    _log_traceback(f"Recipe template persistence failed: {t_err}")
+
+            map_name = map_data.get("name") if isinstance(map_data, dict) else None
+            _record_chat_audit(
+                prompt=prompt,
+                action=action,
+                elapsed_sec=elapsed,
+                verification_passed=bool(verification.get("passed", True)),
+                map_name=map_name,
+            )
 
             _json_response(self, 200, response_payload)
             return
@@ -1008,25 +1398,6 @@ def _write_port_file(port: int) -> None:
         fp.write(str(port))
 
 
-def _log_traceback(message: str) -> None:
-    """Append a traceback to the shared editor log for Electron/shell diagnostics."""
-    import traceback
-    from datetime import datetime
-
-    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    body = traceback.format_exc()
-    line = f"[{stamp}] [serve_editor] {message}\n{body}"
-    print(line, file=sys.stderr, end="" if line.endswith("\n") else "\n")
-    try:
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-        with open(LOG_FILE, "a", encoding="utf-8") as fp:
-            fp.write(line)
-            if not line.endswith("\n"):
-                fp.write("\n")
-    except OSError:
-        pass
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Serve uff map editor + test-map API.")
     parser.add_argument("--host", default="127.0.0.1", help="Bind address (default: 127.0.0.1)")
@@ -1063,6 +1434,7 @@ def main(argv: list[str] | None = None) -> int:
     print("  GET  /api/health        — server + binary probe")
     print("  GET  /api/chat-status   — generative chat status")
     print("  POST /api/chat-generate — generative map assistant")
+    print("  POST /api/chat-rollback — rollback conversational mutation")
     print("  POST /api/test-map      — build + launch via test_map.py")
     print("Press Ctrl+C to stop.")
     try:
