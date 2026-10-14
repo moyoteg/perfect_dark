@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecutionPacket",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "root_intention_id",
+    "branch_id",
+    "objective",
+    "why",
+    "desired_state",
+    "do",
+    "do_not",
+    "positive_acceptance_criteria",
+    "negative_acceptance_criteria",
+    "verification_procedure",
+    "rollback_class"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string"
+    },
+    "parent_packet_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "root_intention_id": {
+      "type": "string"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "wave_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "objective": {
+      "type": "string"
+    },
+    "why": {
+      "type": "string"
+    },
+    "current_state": {
+      "type": [
+        "string",
+        "object",
+        "null"
+      ]
+    },
+    "desired_state": {
+      "type": [
+        "string",
+        "object"
+      ]
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "do": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "do_not": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expected_outputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "positive_acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "negative_acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_procedure": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "events_required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rollback_class": {
+      "type": "string",
+      "enum": [
+        "fully_reversible",
+        "compensatable",
+        "partially_reversible",
+        "irreversible"
+      ]
+    },
+    "rollback_procedure": {
+      "type": [
+        "string",
+        "array",
+        "null"
+      ]
+    },
+    "uncertainty_policy": {
+      "type": [
+        "string",
+        "object",
+        "null"
+      ]
+    }
+  }
+}

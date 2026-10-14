@@ -1,0 +1,16 @@
+format: intent
+format_version: 1.0.0
+id: perfect_dark_jonaeru_aio
+name: perfect_dark_jonaeru_aio
+version: 1.0.0
+current_branch: main
+mode: execute
+capabilities:
+- semantic_lowering
+- epistemic_comparison
+- dag_scheduling
+- bounded_execution
+- independent_verification
+- append_only_ledger
+- evolution_engine
+created_at: '2026-08-26T22:19:40.677951+00:00'

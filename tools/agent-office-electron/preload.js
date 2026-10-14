@@ -4,6 +4,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('virtualAgentOffice', {
   getInfo: (location) => ipcRenderer.invoke('office:get-info', location),
+  getTenants: () => ipcRenderer.invoke('office:get-tenants'),
+  setTenant: (tenantId) => ipcRenderer.invoke('office:set-tenant', tenantId),
   launch: (mode, location, options) => ipcRenderer.invoke('office:launch', mode, location, options),
   killGame: (location) => ipcRenderer.invoke('office:kill-game', location),
   getGameStatus: (location) => ipcRenderer.invoke('office:game-status', location),
@@ -40,4 +42,8 @@ contextBridge.exposeInMainWorld('virtualAgentOffice', {
     ipcRenderer.invoke('office:deny-connector-approval', approvalId),
   dispatchConnectorTask: (agentId, intent, channel, text) =>
     ipcRenderer.invoke('office:dispatch-connector-task', agentId, intent, channel, text),
+  getAntigravityLiveAgents: (push) =>
+    ipcRenderer.invoke('office:get-antigravity-live-agents', push),
+  syncAntigravityLiveAgents: (pushToEngine) =>
+    ipcRenderer.invoke('office:sync-antigravity-live-agents', pushToEngine),
 });

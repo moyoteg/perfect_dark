@@ -1,0 +1,19 @@
+packet_id: pkt-pdk-full-readiness-20261013
+title: "Build All Perfect Dark Kit Core & Companion Apps, Prebuild Arena Assets, and Verify Readiness"
+status: COMPLETED
+created_at: "2026-10-13T15:18:35-06:00"
+completed_at: "2026-10-13T15:31:35-06:00"
+positive_scope:
+  - "scripts/**"
+  - "tools/**"
+  - "tests/**"
+  - "build/**"
+  - "Perfect Dark Kit.app/**"
+  - ".intent/**"
+  - ".gitignore"
+negative_scope:
+  - "data/pd.ntsc-final.z64"
+acceptance_tests:
+  - "./scripts/kit-smoke.sh"
+  - "./scripts/pd-kit.sh validate"
+  - "pytest -q tests/test_kit_hub_manifest.py tests/test_kit_mod_manager.py"

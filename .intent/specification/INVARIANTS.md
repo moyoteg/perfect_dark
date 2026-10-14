@@ -1,0 +1,3 @@
+- Zero shallow proof invariant: code must execute genuine domain logic
+- Contract lock: specifications and interfaces must remain immutable during turn
+- Anti-cheating mandate: no assertion tampering or error swallowing

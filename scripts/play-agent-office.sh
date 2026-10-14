@@ -71,6 +71,7 @@ build_launch_args() {
 		--moddir "$MODDIR"
 		--savedir "$REPO"
 		--boot-stage "$BOOT_STAGE"
+		--player-mask 0
 		--skip-intro
 		--scenario-0
 	)
@@ -126,6 +127,10 @@ fi
 
 ensure_rom
 build_launch_args
+
+if [[ -x "$REPO/scripts/start-agent-office-service-api.sh" ]]; then
+	AGENT_OFFICE_ATTACH_ANTIGRAVITY=1 "$REPO/scripts/start-agent-office-service-api.sh" >>"$LAST_LOG" 2>&1 || true
+fi
 
 existing_pid="$(pgrep_play || true)"
 if [[ -n "$existing_pid" && "$FORCE_LAUNCH" != true ]]; then

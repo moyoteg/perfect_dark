@@ -1,0 +1,25 @@
+packet_id: pkt-pdk-harden-all-20261013
+title: "Harden Perfect Dark Kit (perfect_dark_jonaeru_aio): Codesigning, Singleton Assistant Cache, Exception Hygiene, 4-Verb Makefile, DESIGN.md & PRAG_REPORT.md"
+status: COMPLETED
+completed_at: "2026-10-13T19:10:00-06:00"
+created_at: "2026-10-13T18:40:30-06:00"
+positive_scope:
+  - "journal/**"
+  - "scripts/**"
+  - "tools/**"
+  - "Makefile"
+  - "main.js"
+  - "DESIGN.md"
+  - "PRAG_REPORT.md"
+  - "Perfect Dark Kit.app/**"
+  - ".gitignore"
+  - ".ops/**"
+  - ".intent/**"
+negative_scope:
+  - "tests/**"
+  - "data/pd.ntsc-final.z64"
+acceptance_tests:
+  - "python3 -m pytest tests/test_commercial_codesign_runtime.py tests/test_editor_entity_authoring.py -q"
+  - "python3 -m pytest tests/ -q"
+  - "./scripts/kit-smoke.sh"
+  - "python3 tools/release_gate.py"

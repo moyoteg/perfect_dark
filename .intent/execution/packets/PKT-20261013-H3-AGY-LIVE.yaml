@@ -1,0 +1,22 @@
+packet_id: PKT-20261013-H3-AGY-LIVE
+title: "Virtual Agent Office — Antigravity Active Live Agent Attachment & 3D Embodiment Bridge"
+status: sealed
+created_at: "2026-10-14T03:47:00Z"
+positive_scope:
+  - tools/agent_office_llm/service/antigravity_bridge.py
+  - tools/agent_office_llm/service/office_service.py
+  - tools/agent_office_llm/service/http_api.py
+  - tools/agent_office_llm/service/director_bridge.py
+  - tools/agent_office_llm/office_director.py
+  - tools/agent-office-electron/main.js
+  - tools/agent-office-electron/preload.js
+  - port/src/office_service_bridge.c
+  - scripts/play-agent-office.sh
+  - tests/test_antigravity_live_agent_bridge.py
+negative_scope:
+  - CMakeLists.txt
+acceptance_criteria:
+  - "antigravity_bridge.py discovers live Antigravity active agents via LanguageServerService Connect-RPC (GetStatus / SearchConversations), conversation_summaries.db, and brain/<cascade_id>/.system_generated/logs/transcript.jsonl."
+  - "OfficeService attaches up to 8 live Antigravity agents (plus active subagent counts) onto the 8 embodied VAO desks (0x31..0x38) and exposes them in /antigravity/live-agents, /antigravity/sync, /fleet, /agents/:id/monitor, and /pragchat/snapshot."
+  - "office_director.py and director_bridge.py surface attached Antigravity live agent titles, step counts, and last tool actions in 3D billboards (/api/llm/act) and walk-up DM replies."
+  - "port/src/office_service_bridge.c polls /fleet even when general_summary is empty, uses a 32768-byte HTTP body buffer, and play-agent-office.sh auto-starts start-agent-office-service-api.sh (:8791)."

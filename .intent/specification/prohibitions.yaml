@@ -1,0 +1,32 @@
+format: intent-prohibitions
+version: 1.0.0
+prohibitions:
+  - id: PROH-001
+    category: test_integrity
+    description: "Assertion dilution, mock hijacking, snapshot tampering, or test neutralization is strictly forbidden."
+    severity: fatal
+    detector: "anti-cheating-test-integrity"
+
+  - id: PROH-002
+    category: scope_isolation
+    description: "Modifications outside the declared execution packet envelope (.intent/execution/packets/) are strictly prohibited."
+    severity: fatal
+    detector: "git diff --name-only"
+
+  - id: PROH-003
+    category: hygiene
+    description: "Zero unicode emoji in system chrome, brand copy, status indicators, and buttons; use Apple SF Symbols or SVG pips."
+    severity: error
+    detector: "intent-cli zero-emoji scanner"
+
+  - id: PROH-004
+    category: resilience
+    description: "Silent exception swallowing (except Exception: pass / catch {}) is strictly prohibited. Emit structured logs."
+    severity: fatal
+    detector: "ast_visitor_exception_audit"
+
+  - id: PROH-005
+    category: secrets
+    description: "Never store plaintext credentials, API tokens, or service account keys in workspace files. Use PragCredentials vault."
+    severity: fatal
+    detector: "prag-security vault audit"

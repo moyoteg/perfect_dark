@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentResult",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "status",
+    "summary",
+    "verification_results",
+    "positive_acceptance",
+    "negative_acceptance"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "COMPLETE",
+        "FAILED",
+        "BLOCKED",
+        "PARTIAL"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "verification_results": {
+      "type": [
+        "object",
+        "array",
+        "string"
+      ]
+    },
+    "positive_acceptance": {
+      "type": [
+        "object",
+        "boolean",
+        "string"
+      ]
+    },
+    "negative_acceptance": {
+      "type": [
+        "object",
+        "boolean",
+        "string"
+      ]
+    },
+    "unresolved_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts_created": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts_modified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts_deleted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "semantic_nodes_affected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tests_run": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "events_emitted": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+terms:
+  perfect_dark_jonaeru_aio: perfect_dark_jonaeru_aio
+  invariants: Immutable specification contracts locked against tampering.
+  verification_gate: Independent verification with non-zero exit code on failure.

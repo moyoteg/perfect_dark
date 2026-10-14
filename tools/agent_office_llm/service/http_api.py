@@ -242,6 +242,13 @@ def create_default_service(
 
         with tenant_context(tenant_id):
             try_reload_service_state(svc, repo_root=repo_root)
+    import os as _os
+    attach_env = _os.environ.get("AGENT_OFFICE_ATTACH_ANTIGRAVITY", "").strip()
+    if attach_env == "1" or (reload_persisted and attach_env != "0"):
+        svc._antigravity_auto_sync = True
+        svc.sync_antigravity_live_agents(
+            push_to_engine=(_os.environ.get("AGENT_OFFICE_PUSH_ENGINE_ON_SYNC") == "1")
+        )
     return svc
 
 
@@ -322,6 +329,7 @@ def pragchat_snapshot(service: OfficeService) -> JSON:
             "state": a["state"],
             "voice_slug": a.get("voice_slug", ""),
             "tools": a.get("tools", []),
+            "antigravity_live_agent": service.attached_live_agents.get(a["id"]),
         }
         for a in agents
     ]
@@ -355,6 +363,7 @@ def pragchat_snapshot(service: OfficeService) -> JSON:
         "approval_cards": approvals,
         "task_cards": tasks,
         "events": events,
+        "antigravity_live_agents": list(service.attached_live_agents.values()),
         "fleet": service.fleet_status(),
     }
 
@@ -661,7 +670,19 @@ class OfficeServiceAPI:
             if path == "/audit":
                 return HTTPStatus.OK, [serialize_audit(a) for a in self.service.gateway.audit]
             if path == "/fleet":
+                import os as _os
+                import time as _time
+                if self.service._antigravity_auto_sync and (
+                    _time.time() - self.service._last_antigravity_sync_ts
+                ) > 2.5:
+                    self.service.sync_antigravity_live_agents(
+                        push_to_engine=(_os.environ.get("AGENT_OFFICE_PUSH_ENGINE_ON_SYNC") == "1")
+                    )
                 return HTTPStatus.OK, self.service.fleet_status()
+            if path == "/antigravity/live-agents":
+                push = str((query or {}).get("push") or "") == "1"
+                sync_res = self.service.sync_antigravity_live_agents(push_to_engine=push)
+                return HTTPStatus.OK, sync_res
             if path == "/hermes/status":
                 return HTTPStatus.OK, self.service.hermes_director.status()
             if path == "/social/feed":
@@ -671,12 +692,13 @@ class OfficeServiceAPI:
                     limit = int((query or {}).get("limit") or 50)
                 except ValueError:
                     limit = 50
+                social_svc = self._services.get(DEFAULT_TENANT_ID, self.service)
                 return HTTPStatus.OK, {
                     "ok": True,
-                    "items": self.service.social.feed(office=office, limit=limit),
-                    "posts": self.service.social.active_posts(tenant=tenant),
-                    "pending_approvals": self.service.social.pending_posts(tenant=tenant),
-                    "count": len(self.service.social),
+                    "items": social_svc.social.feed(office=office, limit=limit),
+                    "posts": social_svc.social.active_posts(tenant=tenant),
+                    "pending_approvals": social_svc.social.pending_posts(tenant=tenant),
+                    "count": len(social_svc.social),
                 }
             if path == "/pragchat/snapshot":
                 return HTTPStatus.OK, pragchat_snapshot(self.service)
@@ -919,6 +941,16 @@ class OfficeServiceAPI:
                     # Phase 2 seed: task dispatch surfaces as #eng channel activity.
                     increment_channel_unread("eng")
                     return HTTPStatus.CREATED, serialize_task(task)
+
+                if path == "/antigravity/sync":
+                    push = bool(payload.get("push_to_engine", True))
+                    engine_url = str(payload.get("engine_url") or "").strip() or None
+                    self.service._antigravity_auto_sync = True
+                    sync_res = self.service.sync_antigravity_live_agents(
+                        push_to_engine=push,
+                        engine_url=engine_url,
+                    )
+                    return HTTPStatus.OK, sync_res
 
                 if path == "/agents/create":
                     agent_id = str(payload.get("agent_id") or "").strip()

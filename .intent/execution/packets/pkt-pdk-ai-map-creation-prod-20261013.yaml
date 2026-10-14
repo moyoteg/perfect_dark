@@ -1,0 +1,35 @@
+packet_id: pkt-pdk-ai-map-creation-prod-20261013
+title: "Production-Ready AI-Assisted Map Creation: Multi-Room & Entity State Preservation, 3D Multi-Room & Portal Visualization, PragChat Studio Assistant Live Grounding/Chips/Undo/Settings, and Expanded AI Level Grammar"
+status: SEALED
+created_at: "2026-10-13T21:05:00-06:00"
+sealed_at: "2026-10-13T21:44:50-06:00"
+positive_scope:
+  - "tools/pdmap/**"
+  - "tools/agent_office_llm/**"
+  - "journal/uff_viewer/**"
+  - "tests/test_ai_map_creation_prod.py"
+  - "PRAG_REPORT.md"
+  - "Perfect Dark Kit.app/**"
+  - ".ops/**"
+  - ".intent/**"
+negative_scope:
+  - "tests/test_generative_map_chat.py"
+  - "tests/test_pragchat_editor_integration.py"
+  - "tests/test_editor_entity_authoring.py"
+  - "tests/test_pd_multiroom_editor_integration.py"
+  - "tests/test_commercial_llm_providers.py"
+  - "tests/test_commercial_telemetry_multitenancy.py"
+  - "tests/test_commercial_codesign_runtime.py"
+  - "tests/test_user_journeys.py"
+  - "data/pd.ntsc-final.z64"
+acceptance_tests:
+  - "python3 -m pytest tests/test_ai_map_creation_prod.py tests/test_generative_map_chat.py tests/test_pragchat_editor_integration.py tests/test_editor_entity_authoring.py tests/test_pd_multiroom_editor_integration.py tests/test_commercial_llm_providers.py tests/test_commercial_telemetry_multitenancy.py -q"
+  - "python3 -m pytest tests/ -q"
+  - "./scripts/kit-smoke.sh"
+  - "python3 tools/release_gate.py"
+verification_evidence:
+  pytest_ai_suite: "107 passed in 6.74s"
+  pytest_full_suite: "819 passed in 137.53s"
+  kit_smoke: "PASS"
+  release_gate: "PASS"
+  codesign_deep: "PASS (exit code 0)"

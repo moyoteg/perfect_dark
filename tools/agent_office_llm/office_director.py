@@ -618,7 +618,7 @@ class OfficeDirector:
         return "g5"
 
     def _agent_billboard(self, role: str) -> Optional[str]:
-        """Project live OfficeService task/approval state into a compact in-world billboard."""
+        """Project live OfficeService task/approval or attached Antigravity live agent state into a compact in-world billboard."""
         if self.service is None or not hasattr(self.service, "agent_monitor"):
             return None
         aid = self.role_ids.get(role)
@@ -630,11 +630,14 @@ class OfficeDirector:
             return None
         pending = int(mon.get("pending_approvals") or 0)
         cur = mon.get("current_task")
+        attached = mon.get("antigravity_live_agent")
         state = str(mon.get("state") or "idle")
         if pending > 0:
             return f"{role}: {state} ({pending} approval pending)"
         if isinstance(cur, dict) and cur.get("intent"):
             return f"{role}: {state} — {str(cur['intent'])[:48]}"
+        if isinstance(attached, dict) and attached.get("billboard"):
+            return str(attached["billboard"])
         return None
 
     def _post_act(self, act: dict[str, Any]) -> None:

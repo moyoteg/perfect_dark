@@ -33,12 +33,16 @@ const DIRECTOR_SCRIPT = 'scripts/start-agent-office-director.sh';
 const DIRECTOR_LOG = 'journal/agent_office/office_director.log';
 const DIRECTOR_PID = 'journal/agent_office/.office_director.pid';
 const WORKSPACE_CONFIG = 'journal/agent_office/workspace_config.json';
+const TENANTS_REGISTRY = 'journal/agent_office/tenants.json';
 const OFFICE_API_PORT = process.env.AGENT_OFFICE_API_PORT || '8791';
 const OFFICE_API_BASE = `http://127.0.0.1:${OFFICE_API_PORT}`;
 /** Pass 27: Slack OAuth browser redirect lands on Office Service GET callback. */
 const SLACK_OAUTH_REDIRECT_URI = `${OFFICE_API_BASE}/slack/oauth/callback`;
 const SLACK_OAUTH_BROWSER_POLL_MS = 1500;
 const SLACK_OAUTH_BROWSER_TIMEOUT_MS = 5 * 60 * 1000;
+
+/** Active Office Service tenant (MULTI_TENANT.md). Defaults to migration tenant. */
+let currentTenantId = String(process.env.OFFICE_TENANT_ID || 'default').trim() || 'default';
 
 /** @type {Record<string, { id: string, label: string, eyebrow: string, bootStage: string, script: string, logDir: string, deployLog: string, pidFile: string, mapName: string, layoutImport: string }>} */
 const LOCATIONS = {
@@ -112,8 +116,8 @@ function log(...args) {
       fs.mkdirSync(path.dirname(logFile), { recursive: true });
       fs.appendFileSync(logFile, `${line}\n`, 'utf8');
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    process.stderr.write(`[agent-office] log write failed: ${err?.message || err}\n`);
   }
   console.log(line);
 }
@@ -150,8 +154,8 @@ function readBakedRepoRoot() {
         return normalizeRepoRoot(cfg.repoRoot || '');
       }
       return normalizeRepoRoot(fs.readFileSync(cfgPath, 'utf8'));
-    } catch {
-      // try next
+    } catch (err) {
+      log(`Skipped unreadable repo config ${cfgPath}: ${err?.message || err}`);
     }
   }
   return '';
@@ -290,10 +294,73 @@ function saveWorkspaceConfig(locationKey, displayName, codename) {
   return buildWorkspaceConfigPy(normalizeLocation(locationKey), name, String(codename || '').trim());
 }
 
+function normalizeTenantId(raw) {
+  const value = String(raw || '')
+    .trim()
+    .toLowerCase();
+  if (!value || !/^[a-z0-9][a-z0-9_-]{0,63}$/.test(value)) {
+    return 'default';
+  }
+  return value;
+}
+
+function loadTenantsRegistry() {
+  const fallback = [
+    {
+      id: 'default',
+      display_name: 'Default Office',
+      default_location: 'g5',
+      cast: 'standard8',
+    },
+  ];
+  if (!repoRoot) {
+    return { ok: true, tenants: fallback, active: currentTenantId };
+  }
+  const full = path.join(repoRoot, TENANTS_REGISTRY);
+  try {
+    if (!fs.existsSync(full)) {
+      return { ok: true, tenants: fallback, active: currentTenantId, path: full };
+    }
+    const parsed = JSON.parse(fs.readFileSync(full, 'utf8'));
+    const rows = Array.isArray(parsed?.tenants) ? parsed.tenants : [];
+    const tenants = rows
+      .map((row) => ({
+        id: normalizeTenantId(row?.id),
+        display_name: String(row?.display_name || row?.id || 'Office').trim() || 'Office',
+        default_location: String(row?.default_location || 'g5').trim() || 'g5',
+        cast: String(row?.cast || 'standard8').trim() || 'standard8',
+        notes: String(row?.notes || ''),
+      }))
+      .filter((row) => row.id);
+    return {
+      ok: true,
+      tenants: tenants.length ? tenants : fallback,
+      active: currentTenantId,
+      path: full,
+    };
+  } catch (err) {
+    return { ok: false, error: String(err), tenants: fallback, active: currentTenantId };
+  }
+}
+
+function setCurrentTenant(tenantId) {
+  currentTenantId = normalizeTenantId(tenantId);
+  process.env.OFFICE_TENANT_ID = currentTenantId;
+  return { ok: true, tenant: currentTenantId, ...loadTenantsRegistry() };
+}
+
+function officeApiHeaders(extra = {}) {
+  return {
+    'X-Office-Tenant': currentTenantId || 'default',
+    ...extra,
+  };
+}
+
 /** Pass 26: Slack OAuth install status from Office Service. */
 async function fetchSlackOAuthStatus() {
   try {
     const response = await fetch(`${OFFICE_API_BASE}/slack/oauth/status`, {
+      headers: officeApiHeaders(),
       signal: AbortSignal.timeout(2500),
     });
     const body = await response.json();
@@ -840,12 +907,16 @@ function findGamePids(bootStage, launchMatch) {
           continue;
         }
         pids.push({ pid, command: cmd.slice(0, 200) });
-      } catch {
-        // skip
+      } catch (err) {
+        if (process.env.PD_KIT_DEBUG === '1') {
+          log(`ps lookup skipped for pid ${pid}: ${err?.message || err}`);
+        }
       }
     }
-  } catch {
-    // no processes
+  } catch (err) {
+    if (process.env.PD_KIT_DEBUG === '1') {
+      log(`pgrep pd.arm64 returned no processes: ${err?.message || err}`);
+    }
   }
   return pids;
 }
@@ -864,8 +935,10 @@ function clearStalePidFile(relativePath, lastPid) {
   if (!lastPid || isProcessAlive(lastPid)) return;
   try {
     fs.unlinkSync(path.join(repoRoot, relativePath));
-  } catch {
-    // ignore missing/stale pid file
+  } catch (err) {
+    if (err && err.code !== 'ENOENT') {
+      log(`Stale pid file unlink warning (${relativePath}): ${err.message}`);
+    }
   }
 }
 
@@ -922,12 +995,16 @@ function findDirectorPids() {
         if (cmd.includes(script)) {
           pids.push({ pid, command: cmd.slice(0, 200) });
         }
-      } catch {
-        // skip
+      } catch (err) {
+        if (process.env.PD_KIT_DEBUG === '1') {
+          log(`ps lookup skipped for director pid ${pid}: ${err?.message || err}`);
+        }
       }
     }
-  } catch {
-    // no director process
+  } catch (err) {
+    if (process.env.PD_KIT_DEBUG === '1') {
+      log(`pgrep office_director.py returned no processes: ${err?.message || err}`);
+    }
   }
   return pids;
 }
@@ -974,15 +1051,17 @@ function stopDirector() {
     try {
       process.kill(pid, 'SIGTERM');
       killed.push(pid);
-    } catch {
-      // ignore
+    } catch (err) {
+      log(`SIGTERM skipped for director pid ${pid}: ${err?.message || err}`);
     }
   }
 
   try {
     fs.unlinkSync(path.join(repoRoot, DIRECTOR_PID));
-  } catch {
-    // ignore stale/missing pid file
+  } catch (err) {
+    if (err && err.code !== 'ENOENT') {
+      log(`Unlink director pid file warning: ${err.message}`);
+    }
   }
   log(`Stop director pids: ${killed.join(', ') || '(none)'}`);
   return { ok: true, killed, status: getDirectorStatus() };
@@ -1039,8 +1118,8 @@ function killGame(locationKey) {
     try {
       process.kill(pid, 'SIGTERM');
       killed.push(pid);
-    } catch {
-      // ignore
+    } catch (err) {
+      log(`SIGTERM skipped for game pid ${pid}: ${err?.message || err}`);
     }
   }
 
@@ -1050,16 +1129,18 @@ function killGame(locationKey) {
     try {
       process.kill(pid, 'SIGKILL');
       if (!killed.includes(pid)) killed.push(pid);
-    } catch {
-      // ignore
+    } catch (err) {
+      log(`SIGKILL skipped for game pid ${pid}: ${err?.message || err}`);
     }
   }
 
   const loc = LOCATIONS[normalizeLocation(locationKey)];
   try {
     fs.unlinkSync(path.join(repoRoot, loc.pidFile));
-  } catch {
-    // ignore stale/missing pid file
+  } catch (err) {
+    if (err && err.code !== 'ENOENT') {
+      log(`Unlink game pid file warning: ${err.message}`);
+    }
   }
 
   log(`Kill game pids: ${killed.join(', ') || '(none)'}`);
@@ -1070,12 +1151,15 @@ function registerIpc() {
   ipcMain.handle('office:get-info', (_event, locationKey) => {
     const location = normalizeLocation(locationKey);
     const loc = LOCATIONS[location];
+    const tenants = loadTenantsRegistry();
     return {
       title: APP_TITLE,
       kitVersion: readVersionFile('KIT_VERSION'),
       portVersion: readVersionFile('PORT_VERSION'),
       repoRoot,
       location,
+      tenant: currentTenantId,
+      tenants: tenants.tenants,
       locations: Object.values(LOCATIONS).map((entry) => ({
         id: entry.id,
         label: entry.label,
@@ -1088,6 +1172,9 @@ function registerIpc() {
       logPath: loc.deployLog,
     };
   });
+
+  ipcMain.handle('office:get-tenants', () => loadTenantsRegistry());
+  ipcMain.handle('office:set-tenant', (_event, tenantId) => setCurrentTenant(tenantId));
 
   ipcMain.handle('office:launch', async (_event, mode, locationKey, options) => {
     const location = normalizeLocation(locationKey);
@@ -1252,6 +1339,35 @@ function registerIpc() {
   ipcMain.handle('office:dispatch-connector-task', (_event, agentId, intent, channel, text) =>
     dispatchConnectorTask(agentId, intent, channel, text),
   );
+
+  ipcMain.handle('office:get-antigravity-live-agents', async (_event, push) => {
+    try {
+      const qs = push ? '?push=1' : '';
+      const response = await fetch(`${OFFICE_API_BASE}/antigravity/live-agents${qs}`, {
+        headers: officeApiHeaders(),
+        signal: AbortSignal.timeout(4000),
+      });
+      const body = await response.json();
+      return response.ok ? { ok: true, ...body } : { ok: false, error: body?.error || `HTTP ${response.status}` };
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+  });
+
+  ipcMain.handle('office:sync-antigravity-live-agents', async (_event, pushToEngine = true) => {
+    try {
+      const response = await fetch(`${OFFICE_API_BASE}/antigravity/sync`, {
+        method: 'POST',
+        headers: officeApiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ push_to_engine: Boolean(pushToEngine) }),
+        signal: AbortSignal.timeout(4000),
+      });
+      const body = await response.json();
+      return response.ok ? { ok: true, ...body } : { ok: false, error: body?.error || `HTTP ${response.status}` };
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+  });
 }
 
 function createWindow() {

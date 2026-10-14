@@ -1,0 +1,9 @@
+branches:
+- branch_id: main
+  parent_branch: null
+  branch_point_event: ev_000000
+  intention: Main canonical reality for perfect_dark_jonaeru_aio
+  status: active
+  head_event: ev_000000
+  merge_policy: explicit
+  created_at: '2026-08-26T22:19:40.685199+00:00'
