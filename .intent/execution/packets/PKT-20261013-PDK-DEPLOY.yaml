@@ -1,0 +1,15 @@
+packet_id: PKT-20261013-PDK-DEPLOY
+title: "Deploy agent_office map assets, Perfect Dark Kit.app companion bundles, and live Antigravity 3D Office service"
+status: sealed
+created_at: "2026-10-14T04:35:00Z"
+scope:
+  positive:
+    - "Perfect Dark Kit.app/**"
+    - "scripts/**"
+    - ".intent/**"
+  negative:
+    - "tests/**"
+acceptance_criteria:
+  - "agent_office map assets deployed and pd.arm64 built."
+  - "Perfect Dark Kit.app companion bundles updated with latest LLM Play.app and Virtual Agent Office.app and deep-codesigned."
+  - "Live :8791 Office Service API and :8780 3D Office floor running with 8 Antigravity active live agents attached."

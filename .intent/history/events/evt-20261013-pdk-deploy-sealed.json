@@ -1,0 +1,8 @@
+{
+  "event_id": "evt-20261013-pdk-deploy-sealed",
+  "packet_id": "PKT-20261013-PDK-DEPLOY",
+  "timestamp": "2026-10-14T04:37:39Z",
+  "status": "sealed",
+  "verification_exit_code": 0,
+  "summary": "Sealed PKT-20261013-PDK-DEPLOY: Perfect Dark Kit.app companion bundles wrapped & deep-codesigned, live :8791 Office Service API + :8780 3D Office running with 8 Antigravity active live agents."
+}
