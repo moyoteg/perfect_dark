@@ -1,0 +1,22 @@
+packet_id: PKT-20261013-H3-VAO
+title: "Horizon 3 Full Hardening — Virtual Agent Office Multi-Tenant Seal, Production Connectors, R7 Social Bus Ticker & Perception Slicing"
+status: sealed
+sealed_at: "2026-10-14T01:57:00Z"
+created_at: "2026-10-14T01:05:00Z"
+positive_scope:
+  - tools/agent_office_llm/service/tenant.py
+  - tools/agent_office_llm/service/http_api.py
+  - tools/agent_office_llm/service/connectors.py
+  - tools/agent_office_llm/service/hermes_director.py
+  - tools/agent_office_llm/office_director.py
+  - journal/agent_office/NEXT_STEPS.md
+  - journal/agent_office/MULTI_TENANT.md
+  - tests/test_office_hardening_r7_multitenant.py
+negative_scope:
+  - src/
+  - CMakeLists.txt
+acceptance_criteria:
+  - "OfficeServiceAPI enforces per-tenant in-memory OfficeService isolation, resolves fc_tenant_id aliases on every request (HTTP and in-process), and returns HTTP 404 for unknown tenants when registry enforcement is active."
+  - "github_connector and pagerduty_connector resolve credentials via PragCredentials / tenant state / env with live HTTP API support and deterministic offline fallback."
+  - "OfficeDirector slices observations per agent by earshot/LOS range, ticks R7 social_bus rumors into agent memory and live /act billboards, scopes agent memory files per tenant, and projects OfficeService task/approval state onto /act status billboards."
+  - "HermesDirectorAgent evaluates Approval dataclass attributes cleanly and records structured error entries with zero swallowed exceptions."

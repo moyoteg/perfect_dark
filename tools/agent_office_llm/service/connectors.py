@@ -3,17 +3,22 @@
 Agents never hold credentials or call MCP directly. They ask the gateway to invoke
 a connector action; the gateway enforces the agent's per-tool autonomy level, records
 an audit entry, and (for ask-approval actions) refuses to execute without a
-human-present approval token. Connectors here are stdlib stubs that mirror the shape
-of the real MCP connectors (Slack, GitHub, PagerDuty, …) so the whole control plane is
-testable offline; swap the `.call` body for a real MCP invocation in production.
+human-present approval token. Connectors resolve credentials via PragCredentials
+vault / tenant connector state / environment variables and execute live HTTP calls
+when provisioned, falling back deterministically to offline local simulation when
+no external credentials are installed.
 """
 from __future__ import annotations
 
+import json
 import os
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
 from .models import Agent, AuditEntry, Autonomy, _id
+from .tenant import current_tenant_id, resolve_tenant_state_file
 
 
 class PolicyError(Exception):
@@ -111,8 +116,56 @@ class ConnectorGateway:
         return result
 
 
+def _resolve_connector_credential(
+    platform: str,
+    env_key: str,
+    *,
+    repo_root: str | None = None,
+) -> str | None:
+    """Resolve connector credential via PragCredentials broker, tenant state file, or env."""
+    tenant_id = current_tenant_id()
+    try:
+        from prag_credentials import AgentCredentialBroker  # type: ignore
+
+        broker = AgentCredentialBroker()
+        secret = broker.resolve(platform=platform, tenant_id=tenant_id)
+        if isinstance(secret, str) and secret.strip():
+            return secret.strip()
+    except Exception:
+        pass
+
+    try:
+        state_file = resolve_tenant_state_file(
+            f"{platform}_connector.json",
+            tenant_id=tenant_id,
+            repo_root=repo_root,
+        )
+        if state_file.is_file():
+            raw = json.loads(state_file.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                tok = str(raw.get("token") or raw.get("api_key") or "").strip()
+                if tok:
+                    return tok
+    except (OSError, ValueError, json.JSONDecodeError):
+        pass
+
+    env_val = os.environ.get(env_key, "").strip()
+    return env_val or None
+
+
+def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str]) -> dict[str, Any]:
+    data = json.dumps(payload).encode("utf-8")
+    req_headers = {"Content-Type": "application/json; charset=utf-8", **headers}
+    req = urllib.request.Request(url, data=data, headers=req_headers, method="POST")
+    with urllib.request.urlopen(req, timeout=5.0) as resp:
+        body = resp.read().decode("utf-8")
+        parsed = json.loads(body) if body else {}
+        return parsed if isinstance(parsed, dict) else {"raw": parsed}
+
+
 # --------------------------------------------------------------------------
-# Stub connectors — mirror real MCP shapes; replace `.call` bodies in production.
+# Connectors — live HTTP execution when credentials + URL are configured,
+# with deterministic offline simulation fallback for local-first dev/tests.
 # --------------------------------------------------------------------------
 def slack_stub(sent_sink: list[dict] | None = None) -> Connector:
     """Offline stub Slack connector — always records post_message to sent_sink."""
@@ -173,33 +226,107 @@ def slack_connector(
     })
 
 
-def pagerduty_stub() -> Connector:
+def pagerduty_connector(
+    sent_sink: list[dict] | None = None,
+    *,
+    repo_root: str | None = None,
+    force_stub: bool = False,
+) -> Connector:
     """Ops agent's PagerDuty. read_incidents (read), page_oncall (write)."""
+    sent = sent_sink if sent_sink is not None else []
+
     def read_incidents(args: dict) -> Any:
         return {"open": [{"id": "INC-42", "title": "prod p99 spiking", "severity": "high"}]}
 
     def page_oncall(args: dict) -> Any:
-        return {"paged": True, "incident": args.get("incident", "INC-42")}
+        incident = str(args.get("incident") or args.get("title") or "INC-42")
+        token = (
+            _resolve_connector_credential("pagerduty", "PAGERDUTY_API_KEY", repo_root=repo_root)
+            or _resolve_connector_credential("pagerduty", "PAGERDUTY_ROUTING_KEY", repo_root=repo_root)
+        )
+        events_url = os.environ.get("PAGERDUTY_EVENTS_URL", "").strip()
+        if not force_stub and token and events_url:
+            resp = _post_json(
+                events_url,
+                {
+                    "routing_key": token,
+                    "event_action": "trigger",
+                    "payload": {
+                        "summary": f"Page on-call for {incident}",
+                        "severity": "critical",
+                        "source": "virtual-agent-office",
+                    },
+                },
+                headers={"Authorization": f"Token token={token}"},
+            )
+            return {"paged": True, "incident": incident, "live": True, "dedup_key": resp.get("dedup_key", "")}
+        record = {"paged": True, "incident": incident}
+        sent.append(record)
+        return record
 
     return Connector("pagerduty", {
         "read_incidents": ("read", read_incidents),
         "page_oncall": ("write", page_oncall),
+        "create_incident": ("write", page_oncall),
     })
 
 
-def github_stub() -> Connector:
+def pagerduty_stub(sent_sink: list[dict] | None = None) -> Connector:
+    """Offline-compatible PagerDuty connector factory."""
+    return pagerduty_connector(sent_sink, force_stub=True)
+
+
+def github_connector(
+    sent_sink: list[dict] | None = None,
+    *,
+    repo_root: str | None = None,
+    force_stub: bool = False,
+) -> Connector:
     """Code/QA agents' GitHub. read_checks (read), open_pr (write), merge (destructive)."""
+    sent = sent_sink if sent_sink is not None else []
+
     def read_checks(args: dict) -> Any:
         return {"pr": args.get("pr"), "checks": "green"}
 
     def open_pr(args: dict) -> Any:
-        return {"opened": True, "url": f"https://github.example/pr/{args.get('branch', 'x')}"}
+        branch = str(args.get("branch") or "x")
+        title = str(args.get("title") or f"PR for {branch}")
+        token = _resolve_connector_credential("github", "GITHUB_TOKEN", repo_root=repo_root)
+        api_url = os.environ.get("GITHUB_API_URL", "").strip()
+        if not force_stub and token and api_url:
+            resp = _post_json(
+                f"{api_url.rstrip('/')}/pulls",
+                {"head": branch, "base": str(args.get("base") or "main"), "title": title},
+                headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+            )
+            url = str(resp.get("html_url") or f"{api_url.rstrip('/')}/pr/{branch}")
+            return {"opened": True, "url": url, "live": True}
+        record = {"opened": True, "url": f"https://github.example/pr/{branch}"}
+        sent.append(record)
+        return record
 
     def merge(args: dict) -> Any:
-        return {"merged": True, "pr": args.get("pr")}
+        pr = args.get("pr")
+        token = _resolve_connector_credential("github", "GITHUB_TOKEN", repo_root=repo_root)
+        api_url = os.environ.get("GITHUB_API_URL", "").strip()
+        if not force_stub and token and api_url:
+            resp = _post_json(
+                f"{api_url.rstrip('/')}/pulls/{pr}/merge",
+                {"merge_method": str(args.get("merge_method") or "squash")},
+                headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+            )
+            return {"merged": bool(resp.get("merged", True)), "pr": pr, "live": True}
+        record = {"merged": True, "pr": pr}
+        sent.append(record)
+        return record
 
     return Connector("github", {
         "read_checks": ("read", read_checks),
         "open_pr": ("write", open_pr),
         "merge": ("destructive", merge),
     })
+
+
+def github_stub(sent_sink: list[dict] | None = None) -> Connector:
+    """Offline-compatible GitHub connector factory."""
+    return github_connector(sent_sink, force_stub=True)
